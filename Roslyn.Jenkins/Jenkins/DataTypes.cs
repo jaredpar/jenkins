@@ -12,19 +12,19 @@ namespace Roslyn.Jenkins
         public readonly JobId Id;
         public readonly JobState State;
         public readonly DateTime Date;
-        public readonly string Sha1;
+        public readonly string Sha;
 
         public JobInfo(JobId id, JobState state, string sha1, DateTime date)
         {
             Id = id;
             State = state;
             Date = date;
-            Sha1 = sha1;
+            Sha = sha1;
         }
 
         public override string ToString()
         {
-            return $"{Id} {State} {Sha1}";
+            return $"{Id} {State} {Sha}";
         }
     }
 

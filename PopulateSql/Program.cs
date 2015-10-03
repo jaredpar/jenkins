@@ -24,14 +24,10 @@ namespace PopulateSql
 
         private static void PopulateAllJobInfos(DataClient dataClient)
         {
-            var client = new JenkinsClient();
-            foreach (var name in client.GetJobNames())
+            var roslynClient = new RoslynClient();
+            var client = roslynClient.Client;
+            foreach (var name in roslynClient.GetJobNames())
             {
-                if (!name.Contains("roslyn"))
-                {
-                    continue;
-                }
-
                 List<JobId> jobs;
                 try
                 {

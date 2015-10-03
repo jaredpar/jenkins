@@ -173,7 +173,7 @@ namespace Roslyn.Sql
                 var p = command.Parameters;
                 p.AddWithValue("@Id", id.Id);
                 p.AddWithValue("@Name", id.Name);
-                p.AddWithValue("@Sha", jobInfo.Sha1);
+                p.AddWithValue("@Sha", jobInfo.Sha);
                 p.AddWithValue("@State", (int)jobInfo.State);
                 p.AddWithValue("@Date", jobInfo.Date);
 
@@ -198,7 +198,7 @@ namespace Roslyn.Sql
             {
                 var p = command.Parameters;
                 p.AddWithValue("@Id", GetKey(info.Id));
-                p.AddWithValue("@Sha", info.Sha1);
+                p.AddWithValue("@Sha", info.Sha);
                 p.AddWithValue("@Reason", failureInfo.Reason.ToString());
                 p.AddWithValue("@Messages", string.Join(";", failureInfo.Messages));
 

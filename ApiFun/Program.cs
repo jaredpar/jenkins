@@ -52,7 +52,7 @@ namespace ApiFun
                     try
                     {
                         var info = client.GetJobInfo(id);
-                        Console.WriteLine($"\t{id} {info.Sha1.Substring(0, 7)} {info.State}");
+                        Console.WriteLine($"\t{id} {info.Sha.Substring(0, 7)} {info.State}");
                     }
                     catch
                     {
