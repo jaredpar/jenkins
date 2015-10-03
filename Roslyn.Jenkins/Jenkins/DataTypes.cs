@@ -10,21 +10,21 @@ namespace Roslyn.Jenkins
     public sealed class JobInfo
     {
         public readonly JobId Id;
-        public readonly PullRequestInfo PullRequestInfo;
         public readonly JobState State;
         public readonly DateTime Date;
+        public readonly string Sha1;
 
-        public JobInfo(JobId id, PullRequestInfo pullRequestInfo, JobState state, DateTime date)
+        public JobInfo(JobId id, JobState state, string sha1, DateTime date)
         {
             Id = id;
-            PullRequestInfo = pullRequestInfo;
             State = state;
             Date = date;
+            Sha1 = sha1;
         }
 
         public override string ToString()
         {
-            return $"{Id} {PullRequestInfo.PullUrl} {State}";
+            return $"{Id} {State} {Sha1}";
         }
     }
 
@@ -45,12 +45,12 @@ namespace Roslyn.Jenkins
         }
     }
 
-    public struct PullRequestInfo
+    public sealed class PullRequestInfo
     {
-        public readonly string AuthorEmail;
-        public readonly int Id;
-        public readonly string PullUrl;
-        public readonly string Sha1;
+        public string AuthorEmail { get; }
+        public int Id { get; }
+        public string PullUrl { get; }
+        public string Sha1 { get; }
 
         public PullRequestInfo(string authorEmail, int id, string pullUrl, string sha1)
         {

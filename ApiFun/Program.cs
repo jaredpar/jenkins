@@ -23,15 +23,42 @@ namespace ApiFun
             // PrintFailedJobs();
             // InspectReason(5567);
             // ScanAllFailedJobs();
-            PrintJobNames();
+            // PrintJobNames();
+            PrintJobInfo();
+
+            /*
+            roslyn_stabil_lin_dbg_unit32
+            */
         }
 
         private static void PrintJobNames()
         {
-            var client = new JenkinsClient();
+            var client = new RoslynClient();
             foreach (var name in client.GetJobNames())
             {
                 Console.WriteLine(name);
+            }
+        }
+
+        private static void PrintJobInfo()
+        {
+            var roslynClient = new RoslynClient();
+            var client = roslynClient.Client;
+            foreach (var name in roslynClient.GetJobNames())
+            {
+                Console.WriteLine($"{name}");
+                foreach (var id in client.GetJobIds(name))
+                {
+                    try
+                    {
+                        var info = client.GetJobInfo(id);
+                        Console.WriteLine($"\t{id} {info.Sha1.Substring(0, 7)} {info.State}");
+                    }
+                    catch
+                    {
+                        Console.WriteLine($"\t{id} can't read data");
+                    }
+                }
             }
         }
 

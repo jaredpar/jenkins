@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Roslyn.Jenkins.Jenkins
+namespace Roslyn.Jenkins
 {
     public sealed class RoslynClient
     {
@@ -19,9 +19,22 @@ namespace Roslyn.Jenkins.Jenkins
 
         public List<string> GetJobNames()
         {
-            return _client
-                .GetJobNames()
-                .Where(x => x.Contains("roslyn"))
+            return _client.GetJobNamesInView("roslyn");
+        }
+
+        public List<string> GetPullRequestJobNames()
+        {
+            // TODO: Hacky, should find an API way to git this information
+            return GetJobNames()
+                .Where(x => x.Contains("_pr"))
+                .ToList();
+        }
+
+        public List<string> GetCommitJobNames()
+        {
+            // TODO: Hacky, should find an API way to git this information
+            return GetJobNames()
+                .Where(x => !x.Contains("_pr"))
                 .ToList();
         }
     }

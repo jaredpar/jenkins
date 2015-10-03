@@ -23,6 +23,17 @@ namespace Roslyn.Jenkins
         public List<string> GetJobNames()
         {
             var data = GetJson("");
+            return GetJobNamesCore(data);
+        }
+
+        public List<string> GetJobNamesInView(string viewName)
+        {
+            var data = GetJson($"/view/{viewName}/");
+            return GetJobNamesCore(data);
+        }
+
+        private List<string> GetJobNamesCore(JObject data)
+        {
             var jobs = (JArray)data["jobs"];
             var list = new List<string>();
             foreach (var cur in jobs)
@@ -40,25 +51,25 @@ namespace Roslyn.Jenkins
             return GetJobIds(all);
         }
 
-        public List<JobId> GetJobIds(string name)
+        public List<JobId> GetJobIds(string jobName)
         {
-            var data = GetJson($"job/{name}/");
+            var data = GetJson($"job/{jobName}/");
             var all = (JArray)data["builds"];
             var list = new List<JobId>();
 
             foreach (var cur in all)
             {
                 var build = cur.ToObject<Json.Build>();
-                list.Add(new JobId(build.Number, name));
+                list.Add(new JobId(build.Number, jobName));
             }
 
             return list;
         }
 
-        public List<JobId> GetJobIds(params string[] names)
+        public List<JobId> GetJobIds(params string[] jobNames)
         {
             var list = new List<JobId>();
-            foreach (var name in names)
+            foreach (var name in jobNames)
             {
                 list.AddRange(GetJobIds(name));
             }
@@ -69,10 +80,10 @@ namespace Roslyn.Jenkins
         public JobInfo GetJobInfo(JobId id)
         {
             var data = GetJson(id);
-            var pr = GetPullRequestInfoCore(id, data);
+            var sha1 = GetSha1Core(data);
             var state = GetJobStateCore(data);
             var date = GetJobDateCore(data);
-            return new JobInfo(id, pr, state, date);
+            return new JobInfo(id, state, sha1, date);
         }
 
         public JobResult GetJobResult(JobId id)
@@ -82,8 +93,8 @@ namespace Roslyn.Jenkins
             var date = GetJobDateCore(data);
             var jobInfo = new JobInfo(
                 id,
-                GetPullRequestInfoCore(id, data),
                 state,
+                GetSha1Core(data),
                 date);
 
             if (state == JobState.Failed)
@@ -150,16 +161,28 @@ namespace Roslyn.Jenkins
         private PullRequestInfo GetPullRequestInfoCore(JobId id, JObject data)
         {
             var actions = (JArray)data["actions"];
+            return JsonUtil.ParsePullRequestInfo(actions);
+        }
 
-            string baseUrl;
-            int parentBuildId;
-            if (JsonUtil.IsChildJob(actions, out baseUrl, out parentBuildId))
+        private string GetSha1Core(JObject data)
+        {
+            var actions = (JArray)data["actions"];
+            foreach (var item in actions)
             {
-                return GetParentJobPullRequestInfo(baseUrl, parentBuildId);
+                var obj = item["lastBuiltRevision"];
+                if (obj != null)
+                {
+                    return obj.Value<string>("SHA1");
+                }
             }
 
-            // If it's not a child then it is the parent.
-            return JsonUtil.ParseParentJobPullRequestInfo(actions);
+            PullRequestInfo info;
+            if (JsonUtil.TryParsePullRequestInfo(actions, out info))
+            {
+                return info.Sha1;
+            }
+
+            throw new Exception("Can't read sha1");
         }
 
         public string GetConsoleText(JobId id)
@@ -185,13 +208,6 @@ namespace Roslyn.Jenkins
             request.AddParameter("pretty", "true");
             var content = _restClient.Execute(request).Content;
             return JObject.Parse(content);
-        }
-
-        private PullRequestInfo GetParentJobPullRequestInfo(string baseUrl, int parentBuildId)
-        {
-            var data = GetJson($"{baseUrl}{parentBuildId}");
-            var actions = (JArray)data["actions"];
-            return JsonUtil.ParseParentJobPullRequestInfo(actions);
         }
 
         /// <summary>

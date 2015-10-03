@@ -37,7 +37,18 @@ namespace Roslyn.Jenkins
             return baseUrl != null && parentBuildId != 0;
         }
 
-        internal static PullRequestInfo ParseParentJobPullRequestInfo(JArray actions)
+        internal static PullRequestInfo ParsePullRequestInfo(JArray actions)
+        {
+            PullRequestInfo info;
+            if (!TryParsePullRequestInfo(actions, out info))
+            {
+                throw new Exception("Could not read pull request data");
+            }
+
+            return null;
+        }
+
+        internal static bool TryParsePullRequestInfo(JArray actions, out PullRequestInfo info)
         {
             var container = actions.First(x => x["parameters"] != null);
 
@@ -81,14 +92,16 @@ namespace Roslyn.Jenkins
 
             if (sha1 == null || pullLink == null || pullId == null || pullAuthorEmail == null)
             {
-                throw new Exception("Bad data");
+                info = null;
+                return false;
             }
 
-            return new PullRequestInfo(
+            info = new PullRequestInfo(
                 authorEmail: pullAuthorEmail,
                 id: pullId.Value,
                 pullUrl: pullLink,
                 sha1: sha1);
+            return true;
         }
     }
 }
