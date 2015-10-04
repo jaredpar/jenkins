@@ -16,6 +16,8 @@ namespace Roslyn.Jenkins
     {
         private readonly RestClient _restClient = new RestClient(JenkinsUtil.JenkinsHost.ToString());
 
+        public RestClient RestClient => _restClient;
+
         /// <summary>
         /// Get all of the available job names
         /// </summary>

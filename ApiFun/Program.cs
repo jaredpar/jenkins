@@ -10,6 +10,7 @@ using Roslyn.Jenkins;
 using Roslyn.Sql;
 using System.Diagnostics;
 using System.IO;
+using RestSharp.Authenticators;
 
 namespace ApiFun
 {
@@ -23,17 +24,41 @@ namespace ApiFun
             // PrintFailedJobs();
             // InspectReason(5567);
             // ScanAllFailedJobs();
-            // PrintJobNames();
-            PrintJobInfo();
+            PrintJobNames();
+            // PrintJobInfo();
 
             /*
             roslyn_stabil_lin_dbg_unit32
             */
         }
 
-        private static void PrintJobNames()
+        private static RoslynClient CreateClient()
         {
             var client = new RoslynClient();
+            try
+            {
+                var text = File.ReadAllText(@"c:\users\jaredpar\jenkins.txt");
+                if (string.IsNullOrEmpty(text))
+                {
+                    return client;
+                }
+
+                var uriBuilder = new UriBuilder(client.Client.RestClient.BaseUrl);
+                var values = text.Split(':');
+                uriBuilder.UserName = values[0];
+                uriBuilder.Password = values[1];
+                client.Client.RestClient.BaseUrl = uriBuilder.Uri;
+                return client;
+            }
+            catch
+            {
+                return client;
+            }
+        }
+
+        private static void PrintJobNames()
+        {
+            var client = CreateClient();
             foreach (var name in client.GetJobNames())
             {
                 Console.WriteLine(name);
@@ -42,7 +67,7 @@ namespace ApiFun
 
         private static void PrintJobInfo()
         {
-            var roslynClient = new RoslynClient();
+            var roslynClient = CreateClient();
             var client = roslynClient.Client;
             foreach (var name in roslynClient.GetJobNames())
             {
