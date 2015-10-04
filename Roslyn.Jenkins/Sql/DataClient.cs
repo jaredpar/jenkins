@@ -56,9 +56,39 @@ namespace Roslyn.Sql
                 var p = command.Parameters;
                 p.AddWithValue("@Name", jobName);
 
-                var duration = (int)command.ExecuteScalar();
+                var value = command.ExecuteScalar();
+                var duration = (int)value;
                 return TimeSpan.FromMilliseconds(duration);
             }
+        }
+
+        public List<Tuple<DateTime, TimeSpan>> GetDailyAverageDurations(string jobName)
+        {
+            var commandText = @"
+                SELECT CAST ([Date] AS DATE), AVG(Duration)
+                FROM dbo.Jobs
+                WHERE Name=@Name
+                GROUP BY CAST ([Date] AS DATE)
+                ORDER BY CAST ([Date] AS DATE)";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var p = command.Parameters;
+                p.AddWithValue("@Name", jobName);
+
+                var list = new List<Tuple<DateTime, TimeSpan>>();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var date = reader.GetDateTime(0);
+                        var duration = reader.GetInt32(1);
+                        list.Add(Tuple.Create(date, TimeSpan.FromMilliseconds(duration)));
+                    }
+                }
+
+                return list;
+            }
+
         }
 
         public void InsertJobInfo(JobInfo jobInfo)

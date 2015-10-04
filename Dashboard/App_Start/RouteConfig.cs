@@ -26,6 +26,12 @@ namespace Dashboard
             );
 
             routes.MapRoute(
+                name: "JobsNameDefault",
+                url: "jobs/name",
+                defaults: new { controller = "Jobs", action = "Name" }
+            );
+
+            routes.MapRoute(
                 name: "JobsName",
                 url: "jobs/{name}",
                 defaults: new { controller = "Jobs", action = "Name" }

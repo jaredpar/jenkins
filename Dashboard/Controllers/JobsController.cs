@@ -22,8 +22,10 @@ namespace Dashboard.Controllers
             }
         }
 
-        public ActionResult Name(string name)
+        public ActionResult Name(string name = null)
         {
+            name = name ?? "roslyn_master_win_dbg_unit32";
+
             var connectionString = ConfigurationManager.ConnectionStrings["Jenkins"].ConnectionString;
             using (var client = new DataClient(connectionString))
             {
@@ -33,6 +35,7 @@ namespace Dashboard.Controllers
                     Name = name,
                     AverageDuration = duration
                 };
+                model.DailyAverageDuration.AddRange(client.GetDailyAverageDurations(name));
 
                 return View(model);
             }

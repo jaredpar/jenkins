@@ -2,9 +2,30 @@
 
 @{
     ViewBag.Title = "Home Page";
+
+    var dates = string.Join(
+        ";",
+        Model.DailyAverageDuration.Select(x => x.Item1.ToLocalTime().ToString("yyyy-MM-dd")).ToArray());
+
+    var times = string.Join(
+        ";",
+        Model.DailyAverageDuration.Select(x => x.Item2.TotalSeconds).ToArray());
 }
 
 <h2>@Model.Name</h2>
 <div>Average Duration: @Model.AverageDuration</div>
 
+<div id="daily_duration_chart" style="width: 900px; height: 500px" data-dates="@dates" data-times="@times"></div>
+<div id="curve_chart" style="width: 900px; height: 500px"></div>
 
+@section scripts {
+   <script type="text/javascript" src="@Url.Content("/Scripts/jobs-name.js")" ></script>
+   <script type="text/javascript"
+        src="https://www.google.com/jsapi?autoload={
+            'modules':[{
+              'name':'visualization',
+              'version':'1',
+              'packages':['corechart']
+            }]
+          }"></script> 
+}

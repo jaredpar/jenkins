@@ -14,6 +14,7 @@ namespace Dashboard.Models
     {
         public string Name { get; set; }
         public TimeSpan AverageDuration { get; set; }
+        public List<Tuple<DateTime, TimeSpan>> DailyAverageDuration { get; } = new List<Tuple<DateTime, TimeSpan>>();
     }
 
 }
