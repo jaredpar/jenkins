@@ -10,7 +10,6 @@
 *.pubxml
 Web.Debug.config
 Web.Release.config
-Dashboard
 
 # Build results
 [Bb]inaries/
