@@ -9,17 +9,19 @@ namespace Roslyn.Jenkins
 {
     public sealed class JobInfo
     {
-        public readonly JobId Id;
-        public readonly JobState State;
-        public readonly DateTime Date;
-        public readonly string Sha;
+        public JobId Id { get; }
+        public JobState State { get; }
+        public string Sha { get; }
+        public DateTime Date { get; }
+        public TimeSpan Duration { get; }
 
-        public JobInfo(JobId id, JobState state, string sha1, DateTime date)
+        public JobInfo(JobId id, JobState state, string sha1, DateTime date, TimeSpan duration)
         {
             Id = id;
             State = state;
             Date = date;
             Sha = sha1;
+            Duration = duration;
         }
 
         public override string ToString()

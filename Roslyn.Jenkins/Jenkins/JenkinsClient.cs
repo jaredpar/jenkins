@@ -83,7 +83,8 @@ namespace Roslyn.Jenkins
             var sha1 = GetSha1Core(data);
             var state = GetJobStateCore(data);
             var date = GetJobDateCore(data);
-            return new JobInfo(id, state, sha1, date);
+            var duration = TimeSpan.FromMilliseconds(data.Value<int>("duration"));
+            return new JobInfo(id, state, sha1, date, duration);
         }
 
         public JobResult GetJobResult(JobId id)
@@ -95,7 +96,8 @@ namespace Roslyn.Jenkins
                 id,
                 state,
                 GetSha1Core(data),
-                date);
+                date,
+                TimeSpan.FromMilliseconds(data.Value<int>("duration")));
 
             if (state == JobState.Failed)
             {

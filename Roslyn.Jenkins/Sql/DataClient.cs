@@ -166,8 +166,8 @@ namespace Roslyn.Sql
         {
             var id = jobInfo.Id;
             var commandText = @"
-                INSERT INTO dbo.Jobs (Id, Name, Sha, State, Date)
-                VALUES (@Id, @Name, @Sha, @State, @Date)";
+                INSERT INTO dbo.Jobs (Id, Name, Sha, State, Date, Duration)
+                VALUES (@Id, @Name, @Sha, @State, @Date, @Duration)";
             using (var command = new SqlCommand(commandText, _connection))
             {
                 var p = command.Parameters;
@@ -176,6 +176,7 @@ namespace Roslyn.Sql
                 p.AddWithValue("@Sha", jobInfo.Sha);
                 p.AddWithValue("@State", (int)jobInfo.State);
                 p.AddWithValue("@Date", jobInfo.Date);
+                p.AddWithValue("@Duration", jobInfo.Duration.TotalMilliseconds);
 
                 try
                 {
