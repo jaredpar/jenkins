@@ -1,4 +1,4 @@
-﻿@model Dashboard.Models.JobModel
+﻿@model Dashboard.Models.AllJobsModel
 
 @{
     ViewBag.Title = "Home Page";
@@ -6,6 +6,6 @@
 
 @foreach (var name in Model.Names)
 {
-    <div>@name</div>
+    <div><a href="@Url.Action(controllerName: "Jobs", actionName: "Name", routeValues: new { name = @name })">@name</a></div>
 }
 

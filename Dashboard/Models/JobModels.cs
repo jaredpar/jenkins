@@ -5,8 +5,15 @@ using System.Web;
 
 namespace Dashboard.Models
 {
-    public class JobModel
+    public sealed class AllJobsModel
     {
         public List<string> Names { get; } = new List<string>();
     }
+
+    public sealed class JobModel
+    {
+        public string Name { get; set; }
+        public TimeSpan AverageDuration { get; set; }
+    }
+
 }

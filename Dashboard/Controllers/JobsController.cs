@@ -16,8 +16,24 @@ namespace Dashboard.Controllers
             var connectionString = ConfigurationManager.ConnectionStrings["Jenkins"].ConnectionString;
             using (var client = new DataClient(connectionString))
             {
-                var model = new JobModel();
+                var model = new AllJobsModel();
                 model.Names.AddRange(client.GetJobNames());
+                return View(model);
+            }
+        }
+
+        public ActionResult Name(string name)
+        {
+            var connectionString = ConfigurationManager.ConnectionStrings["Jenkins"].ConnectionString;
+            using (var client = new DataClient(connectionString))
+            {
+                var duration = client.GetAverageDuration(name);
+                var model = new JobModel()
+                {
+                    Name = name,
+                    AverageDuration = duration
+                };
+
                 return View(model);
             }
         }

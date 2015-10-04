@@ -45,6 +45,51 @@ namespace Roslyn.Sql
             }
         }
 
+        public TimeSpan GetAverageDuration(string jobName)
+        {
+            var commandText = @"
+                SELECT AVG(Duration)
+                FROM dbo.Jobs
+                WHERE Name=@Name";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var p = command.Parameters;
+                p.AddWithValue("@Name", jobName);
+
+                var duration = (int)command.ExecuteScalar();
+                return TimeSpan.FromMilliseconds(duration);
+            }
+        }
+
+        public void InsertJobInfo(JobInfo jobInfo)
+        {
+            var id = jobInfo.Id;
+            var commandText = @"
+                INSERT INTO dbo.Jobs (Id, Name, Sha, State, Date, Duration)
+                VALUES (@Id, @Name, @Sha, @State, @Date, @Duration)";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var p = command.Parameters;
+                p.AddWithValue("@Id", id.Id);
+                p.AddWithValue("@Name", id.Name);
+                p.AddWithValue("@Sha", jobInfo.Sha);
+                p.AddWithValue("@State", (int)jobInfo.State);
+                p.AddWithValue("@Date", jobInfo.Date);
+                p.AddWithValue("@Duration", jobInfo.Duration.TotalMilliseconds);
+
+                try
+                {
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Could not insert {jobInfo}");
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
+
         private static string GetKey(JobId id)
         {
             // TODO: implement
@@ -177,34 +222,6 @@ namespace Roslyn.Sql
                 }
 
                 return list;
-            }
-        }
-
-        public void InsertJobInfo(JobInfo jobInfo)
-        {
-            var id = jobInfo.Id;
-            var commandText = @"
-                INSERT INTO dbo.Jobs (Id, Name, Sha, State, Date, Duration)
-                VALUES (@Id, @Name, @Sha, @State, @Date, @Duration)";
-            using (var command = new SqlCommand(commandText, _connection))
-            {
-                var p = command.Parameters;
-                p.AddWithValue("@Id", id.Id);
-                p.AddWithValue("@Name", id.Name);
-                p.AddWithValue("@Sha", jobInfo.Sha);
-                p.AddWithValue("@State", (int)jobInfo.State);
-                p.AddWithValue("@Date", jobInfo.Date);
-                p.AddWithValue("@Duration", jobInfo.Duration.TotalMilliseconds);
-
-                try
-                {
-                    command.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Could not insert {jobInfo}");
-                    Console.WriteLine(ex.Message);
-                }
             }
         }
 
