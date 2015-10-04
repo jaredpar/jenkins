@@ -1,0 +1,11 @@
+﻿@model Dashboard.Models.JobModel
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+@foreach (var name in Model.Names)
+{
+    <div>@name</div>
+}
+

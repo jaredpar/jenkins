@@ -27,6 +27,24 @@ namespace Roslyn.Sql
             }
         }
 
+        public List<string> GetJobNames()
+        {
+            var commandText = @"SELECT DISTINCT Name FROM Jobs";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var list = new List<string>();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(reader.GetString(0));
+                    }
+                }
+
+                return list;
+            }
+        }
+
         private static string GetKey(JobId id)
         {
             // TODO: implement
