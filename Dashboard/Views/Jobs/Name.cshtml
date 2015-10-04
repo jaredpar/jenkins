@@ -5,7 +5,7 @@
 
     var summaryValues = string.Join(
         ";",
-        Model.JobDaySummaryList.Select(x => $"{x.Date.ToLocalTime().ToString("yyyy-MM-dd")},{x.Succeeded},{x.Failed}"));
+        Model.JobDaySummaryList.Select(x => $"{x.Date.ToLocalTime().ToString("yyyy-MM-dd")},{x.Succeeded},{x.Failed},{x.Aborted}"));
 
     var durationDates = string.Join(
         ";",

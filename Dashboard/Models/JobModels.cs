@@ -15,6 +15,7 @@ namespace Dashboard.Models
         public DateTime Date { get; set; }
         public int Succeeded { get; set; }
         public int Failed { get; set; }
+        public int Aborted { get; set; }
     }
 
     public sealed class JobModel

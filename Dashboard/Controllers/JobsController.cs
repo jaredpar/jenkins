@@ -62,6 +62,7 @@ namespace Dashboard.Controllers
 
             client.GetDailyJobCount(jobName, JobState.Succeeded).ForEach(x => update(x.Item1, y => y.Succeeded = x.Item2));
             client.GetDailyJobCount(jobName, JobState.Failed).ForEach(x => update(x.Item1, y => y.Failed = x.Item2));
+            client.GetDailyJobCount(jobName, JobState.Aborted).ForEach(x => update(x.Item1, y => y.Aborted = x.Item2));
             return map
                 .OrderBy(pair => pair.Key)
                 .Select(pair => pair.Value);
