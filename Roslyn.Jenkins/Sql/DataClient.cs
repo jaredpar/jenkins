@@ -88,7 +88,38 @@ namespace Roslyn.Sql
 
                 return list;
             }
+        }
 
+        /// <summary>
+        /// Get the grouping of jobs (by day) which ended with the specified state.
+        /// </summary>
+        public List<Tuple<DateTime, int>> GetDailyJobCount(string jobName, JobState state)
+        {
+            var commandText = @"
+                SELECT CAST ([Date] AS DATE), COUNT(State)
+                FROM dbo.Jobs
+                WHERE Name=@Name AND State=@State
+                GROUP BY CAST ([Date] AS DATE)
+                ORDER BY CAST ([Date] AS DATE)";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var p = command.Parameters;
+                p.AddWithValue("@Name", jobName);
+                p.AddWithValue("@State", (int)state);
+
+                var list = new List<Tuple<DateTime, int>>();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var date = reader.GetDateTime(0);
+                        var count = reader.GetInt32(1);
+                        list.Add(Tuple.Create(date, count));
+                    }
+                }
+
+                return list;
+            }
         }
 
         public void InsertJobInfo(JobInfo jobInfo)

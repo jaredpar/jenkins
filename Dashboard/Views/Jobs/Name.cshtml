@@ -3,11 +3,15 @@
 @{
     ViewBag.Title = "Home Page";
 
-    var dates = string.Join(
+    var summaryValues = string.Join(
+        ";",
+        Model.JobDaySummaryList.Select(x => $"{x.Date.ToLocalTime().ToString("yyyy-MM-dd")},{x.Succeeded},{x.Failed}"));
+
+    var durationDates = string.Join(
         ";",
         Model.DailyAverageDuration.Select(x => x.Item1.ToLocalTime().ToString("yyyy-MM-dd")).ToArray());
 
-    var times = string.Join(
+    var durationTimes = string.Join(
         ";",
         Model.DailyAverageDuration.Select(x => x.Item2.TotalSeconds).ToArray());
 }
@@ -15,7 +19,8 @@
 <h2>@Model.Name</h2>
 <div>Average Duration: @Model.AverageDuration</div>
 
-<div id="daily_duration_chart" style="width: 900px; height: 500px" data-dates="@dates" data-times="@times"></div>
+<div id="daily_summary_chart" style="width: 900px; height: 500px" data-values="@summaryValues"></div>
+<div id="daily_duration_chart" style="width: 900px; height: 500px" data-dates="@durationDates" data-times="@durationTimes"></div>
 
 @section scripts {
    <script type="text/javascript" src="@Url.Content("/Scripts/jobs-name.js")" ></script>
