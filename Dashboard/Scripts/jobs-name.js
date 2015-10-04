@@ -1,11 +1,6 @@
 ﻿
 $(document).ready(function () {
-    google.setOnLoadCallback(drawCharts);
-
-    function drawCharts() {
-        drawChart();
-        drawDailyDurationChart();
-    }
+    google.setOnLoadCallback(drawDailyDurationChart);
 
     function drawDailyDurationChart() {
         var elem = $('#daily_duration_chart');
@@ -27,25 +22,5 @@ $(document).ready(function () {
 
         var chart = new google.visualization.LineChart(elem.get(0));
         chart.draw(dataTable, options);
-    }
-
-    function drawChart() {
-        var data = google.visualization.arrayToDataTable([
-            ['Date', 'Duration'],
-            ['2010-10-1', 1000],
-            ['2010-10-2', 2000],
-            ['2010-10-3', 1500],
-        ]);
-
-        var options = {
-            title: 'Company Performance',
-            curveType: 'function',
-            legend: { position: 'bottom' }
-        };
-
-        var elem = $('#curve_chart').get(0);
-        var chart = new google.visualization.LineChart(elem);
-
-        chart.draw(data, options);
     }
 });
