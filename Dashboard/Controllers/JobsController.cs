@@ -18,7 +18,7 @@ namespace Dashboard.Controllers
             using (var client = new DataClient(connectionString))
             {
                 var model = new AllJobsModel();
-                model.Names.AddRange(client.GetJobNames());
+                model.Names.AddRange(client.GetJobNamesWeighted());
                 return View(model);
             }
         }

@@ -45,6 +45,31 @@ namespace Roslyn.Sql
             }
         }
 
+        /// <summary>
+        /// Get the list of job names weighted by the number of runs they have.
+        /// </summary>
+        public List<string> GetJobNamesWeighted()
+        {
+            var commandText = @"
+                SELECT Name
+                FROM Jobs
+                GROUP BY Name
+                ORDER BY COUNT(Name) DESC";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var list = new List<string>();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(reader.GetString(0));
+                    }
+                }
+
+                return list;
+            }
+        }
+
         public TimeSpan GetAverageDuration(string jobName)
         {
             var commandText = @"
