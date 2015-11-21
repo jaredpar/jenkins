@@ -50,7 +50,12 @@ namespace Roslyn.Jenkins
 
         internal static bool TryParsePullRequestInfo(JArray actions, out PullRequestInfo info)
         {
-            var container = actions.First(x => x["parameters"] != null);
+            var container = actions.FirstOrDefault(x => x["parameters"] != null);
+            if (container == null)
+            {
+                info = null;
+                return false;
+            }
 
             string sha1 = null;
             string pullLink = null;

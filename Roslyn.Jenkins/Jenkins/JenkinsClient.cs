@@ -56,7 +56,7 @@ namespace Roslyn.Jenkins
         public List<JobId> GetJobIds(string jobName)
         {
             var data = GetJson($"job/{jobName}/");
-            var all = (JArray)data["builds"];
+            var all = (JArray)data["builds"] ?? new JArray();
             var list = new List<JobId>();
 
             foreach (var cur in all)
@@ -114,6 +114,27 @@ namespace Roslyn.Jenkins
         {
             var data = GetJson(id);
             return GetJobStateCore(data);
+        }
+
+        /// <summary>
+        /// Get all of the queued items in Jenkins
+        /// </summary>
+        /// <returns></returns>
+        public List<QueuedItemInfo> GetQueuedItemInfo()
+        {
+            var data = GetJson("queue");
+            var items = (JArray)data["items"];
+            var list = new List<QueuedItemInfo>();
+            foreach (var item in items)
+            {
+                PullRequestInfo prInfo;
+                JsonUtil.TryParsePullRequestInfo((JArray)item["actions"], out prInfo);
+                var id = item.Value<int>("id");
+                var jobName = item["task"].Value<string>("name");
+                list.Add(new QueuedItemInfo(id, jobName, prInfo));
+            }
+
+            return list;
         }
 
         private DateTime GetJobDateCore(JObject data)

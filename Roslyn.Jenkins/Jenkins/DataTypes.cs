@@ -175,4 +175,33 @@ namespace Roslyn.Jenkins
             Note = note ?? string.Empty;
         }
     }
+
+    /// <summary>
+    /// Information about an item in the Jenkins queue that has not yet been run. 
+    /// </summary>
+    public sealed class QueuedItemInfo
+    {
+        public int Id { get; }
+        public string JobName { get; }
+        public PullRequestInfo PullRequestInfo { get; }
+
+        public QueuedItemInfo(int id, string jobName, PullRequestInfo prInfo)
+        {
+            Id = id;
+            JobName = jobName;
+            PullRequestInfo = prInfo;
+        }
+
+        public override string ToString()
+        {
+            if (PullRequestInfo == null)
+            {
+                return $"{JobName} - {Id}";
+            }
+            else
+            {
+                return $"{JobName} - {Id} - {PullRequestInfo.AuthorEmail}";
+            }
+        }
+    }
 }

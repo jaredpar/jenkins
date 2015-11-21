@@ -18,13 +18,12 @@ namespace ApiFun
     {
         internal static void Main(string[] args)
         {
-            // Random();
+            Random();
             // FindRetest();
             // PrintRetestInfo();
-            // PrintFailedJobs();
             // InspectReason(5567);
             // ScanAllFailedJobs();
-            PrintJobNames();
+            // PrintJobNames();
             // PrintJobInfo();
 
             /*
@@ -89,10 +88,18 @@ namespace ApiFun
 
         private static void Random()
         {
-            /*
             var client = new JenkinsClient();
-            var result = client.GetJobResult(new JobId(5692, JobKind.LegacyWindows));
-            */
+            var list = client.GetQueuedItemInfo();
+
+            var query = list
+                .Where(x => x.JobName == "roslyn_prtest_mac_dbg_unit32" && x.PullRequestInfo != null)
+                .GroupBy(x => x.PullRequestInfo.PullUrl)
+                .OrderByDescending(x => x.Count());
+
+            foreach (var pr in query)
+            {
+                Console.WriteLine($"{pr.Key} {pr.First().PullRequestInfo.AuthorEmail} {pr.Count()}");
+            }
         }
 
         private static void PrintRetestInfo()
@@ -149,9 +156,9 @@ namespace ApiFun
 
         private static void PrintFailedJobs()
         { 
-            /*
             var client = new JenkinsClient();
-            var jobIdList = client.GetJobIds(JobKind.WindowsDebug32, JobKind.WindowsDebug64);
+            var names = client.GetJobNamesInView("roslyn");
+            var jobIdList = client.GetJobIds(names.ToArray());
 
             foreach (var cur in jobIdList)
             {
@@ -161,20 +168,11 @@ namespace ApiFun
                     continue;
                 }
 
-                Console.WriteLine($"{cur.Kind} {cur.Id} {jobResult.FailureInfo.Reason}");
-                if (jobResult.Failed && jobResult.FailureInfo.Reason == JobFailureReason.Unknown)
+                if (jobResult.FailureInfo.Messages.Contains("CS8032"))
                 {
-
+                    Console.WriteLine($"{cur.Id} {jobResult.FailureInfo.Reason}");
                 }
-
-                foreach (var item in jobResult.FailureInfo.Messages)
-                {
-                    Console.WriteLine($"\t{item}");
-                }
-
-                Console.WriteLine();
             }
-            */
         }
 
         private static void FindRetest()
