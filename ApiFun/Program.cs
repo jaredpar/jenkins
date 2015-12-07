@@ -18,12 +18,12 @@ namespace ApiFun
     {
         internal static void Main(string[] args)
         {
-            Random();
+            // Random();
             // FindRetest();
             // PrintRetestInfo();
             // InspectReason(5567);
             // ScanAllFailedJobs();
-            // PrintJobNames();
+            PrintJobNames();
             // PrintJobInfo();
 
             /*
@@ -33,32 +33,27 @@ namespace ApiFun
 
         private static RoslynClient CreateClient()
         {
-            var client = new RoslynClient();
             try
             {
-                var text = File.ReadAllText(@"c:\users\jaredpar\jenkins.txt");
+                var text = File.ReadAllText(@"c:\users\jaredpar\jenkins.txt").Trim();
                 if (string.IsNullOrEmpty(text))
                 {
-                    return client;
+                    return new RoslynClient();
                 }
 
-                var uriBuilder = new UriBuilder(client.Client.RestClient.BaseUrl);
                 var values = text.Split(':');
-                uriBuilder.UserName = values[0];
-                uriBuilder.Password = values[1];
-                client.Client.RestClient.BaseUrl = uriBuilder.Uri;
-                return client;
+                return  new RoslynClient(values[0], values[1]);
             }
             catch
             {
-                return client;
+                return new RoslynClient();
             }
         }
 
         private static void PrintJobNames()
         {
             var client = CreateClient();
-            foreach (var name in client.GetJobNames())
+            foreach (var name in client.GetJobNames().Concat(client.Client.GetJobNamesInView("roslyn-internal")))
             {
                 Console.WriteLine(name);
             }
@@ -92,7 +87,7 @@ namespace ApiFun
             var list = client.GetQueuedItemInfo();
 
             var query = list
-                .Where(x => x.JobName == "roslyn_prtest_mac_dbg_unit32" && x.PullRequestInfo != null)
+                .Where(x => x.PullRequestInfo != null)
                 .GroupBy(x => x.PullRequestInfo.PullUrl)
                 .OrderByDescending(x => x.Count());
 

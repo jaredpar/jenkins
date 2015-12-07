@@ -15,8 +15,21 @@ namespace Roslyn.Jenkins
     public sealed class JenkinsClient
     {
         private readonly RestClient _restClient = new RestClient(JenkinsUtil.JenkinsHost.ToString());
+        private readonly string _authorizationHeaderValue;
 
         public RestClient RestClient => _restClient;
+
+        public JenkinsClient()
+        {
+
+        }
+
+        public JenkinsClient(string username, string password)
+        {
+            var bytes = Encoding.UTF8.GetBytes($"{username}:{password}");
+            var encoded = Convert.ToBase64String(bytes);
+            _authorizationHeaderValue = $"Basic {encoded}";
+        }
 
         /// <summary>
         /// Get all of the available job names
@@ -231,8 +244,12 @@ namespace Roslyn.Jenkins
             urlPath = urlPath.TrimEnd('/');
             var request = new RestRequest($"{urlPath}/api/json", Method.GET);
             request.AddParameter("pretty", "true");
-            var content = _restClient.Execute(request).Content;
-            return JObject.Parse(content);
+            if (!string.IsNullOrEmpty(_authorizationHeaderValue))
+            {
+                request.AddHeader("Authorization", _authorizationHeaderValue);
+            }
+            var response = _restClient.Execute(request);
+            return JObject.Parse(response.Content);
         }
 
         /// <summary>

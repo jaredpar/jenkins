@@ -17,6 +17,11 @@ namespace Roslyn.Jenkins
             _client = new JenkinsClient();
         }
 
+        public RoslynClient(string userName, string password)
+        {
+            _client = new JenkinsClient(userName, password);
+        }
+
         public List<string> GetJobNames()
         {
             return _client.GetJobNamesInView("roslyn");
