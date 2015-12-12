@@ -1,0 +1,11 @@
+﻿@model Dashboard.Models.AllJobsModel
+
+@{
+    ViewBag.Title = "Jenkins Jobs";
+}
+
+@foreach (var name in Model.Names)
+{
+    <div><a href="@Url.Action(controllerName: "Jobs", actionName: "Name", routeValues: new { name = @name })">@name</a></div>
+}
+
