@@ -65,24 +65,24 @@ namespace ApiFun
         {
             var list = new List<int>();
             var client = CreateClient();
-            foreach (var jobId in client.Client.GetJobIds("roslyn_prtest_mac_dbg_unit32"))
+            foreach (var buildId in client.Client.GetBuildIds("roslyn_prtest_mac_dbg_unit32"))
             {
-                Console.WriteLine($"Processing {jobId.Id}");
+                Console.WriteLine($"Processing {buildId.Id}");
 
-                var state = client.Client.GetJobState(jobId);
-                if (state == JobState.Running)
+                var state = client.Client.GetBuildState(buildId);
+                if (state == BuildState.Running)
                 {
                     continue;
                 }
 
-                var time = client.GetTimeInQueue(jobId);
+                var time = client.GetTimeInQueue(buildId);
                 if (time.HasValue)
                 {
                     list.Add((int)time.Value.TotalMilliseconds);
                 }
                 else
                 {
-                    Console.WriteLine($"Could not get duration for {jobId.Id}");
+                    Console.WriteLine($"Could not get duration for {buildId.Id}");
                 }
             }
 
@@ -112,11 +112,11 @@ namespace ApiFun
             foreach (var name in roslynClient.GetJobNames())
             {
                 Console.WriteLine($"{name}");
-                foreach (var id in client.GetJobIds(name))
+                foreach (var id in client.GetBuildIds(name))
                 {
                     try
                     {
-                        var info = client.GetJobInfo(id);
+                        var info = client.GetBuildInfo(id);
                         Console.WriteLine($"\t{id} {info.Sha.Substring(0, 7)} {info.State}");
                     }
                     catch
@@ -159,12 +159,12 @@ namespace ApiFun
         {
             /*
             var client = new JenkinsClient();
-            foreach (var jobId in client.GetJobIds(JobKind.WindowsDebug32))
+            foreach (var buildId in client.GetJobIds(JobKind.WindowsDebug32))
             {
-                Console.Write($"{jobId} ");
+                Console.Write($"{buildId} ");
                 try
                 {
-                    var jobResult = client.GetJobResult(jobId);
+                    var jobResult = client.GetJobResult(buildId);
                     Console.WriteLine(jobResult.State);
 
                     if (jobResult.Failed)
@@ -199,11 +199,11 @@ namespace ApiFun
         {
             var client = new RoslynClient().Client;
             var names = client.GetJobNamesInView("roslyn");
-            var jobIdList = client.GetJobIds(names.ToArray());
+            var jobIdList = client.GetBuildIds(names.ToArray());
 
             foreach (var cur in jobIdList)
             {
-                var jobResult = client.GetJobResult(cur);
+                var jobResult = client.GetBuildResult(cur);
                 if (!jobResult.Failed)
                 {
                     continue;

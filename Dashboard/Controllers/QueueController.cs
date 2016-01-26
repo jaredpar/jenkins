@@ -11,6 +11,9 @@ using System.Web.Mvc;
 
 namespace Dashboard.Controllers
 {
+    /// <summary>
+    /// This controller mostly exists to maintain URLs I've already shared with others
+    /// </summary>
     public class QueueController : DashboardController
     {
         public ActionResult Index(string jobName = null, int? count = null)

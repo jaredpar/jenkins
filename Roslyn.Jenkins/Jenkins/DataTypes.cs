@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace Roslyn.Jenkins
 {
-    public sealed class JobInfo
+    public sealed class BuildInfo
     {
-        public JobId Id { get; }
-        public JobState State { get; }
+        public BuildId Id { get; }
+        public BuildState State { get; }
         public string Sha { get; }
         public DateTime Date { get; }
         public TimeSpan Duration { get; }
 
-        public JobInfo(JobId id, JobState state, string sha1, DateTime date, TimeSpan duration)
+        public BuildInfo(BuildId id, BuildState state, string sha1, DateTime date, TimeSpan duration)
         {
             Id = id;
             State = state;
@@ -30,12 +30,12 @@ namespace Roslyn.Jenkins
         }
     }
 
-    public struct JobId
+    public struct BuildId
     {
         public int Id { get; }
         public string Name { get; }
 
-        public JobId(int id, string name)
+        public BuildId(int id, string name)
         {
             Id = id;
             Name = name;
@@ -89,7 +89,7 @@ namespace Roslyn.Jenkins
         }
     }
 
-    public enum JobState
+    public enum BuildState
     {
         Succeeded,
         Failed,
@@ -97,21 +97,21 @@ namespace Roslyn.Jenkins
         Running,
     }
 
-    public sealed class JobResult
+    public sealed class BuildResult
     {
-        private readonly JobInfo _jobInfo;
-        private readonly JobFailureInfo _failureInfo;
+        private readonly BuildInfo _jobInfo;
+        private readonly GetBuildFailureInfo _failureInfo;
 
         public int Id => _jobInfo.Id.Id;
-        public JobId JobId => _jobInfo.Id;
-        public JobInfo JobInfo => _jobInfo;
-        public JobState State => _jobInfo.State;
-        public bool Succeeded => State == JobState.Succeeded;
-        public bool Failed => State == JobState.Failed;
-        public bool Running => State == JobState.Running;
-        public bool Aborted => State == JobState.Aborted;
+        public BuildId BuildId => _jobInfo.Id;
+        public BuildInfo JobInfo => _jobInfo;
+        public BuildState State => _jobInfo.State;
+        public bool Succeeded => State == BuildState.Succeeded;
+        public bool Failed => State == BuildState.Failed;
+        public bool Running => State == BuildState.Running;
+        public bool Aborted => State == BuildState.Aborted;
 
-        public JobFailureInfo FailureInfo
+        public GetBuildFailureInfo FailureInfo
         {
             get
             {
@@ -124,13 +124,13 @@ namespace Roslyn.Jenkins
             }
         }
 
-        public JobResult(JobInfo jobInfo)
+        public BuildResult(BuildInfo jobInfo)
         {
-            Debug.Assert(jobInfo.State != JobState.Failed);
+            Debug.Assert(jobInfo.State != BuildState.Failed);
             _jobInfo = jobInfo;
         }
 
-        public JobResult(JobInfo jobInfo, JobFailureInfo failureInfo)
+        public BuildResult(BuildInfo jobInfo, GetBuildFailureInfo failureInfo)
         {
             _jobInfo = jobInfo;
             _failureInfo = failureInfo;
@@ -146,14 +146,14 @@ namespace Roslyn.Jenkins
         Infrastructure,
     }
 
-    public sealed class JobFailureInfo
+    public sealed class GetBuildFailureInfo
     {
-        public static readonly JobFailureInfo Unknown = new JobFailureInfo(JobFailureReason.Unknown);
+        public static readonly GetBuildFailureInfo Unknown = new GetBuildFailureInfo(JobFailureReason.Unknown);
 
         public JobFailureReason Reason;
         public List<string> Messages;
 
-        public JobFailureInfo(JobFailureReason reason, List<string> messages = null)
+        public GetBuildFailureInfo(JobFailureReason reason, List<string> messages = null)
         {
             Reason = reason;
             Messages = messages ?? new List<string>();
@@ -162,14 +162,14 @@ namespace Roslyn.Jenkins
 
     public sealed class RetestInfo
     {
-        public JobId JobId { get; }
+        public BuildId BuildId { get; }
         public string Sha { get; }
         public bool Handled { get; }
         public string Note { get; }
 
-        public RetestInfo(JobId jobId, string sha, bool handled, string note = null)
+        public RetestInfo(BuildId buildId, string sha, bool handled, string note = null)
         {
-            JobId = jobId;
+            BuildId = buildId;
             Sha = sha;
             Handled = handled;
             Note = note ?? string.Empty;

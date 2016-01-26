@@ -38,7 +38,7 @@ namespace Roslyn.Jenkins
                 .ToList();
         }
 
-        public TimeSpan? GetTimeInQueue(JobId jobId)
+        public TimeSpan? GetTimeInQueue(BuildId jobId)
         {
             try
             {

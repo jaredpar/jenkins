@@ -224,8 +224,8 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Jobs\Index.cshtml" />
-    <Content Include="Views\Jobs\Name.cshtml" />
-    <Content Include="Views\Jenkins\Jobs.cshtml" />
+    <Content Include="Views\Jenkins\JobData.cshtml" />
+    <Content Include="Views\Jenkins\JobList.cshtml" />
     <Content Include="Views\Jenkins\Index.cshtml" />
     <Content Include="Views\Jenkins\QueueJobData.cshtml" />
     <Content Include="Views\Jenkins\QueueJobList.cshtml" />

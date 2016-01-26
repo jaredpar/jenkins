@@ -15,19 +15,24 @@ namespace Dashboard.Controllers
 
         public ActionResult Index()
         {
-            return View(GetAllJobs());
+            return Jobs();
         }
 
-        public ActionResult Job(string name)
+        public ActionResult Jobs(string id = null)
         {
-            if (name == null)
-            {
-                return View(viewName: "Index", model: GetAllJobs());
-            }
-            return View();
+            return string.IsNullOrEmpty(id)
+                ? GetJobList()
+                : GetJob(id);
         }
 
-        private AllJobsModel GetAllJobs()
+        public ActionResult Queue(string id = null)
+        {
+            return string.IsNullOrEmpty(id)
+                ? GetQueueJobList()
+                : GetQueueJob(id, Request.GetParamInt("count", DefaultQueueJobCount));
+        }
+
+        private ActionResult GetJobList()
         {
             var model = new AllJobsModel();
             var client = CreateRoslynClient();
@@ -35,24 +40,23 @@ namespace Dashboard.Controllers
             {
                 model.Names.Add(name);
             }
-            return model;
+
+            return View(viewName: "JobList", model: model);
         }
 
-        public ActionResult Queue(string id = null)
+        private ActionResult GetJob(string jobName)
         {
-            return string.IsNullOrEmpty(id)
-                ? GetJobList()
-                : GetJobQueue(id, Request.GetParamInt("count", DefaultQueueJobCount));
+            throw new NotImplementedException();
         }
 
-        private ActionResult GetJobList()
+        private ActionResult GetQueueJobList()
         {
             var client = CreateRoslynClient();
             var list = client.GetJobNames();
             return View(viewName: "QueueJobList", model: list);
         }
 
-        private ActionResult GetJobQueue(string jobName, int count)
+        private ActionResult GetQueueJob(string jobName, int count)
         {
             var list = GetJobSummaryList(jobName, count);
 
@@ -81,10 +85,10 @@ namespace Dashboard.Controllers
             var roslynClient = CreateRoslynClient();
             var client = roslynClient.Client;
 
-            foreach (var id in client.GetJobIds(jobName).Take(count))
+            foreach (var id in client.GetBuildIds(jobName).Take(count))
             {
-                var state = client.GetJobState(id);
-                if (state == JobState.Running)
+                var state = client.GetBuildState(id);
+                if (state == BuildState.Running)
                 {
                     continue;
                 }

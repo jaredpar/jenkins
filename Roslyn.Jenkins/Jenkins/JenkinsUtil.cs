@@ -15,22 +15,22 @@ namespace Roslyn.Jenkins
             return builder.Uri;
         }
 
-        public static string GetJobPath(JobId id)
+        public static string GetJobPath(BuildId id)
         {
             return $"job/{id.Name}/{id.Id}/";
         }
 
-        public static Uri GetJobUri(Uri baseUrl, JobId id)
+        public static Uri GetJobUri(Uri baseUrl, BuildId id)
         {
             return GetUri(baseUrl, GetJobPath(id));
         }
 
-        public static string GetConsoleTextPath(JobId id)
+        public static string GetConsoleTextPath(BuildId id)
         {
             return $"{GetJobPath(id)}consoleText";
         }
 
-        public static Uri GetConsoleTextUri(Uri baseUrl, JobId id)
+        public static Uri GetConsoleTextUri(Uri baseUrl, BuildId id)
         {
             return GetUri(baseUrl, GetConsoleTextPath(id));
         }

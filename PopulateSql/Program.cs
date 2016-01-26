@@ -28,10 +28,10 @@ namespace PopulateSql
             var client = roslynClient.Client;
             foreach (var name in roslynClient.GetJobNames())
             {
-                List<JobId> jobs;
+                List<BuildId> jobs;
                 try
                 {
-                    jobs = client.GetJobIds(name);
+                    jobs = client.GetBuildIds(name);
                 }
                 catch
                 {
@@ -44,7 +44,7 @@ namespace PopulateSql
                     try
                     {
                         Console.Write($"Processing {id.Id} {id.Name} ... ");
-                        var info = client.GetJobInfo(id);
+                        var info = client.GetBuildInfo(id);
                         dataClient.InsertJobInfo(info);
                         Console.WriteLine("Done");
                     }

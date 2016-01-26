@@ -118,7 +118,7 @@ namespace Roslyn.Sql
         /// <summary>
         /// Get the grouping of jobs (by day) which ended with the specified state.
         /// </summary>
-        public List<Tuple<DateTime, int>> GetDailyJobCount(string jobName, JobState state)
+        public List<Tuple<DateTime, int>> GetDailyJobCount(string jobName, BuildState state)
         {
             var commandText = @"
                 SELECT CAST ([Date] AS DATE), COUNT(State)
@@ -147,7 +147,7 @@ namespace Roslyn.Sql
             }
         }
 
-        public void InsertJobInfo(JobInfo jobInfo)
+        public void InsertJobInfo(BuildInfo jobInfo)
         {
             var id = jobInfo.Id;
             var commandText = @"
@@ -176,13 +176,13 @@ namespace Roslyn.Sql
         }
 
 
-        private static string GetKey(JobId id)
+        private static string GetKey(BuildId id)
         {
             // TODO: implement
             throw new NotImplementedException();
         }
 
-        public static JobId ParseKey(string key)
+        public static BuildId ParseKey(string key)
         {
             // TODO: implement
             throw new NotImplementedException();
@@ -208,7 +208,7 @@ namespace Roslyn.Sql
             throw new NotImplementedException();
         }
 
-        public int GetPullRequestId(JobId id)
+        public int GetPullRequestId(BuildId id)
         {
             var commandText = @"
                 SELECT PullRequestId
@@ -218,7 +218,7 @@ namespace Roslyn.Sql
             {
                 command.Parameters.AddWithValue("@Id", GetKey(id));
 
-                var list = new List<Tuple<JobId, string>>();
+                var list = new List<Tuple<BuildId, string>>();
                 using (var reader = command.ExecuteReader())
                 {
                     if (!reader.Read())
@@ -231,7 +231,7 @@ namespace Roslyn.Sql
             }
         }
 
-        public JobFailureInfo GetFailureInfo(JobId id)
+        public GetBuildFailureInfo GetFailureInfo(BuildId id)
         {
             var commandText = @"
                 SELECT Reason,Messages 
@@ -250,21 +250,21 @@ namespace Roslyn.Sql
 
                     var reason = reader.GetString(0);
                     var messages = reader.GetString(1).Split(';').ToList();
-                    return new JobFailureInfo(
+                    return new GetBuildFailureInfo(
                         (JobFailureReason)(Enum.Parse(typeof(JobFailureReason), reason)),
                         messages);
                 }
             }
         }
 
-        public List<Tuple<JobId, string>> GetFailures()
+        public List<Tuple<BuildId, string>> GetFailures()
         {
             var commandText = @"
                 SELECT Id,Sha 
                 FROM Failures";
             using (var command = new SqlCommand(commandText, _connection))
             {
-                var list = new List<Tuple<JobId, string>>();
+                var list = new List<Tuple<BuildId, string>>();
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -311,7 +311,7 @@ namespace Roslyn.Sql
             }
         }
 
-        public void InsertFailure(JobInfo info, JobFailureInfo failureInfo)
+        public void InsertFailure(BuildInfo info, GetBuildFailureInfo failureInfo)
         {
             var commandText = @"
                 INSERT INTO dbo.Failures (Id, Sha, Reason, Messages)
@@ -336,7 +336,7 @@ namespace Roslyn.Sql
             }
         }
 
-        public void InsertRetest(JobId jobId, string sha)
+        public void InsertRetest(BuildId jobId, string sha)
         {
             var commandText = @"
                 INSERT INTO dbo.Retests (Id, Sha, Handled)

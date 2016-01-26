@@ -39,13 +39,13 @@ namespace Roslyn.Jenkins
             Tuple.Create(s_jenkinsFailure, JobFailureReason.Infrastructure),
         };
 
-        internal static bool TryGetFailureInfo(string consoleText, out JobFailureInfo failureInfo)
+        internal static bool TryGetFailureInfo(string consoleText, out GetBuildFailureInfo failureInfo)
         {
             var lines = consoleText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             return TryGetFailureInfo(lines, out failureInfo);
         }
 
-        internal static bool TryGetFailureInfo(string[] consoleTextLines, out JobFailureInfo failureInfo)
+        internal static bool TryGetFailureInfo(string[] consoleTextLines, out GetBuildFailureInfo failureInfo)
         {
             JobFailureReason? reason = null;
             var list = new List<string>();
@@ -65,7 +65,7 @@ namespace Roslyn.Jenkins
 
             if (reason != null)
             {
-                failureInfo = new JobFailureInfo(reason.Value, list);
+                failureInfo = new GetBuildFailureInfo(reason.Value, list);
                 return true;
             }
 

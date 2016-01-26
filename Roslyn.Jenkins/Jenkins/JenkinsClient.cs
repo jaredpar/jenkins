@@ -63,73 +63,73 @@ namespace Roslyn.Jenkins
             return list;
         }
 
-        public List<JobId> GetJobIds()
+        public List<BuildId> GetBuildIds()
         {
             var all = GetJobNames().ToArray();
-            return GetJobIds(all);
+            return GetBuildIds(all);
         }
 
-        public List<JobId> GetJobIds(string jobName)
+        public List<BuildId> GetBuildIds(string jobName)
         {
             var data = GetJson($"job/{jobName}/");
             var all = (JArray)data["builds"] ?? new JArray();
-            var list = new List<JobId>();
+            var list = new List<BuildId>();
 
             foreach (var cur in all)
             {
                 var build = cur.ToObject<Json.Build>();
-                list.Add(new JobId(build.Number, jobName));
+                list.Add(new BuildId(build.Number, jobName));
             }
 
             return list;
         }
 
-        public List<JobId> GetJobIds(params string[] jobNames)
+        public List<BuildId> GetBuildIds(params string[] jobNames)
         {
-            var list = new List<JobId>();
+            var list = new List<BuildId>();
             foreach (var name in jobNames)
             {
-                list.AddRange(GetJobIds(name));
+                list.AddRange(GetBuildIds(name));
             }
 
             return list;
         }
 
-        public JobInfo GetJobInfo(JobId id)
+        public BuildInfo GetBuildInfo(BuildId id)
         {
             var data = GetJson(id);
             var sha1 = GetSha1Core(data);
-            var state = GetJobStateCore(data);
-            var date = GetJobDateCore(data);
+            var state = GetBuildStateCore(data);
+            var date = GetBuildDateCore(data);
             var duration = TimeSpan.FromMilliseconds(data.Value<int>("duration"));
-            return new JobInfo(id, state, sha1, date, duration);
+            return new BuildInfo(id, state, sha1, date, duration);
         }
 
-        public JobResult GetJobResult(JobId id)
+        public BuildResult GetBuildResult(BuildId id)
         {
             var data = GetJson(id);
-            var state = GetJobStateCore(data);
-            var date = GetJobDateCore(data);
-            var jobInfo = new JobInfo(
+            var state = GetBuildStateCore(data);
+            var date = GetBuildDateCore(data);
+            var jobInfo = new BuildInfo(
                 id,
                 state,
                 GetSha1Core(data),
                 date,
                 TimeSpan.FromMilliseconds(data.Value<int>("duration")));
 
-            if (state == JobState.Failed)
+            if (state == BuildState.Failed)
             {
-                var failureInfo = GetJobFailureInfo(id, data);
-                return new JobResult(jobInfo, failureInfo);
+                var failureInfo = GetBuildFailureInfo(id, data);
+                return new BuildResult(jobInfo, failureInfo);
             }
 
-            return new JobResult(jobInfo);
+            return new BuildResult(jobInfo);
         }
 
-        public JobState GetJobState(JobId id)
+        public BuildState GetBuildState(BuildId id)
         {
             var data = GetJson(id, tree: "result");
-            return GetJobStateCore(data);
+            return GetBuildStateCore(data);
         }
 
         /// <summary>
@@ -153,14 +153,14 @@ namespace Roslyn.Jenkins
             return list;
         }
 
-        private DateTime GetJobDateCore(JObject data)
+        private DateTime GetBuildDateCore(JObject data)
         {
             var seconds = data.Value<long>("timestamp");
             var epoch = new DateTime(year: 1970, month: 1, day: 1);
             return epoch.AddMilliseconds(seconds);
         }
 
-        private JobState GetJobStateCore(JObject data)
+        private BuildState GetBuildStateCore(JObject data)
         {
             var result = data.Property("result");
             if (result == null)
@@ -168,20 +168,20 @@ namespace Roslyn.Jenkins
                 throw new Exception("Could not find the result property");
             }
 
-            JobState? state = null;
+            BuildState? state = null;
             switch (result.Value.Value<string>())
             {
                 case "SUCCESS":
-                    state = JobState.Succeeded;
+                    state = BuildState.Succeeded;
                     break;
                 case "FAILURE":
-                    state = JobState.Failed;
+                    state = BuildState.Failed;
                     break;
                 case "ABORTED":
-                    state = JobState.Aborted;
+                    state = BuildState.Aborted;
                     break;
                 case null:
-                    state = JobState.Running;
+                    state = BuildState.Running;
                     break;
             }
 
@@ -193,13 +193,13 @@ namespace Roslyn.Jenkins
             return state.Value;
         }
 
-        public PullRequestInfo GetPullRequestInfo(JobId id)
+        public PullRequestInfo GetPullRequestInfo(BuildId id)
         {
             var data = GetJson(id);
             return GetPullRequestInfoCore(id, data);
         }
 
-        private PullRequestInfo GetPullRequestInfoCore(JobId id, JObject data)
+        private PullRequestInfo GetPullRequestInfoCore(BuildId id, JObject data)
         {
             var actions = (JArray)data["actions"];
             return JsonUtil.ParsePullRequestInfo(actions);
@@ -226,7 +226,7 @@ namespace Roslyn.Jenkins
             throw new Exception("Can't read sha1");
         }
 
-        public string GetConsoleText(JobId id)
+        public string GetConsoleText(BuildId id)
         {
             var uri = JenkinsUtil.GetConsoleTextUri(_baseUrl, id);
             var request = WebRequest.Create(uri);
@@ -261,9 +261,9 @@ namespace Roslyn.Jenkins
             return JObject.Parse(response.Content);
         }
 
-        private JObject GetJson(JobId jobId, bool pretty = false, string tree = null, int? depth = null)
+        private JObject GetJson(BuildId buildId, bool pretty = false, string tree = null, int? depth = null)
         {
-            var path = JenkinsUtil.GetJobPath(jobId);
+            var path = JenkinsUtil.GetJobPath(buildId);
             return GetJson(path, pretty, tree, depth);
         }
 
@@ -271,29 +271,29 @@ namespace Roslyn.Jenkins
         /// Attempt to determine the failure reason for the given Job.  This should  only be called on 
         /// jobs that are known to have failed.
         /// </summary>
-        private JobFailureInfo GetJobFailureInfo(JobId jobId, JObject data)
+        private GetBuildFailureInfo GetBuildFailureInfo(BuildId buildId, JObject data)
         {
             // First look for the test failure information.  
             List<string> failedTestList;
-            if (TryGetTestFailureReason(jobId, data, out failedTestList))
+            if (TryGetTestFailureReason(buildId, data, out failedTestList))
             {
                 Debug.Assert(failedTestList.Count > 0);
-                return new JobFailureInfo(JobFailureReason.TestCase, failedTestList);
+                return new GetBuildFailureInfo(JobFailureReason.TestCase, failedTestList);
             }
 
             // Now look at the console text.
-            var consoleText = GetConsoleText(jobId);
-            JobFailureInfo failureInfo;
+            var consoleText = GetConsoleText(buildId);
+            GetBuildFailureInfo failureInfo;
             if (ConsoleTextUtil.TryGetFailureInfo(consoleText, out failureInfo))
             {
                 return failureInfo;
             }
 
-            return JobFailureInfo.Unknown;
+            return Jenkins.GetBuildFailureInfo.Unknown;
         }
 
         // TODO: This should be in JenkinsUtil
-        private bool TryGetTestFailureReason(JobId jobId, JObject data, out List<string> failedTestList)
+        private bool TryGetTestFailureReason(BuildId buildId, JObject data, out List<string> failedTestList)
         {
             var actions = (JArray)data["actions"];
             foreach (var cur in actions)
@@ -302,7 +302,7 @@ namespace Roslyn.Jenkins
                 if (failCount != null && failCount.Value != 0)
                 {
                     var testReportUrl = cur.Value<string>("urlName");
-                    var path = $"{JenkinsUtil.GetJobPath(jobId)}{testReportUrl}/";
+                    var path = $"{JenkinsUtil.GetJobPath(buildId)}{testReportUrl}/";
                     failedTestList = GetFailedTests(path);
                     return true;
                 }
