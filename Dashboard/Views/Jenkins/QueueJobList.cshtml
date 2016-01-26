@@ -1,0 +1,11 @@
+﻿
+@{
+    ViewBag.Title = "JobList";
+}
+
+<h2>Job Definitions</h2>
+    @foreach(var item in Model)
+    {
+        <div><a href="@Url.Action(controllerName: "Jenkins", actionName: "Queue", routeValues: new { id = @item, count = 25 })">@item</a></div>
+    }
+

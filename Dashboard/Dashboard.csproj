@@ -176,6 +176,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\DashboardController.cs" />
+    <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\QueueModel.cs" />
     <Compile Include="Models\JobModels.cs" />
@@ -226,8 +227,8 @@
     <Content Include="Views\Jobs\Name.cshtml" />
     <Content Include="Views\Jenkins\Jobs.cshtml" />
     <Content Include="Views\Jenkins\Index.cshtml" />
-    <Content Include="Views\Queue\JobList.cshtml" />
-    <Content Include="Views\Queue\JobData.cshtml" />
+    <Content Include="Views\Jenkins\QueueJobData.cshtml" />
+    <Content Include="Views\Jenkins\QueueJobList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

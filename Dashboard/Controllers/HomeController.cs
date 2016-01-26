@@ -26,5 +26,12 @@ namespace Dashboard.Controllers
 
             return View();
         }
+
+        public ActionResult Queue2()
+        {
+            ViewBag.Message = "Your application description page.";
+
+            return View();
+        }
     }
 }
