@@ -1,0 +1,28 @@
+﻿@model Dashboard.Models.JobQueueModel
+
+@{
+    ViewBag.Title = $"Queue time for {Model.JobName}";
+
+    var dataValues = string.Join(
+        ";",
+        Model.Jobs.Select(x => $"{x.Id},{x.QueueTime.TotalMinutes}"));
+}
+
+<div>
+    <div>Queue Summary</div>
+    <div>Job Count @Model.JobCount</div>
+    <div>Average Time @Model.AverageTime.ToString(@"hh\:mm\:ss")</div>
+    <div>Median Time @Model.MedianTime.ToString(@"hh\:mm\:ss")</div>
+    <div>Min Time @Model.Mintime.ToString(@"hh\:mm\:ss")</div>
+    <div>Max Time @Model.MaxTime.ToString(@"hh\:mm\:ss")</div>
+</div>
+
+<div id="job_queue_chart" data-values="@dataValues"></div>
+
+<div><a href="@Url.Action(controllerName: "Queue", actionName: "Index", routeValues: new { jobName = Model.JobName, count = 1000 })">All jobs in @Model.JobName</a></div>
+
+@section scripts {
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="@Url.Content("/Scripts/job-queue-chart.js")" ></script>
+}
+

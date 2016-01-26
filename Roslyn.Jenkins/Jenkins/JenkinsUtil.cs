@@ -8,11 +8,9 @@ namespace Roslyn.Jenkins
 {
     public static class JenkinsUtil
     {
-        public static readonly Uri JenkinsHost = new Uri("http://dotnet-ci.cloudapp.net");
-
-        private static Uri GetUri(string path)
+        private static Uri GetUri(Uri baseUrl, string path)
         {
-            var builder = new UriBuilder(JenkinsHost);
+            var builder = new UriBuilder(baseUrl);
             builder.Path = path;
             return builder.Uri;
         }
@@ -22,9 +20,9 @@ namespace Roslyn.Jenkins
             return $"job/{id.Name}/{id.Id}/";
         }
 
-        public static Uri GetJobUri(JobId id)
+        public static Uri GetJobUri(Uri baseUrl, JobId id)
         {
-            return GetUri(GetJobPath(id));
+            return GetUri(baseUrl, GetJobPath(id));
         }
 
         public static string GetConsoleTextPath(JobId id)
@@ -32,9 +30,9 @@ namespace Roslyn.Jenkins
             return $"{GetJobPath(id)}consoleText";
         }
 
-        public static Uri GetConsoleTextUri(JobId id)
+        public static Uri GetConsoleTextUri(Uri baseUrl, JobId id)
         {
-            return GetUri(GetConsoleTextPath(id));
+            return GetUri(baseUrl, GetConsoleTextPath(id));
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Dashboard.Models;
+﻿using Dashboard.Helpers;
+using Dashboard.Models;
 using Roslyn.Jenkins;
 using Roslyn.Sql;
 using System;
@@ -10,12 +11,11 @@ using System.Web.Mvc;
 
 namespace Dashboard.Controllers
 {
-    public class JobsController : Controller
+    public class JobsController : DashboardController
     {
         public ActionResult Index()
         {
-            var connectionString = ConfigurationManager.ConnectionStrings["Jenkins"].ConnectionString;
-            using (var client = new DataClient(connectionString))
+            using (var client = CreateDataClient())
             {
                 var model = new AllJobsModel();
                 model.Names.AddRange(client.GetJobNamesWeighted());
@@ -27,8 +27,7 @@ namespace Dashboard.Controllers
         {
             name = name ?? "roslyn_master_win_dbg_unit32";
 
-            var connectionString = ConfigurationManager.ConnectionStrings["Jenkins"].ConnectionString;
-            using (var client = new DataClient(connectionString))
+            using (var client = CreateDataClient())
             {
                 var duration = client.GetAverageDuration(name);
                 var model = new JobModel()

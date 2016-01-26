@@ -18,13 +18,13 @@ namespace ApiFun
     {
         internal static void Main(string[] args)
         {
-            GetMacQueueTimes();
+            // GetMacQueueTimes();
             // Random();
             // FindRetest();
             // PrintRetestInfo();
             // InspectReason(5567);
             // ScanAllFailedJobs();
-            // PrintJobNames();
+            PrintJobNames();
             // PrintJobInfo();
 
             /*
@@ -65,21 +65,12 @@ namespace ApiFun
                     continue;
                 }
 
-                var found = false;
-                var json = client.Client.GetJson(JenkinsUtil.GetJobPath(jobId), pretty: true, tree: "actions[*]");
-                var actions = (JArray)json["actions"];
-                foreach (var cur in actions)
+                var time = client.GetTimeInQueue(jobId);
+                if (time.HasValue)
                 {
-                    var value = cur.Value<int?>("queuingDurationMillis");
-                    if (value.HasValue)
-                    {
-                        list.Add(value.Value);
-                        found = true;
-                        break;
-                    }
+                    list.Add((int)time.Value.TotalMilliseconds);
                 }
-
-                if (!found)
+                else
                 {
                     Console.WriteLine($"Could not get duration for {jobId.Id}");
                 }
@@ -128,7 +119,7 @@ namespace ApiFun
 
         private static void Random()
         {
-            var client = new JenkinsClient();
+            var client = new RoslynClient().Client;
             var list = client.GetQueuedItemInfo();
 
             var query = list
@@ -195,8 +186,8 @@ namespace ApiFun
         }
 
         private static void PrintFailedJobs()
-        { 
-            var client = new JenkinsClient();
+        {
+            var client = new RoslynClient().Client;
             var names = client.GetJobNamesInView("roslyn");
             var jobIdList = client.GetJobIds(names.ToArray());
 

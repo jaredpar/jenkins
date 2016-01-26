@@ -14,17 +14,20 @@ namespace Roslyn.Jenkins
 {
     public sealed class JenkinsClient
     {
-        private readonly RestClient _restClient = new RestClient(JenkinsUtil.JenkinsHost.ToString());
+        private readonly Uri _baseUrl;
+        private readonly RestClient _restClient;
         private readonly string _authorizationHeaderValue;
 
         public RestClient RestClient => _restClient;
 
-        public JenkinsClient()
+        public JenkinsClient(Uri baseUrl)
         {
-
+            _baseUrl = baseUrl;
+            _restClient = new RestClient(baseUrl);
         }
 
-        public JenkinsClient(string username, string password)
+        public JenkinsClient(Uri baseUrl, string username, string password) 
+            : this(baseUrl)
         {
             var bytes = Encoding.UTF8.GetBytes($"{username}:{password}");
             var encoded = Convert.ToBase64String(bytes);
@@ -225,7 +228,7 @@ namespace Roslyn.Jenkins
 
         public string GetConsoleText(JobId id)
         {
-            var uri = JenkinsUtil.GetConsoleTextUri(id);
+            var uri = JenkinsUtil.GetConsoleTextUri(_baseUrl, id);
             var request = WebRequest.Create(uri);
             using (var reader = new StreamReader(request.GetResponse().GetResponseStream()))
             {
@@ -233,7 +236,7 @@ namespace Roslyn.Jenkins
             }
         }
 
-        public JObject GetJson(string urlPath, bool pretty = true, string tree = null, int? depth = null)
+        public JObject GetJson(string urlPath, bool pretty = false, string tree = null, int? depth = null)
         {
             urlPath = urlPath.TrimEnd('/');
             var request = new RestRequest($"{urlPath}/api/json", Method.GET);
@@ -258,7 +261,7 @@ namespace Roslyn.Jenkins
             return JObject.Parse(response.Content);
         }
 
-        private JObject GetJson(JobId jobId, bool pretty = true, string tree = null, int? depth = null)
+        private JObject GetJson(JobId jobId, bool pretty = false, string tree = null, int? depth = null)
         {
             var path = JenkinsUtil.GetJobPath(jobId);
             return GetJson(path, pretty, tree, depth);
