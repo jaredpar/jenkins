@@ -10,19 +10,20 @@ namespace Dashboard.Models
         public List<string> Names { get; } = new List<string>();
     }
 
-    public sealed class JobDaySummary
+    public struct JobDaySummary
     {
+        public string Name { get; set; }
         public DateTime Date { get; set; }
+        public TimeSpan AverageDuration { get; set; }
         public int Succeeded { get; set; }
         public int Failed { get; set; }
         public int Aborted { get; set; }
     }
 
-    public sealed class JobModel
+    public sealed class JobSummary
     {
         public string Name { get; set; }
         public TimeSpan AverageDuration { get; set; }
-        public List<Tuple<DateTime, TimeSpan>> DailyAverageDuration { get; } = new List<Tuple<DateTime, TimeSpan>>();
-        public List<JobDaySummary> JobDaySummaryList { get; } = new List<JobDaySummary>();
+        public List<JobDaySummary> JobDaySummaryList { get; set; } = new List<JobDaySummary>();
     }
 }

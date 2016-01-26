@@ -196,7 +196,7 @@
     <None Include="Properties\PublishProfiles\rosdash.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\job-queue-chart.js" />
-    <Content Include="Scripts\jobs-name.js" />
+    <Content Include="Scripts\job-build-data.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />

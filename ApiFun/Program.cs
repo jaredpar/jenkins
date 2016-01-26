@@ -117,7 +117,7 @@ namespace ApiFun
                     try
                     {
                         var info = client.GetBuildInfo(id);
-                        Console.WriteLine($"\t{id} {info.Sha.Substring(0, 7)} {info.State}");
+                        Console.WriteLine($"\t{id} {info.State}");
                     }
                     catch
                     {

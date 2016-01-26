@@ -1,7 +1,6 @@
-﻿
-$(document).ready(function () {
-    google.load("visualization", "1", { packages: ["corechart"] });
-    google.setOnLoadCallback(drawCharts);
+﻿$(document).ready(function () {
+    google.charts.load('current', { packages: ['corechart', 'bar'] });
+    google.charts.setOnLoadCallback(drawCharts);
 
     function drawCharts() {
         drawDailySummaryChart();

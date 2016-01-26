@@ -6,6 +6,6 @@
 
 @foreach (var name in Model.Names)
 {
-    <div><a href="@Url.Action(controllerName: "Jobs", actionName: "Name", routeValues: new { name = @name })">@name</a></div>
+    <div><a href="@Url.Action(controllerName: "Jenkins", actionName: "Jobs", routeValues: new { id = @name })">@name</a></div>
 }
 

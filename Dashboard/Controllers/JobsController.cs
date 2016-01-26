@@ -25,21 +25,7 @@ namespace Dashboard.Controllers
 
         public ActionResult Name(string name = null)
         {
-            name = name ?? "roslyn_master_win_dbg_unit32";
-
-            using (var client = CreateDataClient())
-            {
-                var duration = client.GetAverageDuration(name);
-                var model = new JobModel()
-                {
-                    Name = name,
-                    AverageDuration = duration
-                };
-                model.DailyAverageDuration.AddRange(client.GetDailyAverageDurations(name));
-                model.JobDaySummaryList.AddRange(GetDailySummary(client, name));
-
-                return View(model);
-            }
+            throw new NotImplementedException();
         }
 
         private IEnumerable<JobDaySummary> GetDailySummary(DataClient client, string jobName)

@@ -28,15 +28,15 @@ namespace Roslyn.Jenkins
 
         private static readonly Regex s_jenkinsFailure = new Regex(@"java\.io\.\w*Exception: \w+.*", RegexOptions.Compiled);
 
-        private static readonly Tuple<Regex, JobFailureReason>[] s_allChecks = new[]
+        private static readonly Tuple<Regex, BuildFailureReason>[] s_allChecks = new[]
         {
-            Tuple.Create(s_csharpError, JobFailureReason.Build),
-            Tuple.Create(s_basicError, JobFailureReason.Build),
-            Tuple.Create(s_msbuildError, JobFailureReason.Build),
-            Tuple.Create(s_githubTimeout, JobFailureReason.Infrastructure),
-            Tuple.Create(s_prMerged, JobFailureReason.Infrastructure),
-            Tuple.Create(s_xunitNotFound, JobFailureReason.NuGet),
-            Tuple.Create(s_jenkinsFailure, JobFailureReason.Infrastructure),
+            Tuple.Create(s_csharpError, BuildFailureReason.Build),
+            Tuple.Create(s_basicError, BuildFailureReason.Build),
+            Tuple.Create(s_msbuildError, BuildFailureReason.Build),
+            Tuple.Create(s_githubTimeout, BuildFailureReason.Infrastructure),
+            Tuple.Create(s_prMerged, BuildFailureReason.Infrastructure),
+            Tuple.Create(s_xunitNotFound, BuildFailureReason.NuGet),
+            Tuple.Create(s_jenkinsFailure, BuildFailureReason.Infrastructure),
         };
 
         internal static bool TryGetFailureInfo(string consoleText, out GetBuildFailureInfo failureInfo)
@@ -47,7 +47,7 @@ namespace Roslyn.Jenkins
 
         internal static bool TryGetFailureInfo(string[] consoleTextLines, out GetBuildFailureInfo failureInfo)
         {
-            JobFailureReason? reason = null;
+            BuildFailureReason? reason = null;
             var list = new List<string>();
 
             foreach (var line in consoleTextLines)

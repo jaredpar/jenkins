@@ -158,7 +158,8 @@ namespace Roslyn.Sql
                 var p = command.Parameters;
                 p.AddWithValue("@Id", id.Id);
                 p.AddWithValue("@Name", id.Name);
-                p.AddWithValue("@Sha", jobInfo.Sha);
+                // TODO: decide on sha1
+                p.AddWithValue("@Sha", "");
                 p.AddWithValue("@State", (int)jobInfo.State);
                 p.AddWithValue("@Date", jobInfo.Date);
                 p.AddWithValue("@Duration", jobInfo.Duration.TotalMilliseconds);
@@ -251,7 +252,7 @@ namespace Roslyn.Sql
                     var reason = reader.GetString(0);
                     var messages = reader.GetString(1).Split(';').ToList();
                     return new GetBuildFailureInfo(
-                        (JobFailureReason)(Enum.Parse(typeof(JobFailureReason), reason)),
+                        (BuildFailureReason)(Enum.Parse(typeof(BuildFailureReason), reason)),
                         messages);
                 }
             }
@@ -320,7 +321,8 @@ namespace Roslyn.Sql
             {
                 var p = command.Parameters;
                 p.AddWithValue("@Id", GetKey(info.Id));
-                p.AddWithValue("@Sha", info.Sha);
+                // TODO: decide on sha1
+                p.AddWithValue("@Sha", "");
                 p.AddWithValue("@Reason", failureInfo.Reason.ToString());
                 p.AddWithValue("@Messages", string.Join(";", failureInfo.Messages));
 

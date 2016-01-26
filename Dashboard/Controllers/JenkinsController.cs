@@ -46,7 +46,38 @@ namespace Dashboard.Controllers
 
         private ActionResult GetJob(string jobName)
         {
-            throw new NotImplementedException();
+            var model = GetJobDaySummary(jobName);
+            return View(viewName: "JobData", model: model);
+        }
+
+        private JobSummary GetJobDaySummary(string jobName)
+        {
+            var client = CreateRoslynClient().Client;
+            var all = client.GetBuildInfo(jobName).Where(x => x.State != BuildState.Running);
+            var list = new List<JobDaySummary>();
+            foreach (var group in all.GroupBy(x => x.Date.Date))
+            {
+                var succeeded = group.Count(x => x.State == BuildState.Succeeded);
+                var failed = group.Count(x => x.State == BuildState.Failed);
+                var aborted = group.Count(x => x.State == BuildState.Aborted);
+                var averageDuration = TimeSpan.FromMilliseconds(group.Average(x => x.Duration.TotalMilliseconds));
+                list.Add(new JobDaySummary()
+                {
+                    Name = jobName,
+                    Date = group.Key,
+                    Succeeded = succeeded,
+                    Failed = failed,
+                    Aborted = aborted,
+                    AverageDuration = averageDuration
+                });
+            }
+
+            return new JobSummary()
+            {
+                Name = jobName,
+                AverageDuration = TimeSpan.FromMilliseconds(all.Average(x => x.Duration.TotalMilliseconds)),
+                JobDaySummaryList = list
+            };
         }
 
         private ActionResult GetQueueJobList()

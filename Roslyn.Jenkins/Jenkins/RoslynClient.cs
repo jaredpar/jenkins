@@ -42,7 +42,7 @@ namespace Roslyn.Jenkins
         {
             try
             {
-                var json = _client.GetJson(JenkinsUtil.GetJobPath(jobId), pretty: true, tree: "actions[*]");
+                var json = _client.GetJson(JenkinsUtil.GetBuildPath(jobId), pretty: true, tree: "actions[*]");
                 var actions = (JArray)json["actions"];
                 foreach (var cur in actions)
                 {

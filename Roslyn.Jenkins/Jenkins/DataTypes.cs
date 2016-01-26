@@ -11,22 +11,20 @@ namespace Roslyn.Jenkins
     {
         public BuildId Id { get; }
         public BuildState State { get; }
-        public string Sha { get; }
         public DateTime Date { get; }
         public TimeSpan Duration { get; }
 
-        public BuildInfo(BuildId id, BuildState state, string sha1, DateTime date, TimeSpan duration)
+        public BuildInfo(BuildId id, BuildState state, DateTime date, TimeSpan duration)
         {
             Id = id;
             State = state;
             Date = date;
-            Sha = sha1;
             Duration = duration;
         }
 
         public override string ToString()
         {
-            return $"{Id} {State} {Sha}";
+            return $"{Id} {State}";
         }
     }
 
@@ -137,7 +135,7 @@ namespace Roslyn.Jenkins
         }
     }
 
-    public enum JobFailureReason
+    public enum BuildFailureReason
     {
         Unknown,
         TestCase,
@@ -148,12 +146,12 @@ namespace Roslyn.Jenkins
 
     public sealed class GetBuildFailureInfo
     {
-        public static readonly GetBuildFailureInfo Unknown = new GetBuildFailureInfo(JobFailureReason.Unknown);
+        public static readonly GetBuildFailureInfo Unknown = new GetBuildFailureInfo(BuildFailureReason.Unknown);
 
-        public JobFailureReason Reason;
+        public BuildFailureReason Reason;
         public List<string> Messages;
 
-        public GetBuildFailureInfo(JobFailureReason reason, List<string> messages = null)
+        public GetBuildFailureInfo(BuildFailureReason reason, List<string> messages = null)
         {
             Reason = reason;
             Messages = messages ?? new List<string>();

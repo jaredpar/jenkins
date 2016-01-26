@@ -95,14 +95,34 @@ namespace Roslyn.Jenkins
             return list;
         }
 
+        public List<BuildInfo> GetBuildInfo(string jobName)
+        {
+            var json = GetJson(
+                JenkinsUtil.GetJobPath(jobName),
+                tree: "builds[result,id,duration,timestamp]",
+                depth: 2);
+            var list = new List<BuildInfo>();
+            var builds = (JArray)json["builds"];
+            foreach (JObject data in builds)
+            {
+                var id = data.Value<int>("id");
+                var duration = TimeSpan.FromMilliseconds(data.Value<int>("duration"));
+                var state = GetBuildStateCore(data);
+                var date = GetBuildDateCore(data);
+
+                list.Add(new BuildInfo(new BuildId(id, jobName), state, date, duration));
+            }
+
+            return list;
+        }
+
         public BuildInfo GetBuildInfo(BuildId id)
         {
             var data = GetJson(id);
-            var sha1 = GetSha1Core(data);
             var state = GetBuildStateCore(data);
             var date = GetBuildDateCore(data);
             var duration = TimeSpan.FromMilliseconds(data.Value<int>("duration"));
-            return new BuildInfo(id, state, sha1, date, duration);
+            return new BuildInfo(id, state, date, duration);
         }
 
         public BuildResult GetBuildResult(BuildId id)
@@ -113,7 +133,6 @@ namespace Roslyn.Jenkins
             var jobInfo = new BuildInfo(
                 id,
                 state,
-                GetSha1Core(data),
                 date,
                 TimeSpan.FromMilliseconds(data.Value<int>("duration")));
 
@@ -263,7 +282,7 @@ namespace Roslyn.Jenkins
 
         private JObject GetJson(BuildId buildId, bool pretty = false, string tree = null, int? depth = null)
         {
-            var path = JenkinsUtil.GetJobPath(buildId);
+            var path = JenkinsUtil.GetBuildPath(buildId);
             return GetJson(path, pretty, tree, depth);
         }
 
@@ -278,7 +297,7 @@ namespace Roslyn.Jenkins
             if (TryGetTestFailureReason(buildId, data, out failedTestList))
             {
                 Debug.Assert(failedTestList.Count > 0);
-                return new GetBuildFailureInfo(JobFailureReason.TestCase, failedTestList);
+                return new GetBuildFailureInfo(BuildFailureReason.TestCase, failedTestList);
             }
 
             // Now look at the console text.
@@ -302,7 +321,7 @@ namespace Roslyn.Jenkins
                 if (failCount != null && failCount.Value != 0)
                 {
                     var testReportUrl = cur.Value<string>("urlName");
-                    var path = $"{JenkinsUtil.GetJobPath(buildId)}{testReportUrl}/";
+                    var path = $"{JenkinsUtil.GetBuildPath(buildId)}{testReportUrl}/";
                     failedTestList = GetFailedTests(path);
                     return true;
                 }
