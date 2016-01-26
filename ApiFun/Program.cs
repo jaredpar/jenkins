@@ -18,12 +18,13 @@ namespace ApiFun
     {
         internal static void Main(string[] args)
         {
+            GetMacQueueTimes();
             // Random();
             // FindRetest();
             // PrintRetestInfo();
             // InspectReason(5567);
             // ScanAllFailedJobs();
-            PrintJobNames();
+            // PrintJobNames();
             // PrintJobInfo();
 
             /*
@@ -35,7 +36,7 @@ namespace ApiFun
         {
             try
             {
-                var text = File.ReadAllText(@"c:\users\jaredpar\jenkins.txt").Trim();
+                var text = File.ReadAllLines(@"c:\users\jaredpar\jenkins.txt")[0].Trim();
                 if (string.IsNullOrEmpty(text))
                 {
                     return new RoslynClient();
@@ -48,6 +49,50 @@ namespace ApiFun
             {
                 return new RoslynClient();
             }
+        }
+
+        private static void GetMacQueueTimes()
+        {
+            var list = new List<int>();
+            var client = CreateClient();
+            foreach (var jobId in client.Client.GetJobIds("roslyn_prtest_mac_dbg_unit32"))
+            {
+                Console.WriteLine($"Processing {jobId.Id}");
+
+                var state = client.Client.GetJobState(jobId);
+                if (state == JobState.Running)
+                {
+                    continue;
+                }
+
+                var found = false;
+                var json = client.Client.GetJson(JenkinsUtil.GetJobPath(jobId), pretty: true, tree: "actions[*]");
+                var actions = (JArray)json["actions"];
+                foreach (var cur in actions)
+                {
+                    var value = cur.Value<int?>("queuingDurationMillis");
+                    if (value.HasValue)
+                    {
+                        list.Add(value.Value);
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    Console.WriteLine($"Could not get duration for {jobId.Id}");
+                }
+            }
+
+            Action<string, TimeSpan> print = (msg, time) => Console.WriteLine($"{msg}: {time.ToString(@"hh\:mm\:ss")}");
+
+            Console.WriteLine($"Total Jobs: {list.Count}");
+            print("Average", TimeSpan.FromMilliseconds(list.Select(x => (double)x).Average()));
+            print("Median", TimeSpan.FromMilliseconds(list.OrderBy(x => x).Skip(list.Count / 2).First()));
+            print("Max", TimeSpan.FromMilliseconds(list.Max()));
+            print("Min", TimeSpan.FromMilliseconds(list.Min()));
+            Console.WriteLine($"Jobs < 30 min in queue: {list.Select(x => TimeSpan.FromMilliseconds(x)).Where(x => x < TimeSpan.FromMinutes(30)).Count()}");
         }
 
         private static void PrintJobNames()

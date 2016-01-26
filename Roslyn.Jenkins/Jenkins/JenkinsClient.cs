@@ -125,7 +125,7 @@ namespace Roslyn.Jenkins
 
         public JobState GetJobState(JobId id)
         {
-            var data = GetJson(id);
+            var data = GetJson(id, tree: "result");
             return GetJobStateCore(data);
         }
 
@@ -233,23 +233,35 @@ namespace Roslyn.Jenkins
             }
         }
 
-        private JObject GetJson(JobId jobId)
-        {
-            var path = JenkinsUtil.GetJobPath(jobId);
-            return GetJson(path);
-        }
-
-        private JObject GetJson(string urlPath)
+        public JObject GetJson(string urlPath, bool pretty = true, string tree = null, int? depth = null)
         {
             urlPath = urlPath.TrimEnd('/');
             var request = new RestRequest($"{urlPath}/api/json", Method.GET);
-            request.AddParameter("pretty", "true");
+            request.AddParameter("pretty", pretty ? "true" : "false");
+
+            if (depth.HasValue)
+            {
+                request.AddParameter("depth", depth);
+            }
+
+            if (!string.IsNullOrEmpty(tree))
+            {
+                request.AddParameter("tree", tree);
+            }
+
             if (!string.IsNullOrEmpty(_authorizationHeaderValue))
             {
                 request.AddHeader("Authorization", _authorizationHeaderValue);
             }
+
             var response = _restClient.Execute(request);
             return JObject.Parse(response.Content);
+        }
+
+        private JObject GetJson(JobId jobId, bool pretty = true, string tree = null, int? depth = null)
+        {
+            var path = JenkinsUtil.GetJobPath(jobId);
+            return GetJson(path, pretty, tree, depth);
         }
 
         /// <summary>
