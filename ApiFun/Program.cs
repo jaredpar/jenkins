@@ -26,7 +26,8 @@ namespace ApiFun
             // ScanAllFailedJobs();
             // PrintJobNames();
             // PrintJobInfo();
-            PrintQueue();
+            // PrintQueue();
+            PrintViews();
 
             /*
             roslyn_stabil_lin_dbg_unit32
@@ -49,6 +50,14 @@ namespace ApiFun
             catch
             {
                 return new RoslynClient();
+            }
+        }
+
+        private static void PrintViews()
+        {
+            foreach (var viewInfo in CreateClient().Client.GetViews())
+            {
+                Console.WriteLine($"{viewInfo.Name} {viewInfo.Url}");
             }
         }
 

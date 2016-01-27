@@ -172,6 +172,22 @@ namespace Roslyn.Jenkins
             return list;
         }
 
+        public List<ViewInfo> GetViews()
+        {
+            var list = new List<ViewInfo>();
+            var data = GetJson("", tree: "views[*]");
+            var items = (JArray)data["views"];
+
+            foreach (JObject pair in items)
+            {
+                var name = pair.Value<string>("name");
+                var url = new Uri(pair.Value<string>("url"));
+                list.Add(new ViewInfo(name, url));
+            }
+
+            return list;
+        }
+
         private DateTime GetBuildDateCore(JObject data)
         {
             var seconds = data.Value<long>("timestamp");

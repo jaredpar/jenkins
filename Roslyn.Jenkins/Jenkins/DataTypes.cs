@@ -45,6 +45,18 @@ namespace Roslyn.Jenkins
         }
     }
 
+    public sealed class ViewInfo
+    {
+        public string Name { get; }
+        public Uri Url { get; }
+
+        public ViewInfo(string name, Uri url)
+        {
+            Name = name;
+            Url = url;
+        }
+    }
+
     public sealed class PullRequestInfo
     {
         public string AuthorEmail { get; }
