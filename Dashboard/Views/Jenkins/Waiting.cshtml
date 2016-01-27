@@ -1,0 +1,29 @@
+﻿@model Dashboard.Models.WaitingModel
+
+@{
+    ViewBag.Title = "Queued builds";
+
+    var dataValues = string.Join(
+        ";",
+        Model.Items.Select(x => $"{x.Key},{x.Count()}"));
+}
+
+<h2>Builds in Queue</h2>
+<div id="jobs_waiting_chart" data-values="@dataValues"></div>
+<div>Minimum count is @Model.MinimumCount</div>
+
+<h2>Pull Requests</h2>
+@foreach (var group in Model.Items.OrderByDescending(x => x.Count()))
+{
+    <h3><a href="http://dotnet-ci.cloudapp.net/job/@group.Key">@group.Key</a></h3>
+    foreach (var item in group)
+    {
+        <div><a href="@item.PullRequestInfo.PullUrl">@item.PullRequestInfo.PullUrl</a></div>
+    }
+}
+
+@section scripts {
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="@Url.Content("/Scripts/job-waiting-chart.js")" ></script>
+}
+

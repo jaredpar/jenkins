@@ -32,6 +32,24 @@ namespace Dashboard.Controllers
                 : GetQueueJob(id, Request.GetParamInt("count", DefaultQueueJobCount));
         }
 
+        public ActionResult Waiting()
+        {
+            var minimumCount = Request.GetParamInt("minimum", defaultValue: 3);
+            var groups = CreateRoslynClient().Client
+                .GetQueuedItemInfo()
+                .Where(x => x.PullRequestInfo != null)
+                .GroupBy(x => x.JobName)
+                .Where(x => x.Count() >= minimumCount);
+
+            var model = new WaitingModel()
+            {
+                MinimumCount = minimumCount,
+                Items = groups
+            };
+
+            return View(viewName: "Waiting", model: model);
+        }
+
         private ActionResult GetJobList()
         {
             var model = new AllJobsModel();

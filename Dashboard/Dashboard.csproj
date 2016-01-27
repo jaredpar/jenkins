@@ -180,6 +180,7 @@
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\QueueModel.cs" />
     <Compile Include="Models\JobModels.cs" />
+    <Compile Include="Models\WaitingModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -195,6 +196,7 @@
     <None Include="Properties\PublishProfiles\jdash.pubxml" />
     <None Include="Properties\PublishProfiles\rosdash.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="Scripts\job-waiting-chart.js" />
     <Content Include="Scripts\job-queue-chart.js" />
     <Content Include="Scripts\job-build-data.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
@@ -229,6 +231,7 @@
     <Content Include="Views\Jenkins\Index.cshtml" />
     <Content Include="Views\Jenkins\QueueJobData.cshtml" />
     <Content Include="Views\Jenkins\QueueJobList.cshtml" />
+    <Content Include="Views\Jenkins\Waiting.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

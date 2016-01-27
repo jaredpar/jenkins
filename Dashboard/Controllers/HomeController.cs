@@ -10,7 +10,7 @@ namespace Dashboard.Controllers
     {
         public ActionResult Index()
         {
-            return View();
+            return RedirectToAction(controllerName: "Jenkins", actionName: "Jobs");
         }
 
         public ActionResult About()
