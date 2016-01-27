@@ -21,8 +21,9 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("Jobs", "Index", "Jobs")</li>
+                    <li>@Html.ActionLink(linkText: "Jobs", actionName: "Jobs", controllerName: "Jenkins")</li>
+                    <li>@Html.ActionLink(linkText: "Queue", actionName: "Queue", controllerName: "Jenkins")</li>
+                    <li>@Html.ActionLink(linkText: "Waiting", actionName: "Waiting", controllerName: "Jenkins")</li>
                 </ul>
             </div>
         </div>

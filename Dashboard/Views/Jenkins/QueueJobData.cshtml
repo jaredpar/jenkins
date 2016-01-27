@@ -19,7 +19,7 @@
 
 <div id="job_queue_chart" data-values="@dataValues"></div>
 
-<div><a href="@Url.Action(controllerName: "Queue", actionName: "Index", routeValues: new { jobName = Model.JobName, count = 1000 })">All jobs in @Model.JobName</a></div>
+<div><a href="@Url.Action(controllerName: "Jenkins", actionName: "Queue", routeValues: new { id = Model.JobName, count = 1000 })">All jobs in @Model.JobName</a></div>
 
 @section scripts {
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
