@@ -188,6 +188,22 @@ namespace Roslyn.Jenkins
             return list;
         }
 
+        public List<ComputerInfo> GetComputerInfo()
+        {
+            var list = new List<ComputerInfo>();
+            var data = GetJson("computer", tree: "computer[*]");
+            var items = (JArray)data["computer"];
+
+            foreach (JObject item in items)
+            {
+                var name = item.Value<string>("displayName");
+                var os = item["monitorData"].Value<string>("hudson.node_monitors.ArchitectureMonitor");
+                list.Add(new ComputerInfo(name, os));
+            }
+
+            return list;
+        }
+
         private DateTime GetBuildDateCore(JObject data)
         {
             var seconds = data.Value<long>("timestamp");

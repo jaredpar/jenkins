@@ -39,10 +39,7 @@ namespace Roslyn.Jenkins
             Name = name;
         }
 
-        public override string ToString()
-        {
-            return $"{Id} - {Name}";
-        }
+        public override string ToString() => $"{Id} - {Name}";
     }
 
     public sealed class ViewInfo
@@ -55,6 +52,22 @@ namespace Roslyn.Jenkins
             Name = name;
             Url = url;
         }
+
+        public override string ToString() => $"{Name} {Url}";
+    }
+
+    public sealed class ComputerInfo
+    {
+        public string Name { get; }
+        public string OperatingSystem { get; }
+
+        public ComputerInfo(string name, string operatingSystem)
+        {
+            Name = name;
+            OperatingSystem = operatingSystem;
+        }
+
+        public override string ToString() => $"{Name} {OperatingSystem}";
     }
 
     public sealed class PullRequestInfo
