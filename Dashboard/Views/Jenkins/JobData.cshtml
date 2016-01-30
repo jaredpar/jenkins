@@ -3,17 +3,18 @@
 @{
     ViewBag.Title = $"{Model.Name} Summary";
 
+    var jobs = Model.JobDaySummaryList.OrderBy(x => x.Date);
     var summaryValues = string.Join(
         ";",
-        Model.JobDaySummaryList.Select(x => $"{x.Date.ToLocalTime().ToString("yyyy-MM-dd")},{x.Succeeded},{x.Failed},{x.Aborted}"));
+        jobs.Select(x => $"{x.Date.ToLocalTime().ToString("yyyy-MM-dd")},{x.Succeeded},{x.Failed},{x.Aborted}"));
 
     var durationDates = string.Join(
         ";",
-        Model.JobDaySummaryList.Select(x => x.Date.ToLocalTime().ToString("yyyy-MM-dd")).ToArray());
+        jobs.Select(x => x.Date.ToLocalTime().ToString("yyyy-MM-dd")).ToArray());
 
     var durationTimes = string.Join(
         ";",
-        Model.JobDaySummaryList.Select(x => x.AverageDuration.TotalSeconds).ToArray());
+        jobs.Select(x => x.AverageDuration.TotalMinutes).ToArray());
 }
 
 <h2>@Model.Name</h2>
