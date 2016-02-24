@@ -13,33 +13,61 @@ namespace Dashboard.Controllers
         public string Value { get; set; }
     }
 
+    /// <summary>
+    /// This is a proof of concept implementation only.  I realize that its implementation is pretty terrible
+    /// and that's fine.  For now it is enough to validate the end to end scenario.
+    /// </summary>
     public class TestCacheController : ApiController
     {
-        // GET api/<controller>
+        private const int MapLimit = 500;
+        private static Dictionary<string, string> s_cacheMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        private void Add(string key, string value)
+        {
+            lock (s_cacheMap)
+            {
+                s_cacheMap[key] = value;
+                if (s_cacheMap.Count > MapLimit)
+                {
+                    var toRemove = s_cacheMap.Keys.Take(MapLimit / 5);
+                    foreach (var item in toRemove)
+                    {
+                        s_cacheMap.Remove(item);
+                    }
+                }
+            }
+        }
+
         public IEnumerable<string> Get()
         {
-            return new string[] { "value1", "value2" };
+            lock (s_cacheMap)
+            {
+                return s_cacheMap.Keys.ToList();
+            }
         }
 
-        // GET api/<controller>/5
         public string Get(string id)
         {
-            return "value";
+            lock (s_cacheMap)
+            {
+                return s_cacheMap[id];
+            }
         }
 
-        // POST api/<controller>
         public void Post(ContentData contentData)
         {
+            Add(contentData.Key, contentData.Value);
         }
 
-        // PUT api/<controller>/5
-        public void Put(int id, [FromBody]string value)
+        public void Put(string id, [FromBody]string content)
         {
+            Add(id, content);
         }
 
-        // DELETE api/<controller>/5
+        // TODO
         public void Delete(int id)
         {
+
         }
     }
 }
