@@ -7,6 +7,12 @@ using System.Web.Http;
 
 namespace Dashboard.Controllers
 {
+    public class ContentData
+    {
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
+
     public class TestCacheController : ApiController
     {
         // GET api/<controller>
@@ -16,13 +22,13 @@ namespace Dashboard.Controllers
         }
 
         // GET api/<controller>/5
-        public string Get(int id)
+        public string Get(string id)
         {
             return "value";
         }
 
         // POST api/<controller>
-        public void Post([FromBody]string value)
+        public void Post(ContentData contentData)
         {
         }
 
