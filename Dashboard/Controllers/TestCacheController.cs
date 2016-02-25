@@ -24,6 +24,11 @@ namespace Dashboard.Controllers
 
         private void Add(string key, string value)
         {
+            if (value.Length > 50000)
+            {
+                throw new Exception("Data too big");
+            }
+
             lock (s_cacheMap)
             {
                 s_cacheMap[key] = value;
