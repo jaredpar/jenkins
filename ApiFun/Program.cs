@@ -18,8 +18,9 @@ namespace ApiFun
     {
         internal static void Main(string[] args)
         {
-            var util = new MachineCountInvestigation(CreateClient());
-            util.Go();
+            PrintMacTimes();
+            // var util = new MachineCountInvestigation(CreateClient());
+            // util.Go();
             // GetMacQueueTimes();
             // Random();
             // FindRetest();
@@ -70,6 +71,40 @@ namespace ApiFun
             {
                 Console.WriteLine($"{cur.JobName} {cur.Id} {cur.PullRequestInfo?.PullUrl ?? ""}");
             }
+        }
+
+        /// <summary>
+        /// Print out the Mac times comparing the Mac Minis to the Powerbooks
+        /// </summary>
+        private static void PrintMacTimes()
+        {
+            var client = CreateClient().Client;
+            var miniTimes = new List<TimeSpan>();
+            var proTimes = new List<TimeSpan>();
+
+            foreach (var buildId in client.GetBuildIds("roslyn_prtest_mac_dbg_unit32"))
+            {
+                var result = client.GetBuildResult(buildId);
+                if (result.State != BuildState.Succeeded)
+                {
+                    continue;
+                }
+
+                var time = result.BuildInfo.Duration;
+                var json = client.GetJson(JenkinsUtil.GetBuildPath(buildId), tree: "builtOn");
+                var name = json.Value<string>("builtOn");
+                if (name.Contains("macpro"))
+                {
+                    proTimes.Add(time);
+                }
+                else
+                {
+                    miniTimes.Add(time);
+                }
+            }
+
+            Console.WriteLine($"Pro Average: {TimeSpan.FromMilliseconds(proTimes.Average(x => x.TotalMilliseconds))}");
+            Console.WriteLine($"Mini Average: {TimeSpan.FromMilliseconds(miniTimes.Average(x => x.TotalMilliseconds))}");
         }
 
         private static void GetMacQueueTimes()
@@ -267,17 +302,50 @@ namespace ApiFun
         }
     }
 
+    internal enum OS
+    {
+        Windows,
+        Mac,
+        Linux,
+        FreeBSD,
+        Unknown
+    }
+
+    internal static class Util
+    {
+        internal static OS ClassifyOperatingSystem(string os)
+        {
+            if (string.IsNullOrEmpty(os))
+            {
+                return OS.Unknown;
+            }
+
+            if (os.Contains("Linux"))
+            {
+                return OS.Linux;
+            }
+
+            if (os.Contains("Mac"))
+            {
+                return OS.Mac;
+            }
+
+            if (os.Contains("Windows"))
+            {
+                return OS.Windows;
+            }
+
+            if (os.Contains("FreeBSD"))
+            {
+                return  OS.FreeBSD;
+            }
+
+            return OS.Unknown;
+        }
+    }
+
     internal sealed class MachineCountInvestigation
     {
-        private enum OS
-        {
-            Windows,
-            Mac,
-            Linux,
-            FreeBSD,
-            Unknown
-        }
-
         private readonly RoslynClient _roslynClient;
         private readonly JenkinsClient _client;
         private readonly Dictionary<string, OS> _computerNameMap = new Dictionary<string, OS>();
@@ -301,16 +369,16 @@ namespace ApiFun
             foreach (var buildId in GetBuildIds(os => os == OS.Mac))
             {
                 var result = _client.GetBuildResult(buildId);
-                if (result.JobInfo.Date.Date != yesterday)
+                if (result.BuildInfo.Date.Date != yesterday)
                 {
                     continue;
                 }
 
-                var hour = result.JobInfo.Date.Hour;
+                var hour = result.BuildInfo.Date.Hour;
                 list[hour]++;
             }
 
-            for (int i =0; i < list.Count;i ++)
+            for (int i = 0; i < list.Count; i++)
             {
                 Console.WriteLine($"Hour {i} -> {list[i]}");
             }
@@ -341,12 +409,12 @@ namespace ApiFun
                 var os = GetOsForBuild(buildId);
                 if (os == OS.Mac)
                 {
-                    macList.Add(result.JobInfo.Duration);
+                    macList.Add(result.BuildInfo.Duration);
                     macQueueList.Add(queueTime.Value);
                 }
                 if (os == OS.Linux)
                 {
-                    linuxList.Add(result.JobInfo.Duration);
+                    linuxList.Add(result.BuildInfo.Duration);
                     linuxQueueList.Add(queueTime.Value);
                 }
             }
@@ -402,12 +470,6 @@ namespace ApiFun
             var all = new List<BuildId>();
             foreach (var jobName in _client.GetJobNames())
             {
-                // TODO: temp., delete 
-                if (!jobName.Contains("roslyn"))
-                {
-                    continue; 
-                }
-
                 try
                 {
                     var list = _client.GetBuildIds(jobName);
@@ -446,30 +508,7 @@ namespace ApiFun
         {
             foreach (var cur in _client.GetComputerInfo())
             {
-                if (string.IsNullOrEmpty(cur.OperatingSystem))
-                {
-                    _computerNameMap[cur.Name] = OS.Unknown;
-                }
-                else if (cur.OperatingSystem.Contains("Linux"))
-                {
-                    _computerNameMap[cur.Name] = OS.Linux;
-                }
-                else if (cur.OperatingSystem.Contains("Mac"))
-                {
-                    _computerNameMap[cur.Name] = OS.Mac;
-                }
-                else if (cur.OperatingSystem.Contains("Windows"))
-                {
-                    _computerNameMap[cur.Name] = OS.Windows;
-                }
-                else if (cur.OperatingSystem.Contains("FreeBSD"))
-                {
-                    _computerNameMap[cur.Name] = OS.FreeBSD;
-                }
-                else
-                {
-                    _computerNameMap[cur.Name] = OS.Unknown;
-                }
+                _computerNameMap[cur.Name] = Util.ClassifyOperatingSystem(cur.OperatingSystem);
             }
         }
 

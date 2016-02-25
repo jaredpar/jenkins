@@ -122,13 +122,13 @@ namespace Roslyn.Jenkins
 
     public sealed class BuildResult
     {
-        private readonly BuildInfo _jobInfo;
+        private readonly BuildInfo buildInfo;
         private readonly GetBuildFailureInfo _failureInfo;
 
-        public int Id => _jobInfo.Id.Id;
-        public BuildId BuildId => _jobInfo.Id;
-        public BuildInfo JobInfo => _jobInfo;
-        public BuildState State => _jobInfo.State;
+        public int Id => buildInfo.Id.Id;
+        public BuildId BuildId => buildInfo.Id;
+        public BuildInfo BuildInfo => buildInfo;
+        public BuildState State => buildInfo.State;
         public bool Succeeded => State == BuildState.Succeeded;
         public bool Failed => State == BuildState.Failed;
         public bool Running => State == BuildState.Running;
@@ -147,15 +147,15 @@ namespace Roslyn.Jenkins
             }
         }
 
-        public BuildResult(BuildInfo jobInfo)
+        public BuildResult(BuildInfo buildInfo)
         {
-            Debug.Assert(jobInfo.State != BuildState.Failed);
-            _jobInfo = jobInfo;
+            Debug.Assert(buildInfo.State != BuildState.Failed);
+            this.buildInfo = buildInfo;
         }
 
-        public BuildResult(BuildInfo jobInfo, GetBuildFailureInfo failureInfo)
+        public BuildResult(BuildInfo buildInfo, GetBuildFailureInfo failureInfo)
         {
-            _jobInfo = jobInfo;
+            this.buildInfo = buildInfo;
             _failureInfo = failureInfo;
         }
     }
