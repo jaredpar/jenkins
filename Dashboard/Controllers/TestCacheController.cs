@@ -7,10 +7,13 @@ using System.Web.Http;
 
 namespace Dashboard.Controllers
 {
-    public class ContentData
+    public class TestCacheData
     {
-        public string Key { get; set; }
-        public string Value { get; set; }
+        public int ExitCode { get; set; }
+        public string OutputStandard { get; set; }
+        public string OutputError { get; set; }
+        public string ResultsFileName { get; set; }
+        public string ResultsFileContent { get; set; }
     }
 
     /// <summary>
@@ -20,11 +23,11 @@ namespace Dashboard.Controllers
     public class TestCacheController : ApiController
     {
         private const int MapLimit = 500;
-        private static Dictionary<string, string> s_cacheMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, TestCacheData> s_cacheMap = new Dictionary<string, TestCacheData>(StringComparer.OrdinalIgnoreCase);
 
-        private void Add(string key, string value)
+        private void Add(string key, TestCacheData value)
         {
-            if (value.Length > 50000)
+            if (string.IsNullOrEmpty(value.ResultsFileContent) || value.ResultsFileContent.Length > 100000)
             {
                 throw new Exception("Data too big");
             }
@@ -51,7 +54,7 @@ namespace Dashboard.Controllers
             }
         }
 
-        public string Get(string id)
+        public TestCacheData Get(string id)
         {
             lock (s_cacheMap)
             {
@@ -59,14 +62,16 @@ namespace Dashboard.Controllers
             }
         }
 
-        public void Post(ContentData contentData)
+        /*
+        public void Post(TestCacheData testCacheData)
         {
-            Add(contentData.Key, contentData.Value);
+            Add(testCacheData
         }
+        */
 
-        public void Put(string id, [FromBody]string content)
+        public void Put(string id, [FromBody]TestCacheData testCacheData)
         {
-            Add(id, content);
+            Add(id, testCacheData);
         }
 
         // TODO
