@@ -24,7 +24,7 @@ namespace Dashboard.Controllers
                 HitCount = stats.HitCount,
                 MissCount = stats.MissCount,
                 StoreCount = stats.StoreCount,
-                CurrentCount = TestCacheStorage.Instance.Count
+                CurrentCount = TestResultStorage.Instance.Count
             });
         }
     }

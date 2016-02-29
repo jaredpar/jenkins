@@ -192,7 +192,7 @@
     <Compile Include="Helpers\DashboardController.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\TestCacheStats.cs" />
-    <Compile Include="Helpers\TestCacheStorage.cs" />
+    <Compile Include="Helpers\TestResultStorage.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\QueueModel.cs" />
     <Compile Include="Models\JobModels.cs" />
