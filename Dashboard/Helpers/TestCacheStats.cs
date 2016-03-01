@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dashboard.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -13,10 +14,26 @@ namespace Dashboard.Helpers
         private int _missCount;
         private int _hitCount;
         private int _storeCount;
+        private List<int> _outputStandardLengthList = new List<int>();
+        private List<int> _outputErrorLengthList = new List<int>();
+        private List<int> _contentLengthList = new List<int>();
 
-        public int MissCount => _missCount;
-        public int HitCount => _hitCount;
-        public int StoreCount => _storeCount;
+        public TestCacheStatSummary GetCurrentSummary()
+        {
+            lock (_guard)
+            {
+                var summary = new TestCacheStatSummary()
+                {
+                    HitCount = _hitCount,
+                    MissCount = _missCount,
+                    StoreCount = _storeCount,
+                    OutputStandardSummary = TextStatSummary.Create(_outputStandardLengthList),
+                    OutputErrorSummary = TextStatSummary.Create(_outputErrorLengthList),
+                    ContentSummary = TextStatSummary.Create(_contentLengthList)
+                };
+                return summary;
+            }
+        }
 
         public void AddHit()
         {
@@ -34,11 +51,14 @@ namespace Dashboard.Helpers
             }
         }
 
-        public void AddStore()
+        public void AddStore(int outputStandardLength, int outputErrorLength, int contentLength)
         {
             lock (_guard)
             {
                 _storeCount++;
+                _outputStandardLengthList.Add(outputStandardLength);
+                _outputErrorLengthList.Add(outputErrorLength);
+                _contentLengthList.Add(contentLength);
             }
         }
     }

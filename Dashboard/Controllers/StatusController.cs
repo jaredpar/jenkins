@@ -18,14 +18,7 @@ namespace Dashboard.Controllers
         public ActionResult Tests()
         {
             var stats = TestCacheStats.Instance;
-
-            return View(new TestStatsModel
-            {
-                HitCount = stats.HitCount,
-                MissCount = stats.MissCount,
-                StoreCount = stats.StoreCount,
-                CurrentCount = TestResultStorage.Instance.Count
-            });
+            return View(stats.GetCurrentSummary());
         }
     }
 }

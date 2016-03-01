@@ -85,7 +85,10 @@ namespace Dashboard.Controllers
                 TimeSpan.FromSeconds(testResultData.EllapsedSeconds));
 
             _storage.Add(id, testCacheData);
-            _stats.AddStore();
+            _stats.AddStore(
+                testResultData.OutputStandard?.Length ?? 0,
+                testResultData.OutputError?.Length ?? 0,
+                testResultData.ResultsFileContent?.Length ?? 0);
         }
 
         // TODO
