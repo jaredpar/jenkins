@@ -1,7 +1,9 @@
 ﻿using Dashboard.Helpers;
 using Dashboard.Models;
+using Roslyn.Sql;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -37,6 +39,7 @@ namespace Dashboard.Controllers
     {
         public string MachineName { get; set; }
         public string TestRoot { get; set; }
+        public string AssemblyName { get; set; }
     }
 
     /// <summary>
@@ -47,6 +50,12 @@ namespace Dashboard.Controllers
     {
         private TestResultStorage _storage = TestResultStorage.Instance;
         private TestCacheStats _stats = TestCacheStats.Instance;
+
+        public static SqlUtil CreateConnection()
+        {
+            var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
+            return new SqlUtil(connectionString);
+        }
 
         public IEnumerable<string> Get()
         {
@@ -89,6 +98,16 @@ namespace Dashboard.Controllers
                 testResultData.OutputStandard?.Length ?? 0,
                 testResultData.OutputError?.Length ?? 0,
                 testResultData.ResultsFileContent?.Length ?? 0);
+
+            using (var sqlUtil = CreateConnection())
+            {
+                sqlUtil.Insert(
+                    id,
+                    assemblyName: testCache.TestSourceData.AssemblyName ?? "",
+                    outputStandardLength: testResultData.OutputStandard?.Length ?? 0,
+                    outputErrorLength: testResultData.OutputError?.Length ?? 0,
+                    contentLength: testResultData.ResultsFileContent?.Length ?? 0);
+            }
         }
 
         // TODO

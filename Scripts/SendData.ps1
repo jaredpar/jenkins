@@ -1,3 +1,4 @@
+param([switch]$real = $false)
 
 $data = @{
     testResultData = @{
@@ -13,5 +14,10 @@ $data = @{
     };
 }
 
+$url = "http://localhost:9859"
+if ($real) {
+    $url = "http://jdash.azurewebsites.net"
+}
+    
 $dataJson = ConvertTo-Json $data
-Invoke-RestMethod http://localhost:9859/api/testCache/hello -method put -contenttype application/json -body $dataJson
+Invoke-RestMethod "$url/api/testCache/hello" -method put -contenttype application/json -body $dataJson

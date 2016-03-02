@@ -7,6 +7,12 @@ namespace Dashboard.Models
 {
     public class TextStatSummary
     {
+        public static TextStatSummary Empty = new TextStatSummary(
+            count: 0,
+            maxLength: 0,
+            minLength: 0,
+            averageLength: 0);
+
         public int Count { get; }
         public int MaxLength { get; }
         public int MinLength { get; }
@@ -26,6 +32,11 @@ namespace Dashboard.Models
 
         public static TextStatSummary Create(List<int> list)
         {
+            if (list.Count == 0)
+            {
+                return Empty;
+            }
+
             return new TextStatSummary(
                 count: list.Count,
                 maxLength: list.Max(),

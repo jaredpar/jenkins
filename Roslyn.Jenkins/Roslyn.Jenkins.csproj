@@ -58,6 +58,7 @@
     <Compile Include="Jenkins\JsonTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Jenkins\JenkinsUtil.cs" />
+    <Compile Include="Sql\SqlUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
