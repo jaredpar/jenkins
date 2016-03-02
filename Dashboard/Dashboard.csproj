@@ -191,12 +191,9 @@
     </Compile>
     <Compile Include="Helpers\DashboardController.cs" />
     <Compile Include="Helpers\Extensions.cs" />
-    <Compile Include="Helpers\TestCacheStats.cs" />
-    <Compile Include="Helpers\TestResultStorage.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\QueueModel.cs" />
     <Compile Include="Models\JobModels.cs" />
-    <Compile Include="Models\StatusModel.cs" />
     <Compile Include="Models\WaitingModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />

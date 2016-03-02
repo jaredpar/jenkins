@@ -43,6 +43,9 @@
     <Compile Include="DataClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlUtil.cs" />
+    <Compile Include="TestCacheStats.cs" />
+    <Compile Include="TestResultStorage.cs" />
+    <Compile Include="TestStatsData.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="dbo.Jobs.sql" />

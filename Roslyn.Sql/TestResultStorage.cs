@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace Dashboard.Helpers
+namespace Roslyn.Sql
 {
     public struct TestResult
     {
