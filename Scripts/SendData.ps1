@@ -1,5 +1,10 @@
 param([switch]$real = $false)
 
+$url = "http://localhost:9859"
+if ($real) {
+    $url = "http://jdash.azurewebsites.net"
+}
+
 function Get-MD5($text)  {
     $md5 = new-object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider
     $utf8 = new-object -TypeName System.Text.UTF8Encoding
@@ -10,32 +15,52 @@ function Get-MD5($text)  {
     return $hash
 }
 
-$id = Get-MD5 ([Guid]::NewGuid().ToString())
+function Test-TestCache() {
 
-$data = @{
-    testResultData = @{
-        exitCode = 42;
-        outputStandard = "";
-        outputError = "";
-        resultsFileContent = "hello";
-        resultsFileName = "test.xml";
-        ellapsedSeconds = 100;
-    };
-    testSourceData = @{
-        machineName = "a machine";
-        testRoot = "c:\blah";
-    };
+    $id = Get-MD5 ([Guid]::NewGuid().ToString())
+
+    $data = @{
+        testResultData = @{
+            exitCode = 42;
+            outputStandard = "";
+            outputError = "";
+            resultsFileContent = "hello";
+            resultsFileName = "test.xml";
+            ellapsedSeconds = 100;
+        };
+        testSourceData = @{
+            machineName = "a machine";
+            testRoot = "c:\blah";
+        };
+    }
+
+    $dataJson = ConvertTo-Json $data
+    Invoke-RestMethod "$url/api/testCache/$id" -method put -contenttype application/json -body $dataJson
+    $result = Invoke-WebRequest "$url/api/testCache/$id" -method get
+    if ($result.StatusCode -ne 200) {
+        write-host "Could not retrieve resource"
+        $result;
+    }
 }
 
-$url = "http://localhost:9859"
-if ($real) {
-    $url = "http://jdash.azurewebsites.net"
+function Test-TestRun() {
+
+    $data = @{
+        EllapsedSeconds = 42;
+        IsJenkins = $false;
+        Is32Bit = $true;
+        CacheCount = 42;
+        AssemblyCount = 42;
+        Cache = "test";
+    }
+
+    $dataJson = ConvertTo-Json $data
+    $result = Invoke-WebRequest "$url/api/testRun" -method post -contenttype application/json -body $dataJson
+    if ($result.StatusCode -ne 204) {
+        write-host "Could not post resource"
+        $result;
+    }
 }
-    
-$dataJson = ConvertTo-Json $data
-Invoke-RestMethod "$url/api/testCache/$id" -method put -contenttype application/json -body $dataJson
-$result = Invoke-WebRequest "$url/api/testCache/$id" -method get
-if ($result.StatusCode -ne 200) {
-    write-host "Could not retrieve resource"
-    $result;
-}
+
+Test-TestCache
+Test-TestRun

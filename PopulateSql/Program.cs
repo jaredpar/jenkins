@@ -14,7 +14,7 @@ namespace PopulateSql
     {
         internal static void Main(string[] args)
         {
-            var connectionString = File.ReadAllText(@"c:\users\jaredpar\connection.txt");
+            var connectionString = File.ReadAllText(@"c:\users\jaredpar\connection.txt").Trim();
             // var client = new DataClient(connectionString);
             // PopulateAllJobInfos(client);
             // PopulateAllFailures(client);

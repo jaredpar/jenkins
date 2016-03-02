@@ -45,10 +45,11 @@
     <Compile Include="SqlUtil.cs" />
     <Compile Include="TestCacheStats.cs" />
     <Compile Include="TestResultStorage.cs" />
+    <Compile Include="TestRun.cs" />
     <Compile Include="TestStatsData.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="dbo.Jobs.sql" />
+    <Content Include="Tables.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

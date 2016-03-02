@@ -43,5 +43,10 @@ namespace Roslyn.Sql
         {
             _sqlUtil.Insert(checksum, assemblyName, outputStandardLength, outputErrorLength, contentLength, ellapsed);
         }
+
+        public bool AddTestRun(TestRun testRun)
+        {
+            return _sqlUtil.InsertTestRun(testRun);
+        }
     }
 }

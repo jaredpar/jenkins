@@ -118,15 +118,15 @@ namespace Roslyn.Sql
 
         internal bool InsertHit(string checksum, string assemblyName, bool? isJenkins)
         {
-            return InsertQuery(checksum, assemblyName, isHit: true, isJenkins: isJenkins);
+            return InsertTestQuery(checksum, assemblyName, isHit: true, isJenkins: isJenkins);
         }
 
         internal bool InsertMiss(string checksum, string assemblyName, bool? isJenkins)
         {
-            return InsertQuery(checksum, assemblyName, isHit: false, isJenkins: isJenkins);
+            return InsertTestQuery(checksum, assemblyName, isHit: false, isJenkins: isJenkins);
         }
 
-        private bool InsertQuery(string checksum, string assemblyName, bool isHit, bool? isJenkins)
+        private bool InsertTestQuery(string checksum, string assemblyName, bool isHit, bool? isJenkins)
         {
             var commandText = @"
                 INSERT INTO dbo.TestResultQueries(Checksum, QueryDate, IsHit, IsJenkins, AssemblyName)
@@ -140,6 +140,34 @@ namespace Roslyn.Sql
                 p.AddWithValue("@IsHit", isHit);
                 p.AddWithValue("@IsJenkins", isJenkinsVal);
                 p.AddWithValue("@AssemblyName", (object)assemblyName ?? DBNull.Value);
+
+                try
+                {
+                    command.ExecuteNonQuery();
+                    return true;
+                }
+                catch 
+                {
+                    return false;
+                }
+            }
+        }
+
+        internal bool InsertTestRun(TestRun testRun)
+        {
+            var commandText = @"
+                INSERT INTO dbo.TestRuns(RunDate, Cache, EllapsedSeconds, IsJenkins, Is32, AssemblyCount, CacheCount)
+                VALUES(@RunDate, @Cache, @EllapsedSeconds, @IsJenkins, @Is32, @AssemblyCount, @CacheCount)";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var p = command.Parameters;
+                p.AddWithValue("@RunDate", testRun.RunDate);
+                p.AddWithValue("@Cache", testRun.Cache);
+                p.AddWithValue("@EllapsedSeconds", testRun.Ellapsed.TotalSeconds);
+                p.AddWithValue("@IsJenkins", testRun.IsJenkins);
+                p.AddWithValue("@Is32", testRun.Is32Bit);
+                p.AddWithValue("@AssemblyCount", testRun.AssemblyCount);
+                p.AddWithValue("@CacheCount", testRun.CacheCount);
 
                 try
                 {
