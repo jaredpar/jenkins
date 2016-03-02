@@ -17,7 +17,7 @@ namespace ApiFun
     {
         internal static void Main(string[] args)
         {
-            PrintMacTimes();
+            // PrintMacTimes();
             // var util = new MachineCountInvestigation(CreateClient());
             // util.Go();
             // GetMacQueueTimes();
@@ -29,7 +29,7 @@ namespace ApiFun
             // PrintJobNames();
             // PrintJobInfo();
             // PrintQueue();
-            // PrintViews();
+            PrintViews();
 
             /*
             roslyn_stabil_lin_dbg_unit32

@@ -18,10 +18,10 @@ namespace Dashboard.Controllers
             return Jobs();
         }
 
-        public ActionResult Jobs(string id = null)
+        public ActionResult Jobs(string id = null, string view = null)
         {
             return string.IsNullOrEmpty(id)
-                ? GetJobList()
+                ? GetJobList(view)
                 : GetJob(id);
         }
 
@@ -50,11 +50,14 @@ namespace Dashboard.Controllers
             return View(viewName: "Waiting", model: model);
         }
 
-        private ActionResult GetJobList()
+        private ActionResult GetJobList(string view)
         {
             var model = new AllJobsModel();
-            var client = CreateRoslynClient();
-            foreach (var name in client.Client.GetJobNames())
+            var client = CreateJenkinsClient();
+            var names = string.IsNullOrEmpty(view)
+                ? client.GetJobNames()
+                : client.GetJobNamesInView(view);
+            foreach (var name in names)
             {
                 model.Names.Add(name);
             }

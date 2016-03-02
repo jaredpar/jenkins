@@ -18,6 +18,11 @@ namespace Dashboard.Helpers
             return new RoslynClient();
         }
 
+        protected JenkinsClient CreateJenkinsClient()
+        {
+            return CreateRoslynClient().Client;
+        }
+
         protected DataClient CreateDataClient()
         {
             var connectionString = ConfigurationManager.ConnectionStrings["Jenkins"].ConnectionString;

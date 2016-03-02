@@ -181,8 +181,9 @@ namespace Roslyn.Jenkins
             foreach (JObject pair in items)
             {
                 var name = pair.Value<string>("name");
+                var description = pair.Value<string>("description");
                 var url = new Uri(pair.Value<string>("url"));
-                list.Add(new ViewInfo(name, url));
+                list.Add(new ViewInfo(name, description, url));
             }
 
             return list;

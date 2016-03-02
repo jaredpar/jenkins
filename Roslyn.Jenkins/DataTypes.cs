@@ -45,11 +45,13 @@ namespace Roslyn.Jenkins
     public sealed class ViewInfo
     {
         public string Name { get; }
+        public string Description { get; }
         public Uri Url { get; }
 
-        public ViewInfo(string name, Uri url)
+        public ViewInfo(string name, string description, Uri url)
         {
             Name = name;
+            Description = Description;
             Url = url;
         }
 
