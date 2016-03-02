@@ -40,6 +40,7 @@ namespace Dashboard.Controllers
         public string MachineName { get; set; }
         public string TestRoot { get; set; }
         public string AssemblyName { get; set; }
+        public bool? IsJenkins { get; set; }
     }
 
     /// <summary>
@@ -88,13 +89,6 @@ namespace Dashboard.Controllers
             throw new HttpResponseException(HttpStatusCode.NotFound);
         }
 
-        /*
-        public void Post(TestCacheData testCacheData)
-        {
-            Add(testCacheData
-        }
-        */
-
         public void Put(string id, [FromBody]TestCache testCache)
         {
             var testResultData = testCache.TestResultData;
@@ -112,14 +106,8 @@ namespace Dashboard.Controllers
                 assemblyName: null,
                 outputStandardLength: testResultData.OutputStandard?.Length ?? 0,
                 outputErrorLength: testResultData.OutputError?.Length ?? 0,
-                contentLength: testResultData.ResultsFileContent?.Length ?? 0);
+                contentLength: testResultData.ResultsFileContent?.Length ?? 0,
+                ellapsed: TimeSpan.FromSeconds(testResultData.EllapsedSeconds));
         }
-
-        // TODO
-        public void Delete(int id)
-        {
-
-        }
-
     }
 }

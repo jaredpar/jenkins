@@ -19,6 +19,7 @@ $data = @{
         outputError = "";
         resultsFileContent = "hello";
         resultsFileName = "test.xml";
+        ellapsedSeconds = 100;
     };
     testSourceData = @{
         machineName = "a machine";

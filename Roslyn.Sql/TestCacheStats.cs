@@ -39,9 +39,9 @@ namespace Roslyn.Sql
             _sqlUtil.InsertMiss(checksum, assemblyName, isJenkins);
         }
 
-        public void AddStore(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength)
+        public void AddStore(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength, TimeSpan ellapsed)
         {
-            _sqlUtil.Insert(checksum, assemblyName, outputStandardLength, outputErrorLength, contentLength);
+            _sqlUtil.Insert(checksum, assemblyName, outputStandardLength, outputErrorLength, contentLength, ellapsed);
         }
     }
 }
