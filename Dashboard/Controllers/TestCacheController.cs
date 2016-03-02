@@ -64,15 +64,21 @@ namespace Dashboard.Controllers
 
         public TestResult Get(string id)
         {
-            TestResult testCacheData;
-            if (_storage.TryGetValue(id, out testCacheData))
+            using (var sqlUtil = CreateConnection())
             {
-                _stats.AddHit();
-                return testCacheData;
-            }
+                TestResult testCacheData;
 
-            _stats.AddMiss();
-            throw new HttpResponseException(HttpStatusCode.NotFound);
+                if (_storage.TryGetValue(id, out testCacheData))
+                {
+                    _stats.AddHit();
+                    sqlUtil.InsertHit(id, assemblyName: null, isJenkins: null);
+                    return testCacheData;
+                }
+
+                sqlUtil.InsertMiss(id, assemblyName: null, isJenkins: null);
+                _stats.AddMiss();
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+            }
         }
 
         /*
