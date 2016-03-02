@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Roslyn.Jenkins;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -25,5 +26,15 @@ namespace Dashboard.Models
         public string Name { get; set; }
         public TimeSpan AverageDuration { get; set; }
         public List<JobDaySummary> JobDaySummaryList { get; set; } = new List<JobDaySummary>();
+    }
+
+    public sealed class ViewModel
+    {
+        public List<ViewInfo> Views { get; }
+
+        public ViewModel(List<ViewInfo> views)
+        {
+            Views = views;
+        }
     }
 }

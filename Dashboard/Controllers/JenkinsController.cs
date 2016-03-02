@@ -25,6 +25,12 @@ namespace Dashboard.Controllers
                 : GetJob(id);
         }
 
+        public ActionResult Views()
+        {
+            var viewList = CreateJenkinsClient().GetViews();
+            return View(viewName: "ViewList", model: new ViewModel(viewList));
+        }
+
         public ActionResult Queue(string id = null)
         {
             return string.IsNullOrEmpty(id)

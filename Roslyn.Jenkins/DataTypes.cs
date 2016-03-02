@@ -51,7 +51,7 @@ namespace Roslyn.Jenkins
         public ViewInfo(string name, string description, Uri url)
         {
             Name = name;
-            Description = Description;
+            Description = description;
             Url = url;
         }
 
