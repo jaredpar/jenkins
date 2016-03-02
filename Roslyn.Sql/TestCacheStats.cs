@@ -5,60 +5,43 @@ using System.Web;
 
 namespace Roslyn.Sql
 {
-    public class TestCacheStats
+    public class TestCacheStats : IDisposable
     {
-        public static readonly TestCacheStats Instance = new TestCacheStats();
+        private readonly SqlUtil _sqlUtil;
 
-        private object _guard = new object();
-        private int _missCount;
-        private int _hitCount;
-        private int _storeCount;
-        private List<int> _outputStandardLengthList = new List<int>();
-        private List<int> _outputErrorLengthList = new List<int>();
-        private List<int> _contentLengthList = new List<int>();
+        public TestCacheStats(string connectionString = null)
+        {
+            _sqlUtil = new SqlUtil(connectionString);
+        }
+
+        public void Dispose()
+        {
+            _sqlUtil.Dispose();
+        }
 
         public TestCacheStatSummary GetCurrentSummary()
         {
-            lock (_guard)
-            {
-                var summary = new TestCacheStatSummary()
-                {
-                    HitCount = _hitCount,
-                    MissCount = _missCount,
-                    StoreCount = _storeCount,
-                    OutputStandardSummary = TextStatSummary.Create(_outputStandardLengthList),
-                    OutputErrorSummary = TextStatSummary.Create(_outputErrorLengthList),
-                    ContentSummary = TextStatSummary.Create(_contentLengthList)
-                };
-                return summary;
-            }
+            var tuple = _sqlUtil.GetStats();
+            return new TestCacheStatSummary(
+                hitCount: tuple.Item1,
+                missCount: tuple.Item2,
+                storeCount: _sqlUtil.GetStoreCount() ?? 0,
+                currentCount: TestResultStorage.Instance.Count);
         }
 
-        public void AddHit()
+        public void AddHit(string checksum, string assemblyName, bool? isJenkins)
         {
-            lock (_guard)
-            {
-                _hitCount++;
-            }
+            _sqlUtil.InsertHit(checksum, assemblyName, isJenkins);
         }
 
-        public void AddMiss()
+        public void AddMiss(string checksum, string assemblyName, bool? isJenkins)
         {
-            lock (_guard)
-            {
-                _missCount++;
-            }
+            _sqlUtil.InsertMiss(checksum, assemblyName, isJenkins);
         }
 
-        public void AddStore(int outputStandardLength, int outputErrorLength, int contentLength)
+        public void AddStore(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength)
         {
-            lock (_guard)
-            {
-                _storeCount++;
-                _outputStandardLengthList.Add(outputStandardLength);
-                _outputErrorLengthList.Add(outputErrorLength);
-                _contentLengthList.Add(contentLength);
-            }
+            _sqlUtil.Insert(checksum, assemblyName, outputStandardLength, outputErrorLength, contentLength);
         }
     }
 }

@@ -54,7 +54,7 @@ namespace Dashboard.Controllers
         {
             var model = new AllJobsModel();
             var client = CreateRoslynClient();
-            foreach (var name in client.GetJobNames())
+            foreach (var name in client.Client.GetJobNames())
             {
                 model.Names.Add(name);
             }

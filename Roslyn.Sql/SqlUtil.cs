@@ -7,11 +7,11 @@ using System.Web;
 
 namespace Roslyn.Sql
 {
-    public sealed class SqlUtil : IDisposable
+    internal sealed class SqlUtil : IDisposable
     {
         private SqlConnection _connection;
 
-        public SqlUtil(string connectionString)
+        internal SqlUtil(string connectionString)
         {
             _connection = new SqlConnection(connectionString);
             _connection.Open();
@@ -26,7 +26,70 @@ namespace Roslyn.Sql
             }
         }
 
-        public bool Insert(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength)
+        internal int? GetStoreCount()
+        {
+            var commandText = @"
+                SELECT COUNT(*)
+                FROM dbo.TestResultStore";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                try
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            return reader.GetInt32(0);
+                        }
+
+                        return null;
+                    }
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
+        }
+
+        internal Tuple<int, int> GetStats()
+        {
+            var hitCount = GetStats(isHit: true);
+            var missCount = GetStats(isHit: false);
+            return Tuple.Create(hitCount ?? 0, missCount ?? 0);
+        }
+
+        private int? GetStats(bool isHit)
+        {
+            var commandText = @"
+                SELECT COUNT(*)
+                FROM dbo.TestResultQueries
+                WHERE IsHit = @IsHit";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var p = command.Parameters;
+                p.AddWithValue("@IsHit", isHit);
+
+                try
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            return reader.GetInt32(0);
+                        }
+
+                        return null;
+                    }
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
+        }
+
+        internal bool Insert(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength)
         {
             var commandText = @"
                 INSERT INTO dbo.TestResultStore(Checksum, OutputStandardLength, OutputErrorLength, ContentLength, AssemblyName)
@@ -38,7 +101,7 @@ namespace Roslyn.Sql
                 p.AddWithValue("@OutputStandardLength", outputStandardLength);
                 p.AddWithValue("@OutputErrorLength", outputErrorLength);
                 p.AddWithValue("@ContentLength", contentLength);
-                p.AddWithValue("@AssemblyName", assemblyName);
+                p.AddWithValue("@AssemblyName", (object)assemblyName ?? DBNull.Value);
 
                 try
                 {
@@ -52,12 +115,12 @@ namespace Roslyn.Sql
             }
         }
 
-        public bool InsertHit(string checksum, string assemblyName, bool? isJenkins)
+        internal bool InsertHit(string checksum, string assemblyName, bool? isJenkins)
         {
             return InsertQuery(checksum, assemblyName, isHit: true, isJenkins: isJenkins);
         }
 
-        public bool InsertMiss(string checksum, string assemblyName, bool? isJenkins)
+        internal bool InsertMiss(string checksum, string assemblyName, bool? isJenkins)
         {
             return InsertQuery(checksum, assemblyName, isHit: false, isJenkins: isJenkins);
         }

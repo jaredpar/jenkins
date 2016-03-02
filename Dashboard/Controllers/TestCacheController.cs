@@ -48,13 +48,25 @@ namespace Dashboard.Controllers
     /// </summary>
     public class TestCacheController : ApiController
     {
-        private TestResultStorage _storage = TestResultStorage.Instance;
-        private TestCacheStats _stats = TestCacheStats.Instance;
+        private readonly TestResultStorage _storage;
+        private readonly TestCacheStats _stats;
 
-        public static SqlUtil CreateConnection()
+        public TestCacheController()
         {
+            _storage = TestResultStorage.Instance;
+
             var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
-            return new SqlUtil(connectionString);
+            _stats = new TestCacheStats(connectionString);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (disposing)
+            {
+                _stats.Dispose();
+            }
         }
 
         public IEnumerable<string> Get()
@@ -64,21 +76,16 @@ namespace Dashboard.Controllers
 
         public TestResult Get(string id)
         {
-            using (var sqlUtil = CreateConnection())
+            TestResult testCacheData;
+
+            if (_storage.TryGetValue(id, out testCacheData))
             {
-                TestResult testCacheData;
-
-                if (_storage.TryGetValue(id, out testCacheData))
-                {
-                    _stats.AddHit();
-                    sqlUtil.InsertHit(id, assemblyName: null, isJenkins: null);
-                    return testCacheData;
-                }
-
-                sqlUtil.InsertMiss(id, assemblyName: null, isJenkins: null);
-                _stats.AddMiss();
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                _stats.AddHit(id, assemblyName: null, isJenkins: null);
+                return testCacheData;
             }
+
+            _stats.AddMiss(id, assemblyName: null, isJenkins: null);
+            throw new HttpResponseException(HttpStatusCode.NotFound);
         }
 
         /*
@@ -101,19 +108,11 @@ namespace Dashboard.Controllers
 
             _storage.Add(id, testCacheData);
             _stats.AddStore(
-                testResultData.OutputStandard?.Length ?? 0,
-                testResultData.OutputError?.Length ?? 0,
-                testResultData.ResultsFileContent?.Length ?? 0);
-
-            using (var sqlUtil = CreateConnection())
-            {
-                sqlUtil.Insert(
-                    id,
-                    assemblyName: testCache.TestSourceData.AssemblyName ?? "",
-                    outputStandardLength: testResultData.OutputStandard?.Length ?? 0,
-                    outputErrorLength: testResultData.OutputError?.Length ?? 0,
-                    contentLength: testResultData.ResultsFileContent?.Length ?? 0);
-            }
+                id,
+                assemblyName: null,
+                outputStandardLength: testResultData.OutputStandard?.Length ?? 0,
+                outputErrorLength: testResultData.OutputError?.Length ?? 0,
+                contentLength: testResultData.ResultsFileContent?.Length ?? 0);
         }
 
         // TODO
