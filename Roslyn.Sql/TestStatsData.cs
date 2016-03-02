@@ -12,13 +12,15 @@ namespace Roslyn.Sql
         public int MissCount { get; }
         public int StoreCount { get; }
         public int CurrentCount { get; }
+        public int RunCount { get; }
 
-        public TestCacheStatSummary(int hitCount, int missCount, int storeCount, int currentCount)
+        public TestCacheStatSummary(int hitCount, int missCount, int storeCount, int currentCount, int runCount)
         {
             HitCount = hitCount;
             MissCount = missCount;
             StoreCount = storeCount;
             CurrentCount = currentCount;
+            RunCount = runCount;
         }
     }
 }

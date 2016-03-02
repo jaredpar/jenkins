@@ -26,11 +26,24 @@ namespace Roslyn.Sql
             }
         }
 
+        public int? GetTestRunCount()
+        {
+            var commandText = @"
+                SELECT COUNT(*)
+                FROM dbo.TestRuns";
+            return RunCountCore(commandText);
+        }
+
         internal int? GetStoreCount()
         {
             var commandText = @"
                 SELECT COUNT(*)
                 FROM dbo.TestResultStore";
+            return RunCountCore(commandText);
+        }
+
+        private int? RunCountCore(string commandText)
+        {
             using (var command = new SqlCommand(commandText, _connection))
             {
                 try
@@ -47,7 +60,7 @@ namespace Roslyn.Sql
                 }
                 catch
                 {
-                    return 0;
+                    return null;
                 }
             }
         }

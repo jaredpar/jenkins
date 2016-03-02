@@ -26,7 +26,8 @@ namespace Roslyn.Sql
                 hitCount: tuple.Item1,
                 missCount: tuple.Item2,
                 storeCount: _sqlUtil.GetStoreCount() ?? 0,
-                currentCount: TestResultStorage.Instance.Count);
+                currentCount: TestResultStorage.Instance.Count,
+                runCount: _sqlUtil.GetTestRunCount() ?? 0);
         }
 
         public void AddHit(string checksum, string assemblyName, bool? isJenkins)
