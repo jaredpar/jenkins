@@ -8,6 +8,7 @@
 
 # May contain passwords
 *.pubxml
+secrets.config
 Web.Debug.config
 Web.Release.config
 
