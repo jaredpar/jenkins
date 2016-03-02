@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Roslyn.Jenkins;
-using Roslyn.Sql;
 using System.Diagnostics;
 using System.IO;
 using RestSharp.Authenticators;

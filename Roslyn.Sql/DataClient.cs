@@ -4,7 +4,6 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Roslyn.Jenkins;
 
 namespace Roslyn.Sql
 {
@@ -27,6 +26,7 @@ namespace Roslyn.Sql
             }
         }
 
+        /*
         public List<string> GetJobNames()
         {
             var commandText = @"SELECT DISTINCT Name FROM Jobs";
@@ -191,7 +191,6 @@ namespace Roslyn.Sql
 
         public bool HasSucceeded(string name, string sha)
         {
-            /*
             var commandText = @"
                 SELECT Count(*)
                 FROM Jobs
@@ -205,7 +204,6 @@ namespace Roslyn.Sql
                 var count = (int)command.ExecuteScalar();
                 return count > 0;
             }
-            */
             throw new NotImplementedException();
         }
 
@@ -361,5 +359,6 @@ namespace Roslyn.Sql
                 }
             }
         }
+        */
     }
 }

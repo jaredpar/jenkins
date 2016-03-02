@@ -1,5 +1,4 @@
 ﻿using Roslyn.Jenkins;
-using Roslyn.Sql;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -16,12 +15,13 @@ namespace PopulateSql
         internal static void Main(string[] args)
         {
             var connectionString = File.ReadAllText(@"c:\users\jaredpar\connection.txt");
-            var client = new DataClient(connectionString);
-            PopulateAllJobInfos(client);
+            // var client = new DataClient(connectionString);
+            // PopulateAllJobInfos(client);
             // PopulateAllFailures(client);
             // PopulateAllRetest(client);
         }
 
+        /*
         private static void PopulateAllJobInfos(DataClient dataClient)
         {
             var roslynClient = new RoslynClient();
@@ -85,12 +85,10 @@ namespace PopulateSql
 
 
             }
-            */
         }
 
         private static void PopulateAllRetest(DataClient dataClient)
         {
-            /*
             var list = dataClient.GetFailures();
             foreach (var tuple in list)
             {
@@ -102,7 +100,7 @@ namespace PopulateSql
                     dataClient.InsertRetest(id, sha);
                 }
             }
-            */
         }
+            */
     }
 }

@@ -266,6 +266,10 @@
       <Project>{93ed4b41-cbc6-4423-bddc-612c9bb607ba}</Project>
       <Name>Roslyn.Jenkins</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Roslyn.Sql\Roslyn.Sql.csproj">
+      <Project>{6482f3d6-a5a0-459a-8593-a851945e4aad}</Project>
+      <Name>Roslyn.Sql</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
