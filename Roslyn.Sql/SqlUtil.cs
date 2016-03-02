@@ -169,14 +169,15 @@ namespace Roslyn.Sql
         internal bool InsertTestRun(TestRun testRun)
         {
             var commandText = @"
-                INSERT INTO dbo.TestRuns(RunDate, Cache, EllapsedSeconds, IsJenkins, Is32, AssemblyCount, CacheCount)
-                VALUES(@RunDate, @Cache, @EllapsedSeconds, @IsJenkins, @Is32, @AssemblyCount, @CacheCount)";
+                INSERT INTO dbo.TestRuns(RunDate, Cache, EllapsedSeconds, Succeeded, IsJenkins, Is32, AssemblyCount, CacheCount)
+                VALUES(@RunDate, @Cache, @EllapsedSeconds, @Succeeded, @IsJenkins, @Is32, @AssemblyCount, @CacheCount)";
             using (var command = new SqlCommand(commandText, _connection))
             {
                 var p = command.Parameters;
                 p.AddWithValue("@RunDate", testRun.RunDate);
                 p.AddWithValue("@Cache", testRun.Cache);
                 p.AddWithValue("@EllapsedSeconds", testRun.Ellapsed.TotalSeconds);
+                p.AddWithValue("@Succeeded", testRun.Succeeded);
                 p.AddWithValue("@IsJenkins", testRun.IsJenkins);
                 p.AddWithValue("@Is32", testRun.Is32Bit);
                 p.AddWithValue("@AssemblyCount", testRun.AssemblyCount);

@@ -40,7 +40,7 @@ namespace Dashboard.Controllers
         public string MachineName { get; set; }
         public string TestRoot { get; set; }
         public string AssemblyName { get; set; }
-        public bool? IsJenkins { get; set; }
+        public bool IsJenkins { get; set; }
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ namespace Dashboard.Controllers
             _storage.Add(id, testCacheData);
             _stats.AddStore(
                 id,
-                assemblyName: null,
+                assemblyName: testCache?.TestSourceData?.AssemblyName,
                 outputStandardLength: testResultData.OutputStandard?.Length ?? 0,
                 outputErrorLength: testResultData.OutputError?.Length ?? 0,
                 contentLength: testResultData.ResultsFileContent?.Length ?? 0,

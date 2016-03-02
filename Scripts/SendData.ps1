@@ -52,6 +52,7 @@ function Test-TestRun() {
         CacheCount = 42;
         AssemblyCount = 42;
         Cache = "test";
+        Succeeded = $true;
     }
 
     $dataJson = ConvertTo-Json $data
@@ -62,5 +63,5 @@ function Test-TestRun() {
     }
 }
 
-Test-TestCache
+# Test-TestCache
 Test-TestRun

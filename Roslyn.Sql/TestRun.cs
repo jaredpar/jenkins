@@ -11,6 +11,7 @@ namespace Roslyn.Sql
         public DateTime RunDate { get; }
         public string Cache { get; }
         public TimeSpan Ellapsed { get; }
+        public bool Succeeded { get; }
         public bool IsJenkins { get; }
         public bool Is32Bit { get; }
         public int AssemblyCount { get; }
@@ -20,6 +21,7 @@ namespace Roslyn.Sql
             DateTime runDate,
             string cache,
             TimeSpan ellapsed,
+            bool succeeded,
             bool isJenkins,
             bool is32Bit,
             int cacheCount,
@@ -28,6 +30,7 @@ namespace Roslyn.Sql
             RunDate = runDate;
             Cache = cache;
             Ellapsed = ellapsed;
+            Succeeded = succeeded;
             Is32Bit = is32Bit;
             IsJenkins = isJenkins;
             AssemblyCount = assemblyCount;
