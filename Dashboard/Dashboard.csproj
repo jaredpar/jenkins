@@ -248,6 +248,7 @@
     <Content Include="Views\Jenkins\Waiting.cshtml" />
     <Content Include="Views\Status\Tests.cshtml" />
     <Content Include="Views\Jenkins\ViewList.cshtml" />
+    <Content Include="Views\Status\Results.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

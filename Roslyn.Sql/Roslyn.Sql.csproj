@@ -40,9 +40,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataClient.cs" />
+    <Compile Include="ILogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlUtil.cs" />
+    <Compile Include="StorageLogger.cs" />
     <Compile Include="TestCacheStats.cs" />
     <Compile Include="TestResultStorage.cs" />
     <Compile Include="TestRun.cs" />

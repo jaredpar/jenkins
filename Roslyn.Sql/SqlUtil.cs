@@ -9,12 +9,16 @@ namespace Roslyn.Sql
 {
     internal sealed class SqlUtil : IDisposable
     {
-        private SqlConnection _connection;
+        internal const string Category = "sql";
 
-        internal SqlUtil(string connectionString)
+        private SqlConnection _connection;
+        private ILogger _logger;
+
+        internal SqlUtil(string connectionString, ILogger logger = null)
         {
             _connection = new SqlConnection(connectionString);
             _connection.Open();
+            _logger = logger ?? StorageLogger.Instance;
         }
 
         public void Dispose()
@@ -122,8 +126,9 @@ namespace Roslyn.Sql
                     command.ExecuteNonQuery();
                     return true;
                 }
-                catch 
+                catch (Exception ex)
                 {
+                    _logger.Log(Category, $"Cannot insert storage for {checksum}", ex);
                     return false;
                 }
             }
@@ -159,8 +164,9 @@ namespace Roslyn.Sql
                     command.ExecuteNonQuery();
                     return true;
                 }
-                catch 
+                catch (Exception ex)
                 {
+                    _logger.Log(Category, $"Cannot insert query for {checksum}", ex);
                     return false;
                 }
             }
@@ -169,8 +175,8 @@ namespace Roslyn.Sql
         internal bool InsertTestRun(TestRun testRun)
         {
             var commandText = @"
-                INSERT INTO dbo.TestRuns(RunDate, Cache, EllapsedSeconds, Succeeded, IsJenkins, Is32, AssemblyCount, CacheCount)
-                VALUES(@RunDate, @Cache, @EllapsedSeconds, @Succeeded, @IsJenkins, @Is32, @AssemblyCount, @CacheCount)";
+                INSERT INTO dbo.TestRuns(RunDate, Cache, EllapsedSeconds, Succeeded, IsJenkins, Is32, AssemblyCount, CacheCount, ChunkCount)
+                VALUES(@RunDate, @Cache, @EllapsedSeconds, @Succeeded, @IsJenkins, @Is32, @AssemblyCount, @CacheCount, @ChunkCount)";
             using (var command = new SqlCommand(commandText, _connection))
             {
                 var p = command.Parameters;
@@ -182,14 +188,16 @@ namespace Roslyn.Sql
                 p.AddWithValue("@Is32", testRun.Is32Bit);
                 p.AddWithValue("@AssemblyCount", testRun.AssemblyCount);
                 p.AddWithValue("@CacheCount", testRun.CacheCount);
+                p.AddWithValue("@ChunkCount", testRun.ChunkCount);
 
                 try
                 {
                     command.ExecuteNonQuery();
                     return true;
                 }
-                catch 
+                catch (Exception ex)
                 {
+                    _logger.Log(Category, $"Cannot test run", ex);
                     return false;
                 }
             }

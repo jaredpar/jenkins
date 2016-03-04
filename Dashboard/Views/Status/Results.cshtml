@@ -1,0 +1,11 @@
+﻿@model List<string>
+
+<h3>Test Result Keys</h3>
+
+@foreach (var key in Model)
+{
+    <div><a href="@Url.Action(controllerName: "Status", actionName: "Result", routeValues: new { id = @key })">@key</a></div>
+}
+
+
+

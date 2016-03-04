@@ -16,6 +16,7 @@ namespace Roslyn.Sql
         public bool Is32Bit { get; }
         public int AssemblyCount { get; }
         public int CacheCount { get; }
+        public int ChunkCount { get; }
 
         public TestRun(
             DateTime runDate,
@@ -25,7 +26,8 @@ namespace Roslyn.Sql
             bool isJenkins,
             bool is32Bit,
             int cacheCount,
-            int assemblyCount)
+            int assemblyCount,
+            int chunkCount)
         {
             RunDate = runDate;
             Cache = cache;
@@ -35,6 +37,7 @@ namespace Roslyn.Sql
             IsJenkins = isJenkins;
             AssemblyCount = assemblyCount;
             CacheCount = cacheCount;
+            ChunkCount = chunkCount;
         }
     }
 }

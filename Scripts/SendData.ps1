@@ -24,8 +24,8 @@ function Test-TestCache() {
             exitCode = 42;
             outputStandard = "";
             outputError = "";
-            resultsFileContent = "hello";
-            resultsFileName = "test.xml";
+            resultsFileContent = "<html><body><h2>hello world</h2></body></html>";
+            resultsFileName = "test.html";
             ellapsedSeconds = 100;
         };
         testSourceData = @{
@@ -63,5 +63,5 @@ function Test-TestRun() {
     }
 }
 
-# Test-TestCache
-Test-TestRun
+Test-TestCache
+# Test-TestRun

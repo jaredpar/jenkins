@@ -12,6 +12,8 @@ namespace Dashboard.Controllers
 {
     public class StatusController : Controller
     {
+        private readonly TestResultStorage _storage = TestResultStorage.Instance;
+
         public ActionResult Index()
         {
             return RedirectToAction(nameof(Tests));
@@ -25,6 +27,25 @@ namespace Dashboard.Controllers
             {
                 return View(stats.GetCurrentSummary());
             }
+        }
+
+        public ActionResult Result(string id)
+        {
+            TestResult testResult;
+            if (!_storage.TryGetValue(id, out testResult))
+            {
+                throw new Exception("Invalid key");
+            }
+
+            var contentType = testResult.ResultsFileName.EndsWith("xml")
+                ? "application/xml"
+                : "text/html";
+            return Content(testResult.ResultsFileContent, contentType);
+        }
+
+        public ActionResult Results()
+        {
+            return View(_storage.Keys);
         }
     }
 }
