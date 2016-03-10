@@ -83,7 +83,7 @@ namespace Roslyn.Sql
                 _testResultMap[key] = value;
                 if (_testResultMap.Count > MapLimit)
                 {
-                    var toRemove = _testResultMap.Keys.Take(MapLimit / 5);
+                    var toRemove = _testResultMap.Keys.Take(MapLimit / 5).ToList();
                     foreach (var item in toRemove)
                     {
                         _testResultMap.Remove(item);
