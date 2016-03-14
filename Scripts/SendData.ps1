@@ -15,9 +15,17 @@ function Get-MD5($text)  {
     return $hash
 }
 
-function Test-TestCache() {
+function Test-Values()
+{
+    param ($msg, $left, $right)
 
-    $id = Get-MD5 ([Guid]::NewGuid().ToString())
+    if ($left -ne $right) {
+        write-host "Error $msg!!!: $left not equal $right "
+    }
+}
+
+function Test-TestCacheCore() {
+    param ( [string]$id = (Get-MD5 ([Guid]::NewGuid().ToString())))
 
     $data = @{
         testResultData = @{
@@ -26,7 +34,7 @@ function Test-TestCache() {
             outputError = "";
             resultsFileContent = "<html><body><h2>hello world</h2></body></html>";
             resultsFileName = "test.html";
-            ellapsedSeconds = 100;
+            elapsedSeconds = 100;
         };
         testSourceData = @{
             machineName = "a machine";
@@ -39,8 +47,15 @@ function Test-TestCache() {
     $result = Invoke-WebRequest "$url/api/testCache/$id" -method get
     if ($result.StatusCode -ne 200) {
         write-host "Could not retrieve resource"
-        $result;
+        $result
+        return
     }
+
+    $oldData = $data.testResultData
+    $newData = ConvertFrom-Json $result.Content
+    Test-Values "exitCode" $oldData.ExitCode $newData.ExitCode 
+    Test-Values "elapsedSeconds" $oldData.elapsedSeconds $newData.ElapsedSeconds 
+    Test-Values "content" $oldData.ResultsFileContent $newData.ResultsFileContent
 }
 
 function Test-TestRun() {
@@ -63,5 +78,5 @@ function Test-TestRun() {
     }
 }
 
-Test-TestCache
+Test-TestCacheCore
 # Test-TestRun

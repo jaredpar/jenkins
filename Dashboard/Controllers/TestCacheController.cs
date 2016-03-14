@@ -27,6 +27,9 @@ namespace Dashboard.Controllers
         public string OutputError { get; set; }
         public string ResultsFileName { get; set; }
         public string ResultsFileContent { get; set; }
+        public int ElapsedSeconds { get; set; }
+
+        // Misspelled version to keep until we can flow throw all of the spelling updates.
         public int EllapsedSeconds { get; set; }
     }
 
@@ -75,14 +78,25 @@ namespace Dashboard.Controllers
             return _storage.Keys;
         }
 
-        public TestResult Get(string id)
+        public TestResultData Get(string id)
         {
-            TestResult testCacheData;
+            TestResult testResult;
 
-            if (_storage.TryGetValue(id, out testCacheData))
+            if (_storage.TryGetValue(id, out testResult))
             {
                 _stats.AddHit(id, assemblyName: null, isJenkins: null);
-                return testCacheData;
+
+                var testResultData = new TestResultData()
+                {
+                    ExitCode = testResult.ExitCode,
+                    OutputStandard = testResult.OutputStandard,
+                    OutputError = testResult.OutputError,
+                    ResultsFileName = testResult.ResultsFileName,
+                    ResultsFileContent = testResult.ResultsFileContent,
+                    ElapsedSeconds = (int)testResult.Ellapsed.TotalSeconds,
+                    EllapsedSeconds = (int)testResult.Ellapsed.TotalSeconds,
+                };
+                return testResultData;
             }
 
             _stats.AddMiss(id, assemblyName: null, isJenkins: null);
@@ -92,13 +106,16 @@ namespace Dashboard.Controllers
         public void Put(string id, [FromBody]TestCache testCache)
         {
             var testResultData = testCache.TestResultData;
+            var seconds = testResultData.ElapsedSeconds > 0
+                ? testResultData.ElapsedSeconds
+                : testResultData.EllapsedSeconds;
             var testCacheData = new TestResult(
                 testResultData.ExitCode,
                 testResultData.OutputStandard,
                 testResultData.OutputError,
                 testResultData.ResultsFileName,
                 testResultData.ResultsFileContent,
-                TimeSpan.FromSeconds(testResultData.EllapsedSeconds));
+                TimeSpan.FromSeconds(seconds));
 
             _storage.Add(id, testCacheData);
             _stats.AddStore(

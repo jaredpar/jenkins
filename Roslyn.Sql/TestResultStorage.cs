@@ -39,7 +39,7 @@ namespace Roslyn.Sql
     {
         public static TestResultStorage Instance = new TestResultStorage();
 
-        private const int MapLimit = 500;
+        private const int MapLimit = 5000;
         private const int SizeLimit = 10000000;
 
         private readonly Dictionary<string, TestResult> _testResultMap = new Dictionary<string, TestResult>();
