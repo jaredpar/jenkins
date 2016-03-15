@@ -20,14 +20,14 @@ namespace Roslyn.Sql
             string outputError,
             string resultsFileName,
             string resultsFileContent,
-            TimeSpan ellapsed)
+            TimeSpan elapsed)
         {
             ExitCode = exitCode;
             OutputStandard = outputStandard;
             OutputError = outputError;
             ResultsFileName = resultsFileName;
             ResultsFileContent = resultsFileContent;
-            Elapsed = ellapsed;
+            Elapsed = elapsed;
         }
     }
 

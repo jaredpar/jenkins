@@ -55,7 +55,7 @@ namespace Dashboard.Controllers
             var testRun = new TestRun(
                     runDate: DateTime.UtcNow,
                     cache: testRunData.Cache,
-                    ellapsed: TimeSpan.FromSeconds(elapsed),
+                    elapsed: TimeSpan.FromSeconds(elapsed),
                     succeeded: testRunData.Succeeded,
                     isJenkins: testRunData.IsJenkins,
                     is32Bit: testRunData.Is32Bit,
