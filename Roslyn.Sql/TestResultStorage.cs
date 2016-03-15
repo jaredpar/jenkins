@@ -12,7 +12,7 @@ namespace Roslyn.Sql
         public string OutputError { get; }
         public string ResultsFileName { get; }
         public string ResultsFileContent { get; }
-        public TimeSpan Ellapsed { get; }
+        public TimeSpan Elapsed { get; }
 
         public TestResult(
             int exitCode,
@@ -27,7 +27,7 @@ namespace Roslyn.Sql
             OutputError = outputError;
             ResultsFileName = resultsFileName;
             ResultsFileContent = resultsFileContent;
-            Ellapsed = ellapsed;
+            Elapsed = ellapsed;
         }
     }
 

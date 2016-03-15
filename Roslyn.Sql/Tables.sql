@@ -34,7 +34,7 @@ CREATE TABLE [dbo].[TestResultStore] (
     [OutputErrorLength]    INT           NOT NULL,
     [ContentLength]        NCHAR (10)    NOT NULL,
     [AssemblyName]         VARCHAR (100) NULL,
-    [EllapsedSeconds]      INT           NOT NULL
+    [ElapsedSeconds]      INT           NOT NULL
 );
 
 

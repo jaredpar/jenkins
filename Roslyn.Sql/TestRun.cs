@@ -10,7 +10,7 @@ namespace Roslyn.Sql
     {
         public DateTime RunDate { get; }
         public string Cache { get; }
-        public TimeSpan Ellapsed { get; }
+        public TimeSpan Elapsed { get; }
         public bool Succeeded { get; }
         public bool IsJenkins { get; }
         public bool Is32Bit { get; }
@@ -21,7 +21,7 @@ namespace Roslyn.Sql
         public TestRun(
             DateTime runDate,
             string cache,
-            TimeSpan ellapsed,
+            TimeSpan elapsed,
             bool succeeded,
             bool isJenkins,
             bool is32Bit,
@@ -31,7 +31,7 @@ namespace Roslyn.Sql
         {
             RunDate = runDate;
             Cache = cache;
-            Ellapsed = ellapsed;
+            Elapsed = elapsed;
             Succeeded = succeeded;
             Is32Bit = is32Bit;
             IsJenkins = isJenkins;

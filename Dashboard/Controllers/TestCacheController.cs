@@ -93,8 +93,8 @@ namespace Dashboard.Controllers
                     OutputError = testResult.OutputError,
                     ResultsFileName = testResult.ResultsFileName,
                     ResultsFileContent = testResult.ResultsFileContent,
-                    ElapsedSeconds = (int)testResult.Ellapsed.TotalSeconds,
-                    EllapsedSeconds = (int)testResult.Ellapsed.TotalSeconds,
+                    ElapsedSeconds = (int)testResult.Elapsed.TotalSeconds,
+                    EllapsedSeconds = (int)testResult.Elapsed.TotalSeconds,
                 };
                 return testResultData;
             }
@@ -124,7 +124,7 @@ namespace Dashboard.Controllers
                 outputStandardLength: testResultData.OutputStandard?.Length ?? 0,
                 outputErrorLength: testResultData.OutputError?.Length ?? 0,
                 contentLength: testResultData.ResultsFileContent?.Length ?? 0,
-                ellapsed: TimeSpan.FromSeconds(testResultData.EllapsedSeconds));
+                elapsed: TimeSpan.FromSeconds(testResultData.EllapsedSeconds));
         }
     }
 }

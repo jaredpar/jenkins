@@ -182,7 +182,7 @@ namespace Roslyn.Sql
                 var p = command.Parameters;
                 p.AddWithValue("@RunDate", testRun.RunDate);
                 p.AddWithValue("@Cache", testRun.Cache);
-                p.AddWithValue("@ElapsedSeconds", testRun.Ellapsed.TotalSeconds);
+                p.AddWithValue("@ElapsedSeconds", testRun.Elapsed.TotalSeconds);
                 p.AddWithValue("@Succeeded", testRun.Succeeded);
                 p.AddWithValue("@IsJenkins", testRun.IsJenkins);
                 p.AddWithValue("@Is32", testRun.Is32Bit);
