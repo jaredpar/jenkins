@@ -79,4 +79,4 @@ function Test-TestRun() {
 }
 
 Test-TestCacheCore
-# Test-TestRun
+Test-TestRun

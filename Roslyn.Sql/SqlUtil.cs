@@ -106,11 +106,11 @@ namespace Roslyn.Sql
             }
         }
 
-        internal bool Insert(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength, TimeSpan ellapsed)
+        internal bool Insert(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength, TimeSpan elapsed)
         {
             var commandText = @"
-                INSERT INTO dbo.TestResultStore(Checksum, OutputStandardLength, OutputErrorLength, ContentLength, AssemblyName, EllapsedSeconds)
-                VALUES(@Checksum, @OutputStandardLength, @OutputErrorLength, @ContentLength, @AssemblyName, @EllapsedSeconds)";
+                INSERT INTO dbo.TestResultStore(Checksum, OutputStandardLength, OutputErrorLength, ContentLength, AssemblyName, ElapsedSeconds)
+                VALUES(@Checksum, @OutputStandardLength, @OutputErrorLength, @ContentLength, @AssemblyName, @ElapsedSeconds)";
             using (var command = new SqlCommand(commandText, _connection))
             {
                 var p = command.Parameters;
@@ -119,7 +119,7 @@ namespace Roslyn.Sql
                 p.AddWithValue("@OutputErrorLength", outputErrorLength);
                 p.AddWithValue("@ContentLength", contentLength);
                 p.AddWithValue("@AssemblyName", (object)assemblyName ?? DBNull.Value);
-                p.AddWithValue("@EllapsedSeconds", ellapsed.TotalSeconds);
+                p.AddWithValue("@ElapsedSeconds", elapsed.TotalSeconds);
 
                 try
                 {
@@ -175,14 +175,14 @@ namespace Roslyn.Sql
         internal bool InsertTestRun(TestRun testRun)
         {
             var commandText = @"
-                INSERT INTO dbo.TestRuns(RunDate, Cache, EllapsedSeconds, Succeeded, IsJenkins, Is32, AssemblyCount, CacheCount, ChunkCount)
-                VALUES(@RunDate, @Cache, @EllapsedSeconds, @Succeeded, @IsJenkins, @Is32, @AssemblyCount, @CacheCount, @ChunkCount)";
+                INSERT INTO dbo.TestRuns(RunDate, Cache, ElapsedSeconds, Succeeded, IsJenkins, Is32, AssemblyCount, CacheCount, ChunkCount)
+                VALUES(@RunDate, @Cache, @ElapsedSeconds, @Succeeded, @IsJenkins, @Is32, @AssemblyCount, @CacheCount, @ChunkCount)";
             using (var command = new SqlCommand(commandText, _connection))
             {
                 var p = command.Parameters;
                 p.AddWithValue("@RunDate", testRun.RunDate);
                 p.AddWithValue("@Cache", testRun.Cache);
-                p.AddWithValue("@EllapsedSeconds", testRun.Ellapsed.TotalSeconds);
+                p.AddWithValue("@ElapsedSeconds", testRun.Ellapsed.TotalSeconds);
                 p.AddWithValue("@Succeeded", testRun.Succeeded);
                 p.AddWithValue("@IsJenkins", testRun.IsJenkins);
                 p.AddWithValue("@Is32", testRun.Is32Bit);
