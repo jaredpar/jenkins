@@ -11,7 +11,7 @@ using System.Web.Http;
 
 namespace Dashboard.Controllers
 {
-    public sealed class TestCache
+    public sealed class TestCacheData
     {
         public TestResultData TestResultData { get; set; }
         public TestSourceData TestSourceData { get; set; }
@@ -103,7 +103,7 @@ namespace Dashboard.Controllers
             throw new HttpResponseException(HttpStatusCode.NotFound);
         }
 
-        public void Put(string id, [FromBody]TestCache testCache)
+        public void Put(string id, [FromBody]TestCacheData testCache)
         {
             var testResultData = testCache.TestResultData;
             var seconds = testResultData.ElapsedSeconds > 0
