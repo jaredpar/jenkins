@@ -1,4 +1,5 @@
 ﻿using Roslyn.Jenkins;
+using Roslyn.Sql;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -15,10 +16,23 @@ namespace PopulateSql
         internal static void Main(string[] args)
         {
             var connectionString = File.ReadAllText(@"c:\users\jaredpar\connection.txt").Trim();
+
+            TestBuildSource(connectionString);
             // var client = new DataClient(connectionString);
             // PopulateAllJobInfos(client);
             // PopulateAllFailures(client);
             // PopulateAllRetest(client);
+        }
+
+        private static void TestBuildSource(string connectionString)
+        {
+            using (var util = new SqlUtil(connectionString))
+            {
+                var id1 = util.GetBuildSourceId("jaredpar06", @"e:\dd\roslyn");
+                var id2 = util.GetBuildSourceId("jaredpar06", @"e:\dd\roslyn");
+                Console.WriteLine($"{id1} = {id2}");
+            }
+
         }
 
         /*

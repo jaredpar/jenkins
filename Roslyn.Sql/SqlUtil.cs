@@ -46,6 +46,84 @@ namespace Roslyn.Sql
             return RunCountCore(commandText);
         }
 
+        /// <summary>
+        /// Get the ID tracking the build source row for the unique pair of machine name and enlistment root.
+        /// </summary>
+        internal int? GetBuildSourceId(string machineName, string enlistmentRoot)
+        {
+            if (string.IsNullOrEmpty(machineName) || string.IsNullOrEmpty(enlistmentRoot))
+            {
+                return null;
+            }
+
+            machineName = machineName.ToLowerInvariant();
+            enlistmentRoot = enlistmentRoot.ToLowerInvariant();
+
+            // This is terrible use of SQL but for the moment it will suit my purpose. 
+            var id = GetBuildSourceIdCore(machineName, enlistmentRoot);
+            if (!id.HasValue)
+            {
+                InsertBuildSourceIdCore(machineName, enlistmentRoot);
+                id = GetBuildSourceIdCore(machineName, enlistmentRoot);
+            }
+
+            return id;
+        }
+
+        private int? GetBuildSourceIdCore(string machineName, string enlistmentRoot)
+        {
+            var commandText = @"
+                SELECT Id
+                FROM dbo.BuildSource
+                WHERE MachineName = @MachineName AND EnlistmentRoot = @EnlistmentRoot";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var p = command.Parameters;
+                p.AddWithValue("@MachineName", machineName);
+                p.AddWithValue("@EnlistmentRoot", enlistmentRoot);
+
+                try
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return reader.GetInt32(0);
+                        }
+
+                        return null;
+                    }
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
+
+        private bool InsertBuildSourceIdCore(string machineName, string enlistmentRoot)
+        {
+            var commandText = @"
+                INSERT INTO dbo.BuildSource(MachineName, EnlistmentRoot)
+                VALUES(@MachineName, @EnlistmentRoot)";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var p = command.Parameters;
+                p.AddWithValue("@MachineName", machineName);
+                p.AddWithValue("@EnlistmentRoot", enlistmentRoot);
+
+                try
+                {
+                    command.ExecuteNonQuery();
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
         private int? RunCountCore(string commandText)
         {
             using (var command = new SqlCommand(commandText, _connection))
