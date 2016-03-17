@@ -212,30 +212,32 @@ namespace Roslyn.Sql
             }
         }
 
-        internal bool InsertHit(string checksum, string assemblyName, bool? isJenkins)
+        internal bool InsertHit(string checksum, string assemblyName, bool? isJenkins, int? buildSourceId)
         {
-            return InsertTestQuery(checksum, assemblyName, isHit: true, isJenkins: isJenkins);
+            return InsertTestQuery(checksum, assemblyName, isHit: true, isJenkins: isJenkins, buildSourceId: buildSourceId);
         }
 
-        internal bool InsertMiss(string checksum, string assemblyName, bool? isJenkins)
+        internal bool InsertMiss(string checksum, string assemblyName, bool? isJenkins, int? buildSourceId)
         {
-            return InsertTestQuery(checksum, assemblyName, isHit: false, isJenkins: isJenkins);
+            return InsertTestQuery(checksum, assemblyName, isHit: false, isJenkins: isJenkins, buildSourceId: buildSourceId);
         }
 
-        private bool InsertTestQuery(string checksum, string assemblyName, bool isHit, bool? isJenkins)
+        private bool InsertTestQuery(string checksum, string assemblyName, bool isHit, bool? isJenkins, int? buildSourceId)
         {
             var commandText = @"
-                INSERT INTO dbo.TestResultQueries(Checksum, QueryDate, IsHit, IsJenkins, AssemblyName)
-                VALUES(@Checksum, @QueryDate, @IsHit, @IsJenkins, @AssemblyName)";
+                INSERT INTO dbo.TestResultQueries(Checksum, QueryDate, IsHit, IsJenkins, AssemblyName, BuildSourceId)
+                VALUES(@Checksum, @QueryDate, @IsHit, @IsJenkins, @AssemblyName, @BuildSourceId)";
             using (var command = new SqlCommand(commandText, _connection))
             {
                 var isJenkinsVal = isJenkins.HasValue ? (object)isJenkins.Value : DBNull.Value;
+                var buildSourceIdVal = buildSourceId.HasValue ? (object)buildSourceId.Value : DBNull.Value;
                 var p = command.Parameters;
                 p.AddWithValue("@Checksum", checksum);
                 p.AddWithValue("@QueryDate", DateTime.UtcNow);
                 p.AddWithValue("@IsHit", isHit);
                 p.AddWithValue("@IsJenkins", isJenkinsVal);
                 p.AddWithValue("@AssemblyName", (object)assemblyName ?? DBNull.Value);
+                p.AddWithValue("@BuildSourceId", buildSourceIdVal);
 
                 try
                 {
