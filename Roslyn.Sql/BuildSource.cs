@@ -11,5 +11,10 @@ namespace Roslyn.Sql
         public string MachineName { get; }
         public string EnlistmentRoot { get; }
 
+        public BuildSource(string machineName, string enlistmentRoot)
+        {
+            MachineName = machineName;
+            EnlistmentRoot = enlistmentRoot;
+        }
     }
 }

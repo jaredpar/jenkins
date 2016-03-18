@@ -37,14 +37,18 @@ function Test-TestCacheCore() {
             elapsedSeconds = 100;
         };
         testSourceData = @{
-            machineName = "a machine";
-            testRoot = "c:\blah";
+            machineName = "jaredpar03";
+            enlistmentRoot = "c:\blah";
+            assemblyName = "test.dll";
         };
     }
 
     $dataJson = ConvertTo-Json $data
     Invoke-RestMethod "$url/api/testCache/$id" -method put -contenttype application/json -body $dataJson
-    $result = Invoke-WebRequest "$url/api/testCache/$id" -method get
+
+    $requestUri = "$url/api/testcache/$($id)?machineName=jaredpar03&enlistmentRoot=foo"
+    write-host "Request uri $requestUri"
+    $result = Invoke-WebRequest $requestUri -method get
     if ($result.StatusCode -ne 200) {
         write-host "Could not retrieve resource"
         $result

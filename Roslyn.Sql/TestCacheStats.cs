@@ -5,7 +5,7 @@ using System.Web;
 
 namespace Roslyn.Sql
 {
-    public class TestCacheStats : IDisposable
+    public sealed class TestCacheStats : IDisposable
     {
         private readonly SqlUtil _sqlUtil;
 
@@ -30,14 +30,16 @@ namespace Roslyn.Sql
                 runCount: _sqlUtil.GetTestRunCount() ?? 0);
         }
 
-        public void AddHit(string checksum, string assemblyName, bool? isJenkins)
+        public void AddHit(string checksum, string assemblyName, bool? isJenkins, BuildSource? buildSource)
         {
-            _sqlUtil.InsertHit(checksum, assemblyName, isJenkins);
+            var buildSourceId = _sqlUtil.GetBuildSourceId(buildSource?.MachineName, buildSource?.EnlistmentRoot);
+            _sqlUtil.InsertHit(checksum, assemblyName, isJenkins, buildSourceId);
         }
 
-        public void AddMiss(string checksum, string assemblyName, bool? isJenkins)
+        public void AddMiss(string checksum, string assemblyName, bool? isJenkins, BuildSource? buildSource)
         {
-            _sqlUtil.InsertMiss(checksum, assemblyName, isJenkins);
+            var buildSourceId = _sqlUtil.GetBuildSourceId(buildSource?.MachineName, buildSource?.EnlistmentRoot);
+            _sqlUtil.InsertMiss(checksum, assemblyName, isJenkins, buildSourceId);
         }
 
         public void AddStore(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength, TimeSpan elapsed)

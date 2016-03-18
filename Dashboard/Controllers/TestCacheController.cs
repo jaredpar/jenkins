@@ -41,8 +41,9 @@ namespace Dashboard.Controllers
     public sealed class TestSourceData
     {
         public string MachineName { get; set; }
-        public string TestRoot { get; set; }
+        public string EnlistmentRoot { get; set; }
         public string AssemblyName { get; set; }
+        public string Source { get; set; }
         public bool IsJenkins { get; set; }
     }
 
@@ -78,13 +79,18 @@ namespace Dashboard.Controllers
             return _storage.Keys;
         }
 
-        public TestResultData Get(string id)
+        public TestResultData Get(string id, [FromUri] TestSourceData testSourceData)
         {
             TestResult testResult;
 
+            var buildSource = new BuildSource(testSourceData.MachineName, testSourceData.EnlistmentRoot);
+            var isJenkins = string.IsNullOrEmpty(testSourceData.Source)
+                ? null
+                : (bool?)(testSourceData.Source == "jenkins");
+
             if (_storage.TryGetValue(id, out testResult))
             {
-                _stats.AddHit(id, assemblyName: null, isJenkins: null);
+                _stats.AddHit(id, assemblyName: testSourceData.AssemblyName, isJenkins: isJenkins, buildSource: buildSource);
 
                 var testResultData = new TestResultData()
                 {
@@ -99,11 +105,11 @@ namespace Dashboard.Controllers
                 return testResultData;
             }
 
-            _stats.AddMiss(id, assemblyName: null, isJenkins: null);
+            _stats.AddMiss(id, assemblyName: testSourceData.AssemblyName, isJenkins: isJenkins, buildSource: buildSource);
             throw new HttpResponseException(HttpStatusCode.NotFound);
         }
 
-        public void Put(string id, [FromBody]TestCacheData testCache)
+        public void Put(string id, [FromBody] TestCacheData testCache)
         {
             var testResultData = testCache.TestResultData;
             var seconds = testResultData.ElapsedSeconds > 0
