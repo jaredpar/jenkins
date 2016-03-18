@@ -282,5 +282,160 @@ namespace Roslyn.Sql
                 }
             }
         }
+
+        internal bool InsertTestResult(string checksum, TestResult testResult)
+        {
+            var commandText = @"
+                INSERT INTO dbo.TestResult(Checksum, ExitCode, OutputStandard, OutputError, ResultsFileContent, ResultsFileName, ElapsedSeconds, StoreDate)
+                VALUES(@Checksum, @ExitCode, @OutputStandard, @OutputError, @ResultsFileContent, @ResultsFileName, @ElapsedSeconds, @StoreDate)";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var p = command.Parameters;
+                p.AddWithValue("@Checksum", checksum);
+                p.AddWithValue("@ExitCode", testResult.ExitCode);
+                p.AddWithValue("@OutputStandard", testResult.OutputStandard);
+                p.AddWithValue("@OutputError", testResult.OutputError);
+                p.AddWithValue("@ResultsFileContent", ZipUtil.CompressText(testResult.ResultsFileContent));
+                p.AddWithValue("@ResultsFileName", testResult.ResultsFileName);
+                p.AddWithValue("@ElapsedSeconds", (int)testResult.Elapsed.TotalSeconds);
+                p.AddWithValue("@StoreDate", DateTime.UtcNow);
+
+                try
+                {
+                    command.ExecuteNonQuery();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log(Category, "Cannot insert test result", ex);
+                    return false;
+                }
+            }
+        }
+
+        internal TestResult? GetTestResult(string checksum)
+        {
+            var commandText = @"
+                SELECT ExitCode, OutputStandard, OutputError, ResultsFileContent, ResultsFileName, ElapsedSeconds
+                FROM dbo.TestResult
+                WHERE Checksum = @Checksum";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var p = command.Parameters;
+                p.AddWithValue("@Checksum", checksum);
+
+                try
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            var exitCode = reader.GetInt32(0);
+                            var outputStandard = reader.GetString(1);
+                            var outputError = reader.GetString(2);
+                            var resultsFileContent = ZipUtil.DecompressText(GetAllBytes(reader, 3).ToArray());
+                            var resultsFileName = reader.GetString(4);
+                            var elapsed = reader.GetInt32(5);
+                            return new TestResult(
+                                exitCode: exitCode,
+                                outputStandard: outputStandard,
+                                outputError: outputError,
+                                resultsFileName: resultsFileName,
+                                resultsFileContent: resultsFileContent,
+                                elapsed: TimeSpan.FromSeconds(elapsed));
+                        }
+
+                        return null;
+                    }
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
+
+        internal List<string> GetTestResultKeys()
+        {
+            var commandText = @"
+                SELECT Checksum
+                FROM dbo.TestResult";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var list = new List<string>();
+                try
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            list.Add(reader.GetString(0));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log(Category, "Error reading test result keys", ex);
+                }
+
+                return list;
+            }
+        }
+
+        internal int? GetTestResultCount()
+        {
+            var commandText = @"
+                SELECT COUNT(*)
+                FROM dbo.TestResult";
+            return RunCountCore(commandText);
+        }
+
+        internal bool ShaveTestResultTable()
+        {
+            var commandText = @"
+                DELETE TOP(100)
+                FROM dbo.TestResult
+                ORDER BY StoreDate";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                try
+                {
+                    command.ExecuteNonQuery();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log(Category, "Cannot shave test result table", ex);
+                    return false;
+                }
+            }
+        }
+
+        private static List<byte> GetAllBytes(SqlDataReader reader, int index)
+        {
+            var list = new List<byte>();
+
+            var buffer = new byte[1000];
+            var startIndex = 0;
+            var read = (int)reader.GetBytes(index, startIndex, buffer, 0, buffer.Length);
+            AddRange(list, buffer, read);
+
+            while (read == buffer.Length)
+            {
+                startIndex += read;
+                read = (int)reader.GetBytes(index, startIndex, buffer, 0, buffer.Length);
+                AddRange(list, buffer, read);
+            }
+
+            return list;
+        }
+
+        private static void AddRange<T>(List<T> list, T[] buffer, int length)
+        {
+            for (int i = 0; i < length; i++)
+            {
+                list.Add(buffer[i]);
+            }
+        }
     }
 }

@@ -35,40 +35,23 @@ namespace Roslyn.Sql
     /// This is a proof of concept implementation only.  I realize that its implementation is pretty terrible
     /// and that's fine.  For now it is enough to validate the end to end scenario.
     /// </summary>
-    public class TestResultStorage
+    public class TestResultStorage : IDisposable
     {
-        public static TestResultStorage Instance = new TestResultStorage();
-
-        private const int MapLimit = 5000;
         private const int SizeLimit = 10000000;
+        private const int TableRowLimit = 5000;
+        private readonly SqlUtil _sqlUtil;
 
-        private readonly Dictionary<string, TestResult> _testResultMap = new Dictionary<string, TestResult>();
+        public List<string> Keys => _sqlUtil.GetTestResultKeys();
+        public int Count => _sqlUtil.GetTestResultCount() ?? 0;
 
-        public List<string> Keys
+        public TestResultStorage(string connectionString)
         {
-            get
-            {
-                lock (_testResultMap)
-                {
-                    return _testResultMap.Keys.ToList();
-                }
-            }
+            _sqlUtil = new SqlUtil(connectionString);
         }
 
-        public int Count
+        public void Dispose()
         {
-            get
-            {
-                lock (_testResultMap)
-                {
-                    return _testResultMap.Count;
-                }
-            }
-        }
-
-        private TestResultStorage()
-        {
-
+            _sqlUtil.Dispose();
         }
 
         public void Add(string key, TestResult value)
@@ -78,26 +61,25 @@ namespace Roslyn.Sql
                 throw new Exception("Data too big");
             }
 
-            lock (_testResultMap)
+            _sqlUtil.InsertTestResult(key, value);
+
+            if ((_sqlUtil.GetTestResultCount() ?? 0) > TableRowLimit)
             {
-                _testResultMap[key] = value;
-                if (_testResultMap.Count > MapLimit)
-                {
-                    var toRemove = _testResultMap.Keys.Take(MapLimit / 5).ToList();
-                    foreach (var item in toRemove)
-                    {
-                        _testResultMap.Remove(item);
-                    }
-                }
+                _sqlUtil.ShaveTestResultTable();
             }
         }
 
         public bool TryGetValue(string key, out TestResult testResult)
         {
-            lock (_testResultMap)
+            var found = _sqlUtil.GetTestResult(key);
+            if (found.HasValue)
             {
-                return _testResultMap.TryGetValue(key, out testResult);
+                testResult = found.Value;
+                return true;
             }
+
+            testResult = default(TestResult);
+            return false;
         }
     }
 }

@@ -12,8 +12,6 @@ namespace Dashboard.Controllers
 {
     public class StatusController : Controller
     {
-        private readonly TestResultStorage _storage = TestResultStorage.Instance;
-
         public ActionResult Index()
         {
             return RedirectToAction(nameof(Tests));
@@ -31,8 +29,12 @@ namespace Dashboard.Controllers
 
         public ActionResult Result(string id)
         {
+            // TODO: unify connection string management.
+            var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
+            var storage = new TestResultStorage(connectionString);
+
             TestResult testResult;
-            if (!_storage.TryGetValue(id, out testResult))
+            if (!storage.TryGetValue(id, out testResult))
             {
                 throw new Exception("Invalid key");
             }
@@ -45,7 +47,10 @@ namespace Dashboard.Controllers
 
         public ActionResult Results()
         {
-            return View(_storage.Keys);
+            // TODO: unify connection string management.
+            var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
+            var storage = new TestResultStorage(connectionString);
+            return View(storage.Keys);
         }
     }
 }

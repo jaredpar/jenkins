@@ -29,7 +29,8 @@ namespace ApiFun
             // PrintJobNames();
             // PrintJobInfo();
             // PrintQueue();
-            PrintViews();
+            // PrintViews();
+            PrintPullRequestData();
 
             /*
             roslyn_stabil_lin_dbg_unit32
@@ -69,6 +70,32 @@ namespace ApiFun
             foreach (var cur in client.GetQueuedItemInfo())
             {
                 Console.WriteLine($"{cur.JobName} {cur.Id} {cur.PullRequestInfo?.PullUrl ?? ""}");
+            }
+        }
+
+        private static void PrintPullRequestData()
+        {
+            var client = CreateClient().Client;
+            var list = new List<Tuple<DateTime, BuildId>>();
+            foreach (var job in client.GetJobNamesInView("Roslyn").Where(x => x.Contains("prtest")).Where(x => !x.Contains("internal")))
+            {
+                Console.WriteLine($"Job: {job}");
+                foreach (var buildId in client.GetBuildIds(job))
+                {
+                    Console.WriteLine($"\tBuild: {buildId.Id}");
+                    var date = client.GetBuildDate(buildId);
+                    list.Add(Tuple.Create(date, buildId));
+                }
+            }
+
+            foreach (var date in list.GroupBy(x => x.Item1.Date).OrderBy(x => x.Key))
+            {
+                if (date.Key.DayOfWeek == DayOfWeek.Saturday || date.Key.DayOfWeek == DayOfWeek.Sunday)
+                {
+                    continue;
+                }
+
+                Console.WriteLine($"Date: {date.Key} Count: {date.Count()}");
             }
         }
 

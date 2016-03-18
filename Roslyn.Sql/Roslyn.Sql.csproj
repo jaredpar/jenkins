@@ -49,6 +49,7 @@
     <Compile Include="TestResultStorage.cs" />
     <Compile Include="TestRun.cs" />
     <Compile Include="TestStatsData.cs" />
+    <Compile Include="ZipUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\Database.sql" />

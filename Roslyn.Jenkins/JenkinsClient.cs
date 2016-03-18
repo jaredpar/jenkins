@@ -125,6 +125,12 @@ namespace Roslyn.Jenkins
             return new BuildInfo(id, state, date, duration);
         }
 
+        public DateTime GetBuildDate(BuildId id)
+        {
+            var data = GetJson(id, tree: "timestamp");
+            return GetBuildDateCore(data);
+        }
+
         public BuildResult GetBuildResult(BuildId id)
         {
             var data = GetJson(id);

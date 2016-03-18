@@ -26,7 +26,7 @@ namespace Roslyn.Sql
                 hitCount: tuple.Item1,
                 missCount: tuple.Item2,
                 storeCount: _sqlUtil.GetStoreCount() ?? 0,
-                currentCount: TestResultStorage.Instance.Count,
+                currentCount: _sqlUtil.GetTestResultCount() ?? 0,
                 runCount: _sqlUtil.GetTestRunCount() ?? 0);
         }
 

@@ -58,9 +58,8 @@ namespace Dashboard.Controllers
 
         public TestCacheController()
         {
-            _storage = TestResultStorage.Instance;
-
             var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
+            _storage = new TestResultStorage(connectionString);
             _stats = new TestCacheStats(connectionString);
         }
 
