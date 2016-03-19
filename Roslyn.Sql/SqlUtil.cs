@@ -331,8 +331,8 @@ namespace Roslyn.Sql
                         if (reader.Read())
                         {
                             var exitCode = reader.GetInt32(0);
-                            var outputStandard = reader.GetString(1);
-                            var outputError = reader.GetString(2);
+                            var outputStandard = GetStringOrNull(reader, 1);
+                            var outputError = GetStringOrNull(reader, 2);
                             var resultsFileContent = ZipUtil.DecompressText(GetAllBytes(reader, 3).ToArray());
                             var resultsFileName = reader.GetString(4);
                             var elapsed = reader.GetInt32(5);
@@ -428,6 +428,16 @@ namespace Roslyn.Sql
             }
 
             return list;
+        }
+
+        private static string GetStringOrNull(SqlDataReader reader, int index)
+        {
+            if (reader.IsDBNull(index))
+            {
+                return null;
+            }
+
+            return reader.GetString(index);
         }
 
         private static void AddRange<T>(List<T> list, T[] buffer, int length)
