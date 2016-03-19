@@ -69,6 +69,7 @@ namespace Dashboard.Controllers
 
             if (disposing)
             {
+                _storage.Dispose();
                 _stats.Dispose();
             }
         }
