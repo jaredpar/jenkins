@@ -52,5 +52,10 @@ namespace Dashboard.Controllers
             var storage = new TestResultStorage(connectionString);
             return View(storage.Keys);
         }
+
+        public ActionResult Errors()
+        {
+            return View(StorageLogger.Instance.EntryList);
+        }
     }
 }

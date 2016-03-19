@@ -293,8 +293,8 @@ namespace Roslyn.Sql
                 var p = command.Parameters;
                 p.AddWithValue("@Checksum", checksum);
                 p.AddWithValue("@ExitCode", testResult.ExitCode);
-                p.AddWithValue("@OutputStandard", testResult.OutputStandard);
-                p.AddWithValue("@OutputError", testResult.OutputError);
+                p.AddWithValue("@OutputStandard", (object)testResult.OutputStandard ?? DBNull.Value);
+                p.AddWithValue("@OutputError", (object)testResult.OutputError ?? DBNull.Value);
                 p.AddWithValue("@ResultsFileContent", ZipUtil.CompressText(testResult.ResultsFileContent));
                 p.AddWithValue("@ResultsFileName", testResult.ResultsFileName);
                 p.AddWithValue("@ElapsedSeconds", (int)testResult.Elapsed.TotalSeconds);
@@ -348,8 +348,9 @@ namespace Roslyn.Sql
                         return null;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _logger.Log(Category, $"Error getting {nameof(TestResult)}", ex);
                     return null;
                 }
             }

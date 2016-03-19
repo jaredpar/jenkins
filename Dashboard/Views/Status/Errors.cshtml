@@ -1,0 +1,12 @@
+﻿@using Roslyn.Sql
+@model List<StorageLoggerEntry>
+
+<h3>Eror List</h3>
+
+@foreach (var entry in Model)
+{
+    <div>@entry.Category @entry.Message</div>
+}
+
+
+
