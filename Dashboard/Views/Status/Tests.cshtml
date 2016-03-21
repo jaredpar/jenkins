@@ -1,9 +1,11 @@
 ﻿@model Roslyn.Sql.TestCacheStatSummary
 
+<h2>Test Summary</h2>
 <div>Hit Count @Model.HitCount</div>
 <div>Miss Count @Model.MissCount</div>
 <div>Store Count @Model.StoreCount</div>
-<div>Current Count @Model.CurrentCount</div>
+<div>Test Result Count @Model.CacheCount</div>
 <div>Run Count @Model.RunCount</div>
 
+<div><a href="@Url.Action(controllerName: "Status", actionName: "Tests", routeValues: new { all = true })">All Tests</a></div>
 

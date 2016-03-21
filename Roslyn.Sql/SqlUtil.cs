@@ -30,20 +30,20 @@ namespace Roslyn.Sql
             }
         }
 
-        public int? GetTestRunCount()
+        public int? GetTestRunCount(DateTime? startDate = null)
         {
             var commandText = @"
                 SELECT COUNT(*)
                 FROM dbo.TestRuns";
-            return RunCountCore(commandText);
+            return RunCountCore(commandText, "RunDate", startDate);
         }
 
-        internal int? GetStoreCount()
+        internal int? GetStoreCount(DateTime? startDate = null)
         {
             var commandText = @"
                 SELECT COUNT(*)
                 FROM dbo.TestResultStore";
-            return RunCountCore(commandText);
+            return RunCountCore(commandText, "StoreDate", startDate);
         }
 
         /// <summary>
@@ -124,10 +124,21 @@ namespace Roslyn.Sql
             }
         }
 
-        private int? RunCountCore(string commandText)
+        private int? RunCountCore(string commandText, string dateFieldName, DateTime? startTime)
         {
+            if (startTime.HasValue)
+            {
+                commandText += Environment.NewLine + $"WHERE {dateFieldName} >= @{dateFieldName}";
+            }
+
             using (var command = new SqlCommand(commandText, _connection))
             {
+                var p = command.Parameters;
+                if (startTime.HasValue)
+                {
+                    p.AddWithValue($"@{dateFieldName}", startTime.Value.ToUniversalTime());
+                }
+
                 try
                 {
                     using (var reader = command.ExecuteReader())
@@ -140,30 +151,36 @@ namespace Roslyn.Sql
                         return null;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _logger.Log(Category, "Cannot get count", ex);
                     return null;
                 }
             }
         }
 
-        internal Tuple<int, int> GetStats()
+        internal int? GetHitStats(DateTime? startDate)
         {
-            var hitCount = GetStats(isHit: true);
-            var missCount = GetStats(isHit: false);
-            return Tuple.Create(hitCount ?? 0, missCount ?? 0);
+            return GetStats(isHit: true, startDate: startDate);
         }
 
-        private int? GetStats(bool isHit)
+        internal int? GetMissStats(DateTime? startDate)
         {
+            return GetStats(isHit: false, startDate: startDate);
+        }
+
+        private int? GetStats(bool isHit, DateTime? startDate)
+        {
+            var startDateValue = startDate ?? new DateTime(year: 2016, month: 1, day: 1);
             var commandText = @"
                 SELECT COUNT(*)
                 FROM dbo.TestResultQueries
-                WHERE IsHit = @IsHit";
+                WHERE IsHit = @IsHit AND QueryDate >= @QueryDate";
             using (var command = new SqlCommand(commandText, _connection))
             {
                 var p = command.Parameters;
                 p.AddWithValue("@IsHit", isHit);
+                p.AddWithValue("@QueryDate", startDateValue.ToUniversalTime());
 
                 try
                 {
@@ -187,8 +204,8 @@ namespace Roslyn.Sql
         internal bool Insert(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength, TimeSpan elapsed)
         {
             var commandText = @"
-                INSERT INTO dbo.TestResultStore(Checksum, OutputStandardLength, OutputErrorLength, ContentLength, AssemblyName, ElapsedSeconds)
-                VALUES(@Checksum, @OutputStandardLength, @OutputErrorLength, @ContentLength, @AssemblyName, @ElapsedSeconds)";
+                INSERT INTO dbo.TestResultStore(Checksum, OutputStandardLength, OutputErrorLength, ContentLength, AssemblyName, ElapsedSeconds, StoreDate)
+                VALUES(@Checksum, @OutputStandardLength, @OutputErrorLength, @ContentLength, @AssemblyName, @ElapsedSeconds, @StoreDate)";
             using (var command = new SqlCommand(commandText, _connection))
             {
                 var p = command.Parameters;
@@ -198,6 +215,7 @@ namespace Roslyn.Sql
                 p.AddWithValue("@ContentLength", contentLength);
                 p.AddWithValue("@AssemblyName", (object)assemblyName ?? DBNull.Value);
                 p.AddWithValue("@ElapsedSeconds", elapsed.TotalSeconds);
+                p.AddWithValue("@StoreDate", DateTime.UtcNow);
 
                 try
                 {
@@ -383,12 +401,12 @@ namespace Roslyn.Sql
             }
         }
 
-        internal int? GetTestResultCount()
+        internal int? GetTestResultCount(DateTime? startDate = null)
         {
             var commandText = @"
                 SELECT COUNT(*)
                 FROM dbo.TestResult";
-            return RunCountCore(commandText);
+            return RunCountCore(commandText, "StoreDate", startDate);
         }
 
         internal bool ShaveTestResultTable()

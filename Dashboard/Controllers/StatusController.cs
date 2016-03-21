@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Web;
+using System.Web.Http;
 using System.Web.Mvc;
 
 namespace Dashboard.Controllers
@@ -17,13 +18,16 @@ namespace Dashboard.Controllers
             return RedirectToAction(nameof(Tests));
         }
 
-        public ActionResult Tests()
+        public ActionResult Tests([FromUri] bool all = false)
         {
             // TODO: unify connection string management.
             var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
             using (var stats = new TestCacheStats(connectionString))
             {
-                return View(stats.GetCurrentSummary());
+                var startDate = all
+                    ? (DateTime?)null
+                    : DateTime.UtcNow - TimeSpan.FromDays(1);
+                return View(stats.GetSummary(startDate));
             }
         }
 

@@ -19,15 +19,14 @@ namespace Roslyn.Sql
             _sqlUtil.Dispose();
         }
 
-        public TestCacheStatSummary GetCurrentSummary()
+        public TestCacheStatSummary GetSummary(DateTime? startDate)
         {
-            var tuple = _sqlUtil.GetStats();
             return new TestCacheStatSummary(
-                hitCount: tuple.Item1,
-                missCount: tuple.Item2,
-                storeCount: _sqlUtil.GetStoreCount() ?? 0,
-                currentCount: _sqlUtil.GetTestResultCount() ?? 0,
-                runCount: _sqlUtil.GetTestRunCount() ?? 0);
+                hitCount: _sqlUtil.GetHitStats(startDate) ?? 0,
+                missCount: _sqlUtil.GetMissStats(startDate) ?? 0,
+                storeCount: _sqlUtil.GetStoreCount(startDate) ?? 0,
+                cacheCount: _sqlUtil.GetTestResultCount(startDate) ?? 0,
+                runCount: _sqlUtil.GetTestRunCount(startDate) ?? 0);
         }
 
         public void AddHit(string checksum, string assemblyName, bool? isJenkins, BuildSource? buildSource)
