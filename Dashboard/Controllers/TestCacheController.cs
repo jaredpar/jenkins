@@ -28,6 +28,9 @@ namespace Dashboard.Controllers
         public string ResultsFileName { get; set; }
         public string ResultsFileContent { get; set; }
         public int ElapsedSeconds { get; set; }
+        public int TestPassed { get; set; }
+        public int TestFailed { get; set; }
+        public int TestSkipped { get; set; }
 
         // Misspelled version to keep until we can flow throw all of the spelling updates.
         public int EllapsedSeconds { get; set; }
@@ -115,6 +118,11 @@ namespace Dashboard.Controllers
             var seconds = testResultData.ElapsedSeconds > 0
                 ? testResultData.ElapsedSeconds
                 : testResultData.EllapsedSeconds;
+            var testResultSummary = new TestResultSummary(
+                passed: testResultData.TestPassed,
+                failed: testResultData.TestFailed,
+                skipped: testResultData.TestSkipped,
+                elapsed: TimeSpan.FromSeconds(seconds));
             var testResult = new TestResult(
                 testResultData.ExitCode,
                 testResultData.OutputStandard,
@@ -133,7 +141,7 @@ namespace Dashboard.Controllers
                 outputStandardLength: testResultData.OutputStandard?.Length ?? 0,
                 outputErrorLength: testResultData.OutputError?.Length ?? 0,
                 contentLength: testResultData.ResultsFileContent?.Length ?? 0,
-                elapsed: TimeSpan.FromSeconds(testResultData.EllapsedSeconds),
+                summary: testResultSummary,
                 buildSource: buildSource);
         }
     }

@@ -201,11 +201,11 @@ namespace Roslyn.Sql
             }
         }
 
-        internal bool Insert(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength, TimeSpan elapsed, int? buildSourceId)
+        internal bool Insert(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength, TestResultSummary summary, int? buildSourceId)
         {
             var commandText = @"
-                INSERT INTO dbo.TestResultStore(Checksum, OutputStandardLength, OutputErrorLength, ContentLength, AssemblyName, ElapsedSeconds, StoreDate, BuildSourceId)
-                VALUES(@Checksum, @OutputStandardLength, @OutputErrorLength, @ContentLength, @AssemblyName, @ElapsedSeconds, @StoreDate, @BuildSourceId)";
+                INSERT INTO dbo.TestResultStore(Checksum, OutputStandardLength, OutputErrorLength, ContentLength, AssemblyName, Passed, Failed, Skipped, ElapsedSeconds, StoreDate, BuildSourceId)
+                VALUES(@Checksum, @OutputStandardLength, @OutputErrorLength, @ContentLength, @AssemblyName, @Passed, @Failed, @Skipped, @ElapsedSeconds, @StoreDate, @BuildSourceId)";
             using (var command = new SqlCommand(commandText, _connection))
             {
                 var buildSourceIdVal = buildSourceId.HasValue ? (object)buildSourceId.Value : DBNull.Value;
@@ -215,7 +215,10 @@ namespace Roslyn.Sql
                 p.AddWithValue("@OutputErrorLength", outputErrorLength);
                 p.AddWithValue("@ContentLength", contentLength);
                 p.AddWithValue("@AssemblyName", (object)assemblyName ?? DBNull.Value);
-                p.AddWithValue("@ElapsedSeconds", elapsed.TotalSeconds);
+                p.AddWithValue("@Passed", summary.Passed);
+                p.AddWithValue("@Failed", summary.Failed);
+                p.AddWithValue("@Skipped", summary.Skipped);
+                p.AddWithValue("@ElapsedSeconds", (int)summary.Elapsed.TotalSeconds);
                 p.AddWithValue("@StoreDate", DateTime.UtcNow);
                 p.AddWithValue("@BuildSourceId", buildSourceIdVal);
 

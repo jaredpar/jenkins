@@ -7,32 +7,6 @@ using System.Web;
 
 namespace Roslyn.Sql
 {
-    public struct TestResult
-    {
-        public int ExitCode { get; }
-        public string OutputStandard { get; }
-        public string OutputError { get; }
-        public string ResultsFileName { get; }
-        public string ResultsFileContent { get; }
-        public TimeSpan Elapsed { get; }
-
-        public TestResult(
-            int exitCode,
-            string outputStandard,
-            string outputError,
-            string resultsFileName,
-            string resultsFileContent,
-            TimeSpan elapsed)
-        {
-            ExitCode = exitCode;
-            OutputStandard = outputStandard;
-            OutputError = outputError;
-            ResultsFileName = resultsFileName;
-            ResultsFileContent = resultsFileContent;
-            Elapsed = elapsed;
-        }
-    }
-
     /// <summary>
     /// This is a proof of concept implementation only.  I realize that its implementation is pretty terrible
     /// and that's fine.  For now it is enough to validate the end to end scenario.

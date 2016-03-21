@@ -60,6 +60,9 @@ function Test-TestCache() {
             resultsFileContent = "<html><body><h2>hello world</h2></body></html>";
             resultsFileName = "test.html";
             elapsedSeconds = 100;
+            testPassed = 1;
+            testFailed = 2;
+            testSkipped = 3;
         };
         testSourceData = @{
             machineName = "jaredpar03";
@@ -68,6 +71,11 @@ function Test-TestCache() {
         };
     }
 
+    Test-TestCacheCore $data
+
+    $data.testResultData.Remove("testPassed");
+    $data.testResultData.Remove("testFailed");
+    $data.testResultData.Remove("testSkipped");
     Test-TestCacheCore $data
 
     $data.testResultData.outputError = $null
