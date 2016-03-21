@@ -1,4 +1,5 @@
 param([switch]$real = $false)
+set-strictmode -version 2.0
 
 $url = "http://localhost:9859"
 if ($real) {
@@ -15,8 +16,11 @@ function Get-MD5($text)  {
     return $hash
 }
 
-function Test-Values()
-{
+function Get-Id() {
+    Get-MD5 ([Guid]::NewGuid().ToString())
+}
+
+function Test-Values() {
     param ($msg, $left, $right)
 
     if ($left -ne $right) {
@@ -25,8 +29,29 @@ function Test-Values()
 }
 
 function Test-TestCacheCore() {
-    param ( [string]$id = (Get-MD5 ([Guid]::NewGuid().ToString())))
+    param ( $data = $(throw "Need the JSON data"))
 
+    $id = Get-Id
+    write-host "Testing result cache $id"
+    $dataJson = ConvertTo-Json $data
+    Invoke-RestMethod "$url/api/testCache/$id" -method put -contenttype application/json -body $dataJson
+
+    $requestUri = "$url/api/testcache/$($id)?machineName=jaredpar03&enlistmentRoot=foo"
+    $result = Invoke-WebRequest $requestUri -method get
+    if ($result.StatusCode -ne 200) {
+        write-host "Could not retrieve resource"
+        $result
+        return
+    }
+
+    $oldData = $data.testResultData
+    $newData = ConvertFrom-Json $result.Content
+    Test-Values "exitCode" $oldData.ExitCode $newData.ExitCode 
+    Test-Values "elapsedSeconds" $oldData.elapsedSeconds $newData.ElapsedSeconds 
+    Test-Values "content" $oldData.ResultsFileContent $newData.ResultsFileContent
+}
+
+function Test-TestCache() {
     $data = @{
         testResultData = @{
             exitCode = 42;
@@ -43,23 +68,13 @@ function Test-TestCacheCore() {
         };
     }
 
-    $dataJson = ConvertTo-Json $data
-    Invoke-RestMethod "$url/api/testCache/$id" -method put -contenttype application/json -body $dataJson
+    Test-TestCacheCore $data
 
-    $requestUri = "$url/api/testcache/$($id)?machineName=jaredpar03&enlistmentRoot=foo"
-    write-host "Request uri $requestUri"
-    $result = Invoke-WebRequest $requestUri -method get
-    if ($result.StatusCode -ne 200) {
-        write-host "Could not retrieve resource"
-        $result
-        return
-    }
+    $data.testResultData.outputError = $null
+    Test-TestCacheCore $data
 
-    $oldData = $data.testResultData
-    $newData = ConvertFrom-Json $result.Content
-    Test-Values "exitCode" $oldData.ExitCode $newData.ExitCode 
-    Test-Values "elapsedSeconds" $oldData.elapsedSeconds $newData.ElapsedSeconds 
-    Test-Values "content" $oldData.ResultsFileContent $newData.ResultsFileContent
+    $data.testResultData.outputStandard = $null
+    Test-TestCacheCore $data
 }
 
 function Test-TestRun() {
@@ -82,5 +97,5 @@ function Test-TestRun() {
     }
 }
 
-Test-TestCacheCore
+Test-TestCache
 Test-TestRun
