@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace Roslyn.Sql
@@ -38,7 +40,6 @@ namespace Roslyn.Sql
     public class TestResultStorage : IDisposable
     {
         private const int SizeLimit = 10000000;
-        private const int TableRowLimit = 5000;
         private readonly SqlUtil _sqlUtil;
 
         public List<string> Keys => _sqlUtil.GetTestResultKeys();
@@ -62,11 +63,6 @@ namespace Roslyn.Sql
             }
 
             _sqlUtil.InsertTestResult(key, value);
-
-            if ((_sqlUtil.GetTestResultCount() ?? 0) > TableRowLimit)
-            {
-                _sqlUtil.ShaveTestResultTable();
-            }
         }
 
         public bool TryGetValue(string key, out TestResult testResult)

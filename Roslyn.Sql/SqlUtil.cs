@@ -416,9 +416,12 @@ namespace Roslyn.Sql
             var commandText = @"
                 DELETE TOP(100)
                 FROM dbo.TestResult
-                ORDER BY StoreDate";
+                WHERE StoreDate <= @StoreDate";
             using (var command = new SqlCommand(commandText, _connection))
             {
+                var storeDate = DateTime.UtcNow - TimeSpan.FromDays(5);
+                var p = command.Parameters;
+                p.AddWithValue("@StoreDate", storeDate);
                 try
                 {
                     command.ExecuteNonQuery();
