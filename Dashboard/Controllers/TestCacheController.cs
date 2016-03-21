@@ -109,28 +109,32 @@ namespace Dashboard.Controllers
             throw new HttpResponseException(HttpStatusCode.NotFound);
         }
 
-        public void Put(string id, [FromBody] TestCacheData testCache)
+        public void Put(string id, [FromBody] TestCacheData testCacheData)
         {
-            var testResultData = testCache.TestResultData;
+            var testResultData = testCacheData.TestResultData;
             var seconds = testResultData.ElapsedSeconds > 0
                 ? testResultData.ElapsedSeconds
                 : testResultData.EllapsedSeconds;
-            var testCacheData = new TestResult(
+            var testResult = new TestResult(
                 testResultData.ExitCode,
                 testResultData.OutputStandard,
                 testResultData.OutputError,
                 testResultData.ResultsFileName,
                 testResultData.ResultsFileContent,
                 TimeSpan.FromSeconds(seconds));
+            var buildSource = testCacheData.TestSourceData != null
+                ? new BuildSource(testCacheData.TestSourceData.MachineName, testCacheData.TestSourceData.EnlistmentRoot)
+                : (BuildSource?)null;
 
-            _storage.Add(id, testCacheData);
+            _storage.Add(id, testResult);
             _stats.AddStore(
                 id,
-                assemblyName: testCache?.TestSourceData?.AssemblyName,
+                assemblyName: testCacheData?.TestSourceData?.AssemblyName,
                 outputStandardLength: testResultData.OutputStandard?.Length ?? 0,
                 outputErrorLength: testResultData.OutputError?.Length ?? 0,
                 contentLength: testResultData.ResultsFileContent?.Length ?? 0,
-                elapsed: TimeSpan.FromSeconds(testResultData.EllapsedSeconds));
+                elapsed: TimeSpan.FromSeconds(testResultData.EllapsedSeconds),
+                buildSource: buildSource);
         }
     }
 }

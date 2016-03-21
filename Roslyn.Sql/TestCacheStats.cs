@@ -41,9 +41,10 @@ namespace Roslyn.Sql
             _sqlUtil.InsertMiss(checksum, assemblyName, isJenkins, buildSourceId);
         }
 
-        public void AddStore(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength, TimeSpan elapsed)
+        public void AddStore(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength, TimeSpan elapsed, BuildSource? buildSource)
         {
-            _sqlUtil.Insert(checksum, assemblyName, outputStandardLength, outputErrorLength, contentLength, elapsed);
+            var buildSourceId = _sqlUtil.GetBuildSourceId(buildSource?.MachineName, buildSource?.EnlistmentRoot);
+            _sqlUtil.Insert(checksum, assemblyName, outputStandardLength, outputErrorLength, contentLength, elapsed, buildSourceId);
         }
 
         public bool AddTestRun(TestRun testRun)

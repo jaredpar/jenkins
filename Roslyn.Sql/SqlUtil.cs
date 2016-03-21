@@ -201,13 +201,14 @@ namespace Roslyn.Sql
             }
         }
 
-        internal bool Insert(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength, TimeSpan elapsed)
+        internal bool Insert(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength, TimeSpan elapsed, int? buildSourceId)
         {
             var commandText = @"
-                INSERT INTO dbo.TestResultStore(Checksum, OutputStandardLength, OutputErrorLength, ContentLength, AssemblyName, ElapsedSeconds, StoreDate)
-                VALUES(@Checksum, @OutputStandardLength, @OutputErrorLength, @ContentLength, @AssemblyName, @ElapsedSeconds, @StoreDate)";
+                INSERT INTO dbo.TestResultStore(Checksum, OutputStandardLength, OutputErrorLength, ContentLength, AssemblyName, ElapsedSeconds, StoreDate, BuildSourceId)
+                VALUES(@Checksum, @OutputStandardLength, @OutputErrorLength, @ContentLength, @AssemblyName, @ElapsedSeconds, @StoreDate, @BuildSourceId)";
             using (var command = new SqlCommand(commandText, _connection))
             {
+                var buildSourceIdVal = buildSourceId.HasValue ? (object)buildSourceId.Value : DBNull.Value;
                 var p = command.Parameters;
                 p.AddWithValue("@Checksum", checksum);
                 p.AddWithValue("@OutputStandardLength", outputStandardLength);
@@ -216,6 +217,7 @@ namespace Roslyn.Sql
                 p.AddWithValue("@AssemblyName", (object)assemblyName ?? DBNull.Value);
                 p.AddWithValue("@ElapsedSeconds", elapsed.TotalSeconds);
                 p.AddWithValue("@StoreDate", DateTime.UtcNow);
+                p.AddWithValue("@BuildSourceId", buildSourceIdVal);
 
                 try
                 {

@@ -75,6 +75,10 @@ function Test-TestCache() {
 
     $data.testResultData.outputStandard = $null
     Test-TestCacheCore $data
+
+    $data.testSourceData.Remove("machineName");
+    $data.testSourceData.Remove("enlistmentRoot");
+    Test-TestCacheCore $data
 }
 
 function Test-TestRun() {
