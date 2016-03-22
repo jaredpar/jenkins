@@ -46,6 +46,7 @@
     <Compile Include="SqlUtil.cs" />
     <Compile Include="StorageLogger.cs" />
     <Compile Include="TestCacheStats.cs" />
+    <Compile Include="TestHitStats.cs" />
     <Compile Include="TestResult.cs" />
     <Compile Include="TestResultStorage.cs" />
     <Compile Include="TestResultSummary.cs" />

@@ -159,9 +159,53 @@ namespace Roslyn.Sql
             }
         }
 
-        internal int? GetHitStats(DateTime? startDate)
+        /// <summary>
+        /// Get all of the statistics on test cache hits recorded in DB since the given <paramref name="startDate"/>.
+        /// </summary>
+        internal TestHitStats? GetHitStats(DateTime? startDate)
         {
-            return GetStats(isHit: true, startDate: startDate);
+            var startDateValue = startDate ?? new DateTime(year: 2016, month: 1, day: 1);
+            var commandText = @"
+                SELECT COUNT(*), Sum(Passed), Sum(Failed), Sum(Skipped), Sum(ElapsedSeconds)
+                FROM dbo.TestResultQueries
+                INNER JOIN dbo.TestResultStore
+                ON dbo.TestResultQueries.Checksum = dbo.TestResultStore.Checksum
+                WHERE QueryDate >= @QueryDate AND IsHit = 1";
+
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var p = command.Parameters;
+                p.AddWithValue("@QueryDate", startDateValue.ToUniversalTime());
+
+                try
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var assemblyCount = reader.GetInt32(0);
+                            var passed = reader.GetInt32(1);
+                            var failed = reader.GetInt32(2);
+                            var skipped = reader.GetInt32(3);
+                            var elapsed = reader.GetInt32(4);
+
+                            return new TestHitStats(
+                                assemblyCount: assemblyCount,
+                                testsPassed: passed,
+                                testsFailed: failed,
+                                testsSkipped: skipped,
+                                elapsed: TimeSpan.FromSeconds(elapsed));
+                        }
+
+                        return null;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log(Category, "Unable to get hit stats", ex);
+                    return null;
+                }
+            }
         }
 
         internal int? GetMissStats(DateTime? startDate)

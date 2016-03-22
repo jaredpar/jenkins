@@ -1,7 +1,12 @@
 ﻿@model Roslyn.Sql.TestCacheStatSummary
 
+<h2>Test Cache Summary</h2>
+<div>Assembly Count @Model.HitStats.AssemblyCount</div>
+<div>Total Tests Cached @Model.HitStats.TestsTotal</div>
+<div>Total Test Time @Model.HitStats.Elapsed.ToString(@"dd\.hh\:mm")</div>
+
 <h2>Test Summary</h2>
-<div>Hit Count @Model.HitCount</div>
+<div>Hit Count @Model.HitStats.AssemblyCount</div>
 <div>Miss Count @Model.MissCount</div>
 <div>Store Count @Model.StoreCount</div>
 <div>Test Result Count @Model.CacheCount</div>

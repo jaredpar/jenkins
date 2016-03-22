@@ -8,15 +8,15 @@ namespace Roslyn.Sql
 {
     public class TestCacheStatSummary
     {
-        public int HitCount { get; }
+        public TestHitStats HitStats { get; }
         public int MissCount { get; }
         public int StoreCount { get; }
         public int CacheCount { get; }
         public int RunCount { get; }
 
-        public TestCacheStatSummary(int hitCount, int missCount, int storeCount, int cacheCount, int runCount)
+        public TestCacheStatSummary(TestHitStats hitStats, int missCount, int storeCount, int cacheCount, int runCount)
         {
-            HitCount = hitCount;
+            HitStats = hitStats;
             MissCount = missCount;
             StoreCount = storeCount;
             CacheCount = cacheCount;

@@ -22,7 +22,7 @@ namespace Roslyn.Sql
         public TestCacheStatSummary GetSummary(DateTime? startDate)
         {
             return new TestCacheStatSummary(
-                hitCount: _sqlUtil.GetHitStats(startDate) ?? 0,
+                hitStats: _sqlUtil.GetHitStats(startDate) ?? default(TestHitStats),
                 missCount: _sqlUtil.GetMissStats(startDate) ?? 0,
                 storeCount: _sqlUtil.GetStoreCount(startDate) ?? 0,
                 cacheCount: _sqlUtil.GetTestResultCount(startDate) ?? 0,
