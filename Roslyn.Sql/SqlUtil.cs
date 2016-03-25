@@ -159,6 +159,34 @@ namespace Roslyn.Sql
             }
         }
 
+        internal List<DateTime> GetJenkinsTestRunDateTimes()
+        {
+            var commandText = @"
+                SELECT RunDate
+                FROM dbo.TestRuns
+                WHERE IsJenkins = 1";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var list = new List<DateTime>();
+                try
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            list.Add(reader.GetDateTime(0));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log(Category, "Cannot get test run date times", ex);
+                }
+
+                return list;
+            }
+        }
+
         /// <summary>
         /// Get all of the statistics on test cache hits recorded in DB since the given <paramref name="startDate"/>.
         /// </summary>
