@@ -33,39 +33,20 @@ namespace PopulateSql
                 var id2 = util.GetBuildSourceId("jaredpar06", @"e:\dd\roslyn");
                 Console.WriteLine($"{id1} = {id2}");
             }
-
         }
 
         private static void TestJenkinsTestRunDateTimes(string connectionString)
         {
             using (var util = new SqlUtil(connectionString))
             {
-                var list = util.GetJenkinsTestRunDateTimes();
-                var all = list
-                    .Select(NormalizeDateTime)
-                    .GroupBy(x => x)
-                    .OrderBy(x => x.Key);
-                foreach (var cur in all)
-                {
-                    Console.WriteLine($"{cur.Key} -> {cur.Count()}");
-                }
+                var list = util.GetTestRuns().Where(x => x.Elapsed.TotalSeconds > 0).ToList();
             }
         }
 
         private static TimeSpan NormalizeDateTime(DateTime utc)
         {
             var local = utc.ToLocalTime();
-            int minutes;
-            if (utc.Minute < 30)
-            {
-                minutes = 0;
-            }
-            else
-            {
-                minutes = 30;
-            }
-
-            return new TimeSpan(hours: local.Hour, minutes: minutes, seconds: 0);
+            return new TimeSpan(hours: local.Hour, minutes: 0, seconds: 0);
         }
 
         /*

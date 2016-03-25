@@ -187,6 +187,54 @@ namespace Roslyn.Sql
             }
         }
 
+        internal List<TestRun> GetTestRuns()
+        {
+            var commandText = @"
+                SELECT RunDate, Cache, ElapsedSeconds, Succeeded, IsJenkins, Is32, AssemblyCount, CacheCount, ChunkCount
+                FROM dbo.TestRuns";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var list = new List<TestRun>();
+                try
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var runDate = reader.GetDateTime(0);
+                            var cache = reader.GetString(1);
+                            var elapsed = reader.GetInt32(2);
+                            var succeeded = reader.GetBoolean(3);
+                            var isJenkins = reader.GetBoolean(4);
+                            var is32Bit = reader.GetBoolean(5);
+                            var assemblyCount = reader.GetInt32(6);
+                            var cacheCount = reader.GetInt32(7);
+                            var chunkCount = reader.GetInt32(8);
+
+                            var testRun = new TestRun(
+                                runDate: runDate,
+                                cache: cache,
+                                elapsed: TimeSpan.FromSeconds(elapsed),
+                                succeeded: succeeded,
+                                isJenkins: isJenkins,
+                                is32Bit: is32Bit,
+                                assemblyCount: assemblyCount,
+                                cacheCount: cacheCount,
+                                chunkCount: chunkCount);
+
+                            list.Add(testRun);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log(Category, "Cannot get test runs", ex);
+                }
+
+                return list;
+            }
+        }
+
         /// <summary>
         /// Get all of the statistics on test cache hits recorded in DB since the given <paramref name="startDate"/>.
         /// </summary>
