@@ -29,6 +29,11 @@ namespace Roslyn.Sql
                 runCount: _sqlUtil.GetTestRunCount(startDate) ?? 0);
         }
 
+        public List<TestRun> GetTestRuns()
+        {
+            return _sqlUtil.GetTestRuns();
+        }
+
         public void AddHit(string checksum, string assemblyName, bool? isJenkins, BuildSource? buildSource)
         {
             var buildSourceId = _sqlUtil.GetBuildSourceId(buildSource?.MachineName, buildSource?.EnlistmentRoot);

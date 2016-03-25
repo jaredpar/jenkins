@@ -201,7 +201,7 @@ namespace Roslyn.Sql
                     {
                         while (reader.Read())
                         {
-                            var runDate = reader.GetDateTime(0);
+                            var runDate = reader.GetDateTime(0).ToLocalTime();
                             var cache = reader.GetString(1);
                             var elapsed = reader.GetInt32(2);
                             var succeeded = reader.GetBoolean(3);

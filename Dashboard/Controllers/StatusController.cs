@@ -61,5 +61,83 @@ namespace Dashboard.Controllers
         {
             return View(StorageLogger.Instance.EntryList);
         }
+
+        public ActionResult TestRuns()
+        {
+            // TODO: unify connection string management.
+            var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
+            using (var stats = new TestCacheStats(connectionString))
+            {
+                // First group the data by date
+                var map = new Dictionary<DateTime, List<TestRun>>();
+                var testRunList = stats.GetTestRuns();
+                foreach (var cur in testRunList)
+                {
+                    if (!cur.Succeeded || !cur.IsJenkins || cur.Cache == "test" || cur.AssemblyCount < 35 || cur.Elapsed.Ticks == 0)
+                    {
+                        continue;
+                    }
+
+                    var date = cur.RunDate.Date;
+                    List<TestRun> list;
+                    if (!map.TryGetValue(date, out list))
+                    {
+                        list = new List<TestRun>();
+                        map[date] = list;
+                    }
+
+                    list.Add(cur);
+                }
+
+                // Now build the comparison data.
+                var compList = new List<TestRunComparison>(map.Count);
+                var fullList = new List<TimeSpan>();
+                var chunkList = new List<TimeSpan>();
+                var legacyList = new List<TimeSpan>();
+                foreach (var pair in map.OrderBy(x => x.Key))
+                {
+                    fullList.Clear();
+                    chunkList.Clear();
+                    legacyList.Clear();
+                    
+                    foreach (var item in pair.Value)
+                    {
+                        if (item.CacheCount > 0)
+                        {
+                            fullList.Add(item.Elapsed);
+                        }
+                        else if (item.ChunkCount > 0)
+                        {
+                            chunkList.Add(item.Elapsed);
+                        }
+                        else
+                        {
+                            legacyList.Add(item.Elapsed);
+                        }
+                    }
+
+                    compList.Add(new TestRunComparison()
+                    {
+                        Date = pair.Key,
+                        FullCacheTime = Average(fullList),
+                        ChunkOnlyTime = Average(chunkList),
+                        LegacyTime = Average(legacyList)
+                    });
+                }
+
+                return View(compList);
+            }
+        }
+
+        private static TimeSpan Average(IEnumerable<TimeSpan> e)
+        {
+            if (!e.Any())
+            {
+                return TimeSpan.FromSeconds(0);
+            }
+
+            var average = e.Average(x => x.Ticks);
+            return TimeSpan.FromTicks((long)average);
+        }
     }
 }
