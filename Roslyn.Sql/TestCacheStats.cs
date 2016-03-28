@@ -29,9 +29,9 @@ namespace Roslyn.Sql
                 runCount: _sqlUtil.GetTestRunCount(startDate) ?? 0);
         }
 
-        public List<TestRun> GetTestRuns()
+        public List<TestRun> GetTestRuns(DateTime? startDate = null, DateTime? endDate = null)
         {
-            return _sqlUtil.GetTestRuns();
+            return _sqlUtil.GetTestRuns(startDate, endDate);
         }
 
         public void AddHit(string checksum, string assemblyName, bool? isJenkins, BuildSource? buildSource)

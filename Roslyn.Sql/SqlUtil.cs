@@ -7,9 +7,12 @@ using System.Web;
 
 namespace Roslyn.Sql
 {
+    // TODO: Consider making this type public.
     internal sealed class SqlUtil : IDisposable
     {
         internal const string Category = "sql";
+        internal static DateTime DateTimeMin => new DateTime(year: 2016, month: 1, day: 1).ToUniversalTime();
+        internal static DateTime DateTimeMax => DateTime.UtcNow;
 
         private SqlConnection _connection;
         private ILogger _logger;
@@ -187,13 +190,20 @@ namespace Roslyn.Sql
             }
         }
 
-        internal List<TestRun> GetTestRuns()
+        internal List<TestRun> GetTestRuns(DateTime? startDateTime = null, DateTime? endDateTime = null)
         {
+            startDateTime = startDateTime?.ToUniversalTime();
+            endDateTime = endDateTime?.ToUniversalTime();
+
             var commandText = @"
                 SELECT RunDate, Cache, ElapsedSeconds, Succeeded, IsJenkins, Is32, AssemblyCount, CacheCount, ChunkCount
-                FROM dbo.TestRuns";
+                FROM dbo.TestRuns
+                WHERE RunDate >= @StartDate AND RunDate <= @EndDate";
             using (var command = new SqlCommand(commandText, _connection))
             {
+                var p = command.Parameters;
+                p.AddWithValue("@StartDate", startDateTime ?? DateTimeMin);
+                p.AddWithValue("@EndDate", endDateTime ?? DateTimeMax);
                 var list = new List<TestRun>();
                 try
                 {
@@ -240,7 +250,7 @@ namespace Roslyn.Sql
         /// </summary>
         internal TestHitStats? GetHitStats(DateTime? startDate)
         {
-            var startDateValue = startDate ?? new DateTime(year: 2016, month: 1, day: 1);
+            var startDateValue = startDate ?? DateTimeMin;
             var commandText = @"
                 SELECT COUNT(*), Sum(Passed), Sum(Failed), Sum(Skipped), Sum(ElapsedSeconds)
                 FROM dbo.TestResultQueries
@@ -291,7 +301,7 @@ namespace Roslyn.Sql
 
         private int? GetStats(bool isHit, DateTime? startDate)
         {
-            var startDateValue = startDate ?? new DateTime(year: 2016, month: 1, day: 1);
+            var startDateValue = startDate ?? DateTime.MinValue;
             var commandText = @"
                 SELECT COUNT(*)
                 FROM dbo.TestResultQueries

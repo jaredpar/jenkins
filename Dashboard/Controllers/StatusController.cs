@@ -62,15 +62,18 @@ namespace Dashboard.Controllers
             return View(StorageLogger.Instance.EntryList);
         }
 
-        public ActionResult TestRuns()
+        public ActionResult TestRuns([FromUri] string startDate = null, [FromUri] string endDate = null)
         {
+            var startDateTime = ParameterToDateTime(startDate);
+            var endDateTime = ParameterToDateTime(endDate);
+
             // TODO: unify connection string management.
             var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
             using (var stats = new TestCacheStats(connectionString))
             {
                 // First group the data by date
                 var map = new Dictionary<DateTime, List<TestRun>>();
-                var testRunList = stats.GetTestRuns();
+                var testRunList = stats.GetTestRuns(startDateTime, endDateTime);
                 foreach (var cur in testRunList)
                 {
                     if (!cur.Succeeded || !cur.IsJenkins || cur.Cache == "test" || cur.AssemblyCount < 35 || cur.Elapsed.Ticks == 0)
@@ -106,7 +109,7 @@ namespace Dashboard.Controllers
                         {
                             fullList.Add(item.Elapsed);
                         }
-                        else if (item.ChunkCount > 0)
+                        else if (item.ChunkCount > 0 && item.ChunkCount > item.AssemblyCount)
                         {
                             chunkList.Add(item.Elapsed);
                         }
@@ -138,6 +141,22 @@ namespace Dashboard.Controllers
 
             var average = e.Average(x => x.Ticks);
             return TimeSpan.FromTicks((long)average);
+        }
+
+        private static DateTime? ParameterToDateTime(string p)
+        {
+            if (string.IsNullOrEmpty(p))
+            {
+                return null;
+            }
+
+            DateTime dateTime;
+            if (DateTime.TryParse(p, out dateTime))
+            {
+                return dateTime;
+            }
+
+            return null;
         }
     }
 }
