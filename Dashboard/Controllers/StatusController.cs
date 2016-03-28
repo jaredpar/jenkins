@@ -76,9 +76,15 @@ namespace Dashboard.Controllers
             var startDateTime = ParameterToDateTime(startDate);
             var endDateTime = ParameterToDateTime(endDate);
 
+            var testRunList = _sqlUtil.GetTestRuns(startDateTime, endDateTime);
+            var compList = GetTestRunComparisons(testRunList);
+            return View(compList);
+        }
+
+        private static Dictionary<DateTime, List<TestRun>> GetTestRunGroupedByDate(List<TestRun> testRunList)
+        {
             // First group the data by date
             var map = new Dictionary<DateTime, List<TestRun>>();
-            var testRunList = _sqlUtil.GetTestRuns(startDateTime, endDateTime);
             foreach (var cur in testRunList)
             {
                 if (!cur.Succeeded || !cur.IsJenkins || cur.Cache == "test" || cur.AssemblyCount < 35 || cur.Elapsed.Ticks == 0)
@@ -97,7 +103,15 @@ namespace Dashboard.Controllers
                 list.Add(cur);
             }
 
-            // Now build the comparison data.
+            return map;
+        }
+
+        /// <summary>
+        /// Break up the test runs into a list of comparisons by the date on which they occured. 
+        /// </summary>
+        private static List<TestRunComparison> GetTestRunComparisons(List<TestRun> testRunList)
+        {
+            var map = GetTestRunGroupedByDate(testRunList);
             var compList = new List<TestRunComparison>(map.Count);
             var fullList = new List<TimeSpan>();
             var chunkList = new List<TimeSpan>();
@@ -107,6 +121,10 @@ namespace Dashboard.Controllers
                 fullList.Clear();
                 chunkList.Clear();
                 legacyList.Clear();
+
+                var countCached = 0;
+                var countHighCached = 0;
+                var countNoCached = 0;
 
                 foreach (var item in pair.Value)
                 {
@@ -122,18 +140,35 @@ namespace Dashboard.Controllers
                     {
                         legacyList.Add(item.Elapsed);
                     }
+
+                    if (item.CacheCount > 0)
+                    {
+                        countCached++;
+                        if (((double)item.CacheCount / item.ChunkCount) > .5)
+                        {
+                            countHighCached++;
+                        }
+                    }
+                    else
+                    {
+                        countNoCached++;
+                    }
                 }
 
                 compList.Add(new TestRunComparison()
                 {
                     Date = pair.Key,
-                    FullCacheTime = Average(fullList),
-                    ChunkOnlyTime = Average(chunkList),
-                    LegacyTime = Average(legacyList)
+                    TimeCached = Average(fullList),
+                    TimeNoCache = Average(chunkList),
+                    TimeLegacy = Average(legacyList),
+                    Count = pair.Value.Count,
+                    CountHighCached = countHighCached,
+                    CountCached = countCached,
+                    CountNoCached = countNoCached
                 });
             }
 
-            return View(compList);
+            return compList;
         }
 
         private static TimeSpan Average(IEnumerable<TimeSpan> e)

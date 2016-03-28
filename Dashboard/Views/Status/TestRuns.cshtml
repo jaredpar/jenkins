@@ -3,12 +3,17 @@
 @{
     ViewBag.Title = $"Test Runs Summary";
 
-    var values = string.Join(
+    var timeValues = string.Join(
         ";",
-        Model.Select(x => $"{x.Date.ToLocalTime().ToString("yyyy-MM-dd")},{x.LegacyTime.TotalMinutes},{x.ChunkOnlyTime.TotalMinutes},{x.FullCacheTime.TotalMinutes}"));
+        Model.Select(x => $"{x.Date.ToLocalTime().ToString("yyyy-MM-dd")},{x.TimeLegacy.TotalMinutes},{x.TimeNoCache.TotalMinutes},{x.TimeCached.TotalMinutes}"));
+
+    var countValues = string.Join(
+        ";",
+        Model.Select(x => $"{x.Date.ToLocalTime().ToString("yyyy-MM-dd")},{x.CountNoCached},{x.CountCached},{x.CountHighCached}"));
 }
 
-<div id="testrun_comparison_chart" style="width: 900px; height: 500px" data-values="@values"></div>
+<div id="testrun_comparison_time_chart" style="width: 900px; height: 500px" data-values="@timeValues"></div>
+<div id="testrun_comparison_count_chart" style="width: 900px; height: 500px" data-values="@countValues"></div>
 
 @section scripts {
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
