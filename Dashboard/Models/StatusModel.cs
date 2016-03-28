@@ -12,9 +12,11 @@ namespace Dashboard.Models
     public sealed class TestRunComparison
     {
         public DateTime Date { get; set; }
-        public TimeSpan TimeCached { get; set; }
-        public TimeSpan TimeNoCache { get; set; }
-        public TimeSpan TimeLegacy { get; set; }
+        public TimeSpan AverageTimeCached { get; set; }
+        public TimeSpan AverageTimeNoCached { get; set; }
+        public TimeSpan AverageTimeAll { get; set; }
+
+        public TimeSpan TimeSaved { get; set; }
 
         /// <summary>
         /// Total count of runs on this date.

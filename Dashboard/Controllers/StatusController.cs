@@ -73,7 +73,7 @@ namespace Dashboard.Controllers
 
         public ActionResult TestRuns([FromUri] string startDate = null, [FromUri] string endDate = null)
         {
-            var startDateTime = ParameterToDateTime(startDate);
+            var startDateTime = ParameterToDateTime(startDate, DateTime.Now - TimeSpan.FromDays(7));
             var endDateTime = ParameterToDateTime(endDate);
 
             var testRunList = _sqlUtil.GetTestRuns(startDateTime, endDateTime);
@@ -113,37 +113,23 @@ namespace Dashboard.Controllers
         {
             var map = GetTestRunGroupedByDate(testRunList);
             var compList = new List<TestRunComparison>(map.Count);
-            var fullList = new List<TimeSpan>();
-            var chunkList = new List<TimeSpan>();
-            var legacyList = new List<TimeSpan>();
+            var cachedList = new List<TimeSpan>();
+            var noCachedList = new List<TimeSpan>();
+            var allList = new List<TimeSpan>();
             foreach (var pair in map.OrderBy(x => x.Key))
             {
-                fullList.Clear();
-                chunkList.Clear();
-                legacyList.Clear();
+                cachedList.Clear();
+                noCachedList.Clear();
+                allList.Clear();
 
-                var countCached = 0;
                 var countHighCached = 0;
-                var countNoCached = 0;
-
                 foreach (var item in pair.Value)
                 {
-                    if (item.CacheCount > 0)
-                    {
-                        fullList.Add(item.Elapsed);
-                    }
-                    else if (item.ChunkCount > 0 && item.ChunkCount > item.AssemblyCount)
-                    {
-                        chunkList.Add(item.Elapsed);
-                    }
-                    else
-                    {
-                        legacyList.Add(item.Elapsed);
-                    }
+                    allList.Add(item.Elapsed);
 
                     if (item.CacheCount > 0)
                     {
-                        countCached++;
+                        cachedList.Add(item.Elapsed);
                         if (((double)item.CacheCount / item.ChunkCount) > .5)
                         {
                             countHighCached++;
@@ -151,21 +137,35 @@ namespace Dashboard.Controllers
                     }
                     else
                     {
-                        countNoCached++;
+                        noCachedList.Add(item.Elapsed);
                     }
                 }
 
-                compList.Add(new TestRunComparison()
+                var comp = new TestRunComparison()
                 {
                     Date = pair.Key,
-                    TimeCached = Average(fullList),
-                    TimeNoCache = Average(chunkList),
-                    TimeLegacy = Average(legacyList),
-                    Count = pair.Value.Count,
+                    AverageTimeCached = Average(cachedList),
+                    AverageTimeNoCached = Average(noCachedList),
+                    AverageTimeAll = Average(allList),
+                    Count = allList.Count,
                     CountHighCached = countHighCached,
-                    CountCached = countCached,
-                    CountNoCached = countNoCached
-                });
+                    CountCached = cachedList.Count,
+                    CountNoCached = noCachedList.Count,
+                };
+
+                if (noCachedList.Count == 0)
+                {
+                    comp.TimeSaved = TimeSpan.FromSeconds(0);
+                }
+                else
+                {
+                    var timeSavedSeconds =
+                        (comp.AverageTimeNoCached.TotalSeconds * comp.Count) -
+                        (pair.Value.Sum(x => x.Elapsed.TotalSeconds));
+                    comp.TimeSaved = TimeSpan.FromSeconds(timeSavedSeconds);
+                }
+
+                compList.Add(comp);
             }
 
             return compList;
@@ -182,11 +182,11 @@ namespace Dashboard.Controllers
             return TimeSpan.FromTicks((long)average);
         }
 
-        private static DateTime? ParameterToDateTime(string p)
+        private static DateTime? ParameterToDateTime(string p, DateTime? defaultValue = null)
         {
             if (string.IsNullOrEmpty(p))
             {
-                return null;
+                return defaultValue;
             }
 
             DateTime dateTime;
@@ -195,7 +195,7 @@ namespace Dashboard.Controllers
                 return dateTime;
             }
 
-            return null;
+            return defaultValue;
         }
     }
 }
