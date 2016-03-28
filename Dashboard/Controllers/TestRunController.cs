@@ -28,12 +28,14 @@ namespace Dashboard.Controllers
 
     public class TestRunController : ApiController
     {
+        private readonly SqlUtil _sqlUtil;
         private readonly TestCacheStats _stats;
 
         public TestRunController()
         {
             var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
-            _stats = new TestCacheStats(connectionString);
+            _sqlUtil = new SqlUtil(connectionString);
+            _stats = new TestCacheStats(_sqlUtil);
         }
 
         protected override void Dispose(bool disposing)
@@ -42,7 +44,7 @@ namespace Dashboard.Controllers
 
             if (disposing)
             {
-                _stats.Dispose();
+                _sqlUtil.Dispose();
             }
         }
 

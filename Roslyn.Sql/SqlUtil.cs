@@ -7,17 +7,16 @@ using System.Web;
 
 namespace Roslyn.Sql
 {
-    // TODO: Consider making this type public.
-    internal sealed class SqlUtil : IDisposable
+    public sealed class SqlUtil : IDisposable
     {
-        internal const string Category = "sql";
-        internal static DateTime DateTimeMin => new DateTime(year: 2016, month: 1, day: 1).ToUniversalTime();
-        internal static DateTime DateTimeMax => DateTime.UtcNow;
+        public const string Category = "sql";
+        public static DateTime DateTimeMin => new DateTime(year: 2016, month: 1, day: 1).ToUniversalTime();
+        public static DateTime DateTimeMax => DateTime.UtcNow;
 
         private SqlConnection _connection;
         private ILogger _logger;
 
-        internal SqlUtil(string connectionString, ILogger logger = null)
+        public SqlUtil(string connectionString, ILogger logger = null)
         {
             _connection = new SqlConnection(connectionString);
             _connection.Open();
@@ -41,7 +40,7 @@ namespace Roslyn.Sql
             return RunCountCore(commandText, "RunDate", startDate);
         }
 
-        internal int? GetStoreCount(DateTime? startDate = null)
+        public int? GetStoreCount(DateTime? startDate = null)
         {
             var commandText = @"
                 SELECT COUNT(*)
@@ -52,7 +51,7 @@ namespace Roslyn.Sql
         /// <summary>
         /// Get the ID tracking the build source row for the unique pair of machine name and enlistment root.
         /// </summary>
-        internal int? GetBuildSourceId(string machineName, string enlistmentRoot)
+        public int? GetBuildSourceId(string machineName, string enlistmentRoot)
         {
             if (string.IsNullOrEmpty(machineName) || string.IsNullOrEmpty(enlistmentRoot))
             {
@@ -162,7 +161,7 @@ namespace Roslyn.Sql
             }
         }
 
-        internal List<DateTime> GetJenkinsTestRunDateTimes()
+        public List<DateTime> GetJenkinsTestRunDateTimes()
         {
             var commandText = @"
                 SELECT RunDate
@@ -190,7 +189,7 @@ namespace Roslyn.Sql
             }
         }
 
-        internal List<TestRun> GetTestRuns(DateTime? startDateTime = null, DateTime? endDateTime = null)
+        public List<TestRun> GetTestRuns(DateTime? startDateTime = null, DateTime? endDateTime = null)
         {
             startDateTime = startDateTime?.ToUniversalTime();
             endDateTime = endDateTime?.ToUniversalTime();
@@ -248,7 +247,7 @@ namespace Roslyn.Sql
         /// <summary>
         /// Get all of the statistics on test cache hits recorded in DB since the given <paramref name="startDate"/>.
         /// </summary>
-        internal TestHitStats? GetHitStats(DateTime? startDate)
+        public TestHitStats? GetHitStats(DateTime? startDate)
         {
             var startDateValue = startDate ?? DateTimeMin;
             var commandText = @"
@@ -294,7 +293,7 @@ namespace Roslyn.Sql
             }
         }
 
-        internal int? GetMissStats(DateTime? startDate)
+        public int? GetMissStats(DateTime? startDate)
         {
             return GetStats(isHit: false, startDate: startDate);
         }
@@ -331,7 +330,7 @@ namespace Roslyn.Sql
             }
         }
 
-        internal bool Insert(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength, TestResultSummary summary, int? buildSourceId)
+        public bool Insert(string checksum, string assemblyName, int outputStandardLength, int outputErrorLength, int contentLength, TestResultSummary summary, int? buildSourceId)
         {
             var commandText = @"
                 INSERT INTO dbo.TestResultStore(Checksum, OutputStandardLength, OutputErrorLength, ContentLength, AssemblyName, Passed, Failed, Skipped, ElapsedSeconds, StoreDate, BuildSourceId)
@@ -365,12 +364,12 @@ namespace Roslyn.Sql
             }
         }
 
-        internal bool InsertHit(string checksum, string assemblyName, bool? isJenkins, int? buildSourceId)
+        public bool InsertHit(string checksum, string assemblyName, bool? isJenkins, int? buildSourceId)
         {
             return InsertTestQuery(checksum, assemblyName, isHit: true, isJenkins: isJenkins, buildSourceId: buildSourceId);
         }
 
-        internal bool InsertMiss(string checksum, string assemblyName, bool? isJenkins, int? buildSourceId)
+        public bool InsertMiss(string checksum, string assemblyName, bool? isJenkins, int? buildSourceId)
         {
             return InsertTestQuery(checksum, assemblyName, isHit: false, isJenkins: isJenkins, buildSourceId: buildSourceId);
         }
@@ -405,7 +404,7 @@ namespace Roslyn.Sql
             }
         }
 
-        internal bool InsertTestRun(TestRun testRun)
+        public bool InsertTestRun(TestRun testRun)
         {
             var commandText = @"
                 INSERT INTO dbo.TestRuns(RunDate, Cache, ElapsedSeconds, Succeeded, IsJenkins, Is32, AssemblyCount, CacheCount, ChunkCount)
@@ -436,7 +435,7 @@ namespace Roslyn.Sql
             }
         }
 
-        internal bool InsertTestResult(string checksum, TestResult testResult)
+        public bool InsertTestResult(string checksum, TestResult testResult)
         {
             var commandText = @"
                 INSERT INTO dbo.TestResult(Checksum, ExitCode, OutputStandard, OutputError, ResultsFileContent, ResultsFileName, ElapsedSeconds, StoreDate)
@@ -466,7 +465,7 @@ namespace Roslyn.Sql
             }
         }
 
-        internal TestResult? GetTestResult(string checksum)
+        public TestResult? GetTestResult(string checksum)
         {
             var commandText = @"
                 SELECT ExitCode, OutputStandard, OutputError, ResultsFileContent, ResultsFileName, ElapsedSeconds
@@ -509,7 +508,7 @@ namespace Roslyn.Sql
             }
         }
 
-        internal List<string> GetTestResultKeys()
+        public List<string> GetTestResultKeys()
         {
             var commandText = @"
                 SELECT Checksum
@@ -536,7 +535,7 @@ namespace Roslyn.Sql
             }
         }
 
-        internal int? GetTestResultCount(DateTime? startDate = null)
+        public int? GetTestResultCount(DateTime? startDate = null)
         {
             var commandText = @"
                 SELECT COUNT(*)
@@ -544,7 +543,7 @@ namespace Roslyn.Sql
             return RunCountCore(commandText, "StoreDate", startDate);
         }
 
-        internal bool ShaveTestResultTable()
+        public bool ShaveTestResultTable()
         {
             var commandText = @"
                 DELETE TOP(100)

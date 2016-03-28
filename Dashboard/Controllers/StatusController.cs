@@ -13,6 +13,27 @@ namespace Dashboard.Controllers
 {
     public class StatusController : Controller
     {
+        private readonly SqlUtil _sqlUtil;
+        private readonly TestCacheStats _testCacheStats;
+        private readonly TestResultStorage _testResultStorage;
+
+        public StatusController()
+        {
+            var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
+            _sqlUtil = new SqlUtil(connectionString);
+            _testCacheStats = new TestCacheStats(_sqlUtil);
+            _testResultStorage = new TestResultStorage(_sqlUtil);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                _sqlUtil.Dispose();
+            }
+        }
+
         public ActionResult Index()
         {
             return RedirectToAction(nameof(Tests));
@@ -20,25 +41,16 @@ namespace Dashboard.Controllers
 
         public ActionResult Tests([FromUri] bool all = false)
         {
-            // TODO: unify connection string management.
-            var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
-            using (var stats = new TestCacheStats(connectionString))
-            {
-                var startDate = all
-                    ? (DateTime?)null
-                    : DateTime.UtcNow - TimeSpan.FromDays(1);
-                return View(stats.GetSummary(startDate));
-            }
+            var startDate = all
+                ? (DateTime?)null
+                : DateTime.UtcNow - TimeSpan.FromDays(1);
+            return View(_testCacheStats.GetSummary(startDate));
         }
 
         public ActionResult Result(string id)
         {
-            // TODO: unify connection string management.
-            var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
-            var storage = new TestResultStorage(connectionString);
-
             TestResult testResult;
-            if (!storage.TryGetValue(id, out testResult))
+            if (!_testResultStorage.TryGetValue(id, out testResult))
             {
                 throw new Exception("Invalid key");
             }
@@ -51,10 +63,7 @@ namespace Dashboard.Controllers
 
         public ActionResult Results()
         {
-            // TODO: unify connection string management.
-            var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
-            var storage = new TestResultStorage(connectionString);
-            return View(storage.Keys);
+            return View(_testResultStorage.Keys);
         }
 
         public ActionResult Errors()
@@ -67,69 +76,64 @@ namespace Dashboard.Controllers
             var startDateTime = ParameterToDateTime(startDate);
             var endDateTime = ParameterToDateTime(endDate);
 
-            // TODO: unify connection string management.
-            var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
-            using (var stats = new TestCacheStats(connectionString))
+            // First group the data by date
+            var map = new Dictionary<DateTime, List<TestRun>>();
+            var testRunList = _sqlUtil.GetTestRuns(startDateTime, endDateTime);
+            foreach (var cur in testRunList)
             {
-                // First group the data by date
-                var map = new Dictionary<DateTime, List<TestRun>>();
-                var testRunList = stats.GetTestRuns(startDateTime, endDateTime);
-                foreach (var cur in testRunList)
+                if (!cur.Succeeded || !cur.IsJenkins || cur.Cache == "test" || cur.AssemblyCount < 35 || cur.Elapsed.Ticks == 0)
                 {
-                    if (!cur.Succeeded || !cur.IsJenkins || cur.Cache == "test" || cur.AssemblyCount < 35 || cur.Elapsed.Ticks == 0)
-                    {
-                        continue;
-                    }
-
-                    var date = cur.RunDate.Date;
-                    List<TestRun> list;
-                    if (!map.TryGetValue(date, out list))
-                    {
-                        list = new List<TestRun>();
-                        map[date] = list;
-                    }
-
-                    list.Add(cur);
+                    continue;
                 }
 
-                // Now build the comparison data.
-                var compList = new List<TestRunComparison>(map.Count);
-                var fullList = new List<TimeSpan>();
-                var chunkList = new List<TimeSpan>();
-                var legacyList = new List<TimeSpan>();
-                foreach (var pair in map.OrderBy(x => x.Key))
+                var date = cur.RunDate.Date;
+                List<TestRun> list;
+                if (!map.TryGetValue(date, out list))
                 {
-                    fullList.Clear();
-                    chunkList.Clear();
-                    legacyList.Clear();
-                    
-                    foreach (var item in pair.Value)
-                    {
-                        if (item.CacheCount > 0)
-                        {
-                            fullList.Add(item.Elapsed);
-                        }
-                        else if (item.ChunkCount > 0 && item.ChunkCount > item.AssemblyCount)
-                        {
-                            chunkList.Add(item.Elapsed);
-                        }
-                        else
-                        {
-                            legacyList.Add(item.Elapsed);
-                        }
-                    }
-
-                    compList.Add(new TestRunComparison()
-                    {
-                        Date = pair.Key,
-                        FullCacheTime = Average(fullList),
-                        ChunkOnlyTime = Average(chunkList),
-                        LegacyTime = Average(legacyList)
-                    });
+                    list = new List<TestRun>();
+                    map[date] = list;
                 }
 
-                return View(compList);
+                list.Add(cur);
             }
+
+            // Now build the comparison data.
+            var compList = new List<TestRunComparison>(map.Count);
+            var fullList = new List<TimeSpan>();
+            var chunkList = new List<TimeSpan>();
+            var legacyList = new List<TimeSpan>();
+            foreach (var pair in map.OrderBy(x => x.Key))
+            {
+                fullList.Clear();
+                chunkList.Clear();
+                legacyList.Clear();
+
+                foreach (var item in pair.Value)
+                {
+                    if (item.CacheCount > 0)
+                    {
+                        fullList.Add(item.Elapsed);
+                    }
+                    else if (item.ChunkCount > 0 && item.ChunkCount > item.AssemblyCount)
+                    {
+                        chunkList.Add(item.Elapsed);
+                    }
+                    else
+                    {
+                        legacyList.Add(item.Elapsed);
+                    }
+                }
+
+                compList.Add(new TestRunComparison()
+                {
+                    Date = pair.Key,
+                    FullCacheTime = Average(fullList),
+                    ChunkOnlyTime = Average(chunkList),
+                    LegacyTime = Average(legacyList)
+                });
+            }
+
+            return View(compList);
         }
 
         private static TimeSpan Average(IEnumerable<TimeSpan> e)

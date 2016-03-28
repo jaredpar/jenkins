@@ -56,14 +56,16 @@ namespace Dashboard.Controllers
     /// </summary>
     public class TestCacheController : ApiController
     {
+        private readonly SqlUtil _sqlUtil;
         private readonly TestResultStorage _storage;
         private readonly TestCacheStats _stats;
 
         public TestCacheController()
         {
             var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
-            _storage = new TestResultStorage(connectionString);
-            _stats = new TestCacheStats(connectionString);
+            _sqlUtil = new SqlUtil(connectionString);
+            _storage = new TestResultStorage(_sqlUtil);
+            _stats = new TestCacheStats(_sqlUtil);
         }
 
         protected override void Dispose(bool disposing)
@@ -72,8 +74,7 @@ namespace Dashboard.Controllers
 
             if (disposing)
             {
-                _storage.Dispose();
-                _stats.Dispose();
+                _sqlUtil.Dispose();
             }
         }
 

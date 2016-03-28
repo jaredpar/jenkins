@@ -11,7 +11,7 @@ namespace Roslyn.Sql
     /// This is a proof of concept implementation only.  I realize that its implementation is pretty terrible
     /// and that's fine.  For now it is enough to validate the end to end scenario.
     /// </summary>
-    public class TestResultStorage : IDisposable
+    public class TestResultStorage
     {
         private const int SizeLimit = 10000000;
         private readonly SqlUtil _sqlUtil;
@@ -19,14 +19,9 @@ namespace Roslyn.Sql
         public List<string> Keys => _sqlUtil.GetTestResultKeys();
         public int Count => _sqlUtil.GetTestResultCount() ?? 0;
 
-        public TestResultStorage(string connectionString)
+        public TestResultStorage(SqlUtil sqlUtil)
         {
-            _sqlUtil = new SqlUtil(connectionString);
-        }
-
-        public void Dispose()
-        {
-            _sqlUtil.Dispose();
+            _sqlUtil = sqlUtil;
         }
 
         public void Add(string key, TestResult value)

@@ -5,18 +5,13 @@ using System.Web;
 
 namespace Roslyn.Sql
 {
-    public sealed class TestCacheStats : IDisposable
+    public sealed class TestCacheStats
     {
         private readonly SqlUtil _sqlUtil;
 
-        public TestCacheStats(string connectionString = null)
+        public TestCacheStats(SqlUtil sqlUtil)
         {
-            _sqlUtil = new SqlUtil(connectionString);
-        }
-
-        public void Dispose()
-        {
-            _sqlUtil.Dispose();
+            _sqlUtil = sqlUtil;
         }
 
         public TestCacheStatSummary GetSummary(DateTime? startDate)
