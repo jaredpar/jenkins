@@ -543,26 +543,30 @@ namespace Roslyn.Sql
             return RunCountCore(commandText, "StoreDate", startDate);
         }
 
-        public bool ShaveTestResultTable()
+        /// <summary>
+        /// Clean the specified number of entries from the TestResult table which occured 
+        /// past the specified date.
+        /// </summary>
+        public int? CleanTestResultTable(int count = 100, DateTime? storeDate = null)
         {
+            var storeDateValue = storeDate?.ToUniversalTime() ?? DateTime.UtcNow - TimeSpan.FromDays(14);
             var commandText = @"
-                DELETE TOP(100)
+                DELETE TOP(@DeleteCount)
                 FROM dbo.TestResult
                 WHERE StoreDate <= @StoreDate";
             using (var command = new SqlCommand(commandText, _connection))
             {
-                var storeDate = DateTime.UtcNow - TimeSpan.FromDays(5);
                 var p = command.Parameters;
-                p.AddWithValue("@StoreDate", storeDate);
+                p.AddWithValue("@StoreDate", storeDateValue);
+                p.AddWithValue("@DeleteCount", count);
                 try
                 {
-                    command.ExecuteNonQuery();
-                    return true;
+                    return command.ExecuteNonQuery();
                 }
                 catch (Exception ex)
                 {
                     _logger.Log(Category, "Cannot shave test result table", ex);
-                    return false;
+                    return null;
                 }
             }
         }
