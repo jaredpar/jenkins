@@ -1,4 +1,4 @@
 # Roslyn dashboard
 
-A fun side project. 
+A fun side project for Roslyn monitoring. 
 
