@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using System.Configuration;
 using Roslyn.Sql;
+using SendGrid;
+using System.Net.Mail;
 
 namespace DashboardCleaner
 {
-    // To learn more about Microsoft Azure WebJobs SDK, please see http://go.microsoft.com/fwlink/?LinkID=320976
-    public class Program
+    internal static class Program
     {
-        // Please set the following connection strings in app.config for this WebJob to run:
-        // AzureWebJobsDashboard and AzureWebJobsStorage
-        public  static void Main()
+        public static void Main()
         {
-            CleanTestResultTable();
+            var testResultDeletedRowCount = CleanTestResultTable();
+            SendEmail(testResultDeletedRowCount).Wait();
 
             /*
             var host = new JobHost();
@@ -25,10 +25,32 @@ namespace DashboardCleaner
             */
         }
 
-        private static void CleanTestResultTable()
+        private static async Task SendEmail(int testResultDeletedRowCount)
         {
+            var message = new SendGridMessage();
+            message.AddTo("jaredpparsons@gmail.com");
+            message.AddTo("jaredpar@microsoft.com");
+            message.From = new MailAddress("jaredpar@jdash.azurewebsites.net");
+            message.Subject = "Dashboard cleaner summary";
+            message.Text = $"Deleted {testResultDeletedRowCount} rows from TestResult";
+
+            try
+            {
+                var key = ConfigurationManager.AppSettings["sendgrid-api-key"];
+                var web = new Web(apiKey: key);
+                await web.DeliverAsync(message).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unable to send message: {ex}");
+            }
+        }
+
+        private static int CleanTestResultTable()
+        { 
             Console.WriteLine("Cleaning TestResult Table");
 
+            var total = 0;
             var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
             using (var sqlUtil = new SqlUtil(connectionString, new ConsoleLogger()))
             {
@@ -40,6 +62,7 @@ namespace DashboardCleaner
                     if (count > 0)
                     {
                         Console.WriteLine($"Cleaned {count}");
+                        total += count.Value;
                     }
                     else
                     {
@@ -48,6 +71,10 @@ namespace DashboardCleaner
                     }
                 } while (!done);
             }
+
+            Console.WriteLine($"Removed {total} rows");
+
+            return total;
         }
     }
 }
