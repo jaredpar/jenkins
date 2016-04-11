@@ -7,8 +7,8 @@
     <ProjectGuid>{6482F3D6-A5A0-459A-8593-A851945E4AAD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Roslyn.Sql</RootNamespace>
-    <AssemblyName>Roslyn.Sql</AssemblyName>
+    <RootNamespace>Roslyn.Storage</RootNamespace>
+    <AssemblyName>Roslyn.Storage</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,23 +40,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BuildSource.cs" />
-    <Compile Include="ConsoleLogger.cs" />
-    <Compile Include="ILogger.cs" />
+    <Compile Include="Sql\BuildSource.cs" />
+    <Compile Include="Sql\ConsoleLogger.cs" />
+    <Compile Include="Sql\ILogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SqlUtil.cs" />
-    <Compile Include="StorageLogger.cs" />
-    <Compile Include="TestCacheStats.cs" />
-    <Compile Include="TestHitStats.cs" />
-    <Compile Include="TestResult.cs" />
-    <Compile Include="TestResultStorage.cs" />
-    <Compile Include="TestResultSummary.cs" />
-    <Compile Include="TestRun.cs" />
-    <Compile Include="TestStatsData.cs" />
-    <Compile Include="ZipUtil.cs" />
+    <Compile Include="Sql\SqlUtil.cs" />
+    <Compile Include="Sql\StorageLogger.cs" />
+    <Compile Include="Sql\TestCacheStats.cs" />
+    <Compile Include="Sql\TestHitStats.cs" />
+    <Compile Include="Sql\TestResult.cs" />
+    <Compile Include="Sql\TestResultStorage.cs" />
+    <Compile Include="Sql\TestResultSummary.cs" />
+    <Compile Include="Sql\TestRun.cs" />
+    <Compile Include="Sql\TestStatsData.cs" />
+    <Compile Include="Sql\ZipUtil.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\Database.sql" />
+    <Content Include="Sql\Scripts\Database.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

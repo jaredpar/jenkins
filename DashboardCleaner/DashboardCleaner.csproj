@@ -101,9 +101,9 @@
     <None Include="Properties\webjob-publish-settings.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Roslyn.Sql\Roslyn.Sql.csproj">
+    <ProjectReference Include="..\Roslyn.Storage\Roslyn.Storage.csproj">
       <Project>{6482f3d6-a5a0-459a-8593-a851945e4aad}</Project>
-      <Name>Roslyn.Sql</Name>
+      <Name>Roslyn.Storage</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

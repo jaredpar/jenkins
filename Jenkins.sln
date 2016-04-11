@@ -22,11 +22,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configurations", "Configura
 		PublishScripts\Configurations\Dashboard-WAWS-dev.json = PublishScripts\Configurations\Dashboard-WAWS-dev.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roslyn.Sql", "Roslyn.Sql\Roslyn.Sql.csproj", "{6482F3D6-A5A0-459A-8593-A851945E4AAD}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DashboardCleaner", "DashboardCleaner\DashboardCleaner.csproj", "{C1A23ABF-1043-40F5-812B-CA8BE15BACCA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JenkinsJobs", "JenkinsJobs\JenkinsJobs.csproj", "{AAECC7FC-2A8D-40DC-A74D-BC35D89B1479}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roslyn.Storage", "Roslyn.Storage\Roslyn.Storage.csproj", "{6482F3D6-A5A0-459A-8593-A851945E4AAD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,10 +50,6 @@ Global
 		{33DB7715-7742-44BE-AE4B-34CE54A40AF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33DB7715-7742-44BE-AE4B-34CE54A40AF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33DB7715-7742-44BE-AE4B-34CE54A40AF5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6482F3D6-A5A0-459A-8593-A851945E4AAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6482F3D6-A5A0-459A-8593-A851945E4AAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6482F3D6-A5A0-459A-8593-A851945E4AAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6482F3D6-A5A0-459A-8593-A851945E4AAD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C1A23ABF-1043-40F5-812B-CA8BE15BACCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C1A23ABF-1043-40F5-812B-CA8BE15BACCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1A23ABF-1043-40F5-812B-CA8BE15BACCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -62,6 +58,10 @@ Global
 		{AAECC7FC-2A8D-40DC-A74D-BC35D89B1479}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAECC7FC-2A8D-40DC-A74D-BC35D89B1479}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAECC7FC-2A8D-40DC-A74D-BC35D89B1479}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6482F3D6-A5A0-459A-8593-A851945E4AAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6482F3D6-A5A0-459A-8593-A851945E4AAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6482F3D6-A5A0-459A-8593-A851945E4AAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6482F3D6-A5A0-459A-8593-A851945E4AAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
