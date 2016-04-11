@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiFun", "ApiFun\ApiFun.csproj", "{5FE8A917-8F76-48F3-A3A6-8235F97FF0C7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roslyn.Jenkins", "Roslyn.Jenkins\Roslyn.Jenkins.csproj", "{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PopulateSql", "PopulateSql\PopulateSql.csproj", "{9E177504-7E80-4DCD-816C-070DBEEAD554}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roslyn.Jenkins.Tests", "Roslyn.Jenkins.Tests\Roslyn.Jenkins.Tests.csproj", "{37C8575D-8E4E-45EB-861B-3720E883A663}"
 EndProject
@@ -42,10 +40,6 @@ Global
 		{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9E177504-7E80-4DCD-816C-070DBEEAD554}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9E177504-7E80-4DCD-816C-070DBEEAD554}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9E177504-7E80-4DCD-816C-070DBEEAD554}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9E177504-7E80-4DCD-816C-070DBEEAD554}.Release|Any CPU.Build.0 = Release|Any CPU
 		{37C8575D-8E4E-45EB-861B-3720E883A663}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{37C8575D-8E4E-45EB-861B-3720E883A663}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37C8575D-8E4E-45EB-861B-3720E883A663}.Release|Any CPU.ActiveCfg = Release|Any CPU
