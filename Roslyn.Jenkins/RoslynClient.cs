@@ -27,15 +27,18 @@ namespace Roslyn.Jenkins
 
         public List<string> GetJobNames()
         {
-            return _client.GetJobNamesInView("roslyn");
+            return _client.GetJobNamesInView("Roslyn");
         }
 
-        public List<string> GetPullRequestJobNames()
+        public bool IsPullRequestJobName(string jobName)
         {
-            // TODO: Hacky, should find an API way to git this information
-            return GetJobNames()
-                .Where(x => x.Contains("_pr"))
-                .ToList();
+            // TODO: This is super hacky.  But for now it's a correct hueristic and is workable.
+            return jobName.Contains("_pr");
+        }
+
+        public bool IsCommitJobName(string jobName)
+        {
+            return !IsPullRequestJobName(jobName);
         }
 
         public TimeSpan? GetTimeInQueue(BuildId jobId)
@@ -58,14 +61,6 @@ namespace Roslyn.Jenkins
             }
 
             return null;
-        }
-
-        public List<string> GetCommitJobNames()
-        {
-            // TODO: Hacky, should find an API way to git this information
-            return GetJobNames()
-                .Where(x => !x.Contains("_pr"))
-                .ToList();
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Roslyn.Jenkins
 
         public static string GetBuildPath(BuildId id)
         {
-            return $"job/{id.Name}/{id.Id}/";
+            return $"job/{id.JobName}/{id.Id}/";
         }
 
         public static Uri GetBuildUri(Uri baseUrl, BuildId id)

@@ -326,28 +326,28 @@ namespace Roslyn.Jenkins
         }
 
         /// <summary>
-        /// Attempt to determine the failure reason for the given Job.  This should  only be called on 
+        /// Attempt to determine the failure reason for the given Job.  This should only be called on 
         /// jobs that are known to have failed.
         /// </summary>
-        private GetBuildFailureInfo GetBuildFailureInfo(BuildId buildId, JObject data)
+        private BuildFailureInfo GetBuildFailureInfo(BuildId buildId, JObject data)
         {
             // First look for the test failure information.  
             List<string> failedTestList;
             if (TryGetTestFailureReason(buildId, data, out failedTestList))
             {
                 Debug.Assert(failedTestList.Count > 0);
-                return new GetBuildFailureInfo(BuildFailureReason.TestCase, failedTestList);
+                return new BuildFailureInfo(BuildFailureReason.TestCase, failedTestList);
             }
 
             // Now look at the console text.
             var consoleText = GetConsoleText(buildId);
-            GetBuildFailureInfo failureInfo;
+            BuildFailureInfo failureInfo;
             if (ConsoleTextUtil.TryGetFailureInfo(consoleText, out failureInfo))
             {
                 return failureInfo;
             }
 
-            return Jenkins.GetBuildFailureInfo.Unknown;
+            return Jenkins.BuildFailureInfo.Unknown;
         }
 
         // TODO: This should be in JenkinsUtil

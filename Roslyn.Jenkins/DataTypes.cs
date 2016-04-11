@@ -31,15 +31,15 @@ namespace Roslyn.Jenkins
     public struct BuildId
     {
         public int Id { get; }
-        public string Name { get; }
+        public string JobName { get; }
 
-        public BuildId(int id, string name)
+        public BuildId(int id, string jobName)
         {
             Id = id;
-            Name = name;
+            JobName = jobName;
         }
 
-        public override string ToString() => $"{Id} - {Name}";
+        public override string ToString() => $"{Id} - {JobName}";
     }
 
     public sealed class ViewInfo
@@ -125,7 +125,7 @@ namespace Roslyn.Jenkins
     public sealed class BuildResult
     {
         private readonly BuildInfo buildInfo;
-        private readonly GetBuildFailureInfo _failureInfo;
+        private readonly BuildFailureInfo _failureInfo;
 
         public int Id => buildInfo.Id.Id;
         public BuildId BuildId => buildInfo.Id;
@@ -136,7 +136,7 @@ namespace Roslyn.Jenkins
         public bool Running => State == BuildState.Running;
         public bool Aborted => State == BuildState.Aborted;
 
-        public GetBuildFailureInfo FailureInfo
+        public BuildFailureInfo FailureInfo
         {
             get
             {
@@ -155,7 +155,7 @@ namespace Roslyn.Jenkins
             this.buildInfo = buildInfo;
         }
 
-        public BuildResult(BuildInfo buildInfo, GetBuildFailureInfo failureInfo)
+        public BuildResult(BuildInfo buildInfo, BuildFailureInfo failureInfo)
         {
             this.buildInfo = buildInfo;
             _failureInfo = failureInfo;
@@ -171,33 +171,17 @@ namespace Roslyn.Jenkins
         Infrastructure,
     }
 
-    public sealed class GetBuildFailureInfo
+    public sealed class BuildFailureInfo
     {
-        public static readonly GetBuildFailureInfo Unknown = new GetBuildFailureInfo(BuildFailureReason.Unknown);
+        public static readonly BuildFailureInfo Unknown = new BuildFailureInfo(BuildFailureReason.Unknown);
 
         public BuildFailureReason Reason;
         public List<string> Messages;
 
-        public GetBuildFailureInfo(BuildFailureReason reason, List<string> messages = null)
+        public BuildFailureInfo(BuildFailureReason reason, List<string> messages = null)
         {
             Reason = reason;
             Messages = messages ?? new List<string>();
-        }
-    }
-
-    public sealed class RetestInfo
-    {
-        public BuildId BuildId { get; }
-        public string Sha { get; }
-        public bool Handled { get; }
-        public string Note { get; }
-
-        public RetestInfo(BuildId buildId, string sha, bool handled, string note = null)
-        {
-            BuildId = buildId;
-            Sha = sha;
-            Handled = handled;
-            Note = note ?? string.Empty;
         }
     }
 

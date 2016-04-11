@@ -460,7 +460,7 @@ namespace ApiFun
 
             foreach (var buildId in GetBuildIds(os => os == OS.Mac || os == OS.Linux))
             {
-                Console.WriteLine($"Processing {buildId.Name} {buildId.Id}");
+                Console.WriteLine($"Processing {buildId.JobName} {buildId.Id}");
 
                 var state = _client.GetBuildState(buildId);
                 if (state == BuildState.Running)

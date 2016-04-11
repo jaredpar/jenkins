@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
+using Roslyn.Jenkins;
 
 namespace JenkinsJobs
 {
@@ -20,21 +21,26 @@ namespace JenkinsJobs
             // The following code ensures that the WebJob will be running continuously
             host.RunAndBlock();
             */
-            LocalRun();
+            LocalRun().Wait();
         }
 
-        private static void LocalRun()
+        private static async Task LocalRun()
         {
             try
             {
                 var connectionString = CloudConfigurationManager.GetSetting("jaredpar-storage-connectionstring");
                 var storageAccount = CloudStorageAccount.Parse(connectionString);
                 var tableClient = storageAccount.CreateCloudTableClient();
-                var table = tableClient.GetTableReference("JobFailure");
-                table.CreateIfNotExists();
+                var buildFailureTable = tableClient.GetTableReference("BuildFailure");
+                buildFailureTable.CreateIfNotExists();
+                var buildProcessedTable = tableClient.GetTableReference("BuildProcessed");
+                buildProcessedTable.CreateIfNotExists();
 
-                var util = new JobTableUtil(table);
-                util.Populate();
+                // TODO: Need a Jenkins token as well to be able to query our non-public jobs.
+                var roslynClient = new RoslynClient();
+
+                var util = new JobTableUtil(buildProcessedTable: buildProcessedTable, buildFailureTable: buildFailureTable, roslynClient: roslynClient);
+                await util.Populate();
             }
             catch (Exception ex)
             {
