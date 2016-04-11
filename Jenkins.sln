@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roslyn.Sql", "Roslyn.Sql\Ro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DashboardCleaner", "DashboardCleaner\DashboardCleaner.csproj", "{C1A23ABF-1043-40F5-812B-CA8BE15BACCA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JenkinsJobs", "JenkinsJobs\JenkinsJobs.csproj", "{AAECC7FC-2A8D-40DC-A74D-BC35D89B1479}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{C1A23ABF-1043-40F5-812B-CA8BE15BACCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1A23ABF-1043-40F5-812B-CA8BE15BACCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1A23ABF-1043-40F5-812B-CA8BE15BACCA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAECC7FC-2A8D-40DC-A74D-BC35D89B1479}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAECC7FC-2A8D-40DC-A74D-BC35D89B1479}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAECC7FC-2A8D-40DC-A74D-BC35D89B1479}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAECC7FC-2A8D-40DC-A74D-BC35D89B1479}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
