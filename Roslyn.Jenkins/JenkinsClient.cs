@@ -215,7 +215,7 @@ namespace Roslyn.Jenkins
         {
             var seconds = data.Value<long>("timestamp");
             var epoch = new DateTime(year: 1970, month: 1, day: 1);
-            return epoch.AddMilliseconds(seconds);
+            return epoch.AddMilliseconds(seconds).ToUniversalTime();
         }
 
         private BuildState GetBuildStateCore(JObject data)

@@ -55,8 +55,7 @@ namespace JenkinsJobs
 
                 try
                 {
-                    var succeeded = await PopulateBuildId(buildId);
-                    var entity = new BuildProcessedEntity(buildId, succeeded);
+                    var entity = await PopulateBuildId(buildId);
                     newProcessedList.Add(entity);
                 }
                 catch (Exception ex)
@@ -76,14 +75,14 @@ namespace JenkinsJobs
             return result.ToList();
         }
 
-        private async Task<bool> PopulateBuildId(BuildId buildId)
+        private async Task<BuildProcessedEntity> PopulateBuildId(BuildId buildId)
         {
             var buildResult = _jenkinsClient.GetBuildResult(buildId);
 
             // Don't need to do any processing for successful build values.
             if (buildResult.Succeeded)
             {
-                return true;
+                return new BuildProcessedEntity(buildId, buildResult.BuildInfo.Date, BuildResultKind.Succeeded);
             }
 
             if (buildResult.FailureInfo?.Reason != BuildFailureReason.TestCase)
@@ -91,14 +90,14 @@ namespace JenkinsJobs
                 throw new Exception($"Unable to process {buildResult.FailureInfo?.Reason}");
             }
 
-            await PopulateUnitTestFailure(buildId, buildResult.FailureInfo.Messages);
-            return false;
+            await PopulateUnitTestFailure(buildId, buildResult.FailureInfo.Messages, buildResult.BuildInfo.Date.ToUniversalTime());
+            return new BuildProcessedEntity(buildId, buildResult.BuildInfo.Date, BuildResultKind.UnitTestFailure);
         }
 
-        private Task PopulateUnitTestFailure(BuildId buildId, List<string> testCaseNames)
+        private Task PopulateUnitTestFailure(BuildId buildId, List<string> testCaseNames, DateTime buildDate)
         {
             var entityList = testCaseNames
-                .Select(x => BuildFailureEntity.CreateUnitTestFailure(buildId, x))
+                .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildId, x, buildDate))
                 .ToList();
             return InsertBatch(_buildFailureTable, entityList);
         }

@@ -8,10 +8,19 @@ using System.Threading.Tasks;
 
 namespace JenkinsJobs
 {
+    public enum BuildResultKind
+    {
+        Succeeded = 0,
+        UnitTestFailure = 1,
+        UnknownFailure = 2,
+    }
+
     public sealed class BuildProcessedEntity : TableEntity
     {
-        public bool Succeeded { get; set; }
+        public string KindRaw { get; set; }
+        public DateTime BuildDate { get; set; }
 
+        public BuildResultKind Kind => (BuildResultKind)Enum.Parse(typeof(BuildResultKind), KindRaw);
         public BuildId BuildId => new BuildId(id: int.Parse(RowKey), jobName: PartitionKey);
 
         public BuildProcessedEntity()
@@ -19,36 +28,41 @@ namespace JenkinsJobs
 
         }
 
-        public BuildProcessedEntity(BuildId buildId, bool succeeded) : base(buildId.JobName, buildId.Id.ToString())
+        public BuildProcessedEntity(BuildId buildId, DateTime buildDate, BuildResultKind kind) : base(buildId.JobName, buildId.Id.ToString())
         {
-            Succeeded = succeeded;
+            BuildDate = buildDate;
+            KindRaw = Kind.ToString();
         }
     }
 
     public enum BuildFailureKind
     {
-        Unknown = 0,
-        UnitTest = 1,
+        Unknown,
+        TestCase,
     }
 
     public sealed class BuildFailureEntity : TableEntity
     {
-        public BuildFailureKind Kind { get; set; }
+        public string KindRaw { get; set; }
+        public DateTime BuildDate { get; set; }
         public string Extra { get; set; }
+
+        public BuildFailureKind Kind => (BuildFailureKind)Enum.Parse(typeof(BuildFailureKind), KindRaw);
 
         public BuildFailureEntity()
         {
 
         }
 
-        private BuildFailureEntity(BuildId buildId, BuildFailureKind kind, string rowKey) : base($"{buildId.JobName} {buildId.Id}", rowKey)
+        private BuildFailureEntity(BuildId buildId, string rowKey, BuildFailureKind kind, DateTime buildDate) : base($"{buildId.JobName} {buildId.Id}", rowKey)
         {
-            Kind = kind;
+            KindRaw = kind.ToString();
+            BuildDate = buildDate;
         }
 
-        public static BuildFailureEntity CreateUnitTestFailure(BuildId buildId, string testCaseName, string extra = "")
+        public static BuildFailureEntity CreateTestCaseFailure(BuildId buildId, string testCaseName, DateTime buildDate, string extra = "")
         {
-            return new BuildFailureEntity(buildId, BuildFailureKind.UnitTest, rowKey: testCaseName)
+            return new BuildFailureEntity(buildId, kind: BuildFailureKind.TestCase, rowKey: testCaseName, buildDate: buildDate)
             {
                 Extra = extra
             };

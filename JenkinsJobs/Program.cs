@@ -41,6 +41,10 @@ namespace JenkinsJobs
 
                 var util = new JobTableUtil(buildProcessedTable: buildProcessedTable, buildFailureTable: buildFailureTable, roslynClient: roslynClient);
                 await util.Populate();
+                foreach (var cur in util.ErrorList)
+                {
+                    Console.WriteLine(cur);
+                }
             }
             catch (Exception ex)
             {
