@@ -11,9 +11,15 @@ namespace JenkinsJobs
     {
         private readonly CloudTable _table;
 
+        // TODO: Need a Jenkins token as well to be able to query our non-public jobs.
         internal JobTableUtil(CloudTable table)
         {
             _table = table;
+        }
+
+        internal void Populate()
+        {
+
         }
     }
 }

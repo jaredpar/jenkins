@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
+using Microsoft.WindowsAzure;
+using Microsoft.WindowsAzure.Storage;
 
 namespace JenkinsJobs
 {
@@ -18,6 +20,26 @@ namespace JenkinsJobs
             // The following code ensures that the WebJob will be running continuously
             host.RunAndBlock();
             */
+            LocalRun();
+        }
+
+        private static void LocalRun()
+        {
+            try
+            {
+                var connectionString = CloudConfigurationManager.GetSetting("jaredpar-storage-connectionstring");
+                var storageAccount = CloudStorageAccount.Parse(connectionString);
+                var tableClient = storageAccount.CreateCloudTableClient();
+                var table = tableClient.GetTableReference("JobFailure");
+                table.CreateIfNotExists();
+
+                var util = new JobTableUtil(table);
+                util.Populate();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unable to run the local request: {ex}");
+            }
         }
     }
 }
