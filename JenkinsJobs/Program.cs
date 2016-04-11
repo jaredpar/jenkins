@@ -40,12 +40,8 @@ namespace JenkinsJobs
                 // TODO: Need a Jenkins token as well to be able to query our non-public jobs.
                 var roslynClient = new RoslynClient();
 
-                var util = new JobTableUtil(buildProcessedTable: buildProcessedTable, buildFailureTable: buildFailureTable, roslynClient: roslynClient);
+                var util = new JobTableUtil(buildProcessedTable: buildProcessedTable, buildFailureTable: buildFailureTable, roslynClient: roslynClient, textWriter: Console.Out);
                 await util.Populate();
-                foreach (var cur in util.ErrorList)
-                {
-                    Console.WriteLine(cur);
-                }
             }
             catch (Exception ex)
             {

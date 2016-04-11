@@ -10,9 +10,14 @@ namespace Roslyn.Azure
 {
     public enum BuildResultKind
     {
-        Succeeded = 0,
-        UnitTestFailure = 1,
-        UnknownFailure = 2,
+        Succeeded,
+        Aborted,
+        Running,
+        UnknownFailure,
+        UnitTestFailure,
+        NuGetFailure,
+        InfrastructureFailure,
+        BuildFailure,
     }
 
     public sealed class BuildProcessedEntity : TableEntity
@@ -31,7 +36,7 @@ namespace Roslyn.Azure
         public BuildProcessedEntity(BuildId buildId, DateTime buildDate, BuildResultKind kind) : base(buildId.JobName, buildId.Id.ToString())
         {
             BuildDate = buildDate;
-            KindRaw = Kind.ToString();
+            KindRaw = kind.ToString();
         }
     }
 }
