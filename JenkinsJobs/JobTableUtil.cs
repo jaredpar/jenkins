@@ -1,4 +1,5 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
+using Roslyn.Azure;
 using Roslyn.Jenkins;
 using System;
 using System.Collections.Generic;
