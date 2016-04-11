@@ -18,6 +18,7 @@ namespace Roslyn.Azure
         NuGetFailure,
         InfrastructureFailure,
         BuildFailure,
+        MergeConflict,
     }
 
     public sealed class BuildProcessedEntity : TableEntity

@@ -30,7 +30,8 @@ namespace ApiFun
             // PrintJobInfo();
             // PrintQueue();
             // PrintViews();
-            PrintPullRequestData();
+            // PrintPullRequestData();
+            PrintFailure();
 
             /*
             roslyn_stabil_lin_dbg_unit32
@@ -54,6 +55,12 @@ namespace ApiFun
             {
                 return new RoslynClient();
             }
+        }
+
+        private static void PrintFailure()
+        {
+            var client = CreateClient().Client;
+            var info = client.GetBuildFailureInfo(new BuildId(id: 5982, jobName: "roslyn_prtest_win_dbg_unit32"));
         }
 
         private static void PrintViews()
@@ -267,6 +274,7 @@ namespace ApiFun
             */
         }
 
+        /*
         private static void PrintFailedJobs()
         {
             var client = new RoslynClient().Client;
@@ -287,6 +295,7 @@ namespace ApiFun
                 }
             }
         }
+        */
 
         private static void FindRetest()
         {

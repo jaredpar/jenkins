@@ -49,7 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConsoleTextUtil.cs" />
+    <Compile Include="BuildFailureUtil.cs" />
     <Compile Include="DataTypes.cs" />
     <Compile Include="JenkinsClient.cs" />
     <Compile Include="RoslynClient.cs" />

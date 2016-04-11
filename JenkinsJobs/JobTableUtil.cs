@@ -120,27 +120,31 @@ namespace JenkinsJobs
         private async Task<BuildResultKind> PopulateFailedBuildResult(BuildResult buildResult)
         {
             var buildId = buildResult.BuildId;
-            var reason = buildResult.FailureInfo?.Reason ?? BuildFailureReason.Unknown;
-            switch (reason)
+            var category = buildResult.FailureInfo?.Category ?? BuildFailureCategory.Unknown;
+            switch (category)
             {
-                case BuildFailureReason.Unknown:
+                case BuildFailureCategory.Unknown:
                     return BuildResultKind.UnknownFailure;
-                case BuildFailureReason.NuGet:
+                case BuildFailureCategory.NuGet:
                     return BuildResultKind.NuGetFailure;
-                case BuildFailureReason.Build:
+                case BuildFailureCategory.Build:
                     return BuildResultKind.BuildFailure;
-                case BuildFailureReason.Infrastructure:
+                case BuildFailureCategory.Infrastructure:
                     return BuildResultKind.InfrastructureFailure;
-                case BuildFailureReason.TestCase:
-                    await PopulateUnitTestFailure(buildId, buildResult.FailureInfo.Messages, buildResult.BuildInfo.Date);
+                case BuildFailureCategory.MergeConflict:
+                    return BuildResultKind.MergeConflict;
+                case BuildFailureCategory.TestCase:
+                    await PopulateUnitTestFailure(buildId, buildResult.BuildInfo.Date);
                     return BuildResultKind.UnitTestFailure;
+
                 default:
-                    throw new Exception($"Invalid enum value: {reason}");
+                    throw new Exception($"Invalid enum value: {category}");
             }
         }
 
-        private Task PopulateUnitTestFailure(BuildId buildId, List<string> testCaseNames, DateTime buildDate)
+        private Task PopulateUnitTestFailure(BuildId buildId, DateTime buildDate)
         {
+            var testCaseNames = _jenkinsClient.GetFailedTestCases(buildId);
             var entityList = testCaseNames
                 .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildId, x, buildDate))
                 .ToList();

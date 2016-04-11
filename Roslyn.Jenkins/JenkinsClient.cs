@@ -136,7 +136,7 @@ namespace Roslyn.Jenkins
             var data = GetJson(id);
             var state = GetBuildStateCore(data);
             var date = GetBuildDateCore(data);
-            var jobInfo = new BuildInfo(
+            var buildInfo = new BuildInfo(
                 id,
                 state,
                 date,
@@ -144,17 +144,48 @@ namespace Roslyn.Jenkins
 
             if (state == BuildState.Failed)
             {
-                var failureInfo = GetBuildFailureInfo(id, data);
-                return new BuildResult(jobInfo, failureInfo);
+                // By default we don't have enough depth in 'data' to have the failure info.  Do a new
+                // query to grab it.
+                var failureInfo = GetBuildFailureInfo(id);
+                return new BuildResult(buildInfo, failureInfo);
             }
 
-            return new BuildResult(jobInfo);
+            return new BuildResult(buildInfo);
         }
 
         public BuildState GetBuildState(BuildId id)
         {
             var data = GetJson(id, tree: "result");
             return GetBuildStateCore(data);
+        }
+
+        public BuildFailureInfo GetBuildFailureInfo(BuildId id)
+        {
+            var data = GetJson(id, tree: "actions[foundFailureCauses[*],causes[*]]", depth: 4);
+            return GetBuildFailureInfoCore(data);
+        }
+
+        private BuildFailureInfo GetBuildFailureInfoCore(JObject data)
+        { 
+            BuildFailureInfo info;
+            if (!BuildFailureUtil.TryGetBuildFailureInfo(data, out info))
+            {
+                info = BuildFailureInfo.Unknown;
+            }
+
+            return info;
+        }
+
+        public List<string> GetFailedTestCases(BuildId id)
+        {
+            var data = GetJson(JenkinsUtil.GetTestReportPath(id));
+            List<string> testCaseList;
+            if (!BuildFailureUtil.TryGetTestCaseFailureList(data, out testCaseList))
+            {
+                testCaseList = new List<string>();
+            }
+
+            return testCaseList;
         }
 
         /// <summary>
@@ -325,79 +356,5 @@ namespace Roslyn.Jenkins
             return GetJson(path, pretty, tree, depth);
         }
 
-        /// <summary>
-        /// Attempt to determine the failure reason for the given Job.  This should only be called on 
-        /// jobs that are known to have failed.
-        /// </summary>
-        private BuildFailureInfo GetBuildFailureInfo(BuildId buildId, JObject data)
-        {
-            // First look for the test failure information.  
-            List<string> failedTestList;
-            if (TryGetTestFailureReason(buildId, data, out failedTestList))
-            {
-                Debug.Assert(failedTestList.Count > 0);
-                return new BuildFailureInfo(BuildFailureReason.TestCase, failedTestList);
-            }
-
-            // Now look at the console text.
-            var consoleText = GetConsoleText(buildId);
-            BuildFailureInfo failureInfo;
-            if (ConsoleTextUtil.TryGetFailureInfo(consoleText, out failureInfo))
-            {
-                return failureInfo;
-            }
-
-            return Jenkins.BuildFailureInfo.Unknown;
-        }
-
-        // TODO: This should be in JenkinsUtil
-        private bool TryGetTestFailureReason(BuildId buildId, JObject data, out List<string> failedTestList)
-        {
-            var actions = (JArray)data["actions"];
-            foreach (var cur in actions)
-            {
-                var failCount = cur.Value<int?>("failCount");
-                if (failCount != null && failCount.Value != 0)
-                {
-                    var testReportUrl = cur.Value<string>("urlName");
-                    var path = $"{JenkinsUtil.GetBuildPath(buildId)}{testReportUrl}/";
-                    failedTestList = GetFailedTests(path);
-                    return true;
-                }
-            }
-
-            failedTestList = null;
-            return false;
-        }
-
-        /// <summary>
-        /// Get the list of failed test names from the specified test report URL
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        private List<string> GetFailedTests(string testReportUrlPath)
-        {
-            var list = new List<string>();
-            var data = GetJson(testReportUrlPath);
-            var suites = (JArray)data["suites"];
-            foreach (var suite in suites)
-            {
-                var cases = (JArray)suite["cases"];
-                foreach (var cur in cases)
-                {
-                    var status = cur.Value<string>("status");
-                    if (status == "PASSED" || status == "SKIPPED" || status == "FIXED")
-                    {
-                        continue;
-                    }
-
-                    var className = cur.Value<string>("className");
-                    var name = cur.Value<string>("name");
-                    list.Add($"{className}.{name}");
-                }
-            }
-
-            return list;
-        }
     }
 }

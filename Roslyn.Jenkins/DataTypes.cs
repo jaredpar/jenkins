@@ -162,26 +162,30 @@ namespace Roslyn.Jenkins
         }
     }
 
-    public enum BuildFailureReason
+    public enum BuildFailureCategory
     {
         Unknown,
         TestCase,
         Build,
         NuGet,
         Infrastructure,
+        MergeConflict,
     }
 
     public sealed class BuildFailureInfo
     {
-        public static readonly BuildFailureInfo Unknown = new BuildFailureInfo(BuildFailureReason.Unknown);
+        public static readonly BuildFailureInfo Unknown = new BuildFailureInfo(name: "", description: "", category: BuildFailureCategory.Unknown);
+        public static readonly BuildFailureInfo MergeConflict = new BuildFailureInfo(name: "", description: "", category: BuildFailureCategory.MergeConflict);
 
-        public BuildFailureReason Reason;
-        public List<string> Messages;
+        public string Name { get; }
+        public string Description { get; }
+        public BuildFailureCategory Category { get; }
 
-        public BuildFailureInfo(BuildFailureReason reason, List<string> messages = null)
+        public BuildFailureInfo(string name, string description, BuildFailureCategory category)
         {
-            Reason = reason;
-            Messages = messages ?? new List<string>();
+            Name = name;
+            Description = description;
+            Category = category;
         }
     }
 

@@ -39,5 +39,15 @@ namespace Roslyn.Jenkins
         {
             return GetUri(baseUrl, GetConsoleTextPath(id));
         }
+
+        public static string GetTestReportPath(BuildId id)
+        {
+            return $"{GetBuildPath(id)}testReport";
+        }
+
+        public static Uri GetTestReportUri(Uri baseUrl, BuildId id)
+        {
+            return GetUri(baseUrl, GetTestReportPath(id));
+        }
     }
 }
