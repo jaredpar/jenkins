@@ -22,6 +22,5 @@ namespace Dashboard.Helpers
         {
             return CreateRoslynClient().Client;
         }
-
     }
 }

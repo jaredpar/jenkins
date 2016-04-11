@@ -7,6 +7,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
 using Roslyn.Jenkins;
+using Roslyn.Azure;
 
 namespace JenkinsJobs
 {
@@ -28,12 +29,12 @@ namespace JenkinsJobs
         {
             try
             {
-                var connectionString = CloudConfigurationManager.GetSetting("jaredpar-storage-connectionstring");
+                var connectionString = CloudConfigurationManager.GetSetting(AzureConstants.StorageConnectionStringName);
                 var storageAccount = CloudStorageAccount.Parse(connectionString);
                 var tableClient = storageAccount.CreateCloudTableClient();
-                var buildFailureTable = tableClient.GetTableReference("BuildFailure");
+                var buildFailureTable = tableClient.GetTableReference(AzureConstants.TableNameBuildFailure);
                 buildFailureTable.CreateIfNotExists();
-                var buildProcessedTable = tableClient.GetTableReference("BuildProcessed");
+                var buildProcessedTable = tableClient.GetTableReference(AzureConstants.TableNameBuildProcessed);
                 buildProcessedTable.CreateIfNotExists();
 
                 // TODO: Need a Jenkins token as well to be able to query our non-public jobs.

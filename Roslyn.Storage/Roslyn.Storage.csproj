@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Azure\AzureConstants.cs" />
     <Compile Include="Azure\BuildFailureEntity.cs" />
     <Compile Include="Azure\BuildProcessedEntity.cs" />
     <Compile Include="Sql\BuildSource.cs" />
