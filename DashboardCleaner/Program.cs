@@ -8,6 +8,7 @@ using System.Configuration;
 using Roslyn.Sql;
 using SendGrid;
 using System.Net.Mail;
+using Roslyn;
 
 namespace DashboardCleaner
 {
@@ -51,7 +52,7 @@ namespace DashboardCleaner
             Console.WriteLine("Cleaning TestResult Table");
 
             var total = 0;
-            var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
+            var connectionString = ConfigurationManager.AppSettings[SharedConstants.SqlConnectionStringName];
             using (var sqlUtil = new SqlUtil(connectionString, new ConsoleLogger()))
             {
                 var date = DateTime.UtcNow - TimeSpan.FromDays(14);

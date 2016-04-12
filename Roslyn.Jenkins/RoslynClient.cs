@@ -20,6 +20,11 @@ namespace Roslyn.Jenkins
             _client = new JenkinsClient(RoslynJenkinsHost);
         }
 
+        public RoslynClient(string connectionString)
+        {
+            _client = new JenkinsClient(RoslynJenkinsHost, connectionString);
+        }
+
         public RoslynClient(string userName, string password)
         {
             _client = new JenkinsClient(RoslynJenkinsHost, userName, password);

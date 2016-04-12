@@ -1,5 +1,6 @@
 ﻿using Dashboard.Helpers;
 using Dashboard.Models;
+using Roslyn;
 using Roslyn.Sql;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace Dashboard.Controllers
 
         public TestRunController()
         {
-            var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
+            var connectionString = ConfigurationManager.AppSettings[SharedConstants.SqlConnectionStringName];
             _sqlUtil = new SqlUtil(connectionString);
             _stats = new TestCacheStats(_sqlUtil);
         }

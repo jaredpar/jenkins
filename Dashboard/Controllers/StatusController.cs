@@ -1,5 +1,6 @@
 ﻿using Dashboard.Helpers;
 using Dashboard.Models;
+using Roslyn;
 using Roslyn.Sql;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace Dashboard.Controllers
 
         public StatusController()
         {
-            var connectionString = ConfigurationManager.AppSettings["jenkins-connection-string"];
+            var connectionString = ConfigurationManager.AppSettings[SharedConstants.SqlConnectionStringName];
             _sqlUtil = new SqlUtil(connectionString);
             _testCacheStats = new TestCacheStats(_sqlUtil);
             _testResultStorage = new TestResultStorage(_sqlUtil);

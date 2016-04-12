@@ -26,12 +26,19 @@ namespace Roslyn.Jenkins
             _restClient = new RestClient(baseUrl);
         }
 
-        public JenkinsClient(Uri baseUrl, string username, string password) 
+        public JenkinsClient(Uri baseUrl, string connectionString)
             : this(baseUrl)
         {
-            var bytes = Encoding.UTF8.GetBytes($"{username}:{password}");
+            var items = connectionString.Split(new[] { ':' }, count: 2);
+            var bytes = Encoding.UTF8.GetBytes($"{items[0]}:{items[1]}");
             var encoded = Convert.ToBase64String(bytes);
             _authorizationHeaderValue = $"Basic {encoded}";
+        }
+
+        public JenkinsClient(Uri baseUrl, string username, string password) 
+            : this(baseUrl, $"{username}:{password}")
+        {
+
         }
 
         /// <summary>

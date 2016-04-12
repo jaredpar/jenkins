@@ -3,6 +3,7 @@ using Dashboard.Models;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
+using Roslyn;
 using Roslyn.Azure;
 using Roslyn.Jenkins;
 using System;
@@ -62,7 +63,7 @@ namespace Dashboard.Controllers
 
         public ActionResult Failure()
         {
-            var connectionString = CloudConfigurationManager.GetSetting(AzureConstants.StorageConnectionStringName);
+            var connectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
             var storageAccount = CloudStorageAccount.Parse(connectionString);
             var table = storageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNameBuildFailure);
             var query = new TableQuery<BuildFailureEntity>()

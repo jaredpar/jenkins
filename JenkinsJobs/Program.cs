@@ -8,6 +8,7 @@ using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
 using Roslyn.Jenkins;
 using Roslyn.Azure;
+using Roslyn;
 
 namespace JenkinsJobs
 {
@@ -29,7 +30,7 @@ namespace JenkinsJobs
         {
             try
             {
-                var connectionString = CloudConfigurationManager.GetSetting(AzureConstants.StorageConnectionStringName);
+                var connectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
                 var storageAccount = CloudStorageAccount.Parse(connectionString);
                 var tableClient = storageAccount.CreateCloudTableClient();
                 var buildFailureTable = tableClient.GetTableReference(AzureConstants.TableNameBuildFailure);
@@ -38,7 +39,10 @@ namespace JenkinsJobs
                 buildProcessedTable.CreateIfNotExists();
 
                 // TODO: Need a Jenkins token as well to be able to query our non-public jobs.
-                var roslynClient = new RoslynClient();
+                var githubConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.GithubConnectionStringName);
+                var roslynClient = string.IsNullOrEmpty(githubConnectionString)
+                    ? new RoslynClient()
+                    : new RoslynClient(connectionString: githubConnectionString);
 
                 var util = new JobTableUtil(buildProcessedTable: buildProcessedTable, buildFailureTable: buildFailureTable, roslynClient: roslynClient, textWriter: Console.Out);
                 await util.MoveUnknownToIgnored();
