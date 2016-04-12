@@ -1,15 +1,9 @@
 ﻿using Dashboard.Helpers;
 using Dashboard.Models;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Table;
-using Roslyn;
-using Roslyn.Azure;
 using Roslyn.Jenkins;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace Dashboard.Controllers
@@ -59,28 +53,6 @@ namespace Dashboard.Controllers
             };
 
             return View(viewName: "Waiting", model: model);
-        }
-
-        public ActionResult Failure()
-        {
-            var connectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
-            var storageAccount = CloudStorageAccount.Parse(connectionString);
-            var table = storageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNameBuildFailure);
-            var query = new TableQuery<BuildFailureEntity>()
-                .Where(TableQuery.GenerateFilterConditionForDate(nameof(BuildFailureEntity.BuildDate), QueryComparisons.GreaterThanOrEqual, DateTime.UtcNow - TimeSpan.FromDays(7)));
-            var list = new List<string>();
-
-            var failureQuery = table.ExecuteQuery(query)
-                .GroupBy(x => x.RowKey)
-                .Select(x => new { Key = x.Key, Count = x.Count() })
-                .OrderByDescending(x => x.Count);
-
-            foreach (var pair in failureQuery)
-            {
-                list.Add($"{pair.Key} - {pair.Count}");
-            }
-
-            return View(viewName: "FailureList", model: list);
         }
 
         private ActionResult GetJobList(string view)

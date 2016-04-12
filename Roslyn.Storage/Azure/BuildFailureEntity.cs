@@ -20,6 +20,7 @@ namespace Roslyn.Azure
         public DateTime BuildDate { get; set; }
         public string Extra { get; set; }
 
+        public BuildId BuildId => ParseBuildId();
         public BuildFailureKind Kind => (BuildFailureKind)Enum.Parse(typeof(BuildFailureKind), KindRaw);
 
         public BuildFailureEntity()
@@ -39,6 +40,14 @@ namespace Roslyn.Azure
             {
                 Extra = extra
             };
+        }
+
+        private BuildId ParseBuildId()
+        {
+            var index = PartitionKey.LastIndexOf(' ');
+            var idStr = PartitionKey.Substring(index);
+            var jobStr = PartitionKey.Substring(0, length: index);
+            return new BuildId(int.Parse(idStr), jobStr);
         }
     }
 }

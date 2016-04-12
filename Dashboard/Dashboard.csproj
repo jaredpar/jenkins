@@ -212,6 +212,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="Controllers\BuildsController.cs" />
     <Compile Include="Controllers\JenkinsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\QueueController.cs" />
@@ -223,6 +224,7 @@
     </Compile>
     <Compile Include="Helpers\DashboardController.cs" />
     <Compile Include="Helpers\Extensions.cs" />
+    <Compile Include="Models\BuildsModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\QueueModel.cs" />
     <Compile Include="Models\JobModels.cs" />
@@ -284,7 +286,8 @@
     <Content Include="Views\Status\Results.cshtml" />
     <Content Include="Views\Status\Errors.cshtml" />
     <Content Include="Views\Status\TestRuns.cshtml" />
-    <Content Include="Views\Jenkins\FailureList.cshtml" />
+    <Content Include="Views\Builds\FailureList.cshtml" />
+    <Content Include="Views\Builds\BuildFailure.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

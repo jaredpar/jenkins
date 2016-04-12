@@ -1,0 +1,17 @@
+﻿@model Dashboard.Models.BuildFailureModel
+@using Roslyn.Jenkins
+
+@{
+    ViewBag.Title = Model.Name;
+}
+
+<h2>Test Case: @Model.Name</h2>
+<h3>Failed Jenkins Jobs</h3>
+<ul>
+@foreach (var id in Model.Builds)
+{
+    var uri = JenkinsUtil.GetBuildUri(RoslynClient.RoslynJenkinsHost, id);
+    <li><div><a href="@uri">@id.JobName @id.Id</a></div></li>
+}
+</ul>
+

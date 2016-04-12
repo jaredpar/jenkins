@@ -1,0 +1,12 @@
+﻿@model List<Dashboard.Models.BuildFailureSummary>
+
+@{
+    ViewBag.Title = "Failures";
+}
+
+@foreach (var summary in Model)
+{
+    var linkText = $"{summary.Name} - {summary.Count}";
+    <div>@Html.ActionLink(linkText: linkText, controllerName: "Builds", actionName: "Failure", routeValues: new { name = @summary.Name }, htmlAttributes: null)</div>
+}
+
