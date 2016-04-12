@@ -4,6 +4,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Roslyn;
 using Roslyn.Azure;
+using Roslyn.Jenkins;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,12 +29,13 @@ namespace Dashboard.Controllers
             _buildProcessedTable = tableClient.GetTableReference(AzureConstants.TableNameBuildProcessed);
         }
 
-        public ActionResult Index()
+        public ActionResult Index(bool pr = true)
         {
             var query = new TableQuery<BuildFailureEntity>().Where(GenerateFilterBuildFailureDate());
             var list = new List<BuildFailureSummary>();
 
             var failureQuery = _buildFailureTable.ExecuteQuery(query)
+                .Where(x => pr || !RoslynClient.IsPullRequestJobName(x.BuildId.JobName))
                 .GroupBy(x => x.RowKey)
                 .Select(x => new { Key = x.Key, Count = x.Count() })
                 .OrderByDescending(x => x.Count);
@@ -51,7 +53,7 @@ namespace Dashboard.Controllers
             return View(viewName: "FailureList", model: list);
         }
 
-        public ActionResult Failure(string name = null)
+        public ActionResult Failure(string name = null, bool pr = true)
         {
             var dateFilter = GenerateFilterBuildFailureDate();
             var rowFilter = TableQuery.GenerateFilterCondition(
@@ -62,6 +64,12 @@ namespace Dashboard.Controllers
             var model = new BuildFailureModel() { Name = name };
             foreach (var entity in _buildFailureTable.ExecuteQuery(query))
             {
+                var buildId = entity.BuildId;
+                if (!pr && RoslynClient.IsPullRequestJobName(buildId.JobName))
+                {
+                    continue;
+                }
+
                 model.Builds.Add(entity.BuildId);
             }
 

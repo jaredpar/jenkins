@@ -35,13 +35,13 @@ namespace Roslyn.Jenkins
             return _client.GetJobNamesInView("Roslyn");
         }
 
-        public bool IsPullRequestJobName(string jobName)
+        public static bool IsPullRequestJobName(string jobName)
         {
             // TODO: This is super hacky.  But for now it's a correct hueristic and is workable.
             return jobName.Contains("_pr");
         }
 
-        public bool IsCommitJobName(string jobName)
+        public static bool IsCommitJobName(string jobName)
         {
             return !IsPullRequestJobName(jobName);
         }
