@@ -31,6 +31,28 @@ namespace JenkinsJobs
             _textWriter = textWriter;
         }
 
+        internal async Task MoveUnknownToIgnored()
+        {
+            var kindFilter = TableQuery.GenerateFilterCondition(
+                nameof(BuildProcessedEntity.KindRaw),
+                QueryComparisons.Equal,
+                BuildResultKind.UnknownFailure.ToString());
+            var dateFilter = TableQuery.GenerateFilterConditionForDate(
+                nameof(BuildProcessedEntity.BuildDate),
+                QueryComparisons.LessThanOrEqual,
+                DateTimeOffset.UtcNow - TimeSpan.FromDays(1));
+            var query = new TableQuery<BuildProcessedEntity>()
+                .Where(TableQuery.CombineFilters(kindFilter, TableOperators.And, dateFilter));
+
+            foreach (var entity in _buildProcessedTable.ExecuteQuery(query))
+            {
+                entity.KindRaw = BuildResultKind.IgnoredFailure.ToString();
+                var operation = TableOperation.Replace(entity);
+                await _buildProcessedTable.ExecuteAsync(operation);
+                _textWriter.WriteLine($"{entity.BuildId.JobName} - {entity.BuildId.Id} moved to ignored");
+            }
+        }
+
         internal async Task Populate()
         {
             foreach (var jobName in _roslynClient.GetJobNames())

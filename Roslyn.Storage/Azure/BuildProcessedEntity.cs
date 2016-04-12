@@ -13,6 +13,12 @@ namespace Roslyn.Azure
         Succeeded,
         Aborted,
         Running,
+
+        // An unknown failure which was not resolved in a specific time period will 
+        // transition to the ignored state.  At this point the web job will no longer 
+        // attempt to find a reason for it.
+        IgnoredFailure,
+
         UnknownFailure,
         UnitTestFailure,
         NuGetFailure,
