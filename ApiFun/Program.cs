@@ -38,12 +38,12 @@ namespace ApiFun
             */
         }
 
-        private static RoslynClient CreateClient()
+        private static RoslynClient CreateClient(bool auth = true)
         {
             try
             {
                 var text = File.ReadAllLines(@"c:\users\jaredpar\jenkins.txt")[0].Trim();
-                if (string.IsNullOrEmpty(text))
+                if (string.IsNullOrEmpty(text) || !auth)
                 {
                     return new RoslynClient();
                 }
@@ -59,8 +59,9 @@ namespace ApiFun
 
         private static void PrintFailure()
         {
-            var client = CreateClient().Client;
-            var info = client.GetBuildFailureInfo(new BuildId(id: 5982, jobName: "roslyn_prtest_win_dbg_unit32"));
+            var client = CreateClient(auth: false).Client;
+            var info = client.GetBuildFailureInfo(new BuildId(id: 6066, jobName: "roslyn_prtest_win_dbg_unit64"));
+            Console.WriteLine(info.Category);
         }
 
         private static void PrintViews()

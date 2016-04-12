@@ -30,6 +30,11 @@ namespace Roslyn.Jenkins
                     buildFailureInfo = BuildFailureInfo.MergeConflict;
                     return true;
                 }
+
+                if (cur is JObject && TryGetTestFailureInfo((JObject)cur, out buildFailureInfo))
+                {
+                    return true;
+                }
             }
 
             buildFailureInfo = null;
@@ -38,19 +43,19 @@ namespace Roslyn.Jenkins
 
         private static bool TryGetBuildFailureInfoCustomCauses(JArray foundCauses, out BuildFailureInfo buildFailureInfo)
         {
-                foreach (JObject entry in foundCauses)
+            foreach (JObject entry in foundCauses)
+            {
+                var category = GetCategory(entry);
+                if (category == null)
                 {
-                    var category = GetCategory(entry);
-                    if (category == null)
-                    {
-                        continue;
-                    }
-
-                    var description = entry.Value<string>("description");
-                    var name = entry.Value<string>("name");
-                    buildFailureInfo = new BuildFailureInfo(name: name, description: description, category: category.Value);
-                    return true;
+                    continue;
                 }
+
+                var description = entry.Value<string>("description");
+                var name = entry.Value<string>("name");
+                buildFailureInfo = new BuildFailureInfo(name: name, description: description, category: category.Value);
+                return true;
+            }
 
             buildFailureInfo = null;
             return false;
@@ -90,6 +95,35 @@ namespace Roslyn.Jenkins
             }
 
             return items[0].Value<string>();
+        }
+
+        /// <summary>
+        /// Convert to a unit test entry if this matches.
+        /// </summary>
+        private static bool TryGetTestFailureInfo(JObject data, out BuildFailureInfo failureInfo)
+        {
+            failureInfo = null;
+
+            // The JSON looks like teh following:
+            // {    "failCount" : 1,
+            //      "skipCount" : 2546,
+            //      "totalCount" : 66764,
+            //      "urlName" : "testReport" }
+            var urlName = data.Value<string>("urlName");
+            if (string.IsNullOrEmpty(urlName))
+            {
+                return false;
+            }
+
+            var failCount = data.Value<int?>("failCount");
+            if (!failCount.HasValue)
+            {
+                return false;
+            }
+
+            var message = $"Unit Test Failure: {failCount}";
+            failureInfo = new BuildFailureInfo("Unit Test", message, BuildFailureCategory.TestCase);
+            return true;
         }
 
         /// <summary>

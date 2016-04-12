@@ -168,7 +168,7 @@ namespace Roslyn.Jenkins
 
         public BuildFailureInfo GetBuildFailureInfo(BuildId id)
         {
-            var data = GetJson(id, tree: "actions[foundFailureCauses[*],causes[*]]", depth: 4);
+            var data = GetJson(id, tree: "actions[*]", depth: 4);
             return GetBuildFailureInfoCore(data);
         }
 
