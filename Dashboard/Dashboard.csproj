@@ -287,7 +287,7 @@
     <Content Include="Views\Status\Errors.cshtml" />
     <Content Include="Views\Status\TestRuns.cshtml" />
     <Content Include="Views\Builds\FailureList.cshtml" />
-    <Content Include="Views\Builds\BuildFailure.cshtml" />
+    <Content Include="Views\Builds\Failure.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

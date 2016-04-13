@@ -1,0 +1,32 @@
+﻿@model Dashboard.Models.BuildFailureModel
+@using Roslyn.Jenkins
+
+@{
+    ViewBag.Title = Model.Name;
+    var prValue = Model.IncludePullRequests ? @"checked=""checked""" : "";
+    var startDateValue = Model.StartDate.ToString("yyyy-MM-dd");
+}
+
+<h2>Test Case: @Model.Name</h2>
+<h3>Failed Jenkins Jobs</h3>
+<ul>
+@foreach (var entity in Model.Builds)
+{
+    var id = entity.BuildId;
+    var uri = JenkinsUtil.GetBuildUri(RoslynClient.RoslynJenkinsHost, id);
+    <li><div><a href="@uri">@id.JobName @id.Id</a> @entity.BuildDate.ToLocalTime().ToString("MM/dd hh:mm tt")</div></li>
+}
+</ul>
+
+<h2>Filter Results</h2>
+
+@using (Html.BeginForm(controllerName: "Builds", actionName: "Failure", method: FormMethod.Get))
+{
+    <input type="hidden" name="name" value="@Model.Name" />
+    <div>
+        <div>Include Pull Requests <input name="pr" type="checkbox" @prValue value="true" /></div>
+        <div>Start Date <input name="startDate" type="date" value="@startDateValue"/></div>
+        <div><input type="submit" value="Refresh" /></div>
+    </div>
+}
+

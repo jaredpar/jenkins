@@ -7,6 +7,7 @@ using Roslyn.Azure;
 using Roslyn.Jenkins;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -29,39 +30,60 @@ namespace Dashboard.Controllers
             _buildProcessedTable = tableClient.GetTableReference(AzureConstants.TableNameBuildProcessed);
         }
 
-        public ActionResult Index(bool pr = true)
+        /// <summary>
+        /// Lists all of the build failures.
+        /// </summary>
+        public ActionResult Index(bool pr = false, DateTime? startDate = null, int limit = 10)
         {
-            var query = new TableQuery<BuildFailureEntity>().Where(GenerateFilterBuildFailureDate());
-            var list = new List<BuildFailureSummary>();
+            var startDateValue = GetStartDateValue(startDate);
+            var query = new TableQuery<BuildFailureEntity>().Where(GenerateFilterBuildFailureDate(startDateValue));
 
             var failureQuery = _buildFailureTable.ExecuteQuery(query)
                 .Where(x => pr || !RoslynClient.IsPullRequestJobName(x.BuildId.JobName))
                 .GroupBy(x => x.RowKey)
                 .Select(x => new { Key = x.Key, Count = x.Count() })
-                .OrderByDescending(x => x.Count);
+                .OrderByDescending(x => x.Count)
+                .Take(limit);
+
+            var summary = new BuildFailureSummary()
+            {
+                IncludePullRequests = pr,
+                StartDate = startDateValue,
+                Limit = limit,
+            };
 
             foreach (var pair in failureQuery)
             {
-                var summary = new BuildFailureSummary()
+                var entry = new BuildFailureEntry()
                 {
                     Name = pair.Key,
                     Count = pair.Count
                 };
-                list.Add(summary);
+                summary.Entries.Add(entry);
             }
 
-            return View(viewName: "FailureList", model: list);
+            return View(viewName: "FailureList", model: summary);
         }
 
-        public ActionResult Failure(string name = null, bool pr = true)
+        /// <summary>
+        /// Summarize the details of an individual failure.
+        /// </summary>
+        public ActionResult Failure(string name = null, bool pr = true, DateTime? startDate = null)
         {
-            var dateFilter = GenerateFilterBuildFailureDate();
+            var startDateValue = GetStartDateValue(startDate);
+            var dateFilter = GenerateFilterBuildFailureDate(startDateValue);
             var rowFilter = TableQuery.GenerateFilterCondition(
                 nameof(TableEntity.RowKey),
                 QueryComparisons.Equal,
                 name);
             var query = new TableQuery<BuildFailureEntity>().Where(TableQuery.CombineFilters(rowFilter, TableOperators.And, dateFilter));
-            var model = new BuildFailureModel() { Name = name };
+            var model = new BuildFailureModel()
+            {
+                Name = name,
+                IncludePullRequests = pr,
+                StartDate = startDateValue
+            };
+
             foreach (var entity in _buildFailureTable.ExecuteQuery(query))
             {
                 var buildId = entity.BuildId;
@@ -70,16 +92,21 @@ namespace Dashboard.Controllers
                     continue;
                 }
 
-                model.Builds.Add(entity.BuildId);
+                model.Builds.Add(entity);
             }
 
-            return View(viewName: "BuildFailure", model: model);
+            return View(viewName: "Failure", model: model);
         }
 
-        private static string GenerateFilterBuildFailureDate(DateTime? startDate = null)
+        private static DateTime GetStartDateValue(DateTime? startDate)
         {
-            var startDateValue = startDate?.ToUniversalTime() ?? DateTime.UtcNow - TimeSpan.FromDays(7);
-            return TableQuery.GenerateFilterConditionForDate(nameof(BuildFailureEntity.BuildDate), QueryComparisons.GreaterThanOrEqual, startDateValue);
+            return startDate?.ToUniversalTime().Date ?? DateTime.UtcNow.Date - TimeSpan.FromDays(1);
+        }
+
+        private static string GenerateFilterBuildFailureDate(DateTime startDate)
+        {
+            Debug.Assert(startDate.Kind == DateTimeKind.Utc);
+            return TableQuery.GenerateFilterConditionForDate(nameof(BuildFailureEntity.BuildDate), QueryComparisons.GreaterThanOrEqual, new DateTimeOffset(startDate));
         }
     }
 }
