@@ -42,29 +42,52 @@ namespace Roslyn.Jenkins
         }
 
         /// <summary>
+        /// Get all of the <see cref="JobId"/> values that are children of the provided
+        /// value.  The provided value can be a folder, the root or even a normal job. The
+        /// latter of which simply will not have any children.
+        /// </summary>
+        public List<JobId> GetJobIds(JobId parent = null)
+        {
+            parent = parent ?? JobId.Root;
+            var data = GetJson(JenkinsUtil.GetJobIdPath(parent));
+            return GetJobIdsCore(parent, data);
+        }
+
+        /// <summary>
         /// Get all of the available job names
         /// </summary>
         /// <returns></returns>
         public List<string> GetJobNames()
         {
-            var data = GetJson("");
-            return GetJobNamesCore(data);
+            // FOLDER: possibly delete this method?
+            return GetJobIds()
+                .Select(x => x.Name)
+                .ToList();
         }
 
         public List<string> GetJobNamesInView(string viewName)
         {
-            var data = GetJson($"/view/{viewName}/");
-            return GetJobNamesCore(data);
+            // FOLDER: possibly delete this method?
+            return GetJobIdsInView(viewName)
+                .Select(x => x.Name)
+                .ToList();
         }
 
-        private List<string> GetJobNamesCore(JObject data)
+        public List<JobId> GetJobIdsInView(string viewName)
+        {
+            // FOLDER: Need to check if nested jobs can be parented under views.
+            var data = GetJson($"/view/{viewName}/");
+            return GetJobIdsCore(JobId.Root, data);
+        }
+
+        private List<JobId> GetJobIdsCore(JobId parent, JObject data)
         {
             var jobs = (JArray)data["jobs"];
-            var list = new List<string>();
+            var list = new List<JobId>(capacity: jobs.Count);
             foreach (var cur in jobs)
             {
                 var name = cur.Value<string>("name");
-                list.Add(name);
+                list.Add(new JobId(name, parent));
             }
 
             return list;
@@ -121,6 +144,24 @@ namespace Roslyn.Jenkins
             }
 
             return list;
+        }
+
+        public JobInfo GetJobInfo(JobId id)
+        {
+            var json = GetJson(JenkinsUtil.GetJobIdPath(id));
+            var builds = json["builds"] as JArray;
+            if (builds != null)
+            {
+                return new JobInfo(id, JobKind.Job);
+            }
+
+            var jobs = json["jobs"] as JArray;
+            if (jobs != null)
+            {
+                return new JobInfo(id, JobKind.Folder);
+            }
+
+            throw new Exception($"Cannot determine kind of job id: {id}");
         }
 
         public BuildInfo GetBuildInfo(BuildId id)

@@ -52,6 +52,8 @@
     <Compile Include="BuildFailureUtil.cs" />
     <Compile Include="DataTypes.cs" />
     <Compile Include="JenkinsClient.cs" />
+    <Compile Include="JobId.cs" />
+    <Compile Include="JobInfo.cs" />
     <Compile Include="RoslynClient.cs" />
     <Compile Include="JsonUtil.cs" />
     <Compile Include="JsonTypes.cs" />

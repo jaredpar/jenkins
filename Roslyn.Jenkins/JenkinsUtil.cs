@@ -15,6 +15,21 @@ namespace Roslyn.Jenkins
             return builder.Uri;
         }
 
+        public static string GetJobIdPath(JobId id)
+        {
+            if (id.IsRoot)
+            {
+                return "";
+            }
+
+            if (id.Parent.IsRoot)
+            {
+                return $"job/{id.Name}";
+            }
+
+            return $"{GetJobIdPath(id.Parent)}/job/{id.Name}";
+        }
+
         public static string GetJobPath(string jobName)
         {
             return $"job/{jobName}";

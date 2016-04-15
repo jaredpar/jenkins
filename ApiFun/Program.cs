@@ -31,7 +31,8 @@ namespace ApiFun
             // PrintQueue();
             // PrintViews();
             // PrintPullRequestData();
-            PrintFailure();
+            // PrintFailure();
+            PrintJobs();
 
             /*
             roslyn_stabil_lin_dbg_unit32
@@ -54,6 +55,25 @@ namespace ApiFun
             catch
             {
                 return new RoslynClient();
+            }
+        }
+
+        private static void PrintJobs()
+        {
+            var client = CreateClient(auth: false).Client;
+            PrintJobs(client, JobId.Root, "");
+        }
+
+        private static void PrintJobs(JenkinsClient client, JobId parent, string indent)
+        {
+            foreach (var id in client.GetJobIds(parent))
+            {
+                Console.WriteLine($"{indent}{id.Name}");
+                var info = client.GetJobInfo(id);
+                if (info.Kind == JobKind.Folder)
+                {
+                    PrintJobs(client, id, indent + "  ");
+                }
             }
         }
 
