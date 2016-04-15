@@ -33,7 +33,6 @@ namespace Roslyn.Jenkins
         public int Id { get; }
         public JobId JobId { get; }
         public string JobName => JobId.Name;
-        public string JobFullName => JobId.FullName;
 
         public BuildId(int id, JobId jobId)
         {
@@ -41,7 +40,7 @@ namespace Roslyn.Jenkins
             JobId = jobId;
         }
 
-        public override string ToString() => $"{Id} - {JobFullName}";
+        public override string ToString() => $"{Id} - {JobName}";
     }
 
     public sealed class ViewInfo

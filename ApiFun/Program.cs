@@ -80,7 +80,7 @@ namespace ApiFun
         private static void PrintFailure()
         {
             var client = CreateClient(auth: false).Client;
-            var info = client.GetBuildFailureInfo(new BuildId(id: 6066, jobId: JobId.ParseFullName("roslyn_prtest_win_dbg_unit64")));
+            var info = client.GetBuildFailureInfo(new BuildId(id: 6066, jobId: JobId.ParseName("roslyn_prtest_win_dbg_unit64")));
             Console.WriteLine(info.Category);
         }
 

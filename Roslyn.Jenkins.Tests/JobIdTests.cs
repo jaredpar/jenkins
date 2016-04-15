@@ -23,7 +23,7 @@ namespace Roslyn.Jenkins.Tests
             {
                 RunAll(EqualityUnit
                     .Create(JobId.Root)
-                    .WithEqualValues(JobId.Root, JobId.ParseFullName(""))
+                    .WithEqualValues(JobId.Root, JobId.ParseName(""))
                     .WithNotEqualValues(new JobId("test")));
             }
 
@@ -32,7 +32,7 @@ namespace Roslyn.Jenkins.Tests
             {
                 RunAll(EqualityUnit
                     .Create(new JobId("test"))
-                    .WithEqualValues(new JobId("test"), JobId.ParseFullName("test"))
+                    .WithEqualValues(new JobId("test"), JobId.ParseName("test"))
                     .WithNotEqualValues(new JobId("test2"), JobId.Root));
             }
 
@@ -41,7 +41,7 @@ namespace Roslyn.Jenkins.Tests
             {
                 RunAll(EqualityUnit
                     .Create(new JobId("test", new JobId("op")))
-                    .WithEqualValues(new JobId("test", new JobId("op")), JobId.ParseFullName("op/test"))
+                    .WithEqualValues(new JobId("test", new JobId("op")), JobId.ParseName("op/test"))
                     .WithNotEqualValues(new JobId("test"), JobId.Root, new JobId("op")));
             }
         }
@@ -50,9 +50,9 @@ namespace Roslyn.Jenkins.Tests
         {
             private void TestAll(JobId id, string name)
             {
-                var other = JobId.ParseFullName(name);
+                var other = JobId.ParseName(name);
                 Assert.Equal(id, other);
-                Assert.Equal(id.FullName, name);
+                Assert.Equal(id.Name, name);
             }
 
             [Fact]

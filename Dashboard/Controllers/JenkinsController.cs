@@ -35,7 +35,7 @@ namespace Dashboard.Controllers
             // FOLDER: Need a string representation we can serialize back and forth to a JobId and use it here
             return string.IsNullOrEmpty(id)
                 ? GetQueueJobList()
-                : GetQueueJob(new JobId(name: id), Request.GetParamInt("count", DefaultQueueJobCount));
+                : GetQueueJob(new JobId(shortName: id), Request.GetParamInt("count", DefaultQueueJobCount));
         }
 
         public ActionResult Waiting()
