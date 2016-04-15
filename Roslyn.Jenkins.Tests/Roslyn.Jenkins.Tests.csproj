@@ -62,7 +62,6 @@
     <Compile Include="EqualityUtil`1.cs" />
     <Compile Include="JenkinsUtilTests.cs" />
     <Compile Include="JobIdTests.cs" />
-    <Compile Include="UniqueJobIdTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ZipUtilTests.cs" />
   </ItemGroup>

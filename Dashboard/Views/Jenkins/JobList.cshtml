@@ -1,11 +1,31 @@
-﻿@model Dashboard.Models.AllJobsModel
+﻿@using Roslyn.Jenkins;
+@using Dashboard.Models;
+@model Dashboard.Models.JobListModel
 
 @{
     ViewBag.Title = "Jenkins Jobs";
+    string header;
+    switch (Model.Kind)
+    {
+        case JobListContainerKind.Root:
+            header = "Jenkins Root Jobs";
+            break;
+        case JobListContainerKind.View:
+            header = $"Jobs in view {Model.ContainerName}";
+            break;
+        case JobListContainerKind.Job:
+            header = $"Jobs in folder {Model.ContainerName}";
+            break;
+        default:
+            header = "Jobs";
+            break;
+    }
 }
 
-@foreach (var name in Model.Names)
+<h2>@header</h2>
+
+@foreach (var id in Model.NestedList)
 {
-    <div><a href="@Url.Action(controllerName: "Jenkins", actionName: "Jobs", routeValues: new { id = @name })">@name</a></div>
+    <div>@Html.ActionLink(linkText: id.ShortName, controllerName: "Jenkins", actionName: "Jobs", routeValues: new { name = id.Name }, htmlAttributes: null)</div>
 }
 

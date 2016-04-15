@@ -13,7 +13,7 @@
 @foreach (var entity in Model.Builds)
 {
     var id = entity.BuildId;
-    var uri = JenkinsUtil.GetBuildUri(RoslynClient.RoslynJenkinsHost, id);
+    var uri = JenkinsUtil.GetUri(RoslynClient.RoslynJenkinsHost, JenkinsUtil.GetBuildPath(id));
     <li><div><a href="@uri">@id.JobName @id.Id</a> @entity.BuildDate.ToLocalTime().ToString("MM/dd hh:mm tt")</div></li>
 }
 </ul>

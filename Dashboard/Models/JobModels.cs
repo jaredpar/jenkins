@@ -6,9 +6,18 @@ using System.Web;
 
 namespace Dashboard.Models
 {
-    public sealed class AllJobsModel
+    public enum JobListContainerKind
     {
-        public List<string> Names { get; } = new List<string>();
+        Root,
+        View,
+        Job
+    }
+
+    public sealed class JobListModel
+    {
+        public string ContainerName { get; set; }
+        public JobListContainerKind Kind { get; set; }
+        public List<JobId> NestedList { get; set; } = new List<JobId>();
     }
 
     public struct JobDaySummary
@@ -26,6 +35,7 @@ namespace Dashboard.Models
         public string Name { get; set; }
         public TimeSpan AverageDuration { get; set; }
         public List<JobDaySummary> JobDaySummaryList { get; set; } = new List<JobDaySummary>();
+        public List<JobId> NestedJobIdList { get; set; } = new List<JobId>();
     }
 
     public sealed class ViewModel

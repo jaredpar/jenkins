@@ -17,11 +17,27 @@ namespace Dashboard.Controllers
             return Jobs();
         }
 
-        public ActionResult Jobs(string id = null, string view = null)
+        public ActionResult Jobs(string name = null, string view = null)
         {
-            return string.IsNullOrEmpty(id)
-                ? GetJobList(view)
-                : GetJob(JobId.ParseName(id));
+            var client = CreateJenkinsClient();
+            if (!string.IsNullOrEmpty(name))
+            {
+                var jobId = JobId.ParseName(name);
+                var jobInfo = client.GetJobInfo(jobId);
+                if (jobInfo.Kind == JobKind.Folder)
+                {
+                    return GetJobList(name, JobListContainerKind.Job, jobInfo.Jobs);
+                }
+
+                return GetJob(jobId);
+            }
+
+            if (!string.IsNullOrEmpty(view))
+            {
+                return GetJobList(view, JobListContainerKind.View, client.GetJobIdsInView(view));
+            }
+
+            return GetJobList("Root", JobListContainerKind.Root, client.GetJobIds());
         }
 
         public ActionResult Views()
@@ -55,17 +71,14 @@ namespace Dashboard.Controllers
             return View(viewName: "Waiting", model: model);
         }
 
-        private ActionResult GetJobList(string view)
+        private ActionResult GetJobList(string containerName, JobListContainerKind kind, List<JobId> list)
         {
-            var model = new AllJobsModel();
-            var client = CreateJenkinsClient();
-            var list = string.IsNullOrEmpty(view)
-                ? client.GetJobIds()
-                : client.GetJobIdsInView(view);
-            foreach (var id in list)
+            var model = new JobListModel()
             {
-                model.Names.Add(id.Name);
-            }
+                ContainerName = containerName,
+                Kind = kind,
+                NestedList = list
+            };
 
             return View(viewName: "JobList", model: model);
         }

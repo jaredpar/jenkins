@@ -24,10 +24,10 @@ namespace Roslyn.Jenkins
 
             if (id.Parent.IsRoot)
             {
-                return $"job/{id.Name}";
+                return $"job/{id.ShortName}";
             }
 
-            return $"{GetJobIdPath(id.Parent)}/job/{id.Name}";
+            return $"{GetJobIdPath(id.Parent)}/job/{id.ShortName}";
         }
 
         public static string GetJobPath(string jobName)

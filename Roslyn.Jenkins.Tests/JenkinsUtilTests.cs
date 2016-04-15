@@ -35,5 +35,12 @@ namespace Roslyn.Jenkins.Tests
                 Test("job/op/job/test", JobId.ParseName("op/test"));
             }
         }
+
+        [Fact]
+        public void GetJobPath()
+        {
+            Assert.Equal("job/test", JenkinsUtil.GetJobIdPath(JobId.ParseName("test")));
+            Assert.Equal("job/test/job/op", JenkinsUtil.GetJobIdPath(JobId.ParseName("test/op")));
+        }
     }
 }
