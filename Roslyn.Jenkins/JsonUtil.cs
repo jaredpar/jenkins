@@ -103,8 +103,10 @@ namespace Roslyn.Jenkins
             PullRequestInfo prInfo;
             TryParsePullRequestInfo((JArray)data["actions"], out prInfo);
             var id = data.Value<int>("id");
-            var jobName = data["task"].Value<string>("name");
-            return new QueuedItemInfo(id, jobName, prInfo);
+            var jobUrlStr = data["task"].Value<string>("url");
+            var jobUrl = new Uri(jobUrlStr);
+            var jobId = JenkinsUtil.ConvertPathToJobId(jobUrl.LocalPath);
+            return new QueuedItemInfo(id, jobId, prInfo);
         }
 
         internal static List<ViewInfo> ParseViewInfoList(JObject data)

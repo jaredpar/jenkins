@@ -198,13 +198,13 @@ namespace Roslyn.Jenkins
     public sealed class QueuedItemInfo
     {
         public int Id { get; }
-        public string JobName { get; }
+        public JobId JobId { get; }
         public PullRequestInfo PullRequestInfo { get; }
 
-        public QueuedItemInfo(int id, string jobName, PullRequestInfo prInfo)
+        public QueuedItemInfo(int id, JobId jobId, PullRequestInfo prInfo)
         {
             Id = id;
-            JobName = jobName;
+            JobId = jobId;
             PullRequestInfo = prInfo;
         }
 
@@ -212,11 +212,11 @@ namespace Roslyn.Jenkins
         {
             if (PullRequestInfo == null)
             {
-                return $"{JobName} - {Id}";
+                return $"{JobId.Name} - {Id}";
             }
             else
             {
-                return $"{JobName} - {Id} - {PullRequestInfo.AuthorEmail}";
+                return $"{JobId.Name} - {Id} - {PullRequestInfo.AuthorEmail}";
             }
         }
     }

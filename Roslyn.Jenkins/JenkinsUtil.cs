@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Roslyn.Jenkins
 {
+    // FOLDER: Delete the Get*Uri methods.  They are dumb.  Call the main combiner.
     public static class JenkinsUtil
     {
         private static Uri GetUri(Uri baseUrl, string path)
@@ -74,6 +75,52 @@ namespace Roslyn.Jenkins
         {
             var epoch = new DateTime(year: 1970, month: 1, day: 1);
             return epoch.AddMilliseconds(timestamp).ToUniversalTime();
+        }
+
+        public static JobId ConvertPathToJobId(string path)
+        {
+            var items = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            if (items.Length % 2 != 0)
+            {
+                throw new Exception();
+            }
+
+            var current = JobId.Root;
+            for (var i = 0; i < items.Length; i+=2)
+            {
+                if (items[i] != "job")
+                {
+                    throw new Exception();
+                }
+
+                current = new JobId(shortName: items[i + 1], parent: current);
+            }
+
+            return current;
+        }
+
+        public static string ConvertJobIdToPath(JobId jobId)
+        {
+            var builder = new StringBuilder();
+            ConvertJobIdToPathCore(builder, jobId);
+            return builder.ToString();
+        }
+
+        private static void ConvertJobIdToPathCore(StringBuilder builder, JobId jobId)
+        {
+            if (jobId.IsRoot)
+            {
+                return;
+            }
+
+            ConvertJobIdToPathCore(builder, jobId.Parent);
+
+            if (builder.Length != 0)
+            {
+                builder.Append('/');
+            }
+
+            builder.Append($"job/{jobId.ShortName}");
         }
     }
 }

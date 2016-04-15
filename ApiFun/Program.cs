@@ -28,11 +28,11 @@ namespace ApiFun
             // ScanAllFailedJobs();
             // PrintJobNames();
             // PrintJobInfo();
-            // PrintQueue();
+            PrintQueue();
             // PrintViews();
             // PrintPullRequestData();
             // PrintFailure();
-            PrintJobs();
+            // PrintJobs();
 
             /*
             roslyn_stabil_lin_dbg_unit32
@@ -97,7 +97,7 @@ namespace ApiFun
             var client = CreateClient().Client;
             foreach (var cur in client.GetQueuedItemInfoList())
             {
-                Console.WriteLine($"{cur.JobName} {cur.Id} {cur.PullRequestInfo?.PullUrl ?? ""}");
+                Console.WriteLine($"{cur.JobId} {cur.Id} {cur.PullRequestInfo?.PullUrl ?? ""}");
             }
         }
 

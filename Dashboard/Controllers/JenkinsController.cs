@@ -44,7 +44,7 @@ namespace Dashboard.Controllers
             var groups = CreateRoslynClient().Client
                 .GetQueuedItemInfoList()
                 .Where(x => x.PullRequestInfo != null)
-                .GroupBy(x => x.JobName)
+                .GroupBy(x => x.JobId.Name)
                 .Where(x => x.Count() >= minimumCount);
 
             var model = new WaitingModel()

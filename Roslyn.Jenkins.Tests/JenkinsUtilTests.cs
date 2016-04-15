@@ -9,21 +9,31 @@ namespace Roslyn.Jenkins.Tests
 {
     public class JenkinsUtilTests
     {
-        [Fact]
-        public void RoundTrip()
+        public sealed class ConvertJobIdPath
         {
-            /*
-            foreach (var kind in JenkinsUtil.GetAllJobKinds())
+            private static void Test(string path, JobId id)
             {
-                var name = JenkinsUtil.GetJobName(kind);
-                Assert.NotNull(name);
-                Assert.Equal(kind, JenkinsUtil.GetJobKind(name));
-
-                JobKind other;
-                Assert.True(JenkinsUtil.TryGetJobKind(name, out other));
-                Assert.Equal(kind, other);
+                Assert.Equal(path, JenkinsUtil.ConvertJobIdToPath(id));
+                Assert.Equal(id, JenkinsUtil.ConvertPathToJobId(path));
             }
-            */
+
+            [Fact]
+            public void Root()
+            {
+                Test("", JobId.Root);
+            }
+
+            [Fact]
+            public void Single()
+            {
+                Test("job/test", new JobId("test"));
+            }
+
+            [Fact]
+            public void Nested()
+            {
+                Test("job/op/job/test", JobId.ParseName("op/test"));
+            }
         }
     }
 }
