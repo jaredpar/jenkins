@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Roslyn.Jenkins
 {
+    // TODO: This logic should be in JsonUtil
     public static class BuildFailureUtil
     {
         /// <summary>

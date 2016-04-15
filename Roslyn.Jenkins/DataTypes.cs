@@ -28,6 +28,7 @@ namespace Roslyn.Jenkins
         }
     }
 
+    // FOLDER: Need to convert JobName to be a JobId
     public struct BuildId
     {
         public int Id { get; }

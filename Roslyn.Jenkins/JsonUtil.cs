@@ -2,6 +2,7 @@
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -11,6 +12,43 @@ namespace Roslyn.Jenkins
 {
     internal static class JsonUtil
     {
+        /// <summary>
+        /// Parse out a <see cref="JobInfo"/> from the JSON data from the "builds" and "jobs" arrays.
+        /// </summary>
+        internal static JobInfo ParseJobInfo(JobId id, JObject data)
+        {
+            var builds = ParseBuilds(id, (data["builds"] as JArray) ?? new JArray());
+            var jobs = ParseJobs(id, (data["jobs"] as JArray) ?? new JArray());
+            return new JobInfo(id, builds, jobs);
+        } 
+
+        internal static List<BuildId> ParseBuilds(JobId id, JArray builds)
+        {
+            Debug.Assert(builds != null);
+            var list = new List<BuildId>();
+            foreach (var cur in builds)
+            {
+                var build = cur.ToObject<Json.Build>();
+                list.Add(new BuildId(build.Number, id.Name));
+            }
+
+            return list;
+        }
+
+        internal static List<JobId> ParseJobs(JobId parent, JArray jobs)
+        {
+            Debug.Assert(jobs != null);
+            var list = new List<JobId>();
+            foreach (var cur in jobs)
+            {
+                var name = cur.Value<string>("name");
+                var id = new JobId(name, parent);
+                list.Add(id);
+            }
+
+            return list;
+        }
+
         /// <summary>
         /// Is this a child build job.  If so return the ID of the parent job and base url
         /// </summary>

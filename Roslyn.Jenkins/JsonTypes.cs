@@ -11,9 +11,6 @@ namespace Roslyn.Jenkins.Json
         public int Number { get; set; }
         public string Url { get; set; }
 
-        public override string ToString()
-        {
-            return $"Build {Number}";
-        }
+        public override string ToString() => $"Build {Number}";
     }
 }

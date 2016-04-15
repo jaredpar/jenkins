@@ -50,7 +50,7 @@ namespace Roslyn.Jenkins
         {
             parent = parent ?? JobId.Root;
             var data = GetJson(JenkinsUtil.GetJobIdPath(parent));
-            return GetJobIdsCore(parent, data);
+            return JsonUtil.ParseJobs(parent, (JArray)data["jobs"]);
         }
 
         /// <summary>
@@ -77,20 +77,7 @@ namespace Roslyn.Jenkins
         {
             // FOLDER: Need to check if nested jobs can be parented under views.
             var data = GetJson($"/view/{viewName}/");
-            return GetJobIdsCore(JobId.Root, data);
-        }
-
-        private List<JobId> GetJobIdsCore(JobId parent, JObject data)
-        {
-            var jobs = (JArray)data["jobs"];
-            var list = new List<JobId>(capacity: jobs.Count);
-            foreach (var cur in jobs)
-            {
-                var name = cur.Value<string>("name");
-                list.Add(new JobId(name, parent));
-            }
-
-            return list;
+            return JsonUtil.ParseJobs(JobId.Root, (JArray)data["jobs"]);
         }
 
         public List<BuildId> GetBuildIds()
@@ -149,19 +136,7 @@ namespace Roslyn.Jenkins
         public JobInfo GetJobInfo(JobId id)
         {
             var json = GetJson(JenkinsUtil.GetJobIdPath(id));
-            var builds = json["builds"] as JArray;
-            if (builds != null)
-            {
-                return new JobInfo(id, JobKind.Job);
-            }
-
-            var jobs = json["jobs"] as JArray;
-            if (jobs != null)
-            {
-                return new JobInfo(id, JobKind.Folder);
-            }
-
-            throw new Exception($"Cannot determine kind of job id: {id}");
+            return JsonUtil.ParseJobInfo(id, json);
         }
 
         public BuildInfo GetBuildInfo(BuildId id)
