@@ -41,7 +41,7 @@ namespace Dashboard.Controllers
         {
             var minimumCount = Request.GetParamInt("minimum", defaultValue: 3);
             var groups = CreateRoslynClient().Client
-                .GetQueuedItemInfo()
+                .GetQueuedItemInfoList()
                 .Where(x => x.PullRequestInfo != null)
                 .GroupBy(x => x.JobName)
                 .Where(x => x.Count() >= minimumCount);
@@ -72,14 +72,15 @@ namespace Dashboard.Controllers
 
         private ActionResult GetJob(string jobName)
         {
-            var model = GetJobDaySummary(jobName);
+            // FOLDER: Need to convert to a JobId
+            var model = GetJobDaySummary(new JobId(jobName));
             return View(viewName: "JobData", model: model);
         }
 
-        private JobSummary GetJobDaySummary(string jobName)
+        private JobSummary GetJobDaySummary(JobId jobId)
         {
             var client = CreateRoslynClient().Client;
-            var all = client.GetBuildInfo(jobName).Where(x => x.State != BuildState.Running);
+            var all = client.GetBuildInfoList(jobId).Where(x => x.State != BuildState.Running);
             var list = new List<JobDaySummary>();
             foreach (var group in all.GroupBy(x => x.Date.Date))
             {
@@ -89,7 +90,7 @@ namespace Dashboard.Controllers
                 var averageDuration = TimeSpan.FromMilliseconds(group.Average(x => x.Duration.TotalMilliseconds));
                 list.Add(new JobDaySummary()
                 {
-                    Name = jobName,
+                    Name = jobId.Name,
                     Date = group.Key,
                     Succeeded = succeeded,
                     Failed = failed,
@@ -100,7 +101,7 @@ namespace Dashboard.Controllers
 
             return new JobSummary()
             {
-                Name = jobName,
+                Name = jobId.Name,
                 AverageDuration = TimeSpan.FromMilliseconds(all.Average(x => x.Duration.TotalMilliseconds)),
                 JobDaySummaryList = list
             };

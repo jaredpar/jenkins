@@ -64,5 +64,16 @@ namespace Roslyn.Jenkins
         {
             return GetUri(baseUrl, GetTestReportPath(id));
         }
+
+        /// <summary>
+        /// Jenkins expresses all dates in a value typically named timestamp.  This seconds since the
+        /// epoch.  This function will convert the Jenkins representation to a <see cref="DateTime"/>
+        /// value.
+        /// <returns></returns>
+        public static DateTime ConvertTimestampToDateTime(long timestamp)
+        {
+            var epoch = new DateTime(year: 1970, month: 1, day: 1);
+            return epoch.AddMilliseconds(timestamp).ToUniversalTime();
+        }
     }
 }

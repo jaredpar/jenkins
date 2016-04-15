@@ -12,6 +12,9 @@ namespace Roslyn.Jenkins
 {
     internal static class JsonUtil
     {
+        internal const string BuildInfoTreeFilter = "result,id,duration,timestamp";
+        internal const string BuildInfoListTreeFilter = "builds[result,id,duration,timestamp]";
+
         /// <summary>
         /// Parse out a <see cref="JobInfo"/> from the JSON data from the "builds" and "jobs" arrays.
         /// </summary>
@@ -47,6 +50,145 @@ namespace Roslyn.Jenkins
             }
 
             return list;
+        }
+
+        internal static BuildInfo ParseBuildInfo(JobId jobId, JObject build)
+        {
+            var id = build.Value<int>("id");
+            var duration = TimeSpan.FromMilliseconds(build.Value<int>("duration"));
+            var state = ParseBuildInfoState(build);
+            var date = JenkinsUtil.ConvertTimestampToDateTime(build.Value<long>("timestamp"));
+            var buildId = new BuildId(id, jobId);
+            return new BuildInfo(buildId, state, date, duration);
+        }
+
+        internal static List<BuildInfo> ParseBuildInfoList(JobId jobId, JObject data)
+        {
+            var list = new List<BuildInfo>();
+            var builds = (JArray)data["builds"];
+            foreach (JObject build in builds)
+            {
+                list.Add(ParseBuildInfo(jobId, build));
+            }
+
+            return list;
+        }
+
+        internal static BuildFailureInfo ParseBuildFailureInfo(JObject data)
+        {
+            BuildFailureInfo info;
+            if (!BuildFailureUtil.TryGetBuildFailureInfo(data, out info))
+            {
+                info = BuildFailureInfo.Unknown;
+            }
+
+            return info;
+        }
+
+        internal static List<QueuedItemInfo> ParseQueuedItemInfoList(JObject data)
+        {
+            var items = (JArray)data["items"];
+            var list = new List<QueuedItemInfo>();
+            foreach (JObject item in items)
+            {
+                list.Add(ParseQueuedItemInfo(item));
+            }
+
+            return list;
+        }
+
+        internal static QueuedItemInfo ParseQueuedItemInfo(JObject data)
+        {
+            // FOLDER: The use of jobName here is suspicious, may need to be folder qualified
+            PullRequestInfo prInfo;
+            TryParsePullRequestInfo((JArray)data["actions"], out prInfo);
+            var id = data.Value<int>("id");
+            var jobName = data["task"].Value<string>("name");
+            return new QueuedItemInfo(id, jobName, prInfo);
+        }
+
+        internal static List<ViewInfo> ParseViewInfoList(JObject data)
+        {
+            var list = new List<ViewInfo>();
+            var items = (JArray)data["views"];
+            foreach (JObject viewData in items)
+            {
+                list.Add(ParseViewInfo(viewData));
+            }
+
+            return list;
+        }
+
+        internal static ViewInfo ParseViewInfo(JObject data)
+        {
+            var name = data.Value<string>("name");
+            var description = data.Value<string>("description");
+            var url = new Uri(data.Value<string>("url"));
+            return new ViewInfo(name, description, url);
+        }
+
+        internal static List<ComputerInfo> ParseComputerInfoList(JObject data)
+        {
+            var list = new List<ComputerInfo>();
+            var items = (JArray)data["computer"];
+            foreach (JObject item in items)
+            {
+                list.Add(ParseComputerInfo(item));
+            }
+
+            return list;
+        }
+
+        internal static ComputerInfo ParseComputerInfo(JObject data)
+        {
+            var name = data.Value<string>("displayName");
+            var os = data["monitorData"].Value<string>("hudson.node_monitors.ArchitectureMonitor");
+            return new ComputerInfo(name, os);
+        }
+
+        // TODO: Should add a filter predicate here.
+        internal static List<string> ParseTestCaseListFailed(JObject data)
+        {
+            List<string> testCaseList;
+            if (!BuildFailureUtil.TryGetTestCaseFailureList(data, out testCaseList))
+            {
+                testCaseList = new List<string>();
+            }
+
+            return testCaseList;
+        }
+
+        private static BuildState ParseBuildInfoState(JObject build)
+        {
+            var result = build.Property("result");
+            if (result == null)
+            {
+                throw new Exception("Could not find the result property");
+            }
+
+            BuildState? state = null;
+            switch (result.Value.Value<string>())
+            {
+                case "SUCCESS":
+                    state = BuildState.Succeeded;
+                    break;
+                case "FAILURE":
+                    state = BuildState.Failed;
+                    break;
+                case "ABORTED":
+                    state = BuildState.Aborted;
+                    break;
+                case null:
+                    state = BuildState.Running;
+                    break;
+            }
+
+            if (state == null)
+            {
+                throw new Exception("Unable to determine the success / failure of the job");
+            }
+
+            return state.Value;
         }
 
         /// <summary>
@@ -146,5 +288,27 @@ namespace Roslyn.Jenkins
                 sha1: sha1);
             return true;
         }
+
+        private static string GetSha1Core(JObject data)
+        {
+            var actions = (JArray)data["actions"];
+            foreach (var item in actions)
+            {
+                var obj = item["lastBuiltRevision"];
+                if (obj != null)
+                {
+                    return obj.Value<string>("SHA1");
+                }
+            }
+
+            PullRequestInfo info;
+            if (JsonUtil.TryParsePullRequestInfo(actions, out info))
+            {
+                return info.Sha1;
+            }
+
+            throw new Exception("Can't read sha1");
+        }
+
     }
 }

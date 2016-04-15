@@ -53,13 +53,16 @@ namespace Roslyn.Jenkins
             return JsonUtil.ParseJobs(parent, (JArray)data["jobs"]);
         }
 
-        /// <summary>
-        /// Get all of the available job names
-        /// </summary>
-        /// <returns></returns>
+        public async Task<List<JobId>> GetJobIdsAsync(JobId parent = null)
+        {
+            parent = parent ?? JobId.Root;
+            var data = await GetJsonAsync(JenkinsUtil.GetJobIdPath(parent));
+            return JsonUtil.ParseJobs(parent, (JArray)data["jobs"]);
+        }
+
         public List<string> GetJobNames()
         {
-            // FOLDER: possibly delete this method?
+            // FOLDER: delete this method?
             return GetJobIds()
                 .Select(x => x.Name)
                 .ToList();
@@ -80,12 +83,21 @@ namespace Roslyn.Jenkins
             return JsonUtil.ParseJobs(JobId.Root, (JArray)data["jobs"]);
         }
 
+        public async Task<List<JobId>> GetJobIdsInViewAsync(string viewName)
+        {
+            // FOLDER: Need to check if nested jobs can be parented under views.
+            var data = await GetJsonAsync($"/view/{viewName}/");
+            return JsonUtil.ParseJobs(JobId.Root, (JArray)data["jobs"]);
+        }
+
+        // FOLDER: Remove this method.  Hard to implement now that we have to descend through folders.
         public List<BuildId> GetBuildIds()
         {
             var all = GetJobNames().ToArray();
             return GetBuildIds(all);
         }
 
+        // FOLDER: Move to a JobId overload.
         public List<BuildId> GetBuildIds(string jobName)
         {
             var data = GetJson($"job/{jobName}/");
@@ -101,6 +113,46 @@ namespace Roslyn.Jenkins
             return list;
         }
 
+        public List<BuildId> GetBuildIds(JobId jobId)
+        {
+            var data = GetJson(JenkinsUtil.GetJobIdPath(jobId));
+            return JsonUtil.ParseBuilds(jobId, (JArray)data["jobs"] ?? new JArray());
+        }
+
+        public async Task<List<BuildId>> GetBuildIdsAsync(JobId jobId)
+        {
+            var data = await GetJsonAsync(JenkinsUtil.GetJobIdPath(jobId));
+            return JsonUtil.ParseBuilds(jobId, (JArray)data["jobs"] ?? new JArray());
+        }
+
+        public BuildInfo GetBuildInfo(BuildId id)
+        {
+            var data = GetJson(JenkinsUtil.GetBuildPath(id), tree: JsonUtil.BuildInfoTreeFilter);
+            return JsonUtil.ParseBuildInfo(id.JobId, data);
+        }
+
+        public async Task<BuildInfo> GetBuildInfoAsync(BuildId id)
+        {
+            var data = await GetJsonAsync(JenkinsUtil.GetBuildPath(id), tree: JsonUtil.BuildInfoTreeFilter);
+            return JsonUtil.ParseBuildInfo(id.JobId, data);
+        }
+
+        /// <summary>
+        /// Get all of the <see cref="BuildInfo"/> values for the specified <see cref="JobId"/>.
+        /// </summary>
+        public List<BuildInfo> GetBuildInfoList(JobId id)
+        {
+            var data = GetJson(JenkinsUtil.GetJobIdPath(id), tree: JsonUtil.BuildInfoListTreeFilter, depth: 2);
+            return JsonUtil.ParseBuildInfoList(id, data);
+        }
+
+        public async Task<List<BuildInfo>> GetBuildInfoListAsync(JobId id)
+        {
+            var data = await GetJsonAsync(JenkinsUtil.GetJobIdPath(id), tree: JsonUtil.BuildInfoListTreeFilter, depth: 2);
+            return JsonUtil.ParseBuildInfoList(id, data);
+        }
+
+        // FOLDER: Delete this
         public List<BuildId> GetBuildIds(params string[] jobNames)
         {
             var list = new List<BuildId>();
@@ -112,25 +164,10 @@ namespace Roslyn.Jenkins
             return list;
         }
 
-        public List<BuildInfo> GetBuildInfo(string jobName)
+        // FOLDER: Need to remove the jobName overload
+        public List<BuildInfo> GetBuildInfoList(string jobName)
         {
-            var json = GetJson(
-                JenkinsUtil.GetJobPath(jobName),
-                tree: "builds[result,id,duration,timestamp]",
-                depth: 2);
-            var list = new List<BuildInfo>();
-            var builds = (JArray)json["builds"];
-            foreach (JObject data in builds)
-            {
-                var id = data.Value<int>("id");
-                var duration = TimeSpan.FromMilliseconds(data.Value<int>("duration"));
-                var state = GetBuildStateCore(data);
-                var date = GetBuildDateCore(data);
-
-                list.Add(new BuildInfo(new BuildId(id, jobName), state, date, duration));
-            }
-
-            return list;
+            return GetBuildInfoList(new JobId(jobName));
         }
 
         public JobInfo GetJobInfo(JobId id)
@@ -139,203 +176,118 @@ namespace Roslyn.Jenkins
             return JsonUtil.ParseJobInfo(id, json);
         }
 
-        public BuildInfo GetBuildInfo(BuildId id)
+        public async Task<JobInfo> GetJobInfoAsync(JobId id)
         {
-            var data = GetJson(id);
-            var state = GetBuildStateCore(data);
-            var date = GetBuildDateCore(data);
-            var duration = TimeSpan.FromMilliseconds(data.Value<int>("duration"));
-            return new BuildInfo(id, state, date, duration);
+            var json = await GetJsonAsync(JenkinsUtil.GetJobIdPath(id));
+            return JsonUtil.ParseJobInfo(id, json);
         }
 
+        // FOLDER: delete this API and just call GetBuildInfo().Date instead.
         public DateTime GetBuildDate(BuildId id)
         {
-            var data = GetJson(id, tree: "timestamp");
-            return GetBuildDateCore(data);
+            throw new Exception();
         }
 
         public BuildResult GetBuildResult(BuildId id)
         {
-            var data = GetJson(id);
-            var state = GetBuildStateCore(data);
-            var date = GetBuildDateCore(data);
-            var buildInfo = new BuildInfo(
-                id,
-                state,
-                date,
-                TimeSpan.FromMilliseconds(data.Value<int>("duration")));
-
-            if (state == BuildState.Failed)
-            {
-                // By default we don't have enough depth in 'data' to have the failure info.  Do a new
-                // query to grab it.
-                var failureInfo = GetBuildFailureInfo(id);
-                return new BuildResult(buildInfo, failureInfo);
-            }
-
-            return new BuildResult(buildInfo);
+            var data = GetJson(JenkinsUtil.GetBuildPath(id));
+            var buildInfo = JsonUtil.ParseBuildInfo(id.JobId, data);
+            var failureInfo = buildInfo.State == BuildState.Failed
+                ? GetBuildFailureInfo(id)
+                : null;
+            return new BuildResult(buildInfo, failureInfo);
         }
 
+        public async Task<BuildResult> GetBuildResultAsync(BuildId id)
+        {
+            var data = await GetJsonAsync(JenkinsUtil.GetBuildPath(id));
+            var buildInfo = JsonUtil.ParseBuildInfo(id.JobId, data);
+            var failureInfo = buildInfo.State == BuildState.Failed
+                ? await GetBuildFailureInfoAsync(id)
+                : null;
+            return new BuildResult(buildInfo, failureInfo);
+        }
+
+        // FOLDER: delete this and just use get GetBuildInfo.State instead
         public BuildState GetBuildState(BuildId id)
         {
-            var data = GetJson(id, tree: "result");
-            return GetBuildStateCore(data);
+            throw new Exception();
         }
 
         public BuildFailureInfo GetBuildFailureInfo(BuildId id)
         {
-            var data = GetJson(id, tree: "actions[*]", depth: 4);
-            return GetBuildFailureInfoCore(data);
+            var data = GetJson(JenkinsUtil.GetBuildPath(id), tree: "actions[*]", depth: 4);
+            return JsonUtil.ParseBuildFailureInfo(data);
         }
 
-        private BuildFailureInfo GetBuildFailureInfoCore(JObject data)
-        { 
-            BuildFailureInfo info;
-            if (!BuildFailureUtil.TryGetBuildFailureInfo(data, out info))
-            {
-                info = BuildFailureInfo.Unknown;
-            }
-
-            return info;
+        public async Task<BuildFailureInfo> GetBuildFailureInfoAsync(BuildId id)
+        {
+            var data = await GetJsonAsync(JenkinsUtil.GetBuildPath(id), tree: "actions[*]", depth: 4);
+            return JsonUtil.ParseBuildFailureInfo(data);
         }
 
         public List<string> GetFailedTestCases(BuildId id)
         {
             var data = GetJson(JenkinsUtil.GetTestReportPath(id));
-            List<string> testCaseList;
-            if (!BuildFailureUtil.TryGetTestCaseFailureList(data, out testCaseList))
-            {
-                testCaseList = new List<string>();
-            }
+            return JsonUtil.ParseTestCaseListFailed(data);
+        }
 
-            return testCaseList;
+        public async Task<List<string>> GetFailedTestCasesAsync(BuildId id)
+        {
+            var data = await GetJsonAsync(JenkinsUtil.GetTestReportPath(id));
+            return JsonUtil.ParseTestCaseListFailed(data);
         }
 
         /// <summary>
         /// Get all of the queued items in Jenkins
         /// </summary>
         /// <returns></returns>
-        public List<QueuedItemInfo> GetQueuedItemInfo()
+        public List<QueuedItemInfo> GetQueuedItemInfoList()
         {
             var data = GetJson("queue");
-            var items = (JArray)data["items"];
-            var list = new List<QueuedItemInfo>();
-            foreach (var item in items)
-            {
-                PullRequestInfo prInfo;
-                JsonUtil.TryParsePullRequestInfo((JArray)item["actions"], out prInfo);
-                var id = item.Value<int>("id");
-                var jobName = item["task"].Value<string>("name");
-                list.Add(new QueuedItemInfo(id, jobName, prInfo));
-            }
+            return JsonUtil.ParseQueuedItemInfoList(data);
+        }
 
-            return list;
+        public async Task<List<QueuedItemInfo>> GetQueuedItemInfoListAsync()
+        {
+            var data = await GetJsonAsync("queue");
+            return JsonUtil.ParseQueuedItemInfoList(data);
         }
 
         public List<ViewInfo> GetViews()
         {
-            var list = new List<ViewInfo>();
             var data = GetJson("", tree: "views[*]");
-            var items = (JArray)data["views"];
+            return JsonUtil.ParseViewInfoList(data);
+        }
 
-            foreach (JObject pair in items)
-            {
-                var name = pair.Value<string>("name");
-                var description = pair.Value<string>("description");
-                var url = new Uri(pair.Value<string>("url"));
-                list.Add(new ViewInfo(name, description, url));
-            }
-
-            return list;
+        public async Task<List<ViewInfo>> GetViewsAsync()
+        {
+            var data = await GetJsonAsync("", tree: "views[*]");
+            return JsonUtil.ParseViewInfoList(data);
         }
 
         public List<ComputerInfo> GetComputerInfo()
         {
-            var list = new List<ComputerInfo>();
-            var data = GetJson("computer", tree: "computer[*]");
-            var items = (JArray)data["computer"];
-
-            foreach (JObject item in items)
-            {
-                var name = item.Value<string>("displayName");
-                var os = item["monitorData"].Value<string>("hudson.node_monitors.ArchitectureMonitor");
-                list.Add(new ComputerInfo(name, os));
-            }
-
-            return list;
+            var data = GetJson("computer", tree: "computers[*]");
+            return JsonUtil.ParseComputerInfoList(data);
         }
 
-        private DateTime GetBuildDateCore(JObject data)
+        public async Task<List<ComputerInfo>> GetComputerInfoAsync()
         {
-            var seconds = data.Value<long>("timestamp");
-            var epoch = new DateTime(year: 1970, month: 1, day: 1);
-            return epoch.AddMilliseconds(seconds).ToUniversalTime();
-        }
-
-        private BuildState GetBuildStateCore(JObject data)
-        {
-            var result = data.Property("result");
-            if (result == null)
-            {
-                throw new Exception("Could not find the result property");
-            }
-
-            BuildState? state = null;
-            switch (result.Value.Value<string>())
-            {
-                case "SUCCESS":
-                    state = BuildState.Succeeded;
-                    break;
-                case "FAILURE":
-                    state = BuildState.Failed;
-                    break;
-                case "ABORTED":
-                    state = BuildState.Aborted;
-                    break;
-                case null:
-                    state = BuildState.Running;
-                    break;
-            }
-
-            if (state == null)
-            {
-                throw new Exception("Unable to determine the success / failure of the job");
-            }
-
-            return state.Value;
+            var data = await GetJsonAsync("computer", tree: "computers[*]");
+            return JsonUtil.ParseComputerInfoList(data);
         }
 
         public PullRequestInfo GetPullRequestInfo(BuildId id)
         {
-            var data = GetJson(id);
-            return GetPullRequestInfoCore(id, data);
+            var data = GetJson(JenkinsUtil.GetBuildPath(id), tree: "actions");
+            return JsonUtil.ParsePullRequestInfo((JArray)data["actions"]);
         }
 
-        private PullRequestInfo GetPullRequestInfoCore(BuildId id, JObject data)
+        public async Task<PullRequestInfo> GetPullRequestInfoAsync(BuildId id)
         {
-            var actions = (JArray)data["actions"];
-            return JsonUtil.ParsePullRequestInfo(actions);
-        }
-
-        private string GetSha1Core(JObject data)
-        {
-            var actions = (JArray)data["actions"];
-            foreach (var item in actions)
-            {
-                var obj = item["lastBuiltRevision"];
-                if (obj != null)
-                {
-                    return obj.Value<string>("SHA1");
-                }
-            }
-
-            PullRequestInfo info;
-            if (JsonUtil.TryParsePullRequestInfo(actions, out info))
-            {
-                return info.Sha1;
-            }
-
-            throw new Exception("Can't read sha1");
+            var data = await GetJsonAsync(JenkinsUtil.GetBuildPath(id), tree: "actions");
+            return JsonUtil.ParsePullRequestInfo((JArray)data["actions"]);
         }
 
         public string GetConsoleText(BuildId id)
@@ -348,7 +300,34 @@ namespace Roslyn.Jenkins
             }
         }
 
+        public async Task<string> GetConsoleTextAsync(BuildId id)
+        {
+            var uri = JenkinsUtil.GetConsoleTextUri(_baseUrl, id);
+            var request = WebRequest.Create(uri);
+            using (var reader = new StreamReader((await request.GetResponseAsync()).GetResponseStream()))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+
         public JObject GetJson(string urlPath, bool pretty = false, string tree = null, int? depth = null)
+        {
+            var request = GetJsonRestRequest(urlPath, pretty, tree, depth);
+            var response = _restClient.Execute(request);
+            return JObject.Parse(response.Content);
+        }
+
+        public async Task<JObject> GetJsonAsync(string urlPath, bool pretty = false, string tree = null, int? depth = null)
+        {
+            var request = GetJsonRestRequest(urlPath, pretty, tree, depth);
+            var response = await _restClient.ExecuteTaskAsync(request);
+            return JObject.Parse(response.Content);
+        }
+
+        /// <summary>
+        /// Build up the <see cref="RestRequest"/> object for the JSON query. 
+        /// </summary>
+        private RestRequest GetJsonRestRequest(string urlPath, bool pretty, string tree, int? depth)
         {
             urlPath = urlPath.TrimEnd('/');
             var request = new RestRequest($"{urlPath}/api/json", Method.GET);
@@ -369,15 +348,7 @@ namespace Roslyn.Jenkins
                 request.AddHeader("Authorization", _authorizationHeaderValue);
             }
 
-            var response = _restClient.Execute(request);
-            return JObject.Parse(response.Content);
+            return request;
         }
-
-        private JObject GetJson(BuildId buildId, bool pretty = false, string tree = null, int? depth = null)
-        {
-            var path = JenkinsUtil.GetBuildPath(buildId);
-            return GetJson(path, pretty, tree, depth);
-        }
-
     }
 }

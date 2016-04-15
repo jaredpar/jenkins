@@ -95,7 +95,7 @@ namespace ApiFun
         private static void PrintQueue()
         {
             var client = CreateClient().Client;
-            foreach (var cur in client.GetQueuedItemInfo())
+            foreach (var cur in client.GetQueuedItemInfoList())
             {
                 Console.WriteLine($"{cur.JobName} {cur.Id} {cur.PullRequestInfo?.PullUrl ?? ""}");
             }
@@ -230,7 +230,7 @@ namespace ApiFun
         private static void Random()
         {
             var client = new RoslynClient().Client;
-            var list = client.GetQueuedItemInfo();
+            var list = client.GetQueuedItemInfoList();
 
             var query = list
                 .Where(x => x.PullRequestInfo != null)

@@ -33,11 +33,19 @@ namespace Roslyn.Jenkins
     {
         public int Id { get; }
         public string JobName { get; }
+        public JobId JobId { get; }
 
+        public BuildId(int id, JobId jobId) : this(id, jobId.Name)
+        {
+
+        }
+
+        // FOLDER: delete this ctor
         public BuildId(int id, string jobName)
         {
             Id = id;
             JobName = jobName;
+            JobId = new JobId(jobName, JobId.Root);
         }
 
         public override string ToString() => $"{Id} - {JobName}";
@@ -163,6 +171,8 @@ namespace Roslyn.Jenkins
         }
     }
 
+    // TODO: Category should be a string in the non-Roslyn version.  It's only an enum in Roslyn where we 
+    // have the context.
     public enum BuildFailureCategory
     {
         Unknown,
