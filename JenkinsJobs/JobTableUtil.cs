@@ -104,7 +104,6 @@ namespace JenkinsJobs
 
         private List<BuildProcessedEntity> GetBuildProcessedList(JobId id)
         {
-            // FOLDER: should this be using the full name here? 
             // TODO: should optimize this so we don't bring down so many rows and columns.
             var query = new TableQuery<BuildProcessedEntity>()
                 .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, id.Name));

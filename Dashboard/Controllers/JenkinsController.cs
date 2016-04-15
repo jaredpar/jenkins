@@ -21,7 +21,7 @@ namespace Dashboard.Controllers
         {
             return string.IsNullOrEmpty(id)
                 ? GetJobList(view)
-                : GetJob(id);
+                : GetJob(JobId.ParseName(id));
         }
 
         public ActionResult Views()
@@ -32,10 +32,9 @@ namespace Dashboard.Controllers
 
         public ActionResult Queue(string id = null)
         {
-            // FOLDER: Need a string representation we can serialize back and forth to a JobId and use it here
             return string.IsNullOrEmpty(id)
                 ? GetQueueJobList()
-                : GetQueueJob(new JobId(shortName: id), Request.GetParamInt("count", DefaultQueueJobCount));
+                : GetQueueJob(JobId.ParseName(id), Request.GetParamInt("count", DefaultQueueJobCount));
         }
 
         public ActionResult Waiting()
@@ -71,10 +70,9 @@ namespace Dashboard.Controllers
             return View(viewName: "JobList", model: model);
         }
 
-        private ActionResult GetJob(string jobName)
+        private ActionResult GetJob(JobId id)
         {
-            // FOLDER: Need to convert to a JobId
-            var model = GetJobDaySummary(new JobId(jobName));
+            var model = GetJobDaySummary(id);
             return View(viewName: "JobData", model: model);
         }
 
@@ -126,7 +124,6 @@ namespace Dashboard.Controllers
             var min = TimeSpan.FromMilliseconds(list.Min(x => x.QueueTime.TotalMilliseconds));
             var model = new JobQueueModel()
             {
-                // FOLDER: serializable name here? 
                 JobName = jobId.Name,
                 JobCount = list.Count,
                 AverageTime = average,
@@ -158,7 +155,6 @@ namespace Dashboard.Controllers
                 {
                     var summary = new JobQueueSummary()
                     {
-                        // FOLDER: Serializable name here? 
                         Name = jobId.Name,
                         Id = id.Id,
                         QueueTime = time.Value

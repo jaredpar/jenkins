@@ -221,7 +221,7 @@ namespace Roslyn.Jenkins
 
         public string GetConsoleText(BuildId id)
         {
-            var uri = JenkinsUtil.GetConsoleTextUri(_baseUrl, id);
+            var uri = JenkinsUtil.GetUri(_baseUrl, JenkinsUtil.GetConsoleTextPath(id));
             var request = WebRequest.Create(uri);
             using (var reader = new StreamReader(request.GetResponse().GetResponseStream()))
             {
@@ -231,7 +231,7 @@ namespace Roslyn.Jenkins
 
         public async Task<string> GetConsoleTextAsync(BuildId id)
         {
-            var uri = JenkinsUtil.GetConsoleTextUri(_baseUrl, id);
+            var uri = JenkinsUtil.GetUri(_baseUrl, JenkinsUtil.GetConsoleTextPath(id));
             var request = WebRequest.Create(uri);
             using (var reader = new StreamReader((await request.GetResponseAsync()).GetResponseStream()))
             {

@@ -99,7 +99,6 @@ namespace Roslyn.Jenkins
 
         internal static QueuedItemInfo ParseQueuedItemInfo(JObject data)
         {
-            // FOLDER: The use of jobName here is suspicious, may need to be folder qualified
             PullRequestInfo prInfo;
             TryParsePullRequestInfo((JArray)data["actions"], out prInfo);
             var id = data.Value<int>("id");
