@@ -56,7 +56,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EqualityUnit.cs" />
+    <Compile Include="EqualityUnit`1.cs" />
+    <Compile Include="EqualityUtil.cs" />
+    <Compile Include="EqualityUtil`1.cs" />
     <Compile Include="JenkinsUtilTests.cs" />
+    <Compile Include="JobIdTests.cs" />
     <Compile Include="UniqueJobIdTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ZipUtilTests.cs" />
