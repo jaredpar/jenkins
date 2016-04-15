@@ -7,8 +7,8 @@
     <ProjectGuid>{6482F3D6-A5A0-459A-8593-A851945E4AAD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Roslyn</RootNamespace>
-    <AssemblyName>Roslyn.Storage</AssemblyName>
+    <RootNamespace>Dashboard</RootNamespace>
+    <AssemblyName>Dashboard.Storage</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -90,14 +90,14 @@
     <Content Include="Sql\Scripts\Database.sql" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Roslyn.Jenkins\Roslyn.Jenkins.csproj">
-      <Project>{93ed4b41-cbc6-4423-bddc-612c9bb607ba}</Project>
-      <Name>Roslyn.Jenkins</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dashboard.Jenkins\Dashboard.Jenkins.csproj">
+      <Project>{93ed4b41-cbc6-4423-bddc-612c9bb607ba}</Project>
+      <Name>Dashboard.Jenkins</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

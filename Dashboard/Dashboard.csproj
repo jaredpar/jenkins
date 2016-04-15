@@ -277,7 +277,6 @@
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Jenkins\JobData.cshtml" />
     <Content Include="Views\Jenkins\JobList.cshtml" />
-    <Content Include="Views\Jenkins\Index.cshtml" />
     <Content Include="Views\Jenkins\QueueJobData.cshtml" />
     <Content Include="Views\Jenkins\QueueJobList.cshtml" />
     <Content Include="Views\Jenkins\Waiting.cshtml" />
@@ -301,13 +300,13 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Roslyn.Jenkins\Roslyn.Jenkins.csproj">
+    <ProjectReference Include="..\Dashboard.Jenkins\Dashboard.Jenkins.csproj">
       <Project>{93ed4b41-cbc6-4423-bddc-612c9bb607ba}</Project>
-      <Name>Roslyn.Jenkins</Name>
+      <Name>Dashboard.Jenkins</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Roslyn.Storage\Roslyn.Storage.csproj">
+    <ProjectReference Include="..\Dashboard.Storage\Dashboard.Storage.csproj">
       <Project>{6482f3d6-a5a0-459a-8593-a851945e4aad}</Project>
-      <Name>Roslyn.Storage</Name>
+      <Name>Dashboard.Storage</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

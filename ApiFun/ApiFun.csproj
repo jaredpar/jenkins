@@ -59,9 +59,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Roslyn.Jenkins\Roslyn.Jenkins.csproj">
+    <ProjectReference Include="..\Dashboard.Jenkins\Dashboard.Jenkins.csproj">
       <Project>{93ed4b41-cbc6-4423-bddc-612c9bb607ba}</Project>
-      <Name>Roslyn.Jenkins</Name>
+      <Name>Dashboard.Jenkins</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

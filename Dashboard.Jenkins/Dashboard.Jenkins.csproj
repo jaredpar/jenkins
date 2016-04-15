@@ -7,8 +7,8 @@
     <ProjectGuid>{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Roslyn.Jenkins</RootNamespace>
-    <AssemblyName>Roslyn.Jenkins</AssemblyName>
+    <RootNamespace>Dashboard.Jenkins</RootNamespace>
+    <AssemblyName>Dashboard.Jenkins</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

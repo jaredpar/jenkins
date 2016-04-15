@@ -5,10 +5,6 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiFun", "ApiFun\ApiFun.csproj", "{5FE8A917-8F76-48F3-A3A6-8235F97FF0C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roslyn.Jenkins", "Roslyn.Jenkins\Roslyn.Jenkins.csproj", "{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roslyn.Jenkins.Tests", "Roslyn.Jenkins.Tests\Roslyn.Jenkins.Tests.csproj", "{37C8575D-8E4E-45EB-861B-3720E883A663}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard", "Dashboard\Dashboard.csproj", "{33DB7715-7742-44BE-AE4B-34CE54A40AF5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PublishScripts", "PublishScripts", "{B1B21F26-1EED-4E31-B013-362C1E6F145B}"
@@ -26,7 +22,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DashboardCleaner", "Dashboa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JenkinsJobs", "JenkinsJobs\JenkinsJobs.csproj", "{AAECC7FC-2A8D-40DC-A74D-BC35D89B1479}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roslyn.Storage", "Roslyn.Storage\Roslyn.Storage.csproj", "{6482F3D6-A5A0-459A-8593-A851945E4AAD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Storage", "Dashboard.Storage\Dashboard.Storage.csproj", "{6482F3D6-A5A0-459A-8593-A851945E4AAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Jenkins", "Dashboard.Jenkins\Dashboard.Jenkins.csproj", "{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Tests", "Dashboard.Tests\Dashboard.Tests.csproj", "{37C8575D-8E4E-45EB-861B-3720E883A663}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,14 +38,6 @@ Global
 		{5FE8A917-8F76-48F3-A3A6-8235F97FF0C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5FE8A917-8F76-48F3-A3A6-8235F97FF0C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FE8A917-8F76-48F3-A3A6-8235F97FF0C7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{37C8575D-8E4E-45EB-861B-3720E883A663}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{37C8575D-8E4E-45EB-861B-3720E883A663}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{37C8575D-8E4E-45EB-861B-3720E883A663}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{37C8575D-8E4E-45EB-861B-3720E883A663}.Release|Any CPU.Build.0 = Release|Any CPU
 		{33DB7715-7742-44BE-AE4B-34CE54A40AF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{33DB7715-7742-44BE-AE4B-34CE54A40AF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33DB7715-7742-44BE-AE4B-34CE54A40AF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -62,6 +54,14 @@ Global
 		{6482F3D6-A5A0-459A-8593-A851945E4AAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6482F3D6-A5A0-459A-8593-A851945E4AAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6482F3D6-A5A0-459A-8593-A851945E4AAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37C8575D-8E4E-45EB-861B-3720E883A663}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37C8575D-8E4E-45EB-861B-3720E883A663}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37C8575D-8E4E-45EB-861B-3720E883A663}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37C8575D-8E4E-45EB-861B-3720E883A663}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -8,8 +8,8 @@
     <ProjectGuid>{37C8575D-8E4E-45EB-861B-3720E883A663}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Roslyn.Jenkins.Tests</RootNamespace>
-    <AssemblyName>Roslyn.Jenkins.UnitTests</AssemblyName>
+    <RootNamespace>Dashboard.Tests</RootNamespace>
+    <AssemblyName>Dashboard.UnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -66,18 +66,18 @@
     <Compile Include="ZipUtilTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Roslyn.Jenkins\Roslyn.Jenkins.csproj">
-      <Project>{93ed4b41-cbc6-4423-bddc-612c9bb607ba}</Project>
-      <Name>Roslyn.Jenkins</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Roslyn.Storage\Roslyn.Storage.csproj">
-      <Project>{6482f3d6-a5a0-459a-8593-a851945e4aad}</Project>
-      <Name>Roslyn.Storage</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dashboard.Jenkins\Dashboard.Jenkins.csproj">
+      <Project>{93ed4b41-cbc6-4423-bddc-612c9bb607ba}</Project>
+      <Name>Dashboard.Jenkins</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Dashboard.Storage\Dashboard.Storage.csproj">
+      <Project>{6482f3d6-a5a0-459a-8593-a851945e4aad}</Project>
+      <Name>Dashboard.Storage</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
