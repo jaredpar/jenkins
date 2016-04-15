@@ -33,7 +33,7 @@ namespace Roslyn.Azure
         public DateTime BuildDate { get; set; }
 
         public BuildResultKind Kind => (BuildResultKind)Enum.Parse(typeof(BuildResultKind), KindRaw);
-        public BuildId BuildId => new BuildId(id: int.Parse(RowKey), jobName: PartitionKey);
+        public BuildId BuildId => new BuildId(id: int.Parse(RowKey), jobId: JobId.ParseFullName(PartitionKey));
 
         public BuildProcessedEntity()
         {

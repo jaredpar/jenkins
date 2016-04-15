@@ -147,7 +147,7 @@ namespace Dashboard.Controllers
 
             foreach (var id in client.GetBuildIds(jobId).Take(count))
             {
-                var state = client.GetBuildState(id);
+                var state = client.GetBuildInfo(id).State;
                 if (state == BuildState.Running)
                 {
                     continue;

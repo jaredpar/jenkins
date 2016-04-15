@@ -28,7 +28,7 @@ namespace Roslyn.Azure
 
         }
 
-        private BuildFailureEntity(BuildId buildId, string rowKey, BuildFailureKind kind, DateTime buildDate) : base($"{buildId.JobName} {buildId.Id}", rowKey)
+        private BuildFailureEntity(BuildId buildId, string rowKey, BuildFailureKind kind, DateTime buildDate) : base($"{buildId.JobFullName} {buildId.Id}", rowKey)
         {
             KindRaw = kind.ToString();
             BuildDate = buildDate;
@@ -47,7 +47,8 @@ namespace Roslyn.Azure
             var index = PartitionKey.LastIndexOf(' ');
             var idStr = PartitionKey.Substring(index);
             var jobStr = PartitionKey.Substring(0, length: index);
-            return new BuildId(int.Parse(idStr), jobStr);
+            var jobId = JobId.ParseFullName(jobStr);
+            return new BuildId(int.Parse(idStr), jobId);
         }
     }
 }

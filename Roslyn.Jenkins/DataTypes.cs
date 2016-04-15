@@ -28,27 +28,20 @@ namespace Roslyn.Jenkins
         }
     }
 
-    // FOLDER: Need to convert JobName to be a JobId
     public struct BuildId
     {
         public int Id { get; }
-        public string JobName { get; }
         public JobId JobId { get; }
+        public string JobName => JobId.Name;
+        public string JobFullName => JobId.FullName;
 
-        public BuildId(int id, JobId jobId) : this(id, jobId.Name)
-        {
-
-        }
-
-        // FOLDER: delete this ctor
-        public BuildId(int id, string jobName)
+        public BuildId(int id, JobId jobId)
         {
             Id = id;
-            JobName = jobName;
-            JobId = new JobId(jobName, JobId.Root);
+            JobId = jobId;
         }
 
-        public override string ToString() => $"{Id} - {JobName}";
+        public override string ToString() => $"{Id} - {JobFullName}";
     }
 
     public sealed class ViewInfo

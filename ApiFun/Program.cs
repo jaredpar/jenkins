@@ -80,7 +80,7 @@ namespace ApiFun
         private static void PrintFailure()
         {
             var client = CreateClient(auth: false).Client;
-            var info = client.GetBuildFailureInfo(new BuildId(id: 6066, jobName: "roslyn_prtest_win_dbg_unit64"));
+            var info = client.GetBuildFailureInfo(new BuildId(id: 6066, jobId: JobId.ParseFullName("roslyn_prtest_win_dbg_unit64")));
             Console.WriteLine(info.Category);
         }
 
@@ -111,7 +111,7 @@ namespace ApiFun
                 foreach (var buildId in client.GetBuildIds(jobId))
                 {
                     Console.WriteLine($"\tBuild: {buildId.Id}");
-                    var date = client.GetBuildDate(buildId);
+                    var date = client.GetBuildInfo(buildId).Date;
                     list.Add(Tuple.Create(date, buildId));
                 }
             }
@@ -169,7 +169,7 @@ namespace ApiFun
             {
                 Console.WriteLine($"Processing {buildId.Id}");
 
-                var state = client.Client.GetBuildState(buildId);
+                var state = client.Client.GetBuildInfo(buildId).State;
                 if (state == BuildState.Running)
                 {
                     continue;
@@ -492,7 +492,7 @@ namespace ApiFun
             {
                 Console.WriteLine($"Processing {buildId.JobName} {buildId.Id}");
 
-                var state = _client.GetBuildState(buildId);
+                var state = _client.GetBuildInfo(buildId).State;
                 if (state == BuildState.Running)
                 {
                     continue;

@@ -32,7 +32,7 @@ namespace Roslyn.Jenkins
             foreach (var cur in builds)
             {
                 var build = cur.ToObject<Json.Build>();
-                list.Add(new BuildId(build.Number, id.Name));
+                list.Add(new BuildId(build.Number, id));
             }
 
             return list;
