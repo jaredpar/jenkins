@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace Roslyn.Sql
+namespace Dashboard.Sql
 {
     /// <summary>
     /// This is a proof of concept implementation only.  I realize that its implementation is pretty terrible

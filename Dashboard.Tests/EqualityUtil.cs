@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Roslyn.Jenkins.Tests
+namespace Dashboard.Jenkins.Tests
 {
     public static class EqualityUtil
     {

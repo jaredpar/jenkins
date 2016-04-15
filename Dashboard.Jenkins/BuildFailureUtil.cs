@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Roslyn.Jenkins
+namespace Dashboard.Jenkins
 {
     // TODO: This logic should be in JsonUtil
     public static class BuildFailureUtil

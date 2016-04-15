@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using Xunit;
 
-namespace Roslyn.Jenkins.Tests
+namespace Dashboard.Jenkins.Tests
 {
     /// <summary>
     /// Base class which does a lot of the boiler plate work for testing that the equality pattern

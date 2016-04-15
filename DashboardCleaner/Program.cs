@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using System.Configuration;
-using Roslyn.Sql;
+using Dashboard.Sql;
 using SendGrid;
 using System.Net.Mail;
-using Roslyn;
+using Dashboard;
 
 namespace DashboardCleaner
 {

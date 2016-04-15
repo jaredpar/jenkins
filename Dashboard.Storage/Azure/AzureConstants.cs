@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Roslyn.Azure
+namespace Dashboard.Azure
 {
     public static class AzureConstants
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Roslyn.Sql
+namespace Dashboard.Sql
 {
     /// <summary>
     /// Information about the hit statistics including number of assembly, test passed, failed, etc ...

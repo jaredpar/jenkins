@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Roslyn.Jenkins.Tests
+namespace Dashboard.Jenkins.Tests
 {
     public class JobIdTests
     {

@@ -1,7 +1,7 @@
 ﻿using Dashboard.Helpers;
 using Dashboard.Models;
-using Roslyn;
-using Roslyn.Sql;
+using Dashboard;
+using Dashboard.Sql;
 using System;
 using System.Collections.Generic;
 using System.Configuration;

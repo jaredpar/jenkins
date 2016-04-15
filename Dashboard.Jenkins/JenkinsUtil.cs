@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Roslyn.Jenkins
+namespace Dashboard.Jenkins
 {
     public static class JenkinsUtil
     {

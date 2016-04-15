@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
-using Roslyn;
-using Roslyn.Azure;
-using Roslyn.Jenkins;
+using Dashboard;
+using Dashboard.Azure;
+using Dashboard.Jenkins;
 
 namespace JenkinsJobs
 {

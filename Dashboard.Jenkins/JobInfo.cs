@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Roslyn.Jenkins
+namespace Dashboard.Jenkins
 {
     /// <summary>
     /// What type of job is this?

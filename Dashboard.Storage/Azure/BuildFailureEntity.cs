@@ -1,12 +1,12 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
-using Roslyn.Jenkins;
+using Dashboard.Jenkins;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Roslyn.Azure
+namespace Dashboard.Azure
 {
     public enum BuildFailureKind
     {

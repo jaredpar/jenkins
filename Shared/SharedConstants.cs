@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Roslyn
+namespace Dashboard
 {
     public static class SharedConstants
     {

@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace Roslyn.Jenkins.Tests
+namespace Dashboard.Jenkins.Tests
 {
     public sealed class EqualityUnit<T>
     {

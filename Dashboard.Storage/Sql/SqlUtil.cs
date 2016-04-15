@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 
-namespace Roslyn.Sql
+namespace Dashboard.Sql
 {
     public sealed class SqlUtil : IDisposable
     {

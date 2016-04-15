@@ -1,6 +1,6 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
-using Roslyn.Azure;
-using Roslyn.Jenkins;
+using Dashboard.Azure;
+using Dashboard.Jenkins;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -1,4 +1,4 @@
-﻿using Roslyn.Sql;
+﻿using Dashboard.Sql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Roslyn.Jenkins.Tests
+namespace Dashboard.Jenkins.Tests
 {
     public sealed class ZipUtilTests
     {
