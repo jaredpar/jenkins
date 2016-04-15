@@ -105,10 +105,10 @@ namespace ApiFun
         {
             var client = CreateClient().Client;
             var list = new List<Tuple<DateTime, BuildId>>();
-            foreach (var job in client.GetJobNamesInView("Roslyn").Where(x => x.Contains("prtest")).Where(x => !x.Contains("internal")))
+            foreach (var jobId in client.GetJobIdsInView("Roslyn").Where(x => x.Name.Contains("prtest")).Where(x => !x.Name.Contains("internal")))
             {
-                Console.WriteLine($"Job: {job}");
-                foreach (var buildId in client.GetBuildIds(job))
+                Console.WriteLine($"Job: {jobId}");
+                foreach (var buildId in client.GetBuildIds(jobId))
                 {
                     Console.WriteLine($"\tBuild: {buildId.Id}");
                     var date = client.GetBuildDate(buildId);
@@ -136,7 +136,7 @@ namespace ApiFun
             var miniTimes = new List<TimeSpan>();
             var proTimes = new List<TimeSpan>();
 
-            foreach (var buildId in client.GetBuildIds("roslyn_prtest_mac_dbg_unit32"))
+            foreach (var buildId in client.GetBuildIds(new JobId("roslyn_prtest_mac_dbg_unit32", JobId.Root)))
             {
                 var result = client.GetBuildResult(buildId);
                 if (result.State != BuildState.Succeeded)
@@ -165,7 +165,7 @@ namespace ApiFun
         {
             var list = new List<int>();
             var client = CreateClient();
-            foreach (var buildId in client.Client.GetBuildIds("roslyn_prtest_mac_dbg_unit32"))
+            foreach (var buildId in client.Client.GetBuildIds(new JobId("roslyn_prtest_mac_dbg_unit32", JobId.Root)))
             {
                 Console.WriteLine($"Processing {buildId.Id}");
 
@@ -199,7 +199,7 @@ namespace ApiFun
         private static void PrintJobNames()
         {
             var client = CreateClient();
-            foreach (var name in client.GetJobNames().Concat(client.Client.GetJobNamesInView("roslyn-internal")))
+            foreach (var name in client.GetJobNames().Concat(client.Client.GetJobIdsInView("roslyn-internal").Select(x => x.Name)))
             {
                 Console.WriteLine(name);
             }
@@ -209,10 +209,10 @@ namespace ApiFun
         {
             var roslynClient = CreateClient();
             var client = roslynClient.Client;
-            foreach (var name in roslynClient.GetJobNames())
+            foreach (var jobId in roslynClient.GetJobIds())
             {
-                Console.WriteLine($"{name}");
-                foreach (var id in client.GetBuildIds(name))
+                Console.WriteLine($"{jobId.Name}");
+                foreach (var id in client.GetBuildIds(jobId))
                 {
                     try
                     {
@@ -524,11 +524,11 @@ namespace ApiFun
         private List<BuildId> GetBuildIds(Func<OS, bool> predicate)
         {
             var all = new List<BuildId>();
-            foreach (var jobName in _client.GetJobNames())
+            foreach (var jobId in _client.GetJobIds())
             {
                 try
                 {
-                    var list = _client.GetBuildIds(jobName);
+                    var list = _client.GetBuildIds(jobId);
                     if (list.Count > 0)
                     {
                         var os = GetOsForBuild(list[0]);
@@ -571,7 +571,8 @@ namespace ApiFun
         private List<string> GetMacJobNames()
         {
             return _client
-                .GetJobNames()
+                .GetJobIds()
+                .Select(x => x.Name)
                 .Where(x => x.Contains("osx") || x.Contains("_mac_"))
                 .ToList();
         }
@@ -579,7 +580,8 @@ namespace ApiFun
         private List<string> GetLinuxJobNames()
         {
             return _client
-                .GetJobNames()
+                .GetJobIds()
+                .Select(x => x.Name)
                 .Where(x => x.Contains("ubuntu") || x.Contains("_lin_"))
                 .Where(x => !x.Contains("_tst_"))
                 .ToList();

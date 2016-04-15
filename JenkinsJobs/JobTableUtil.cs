@@ -55,16 +55,16 @@ namespace JenkinsJobs
 
         internal async Task Populate()
         {
-            foreach (var jobName in _roslynClient.GetJobNames())
+            foreach (var jobId in _roslynClient.GetJobIds())
             {
-                var buildIdList = _jenkinsClient.GetBuildIds(jobName);
-                await PopulateBuildIds(jobName, buildIdList);
+                var buildIdList = _jenkinsClient.GetBuildIds(jobId);
+                await PopulateBuildIds(jobId, buildIdList);
             }
         }
 
-        private async Task PopulateBuildIds(string jobName, List<BuildId> buildIdList)
+        private async Task PopulateBuildIds(JobId jobId, List<BuildId> buildIdList)
         {
-            var oldProcessedList = GetBuildProcessedList(jobName);
+            var oldProcessedList = GetBuildProcessedList(jobId);
             var newProcessedList = new List<BuildProcessedEntity>();
 
             foreach (var buildId in buildIdList)
@@ -102,11 +102,12 @@ namespace JenkinsJobs
             await InsertBatch(_buildProcessedTable, newProcessedList);
         }
 
-        private List<BuildProcessedEntity> GetBuildProcessedList(string jobName)
+        private List<BuildProcessedEntity> GetBuildProcessedList(JobId id)
         {
+            // FOLDER: should this be using the full name here? 
             // TODO: should optimize this so we don't bring down so many rows and columns.
             var query = new TableQuery<BuildProcessedEntity>()
-                .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, jobName));
+                .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, id.Name));
             var result = _buildProcessedTable.ExecuteQuery(query);
             return result.ToList();
         }

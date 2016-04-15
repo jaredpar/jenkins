@@ -32,9 +32,10 @@ namespace Dashboard.Controllers
 
         public ActionResult Queue(string id = null)
         {
+            // FOLDER: Need a string representation we can serialize back and forth to a JobId and use it here
             return string.IsNullOrEmpty(id)
                 ? GetQueueJobList()
-                : GetQueueJob(id, Request.GetParamInt("count", DefaultQueueJobCount));
+                : GetQueueJob(new JobId(name: id), Request.GetParamInt("count", DefaultQueueJobCount));
         }
 
         public ActionResult Waiting()
@@ -59,12 +60,12 @@ namespace Dashboard.Controllers
         {
             var model = new AllJobsModel();
             var client = CreateJenkinsClient();
-            var names = string.IsNullOrEmpty(view)
-                ? client.GetJobNames()
-                : client.GetJobNamesInView(view);
-            foreach (var name in names)
+            var list = string.IsNullOrEmpty(view)
+                ? client.GetJobIds()
+                : client.GetJobIdsInView(view);
+            foreach (var id in list)
             {
-                model.Names.Add(name);
+                model.Names.Add(id.Name);
             }
 
             return View(viewName: "JobList", model: model);
@@ -114,9 +115,9 @@ namespace Dashboard.Controllers
             return View(viewName: "QueueJobList", model: list);
         }
 
-        private ActionResult GetQueueJob(string jobName, int count)
+        private ActionResult GetQueueJob(JobId jobId, int count)
         {
-            var list = GetJobSummaryList(jobName, count);
+            var list = GetJobSummaryList(jobId, count);
 
             // TODO: this is expensive to compute.  Should cache.
             var average = TimeSpan.FromMilliseconds(list.Average(x => x.QueueTime.TotalMilliseconds));
@@ -125,7 +126,8 @@ namespace Dashboard.Controllers
             var min = TimeSpan.FromMilliseconds(list.Min(x => x.QueueTime.TotalMilliseconds));
             var model = new JobQueueModel()
             {
-                JobName = jobName,
+                // FOLDER: serializable name here? 
+                JobName = jobId.Name,
                 JobCount = list.Count,
                 AverageTime = average,
                 MedianTime = median,
@@ -137,13 +139,13 @@ namespace Dashboard.Controllers
             return View(viewName: "QueueJobData", model: model);
         }
 
-        private List<JobQueueSummary> GetJobSummaryList(string jobName, int count)
+        private List<JobQueueSummary> GetJobSummaryList(JobId jobId, int count)
         {
             var list = new List<JobQueueSummary>();
             var roslynClient = CreateRoslynClient();
             var client = roslynClient.Client;
 
-            foreach (var id in client.GetBuildIds(jobName).Take(count))
+            foreach (var id in client.GetBuildIds(jobId).Take(count))
             {
                 var state = client.GetBuildState(id);
                 if (state == BuildState.Running)
@@ -156,7 +158,8 @@ namespace Dashboard.Controllers
                 {
                     var summary = new JobQueueSummary()
                     {
-                        Name = jobName,
+                        // FOLDER: Serializable name here? 
+                        Name = jobId.Name,
                         Id = id.Id,
                         QueueTime = time.Value
                     };

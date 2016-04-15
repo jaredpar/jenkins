@@ -30,9 +30,14 @@ namespace Roslyn.Jenkins
             _client = new JenkinsClient(RoslynJenkinsHost, userName, password);
         }
 
+        public List<JobId> GetJobIds()
+        {
+            return _client.GetJobIdsInView("Roslyn");
+        }
+
         public List<string> GetJobNames()
         {
-            return _client.GetJobNamesInView("Roslyn");
+            return _client.GetJobIdsInView("Roslyn").Select(x => x.Name).ToList();
         }
 
         public static bool IsPullRequestJobName(string jobName)

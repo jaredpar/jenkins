@@ -60,57 +60,16 @@ namespace Roslyn.Jenkins
             return JsonUtil.ParseJobs(parent, (JArray)data["jobs"]);
         }
 
-        public List<string> GetJobNames()
-        {
-            // FOLDER: delete this method?
-            return GetJobIds()
-                .Select(x => x.Name)
-                .ToList();
-        }
-
-        public List<string> GetJobNamesInView(string viewName)
-        {
-            // FOLDER: possibly delete this method?
-            return GetJobIdsInView(viewName)
-                .Select(x => x.Name)
-                .ToList();
-        }
-
         public List<JobId> GetJobIdsInView(string viewName)
         {
-            // FOLDER: Need to check if nested jobs can be parented under views.
             var data = GetJson($"/view/{viewName}/");
             return JsonUtil.ParseJobs(JobId.Root, (JArray)data["jobs"]);
         }
 
         public async Task<List<JobId>> GetJobIdsInViewAsync(string viewName)
         {
-            // FOLDER: Need to check if nested jobs can be parented under views.
             var data = await GetJsonAsync($"/view/{viewName}/");
             return JsonUtil.ParseJobs(JobId.Root, (JArray)data["jobs"]);
-        }
-
-        // FOLDER: Remove this method.  Hard to implement now that we have to descend through folders.
-        public List<BuildId> GetBuildIds()
-        {
-            var all = GetJobNames().ToArray();
-            return GetBuildIds(all);
-        }
-
-        // FOLDER: Move to a JobId overload.
-        public List<BuildId> GetBuildIds(string jobName)
-        {
-            var data = GetJson($"job/{jobName}/");
-            var all = (JArray)data["builds"] ?? new JArray();
-            var list = new List<BuildId>();
-
-            foreach (var cur in all)
-            {
-                var build = cur.ToObject<Json.Build>();
-                list.Add(new BuildId(build.Number, jobName));
-            }
-
-            return list;
         }
 
         public List<BuildId> GetBuildIds(JobId jobId)
@@ -152,24 +111,6 @@ namespace Roslyn.Jenkins
             return JsonUtil.ParseBuildInfoList(id, data);
         }
 
-        // FOLDER: Delete this
-        public List<BuildId> GetBuildIds(params string[] jobNames)
-        {
-            var list = new List<BuildId>();
-            foreach (var name in jobNames)
-            {
-                list.AddRange(GetBuildIds(name));
-            }
-
-            return list;
-        }
-
-        // FOLDER: Need to remove the jobName overload
-        public List<BuildInfo> GetBuildInfoList(string jobName)
-        {
-            return GetBuildInfoList(new JobId(jobName));
-        }
-
         public JobInfo GetJobInfo(JobId id)
         {
             var json = GetJson(JenkinsUtil.GetJobIdPath(id));
@@ -180,12 +121,6 @@ namespace Roslyn.Jenkins
         {
             var json = await GetJsonAsync(JenkinsUtil.GetJobIdPath(id));
             return JsonUtil.ParseJobInfo(id, json);
-        }
-
-        // FOLDER: delete this API and just call GetBuildInfo().Date instead.
-        public DateTime GetBuildDate(BuildId id)
-        {
-            throw new Exception();
         }
 
         public BuildResult GetBuildResult(BuildId id)
@@ -206,12 +141,6 @@ namespace Roslyn.Jenkins
                 ? await GetBuildFailureInfoAsync(id)
                 : null;
             return new BuildResult(buildInfo, failureInfo);
-        }
-
-        // FOLDER: delete this and just use get GetBuildInfo.State instead
-        public BuildState GetBuildState(BuildId id)
-        {
-            throw new Exception();
         }
 
         public BuildFailureInfo GetBuildFailureInfo(BuildId id)
