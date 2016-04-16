@@ -16,18 +16,12 @@ namespace Dashboard.Controllers
 {
     public class BuildsController : Controller
     {
-        private readonly CloudStorageAccount _storageAccount;
-        private readonly CloudTable _buildFailureTable;
-        private readonly CloudTable _buildProcessedTable;
+        private readonly DashboardStorage _storage;
 
         public BuildsController()
         {
             var connectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
-            _storageAccount = CloudStorageAccount.Parse(connectionString);
-
-            var tableClient = _storageAccount.CreateCloudTableClient();
-            _buildFailureTable = tableClient.GetTableReference(AzureConstants.TableNameBuildFailure);
-            _buildProcessedTable = tableClient.GetTableReference(AzureConstants.TableNameBuildProcessed);
+            _storage = new DashboardStorage(connectionString);
         }
 
         /// <summary>
@@ -35,10 +29,8 @@ namespace Dashboard.Controllers
         /// </summary>
         public ActionResult Index(bool pr = false, DateTime? startDate = null, int limit = 10)
         {
-            var startDateValue = GetStartDateValue(startDate);
-            var query = new TableQuery<BuildFailureEntity>().Where(GenerateFilterBuildFailureDate(startDateValue));
-
-            var failureQuery = _buildFailureTable.ExecuteQuery(query)
+            var startDateValue = _storage.GetStartDateValue(startDate);
+            var failureQuery = _storage.GetBuildFailureEntities(startDateValue)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.BuildId.JobName))
                 .GroupBy(x => x.RowKey)
                 .Select(x => new { Key = x.Key, Count = x.Count() })
@@ -70,13 +62,7 @@ namespace Dashboard.Controllers
         /// </summary>
         public ActionResult Failure(string name = null, bool pr = true, DateTime? startDate = null)
         {
-            var startDateValue = GetStartDateValue(startDate);
-            var dateFilter = GenerateFilterBuildFailureDate(startDateValue);
-            var rowFilter = TableQuery.GenerateFilterCondition(
-                nameof(TableEntity.RowKey),
-                QueryComparisons.Equal,
-                name);
-            var query = new TableQuery<BuildFailureEntity>().Where(TableQuery.CombineFilters(rowFilter, TableOperators.And, dateFilter));
+            var startDateValue = _storage.GetStartDateValue(startDate);
             var model = new BuildFailureModel()
             {
                 Name = name,
@@ -84,7 +70,7 @@ namespace Dashboard.Controllers
                 StartDate = startDateValue
             };
 
-            foreach (var entity in _buildFailureTable.ExecuteQuery(query))
+            foreach (var entity in _storage.GetBuildFailureEntities(name, startDateValue))
             {
                 var buildId = entity.BuildId;
                 if (!pr && JobUtil.IsPullRequestJobName(buildId.JobName))
@@ -96,17 +82,6 @@ namespace Dashboard.Controllers
             }
 
             return View(viewName: "Failure", model: model);
-        }
-
-        private static DateTime GetStartDateValue(DateTime? startDate)
-        {
-            return startDate?.ToUniversalTime().Date ?? DateTime.UtcNow.Date - TimeSpan.FromDays(1);
-        }
-
-        private static string GenerateFilterBuildFailureDate(DateTime startDate)
-        {
-            Debug.Assert(startDate.Kind == DateTimeKind.Utc);
-            return TableQuery.GenerateFilterConditionForDate(nameof(BuildFailureEntity.BuildDate), QueryComparisons.GreaterThanOrEqual, new DateTimeOffset(startDate));
         }
     }
 }

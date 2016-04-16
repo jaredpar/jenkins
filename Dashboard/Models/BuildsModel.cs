@@ -1,5 +1,6 @@
 ﻿using Dashboard.Azure;
 using Dashboard.Jenkins;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,5 +28,25 @@ namespace Dashboard.Models
         public bool IncludePullRequests { get; set; }
         public DateTime StartDate { get; set; }
         public List<BuildFailureEntity> Builds { get; } = new List<BuildFailureEntity>();
+    }
+
+    public class TestFailureData
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        [JsonProperty("totalFailures")]
+        public int TotalFailures { get; set; }
+        [JsonProperty("pullRequestFailures")]
+        public int PullRequestFailures { get; set; }
+        [JsonProperty("commitFailures")]
+        public int CommitFailures { get; set; }
+    }
+
+    public class BuildFailureData
+    {
+        public string JobName { get; set; }
+        public string JobShortName { get; set; }
+        public string JobUri { get; set; }
+        public DateTime DateTime { get; set; }
     }
 }

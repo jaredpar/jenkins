@@ -20,6 +20,7 @@ namespace Dashboard.Azure
         public DateTime BuildDate { get; set; }
         public string Extra { get; set; }
 
+        public string Identifier => RowKey;
         public BuildId BuildId => ParseBuildId();
         public BuildFailureKind Kind => (BuildFailureKind)Enum.Parse(typeof(BuildFailureKind), KindRaw);
 
