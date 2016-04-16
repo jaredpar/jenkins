@@ -36,9 +36,11 @@ namespace Dashboard.Models
         public int TotalFailures { get; set; }
         public int PullRequestFailures { get; set; }
         public int CommitFailures { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public List<BuildData> Builds { get; set; }
     }
 
-    public class BuildFailureData
+    public class BuildData
     {
         public string JobName { get; set; }
         public string JobShortName { get; set; }

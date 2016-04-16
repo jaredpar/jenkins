@@ -30,11 +30,6 @@ namespace Dashboard.Jenkins
             return $"{GetJobIdPath(id.Parent)}/job/{id.ShortName}";
         }
 
-        public static string GetJobPath(string jobName)
-        {
-            return $"job/{jobName}";
-        }
-
         public static string GetBuildPath(BuildId id)
         {
             return $"job/{id.JobName}/{id.Id}/";

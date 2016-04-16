@@ -17,7 +17,6 @@ namespace Dashboard.Helpers
         /// <summary>
         /// Interceptor that parses the query string and pretty prints 
         /// </summary>
-        /// <param name="actionExecutedContext"></param>
         public override void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
         {
             JsonMediaTypeFormatter jsonFormatter = actionExecutedContext.ActionContext.RequestContext.Configuration.Formatters.JsonFormatter;
