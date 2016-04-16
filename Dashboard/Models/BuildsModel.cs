@@ -32,13 +32,9 @@ namespace Dashboard.Models
 
     public class TestFailureData
     {
-        [JsonProperty("name")]
         public string Name { get; set; }
-        [JsonProperty("totalFailures")]
         public int TotalFailures { get; set; }
-        [JsonProperty("pullRequestFailures")]
         public int PullRequestFailures { get; set; }
-        [JsonProperty("commitFailures")]
         public int CommitFailures { get; set; }
     }
 

@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using Dashboard.Helpers;
+using System.Web;
 using System.Web.Mvc;
 
 namespace Dashboard

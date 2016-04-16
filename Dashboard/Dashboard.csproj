@@ -225,6 +225,7 @@
     </Compile>
     <Compile Include="Helpers\DashboardController.cs" />
     <Compile Include="Helpers\Extensions.cs" />
+    <Compile Include="Helpers\PrettyPrintAttribute.cs" />
     <Compile Include="Models\BuildsModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\QueueModel.cs" />
