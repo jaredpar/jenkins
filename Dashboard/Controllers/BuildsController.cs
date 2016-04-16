@@ -39,7 +39,7 @@ namespace Dashboard.Controllers
             var query = new TableQuery<BuildFailureEntity>().Where(GenerateFilterBuildFailureDate(startDateValue));
 
             var failureQuery = _buildFailureTable.ExecuteQuery(query)
-                .Where(x => pr || !RoslynClient.IsPullRequestJobName(x.BuildId.JobName))
+                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.BuildId.JobName))
                 .GroupBy(x => x.RowKey)
                 .Select(x => new { Key = x.Key, Count = x.Count() })
                 .OrderByDescending(x => x.Count)
@@ -87,7 +87,7 @@ namespace Dashboard.Controllers
             foreach (var entity in _buildFailureTable.ExecuteQuery(query))
             {
                 var buildId = entity.BuildId;
-                if (!pr && RoslynClient.IsPullRequestJobName(buildId.JobName))
+                if (!pr && JobUtil.IsPullRequestJobName(buildId.JobName))
                 {
                     continue;
                 }

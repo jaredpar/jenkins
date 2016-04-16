@@ -56,7 +56,7 @@ namespace Dashboard.Controllers
         public ActionResult Waiting()
         {
             var minimumCount = Request.GetParamInt("minimum", defaultValue: 3);
-            var groups = CreateRoslynClient().Client
+            var groups = CreateJenkinsClient()
                 .GetQueuedItemInfoList()
                 .Where(x => x.PullRequestInfo != null)
                 .GroupBy(x => x.JobId.Name)
@@ -91,7 +91,7 @@ namespace Dashboard.Controllers
 
         private JobSummary GetJobDaySummary(JobId jobId)
         {
-            var client = CreateRoslynClient().Client;
+            var client = CreateJenkinsClient();
             var all = client.GetBuildInfoList(jobId).Where(x => x.State != BuildState.Running);
             var list = new List<JobDaySummary>();
             foreach (var group in all.GroupBy(x => x.Date.Date))
@@ -121,8 +121,8 @@ namespace Dashboard.Controllers
 
         private ActionResult GetQueueJobList()
         {
-            var client = CreateRoslynClient();
-            var list = client.GetJobNames();
+            var client = CreateJenkinsClient();
+            var list = client.GetJobIds().Select(x => x.Name).ToList();
             return View(viewName: "QueueJobList", model: list);
         }
 
@@ -152,8 +152,7 @@ namespace Dashboard.Controllers
         private List<JobQueueSummary> GetJobSummaryList(JobId jobId, int count)
         {
             var list = new List<JobQueueSummary>();
-            var roslynClient = CreateRoslynClient();
-            var client = roslynClient.Client;
+            var client = CreateJenkinsClient();
 
             foreach (var id in client.GetBuildIds(jobId).Take(count))
             {
@@ -163,7 +162,7 @@ namespace Dashboard.Controllers
                     continue;
                 }
 
-                var time = roslynClient.GetTimeInQueue(id);
+                var time = client.GetTimeInQueue(id);
                 if (time.HasValue)
                 {
                     var summary = new JobQueueSummary()

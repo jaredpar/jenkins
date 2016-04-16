@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using RestSharp.Authenticators;
 
-namespace ApiFun
+namespace Dashboard.ApiFun
 {
     internal static class Program
     {
@@ -39,28 +39,28 @@ namespace ApiFun
             */
         }
 
-        private static RoslynClient CreateClient(bool auth = true)
+        private static JenkinsClient CreateClient(bool auth = true)
         {
             try
             {
                 var text = File.ReadAllLines(@"c:\users\jaredpar\jenkins.txt")[0].Trim();
                 if (string.IsNullOrEmpty(text) || !auth)
                 {
-                    return new RoslynClient();
+                    return new JenkinsClient(SharedConstants.DotnetJenkinsUri);
                 }
 
                 var values = text.Split(':');
-                return new RoslynClient(values[0], values[1]);
+                return new JenkinsClient(SharedConstants.DotnetJenkinsUri, values[0], values[1]);
             }
             catch
             {
-                return new RoslynClient();
+                return new JenkinsClient(SharedConstants.DotnetJenkinsUri);
             }
         }
 
         private static void PrintJobs()
         {
-            var client = CreateClient(auth: false).Client;
+            var client = CreateClient(auth: false);
             PrintJobs(client, JobId.Root, "");
         }
 
@@ -79,14 +79,14 @@ namespace ApiFun
 
         private static void PrintFailure()
         {
-            var client = CreateClient(auth: false).Client;
+            var client = CreateClient(auth: false);
             var info = client.GetBuildFailureInfo(new BuildId(id: 6066, jobId: JobId.ParseName("roslyn_prtest_win_dbg_unit64")));
             Console.WriteLine(info.Category);
         }
 
         private static void PrintViews()
         {
-            foreach (var viewInfo in CreateClient().Client.GetViews())
+            foreach (var viewInfo in CreateClient().GetViews())
             {
                 Console.WriteLine($"{viewInfo.Name} {viewInfo.Url}");
             }
@@ -94,7 +94,7 @@ namespace ApiFun
 
         private static void PrintQueue()
         {
-            var client = CreateClient().Client;
+            var client = CreateClient();
             foreach (var cur in client.GetQueuedItemInfoList())
             {
                 Console.WriteLine($"{cur.JobId} {cur.Id} {cur.PullRequestInfo?.PullUrl ?? ""}");
@@ -103,7 +103,7 @@ namespace ApiFun
 
         private static void PrintPullRequestData()
         {
-            var client = CreateClient().Client;
+            var client = CreateClient();
             var list = new List<Tuple<DateTime, BuildId>>();
             foreach (var jobId in client.GetJobIdsInView("Roslyn").Where(x => x.Name.Contains("prtest")).Where(x => !x.Name.Contains("internal")))
             {
@@ -132,7 +132,7 @@ namespace ApiFun
         /// </summary>
         private static void PrintMacTimes()
         {
-            var client = CreateClient().Client;
+            var client = CreateClient();
             var miniTimes = new List<TimeSpan>();
             var proTimes = new List<TimeSpan>();
 
@@ -165,11 +165,11 @@ namespace ApiFun
         {
             var list = new List<int>();
             var client = CreateClient();
-            foreach (var buildId in client.Client.GetBuildIds(new JobId("roslyn_prtest_mac_dbg_unit32", JobId.Root)))
+            foreach (var buildId in client.GetBuildIds(new JobId("roslyn_prtest_mac_dbg_unit32", JobId.Root)))
             {
                 Console.WriteLine($"Processing {buildId.Id}");
 
-                var state = client.Client.GetBuildInfo(buildId).State;
+                var state = client.GetBuildInfo(buildId).State;
                 if (state == BuildState.Running)
                 {
                     continue;
@@ -196,20 +196,10 @@ namespace ApiFun
             Console.WriteLine($"Jobs < 30 min in queue: {list.Select(x => TimeSpan.FromMilliseconds(x)).Where(x => x < TimeSpan.FromMinutes(30)).Count()}");
         }
 
-        private static void PrintJobNames()
-        {
-            var client = CreateClient();
-            foreach (var name in client.GetJobNames().Concat(client.Client.GetJobIdsInView("roslyn-internal").Select(x => x.Name)))
-            {
-                Console.WriteLine(name);
-            }
-        }
-
         private static void PrintJobInfo()
         {
-            var roslynClient = CreateClient();
-            var client = roslynClient.Client;
-            foreach (var jobId in roslynClient.GetJobIds())
+            var client = CreateClient();
+            foreach (var jobId in client.GetJobIds())
             {
                 Console.WriteLine($"{jobId.Name}");
                 foreach (var id in client.GetBuildIds(jobId))
@@ -229,7 +219,7 @@ namespace ApiFun
 
         private static void Random()
         {
-            var client = new RoslynClient().Client;
+            var client = CreateClient();
             var list = client.GetQueuedItemInfoList();
 
             var query = list
@@ -402,14 +392,12 @@ namespace ApiFun
 
     internal sealed class MachineCountInvestigation
     {
-        private readonly RoslynClient _roslynClient;
         private readonly JenkinsClient _client;
         private readonly Dictionary<string, OS> _computerNameMap = new Dictionary<string, OS>();
 
-        internal MachineCountInvestigation(RoslynClient roslynClient)
+        internal MachineCountInvestigation(JenkinsClient client)
         {
-            _roslynClient = roslynClient;
-            _client = roslynClient.Client;
+            _client = client;
             BuildComputerNameMap();
         }
 
@@ -456,7 +444,7 @@ namespace ApiFun
                     continue;
                 }
 
-                var queueTime = _roslynClient.GetTimeInQueue(buildId);
+                var queueTime = _client.GetTimeInQueue(buildId);
                 if (!queueTime.HasValue)
                 {
                     continue;
@@ -498,7 +486,7 @@ namespace ApiFun
                     continue;
                 }
 
-                var queueTime = _roslynClient.GetTimeInQueue(buildId);
+                var queueTime = _client.GetTimeInQueue(buildId);
                 if (!queueTime.HasValue)
                 {
                     continue;

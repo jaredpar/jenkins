@@ -159,6 +159,24 @@ namespace Dashboard.Jenkins
             return testCaseList;
         }
 
+        /// <summary>
+        /// Parse out the time a given build spent in the queue.  This is available in the JSON
+        /// for a build under the "actions" section.
+        /// </summary>
+        internal static TimeSpan? ParseTimeInQueue(JArray actions)
+        {
+            foreach (var cur in actions)
+            {
+                var value = cur.Value<int?>("queuingDurationMillis");
+                if (value.HasValue)
+                {
+                    return TimeSpan.FromMilliseconds(value.Value);
+                }
+            }
+
+            return null;
+        }
+
         private static BuildState ParseBuildInfoState(JObject build)
         {
             var result = build.Property("result");

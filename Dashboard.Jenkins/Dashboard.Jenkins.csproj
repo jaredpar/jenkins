@@ -54,7 +54,7 @@
     <Compile Include="JenkinsClient.cs" />
     <Compile Include="JobId.cs" />
     <Compile Include="JobInfo.cs" />
-    <Compile Include="RoslynClient.cs" />
+    <Compile Include="JobUtil.cs" />
     <Compile Include="JsonUtil.cs" />
     <Compile Include="JsonTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

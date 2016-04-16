@@ -17,17 +17,15 @@ namespace JenkinsJobs
 
         private readonly CloudTable _buildProcessedTable;
         private readonly CloudTable _buildFailureTable;
-        private readonly RoslynClient _roslynClient;
-        private readonly JenkinsClient _jenkinsClient;
+        private readonly JenkinsClient _client;
         private readonly TextWriter _textWriter;
 
         // TODO: consider the impact of parallel runs of this job run.  Perhaps just disallow for now.
-        internal JobTableUtil(CloudTable buildProcessedTable, CloudTable buildFailureTable, RoslynClient roslynClient, TextWriter textWriter)
+        internal JobTableUtil(CloudTable buildProcessedTable, CloudTable buildFailureTable, JenkinsClient client, TextWriter textWriter)
         {
             _buildProcessedTable = buildProcessedTable;
             _buildFailureTable = buildFailureTable;
-            _roslynClient = roslynClient;
-            _jenkinsClient = _roslynClient.Client;
+            _client = client;
             _textWriter = textWriter;
         }
 
@@ -55,9 +53,9 @@ namespace JenkinsJobs
 
         internal async Task Populate()
         {
-            foreach (var jobId in _roslynClient.GetJobIds())
+            foreach (var jobId in _client.GetJobIds())
             {
-                var buildIdList = _jenkinsClient.GetBuildIds(jobId);
+                var buildIdList = _client.GetBuildIds(jobId);
                 await PopulateBuildIds(jobId, buildIdList);
             }
         }
@@ -116,7 +114,7 @@ namespace JenkinsJobs
         /// </summary>
         private async Task<BuildProcessedEntity> PopulateBuildId(BuildId buildId)
         {
-            var buildResult = _jenkinsClient.GetBuildResult(buildId);
+            var buildResult = _client.GetBuildResult(buildId);
             BuildResultKind kind;
             switch (buildResult.State)
             {
@@ -166,7 +164,7 @@ namespace JenkinsJobs
 
         private Task PopulateUnitTestFailure(BuildId buildId, DateTime buildDate)
         {
-            var testCaseNames = _jenkinsClient.GetFailedTestCases(buildId);
+            var testCaseNames = _client.GetFailedTestCases(buildId);
             var entityList = testCaseNames
                 .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildId, x, buildDate))
                 .ToList();

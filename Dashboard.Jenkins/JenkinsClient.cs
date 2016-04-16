@@ -219,6 +219,18 @@ namespace Dashboard.Jenkins
             return JsonUtil.ParsePullRequestInfo((JArray)data["actions"]);
         }
 
+        public TimeSpan? GetTimeInQueue(BuildId id)
+        {
+            var data = GetJson(JenkinsUtil.GetBuildPath(id), tree: "actions[*]");
+            return JsonUtil.ParseTimeInQueue((JArray)data["actions"]);
+        }
+
+        public async Task<TimeSpan?> GetTimeInQueueAsync(BuildId id)
+        {
+            var data = await GetJsonAsync(JenkinsUtil.GetBuildPath(id), tree: "actions[*]");
+            return JsonUtil.ParseTimeInQueue((JArray)data["actions"]);
+        }
+
         public string GetConsoleText(BuildId id)
         {
             var uri = JenkinsUtil.GetUri(_baseUrl, JenkinsUtil.GetConsoleTextPath(id));
