@@ -91,6 +91,7 @@ namespace Dashboard.Controllers
                     JobName = jobId.Name,
                     JobShortName = jobId.ShortName,
                     JobUri = JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, JenkinsUtil.GetJobIdPath(jobId)).ToString(),
+                    MachineName = entity.MachineName,
                     DateTime = startDateValue,
                 };
 

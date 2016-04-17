@@ -53,7 +53,7 @@ namespace JenkinsJobs
 
         internal async Task Populate()
         {
-            foreach (var jobId in _client.GetJobIds())
+            foreach (var jobId in _client.GetJobIdsInView("Roslyn"))
             {
                 var buildIdList = _client.GetBuildIds(jobId);
                 await PopulateBuildIds(jobId, buildIdList);
@@ -75,6 +75,7 @@ namespace JenkinsJobs
                     oldEntity.Kind != BuildResultKind.Running &&
                     oldEntity.Kind != BuildResultKind.UnknownFailure)
                 {
+                    _textWriter.WriteLine($"{buildId.JobName} - {buildId.Id}: already processed {oldEntity.Kind}");
                     continue;
                 }
 
@@ -154,7 +155,7 @@ namespace JenkinsJobs
                 case BuildFailureCategory.MergeConflict:
                     return BuildResultKind.MergeConflict;
                 case BuildFailureCategory.TestCase:
-                    await PopulateUnitTestFailure(buildId, buildResult.BuildInfo.Date);
+                    await PopulateUnitTestFailure(buildId, buildResult.BuildInfo);
                     return BuildResultKind.UnitTestFailure;
 
                 default:
@@ -162,11 +163,11 @@ namespace JenkinsJobs
             }
         }
 
-        private Task PopulateUnitTestFailure(BuildId buildId, DateTime buildDate)
+        private Task PopulateUnitTestFailure(BuildId buildId, BuildInfo buildInfo)
         {
             var testCaseNames = _client.GetFailedTestCases(buildId);
             var entityList = testCaseNames
-                .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildId, x, buildDate))
+                .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildId, x, buildInfo.Date, buildInfo.MachineName))
                 .ToList();
             return InsertBatch(_buildFailureTable, entityList);
         }

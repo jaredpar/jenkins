@@ -13,13 +13,15 @@ namespace Dashboard.Jenkins
         public BuildState State { get; }
         public DateTime Date { get; }
         public TimeSpan Duration { get; }
+        public string MachineName { get; }
 
-        public BuildInfo(BuildId id, BuildState state, DateTime date, TimeSpan duration)
+        public BuildInfo(BuildId id, BuildState state, DateTime date, TimeSpan duration, string machineName)
         {
             Id = id;
             State = state;
             Date = date;
             Duration = duration;
+            MachineName = machineName;
         }
 
         public override string ToString()

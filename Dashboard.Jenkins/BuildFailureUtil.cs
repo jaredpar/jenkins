@@ -90,12 +90,12 @@ namespace Dashboard.Jenkins
         private static string GetCategoryRaw(JObject causeItem)
         {
             var items = (JArray)causeItem["categories"];
-            if (items.Count == 0)
+            if (items == null || items.Count == 0)
             {
-                return null;
+                return "";
             }
 
-            return items[0].Value<string>();
+            return items[0].Value<string>() ?? "";
         }
 
         /// <summary>

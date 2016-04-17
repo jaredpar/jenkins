@@ -75,13 +75,13 @@ namespace Dashboard.Jenkins
         public List<BuildId> GetBuildIds(JobId jobId)
         {
             var data = GetJson(JenkinsUtil.GetJobIdPath(jobId));
-            return JsonUtil.ParseBuilds(jobId, (JArray)data["jobs"] ?? new JArray());
+            return JsonUtil.ParseBuilds(jobId, (JArray)data["builds"] ?? new JArray());
         }
 
         public async Task<List<BuildId>> GetBuildIdsAsync(JobId jobId)
         {
             var data = await GetJsonAsync(JenkinsUtil.GetJobIdPath(jobId));
-            return JsonUtil.ParseBuilds(jobId, (JArray)data["jobs"] ?? new JArray());
+            return JsonUtil.ParseBuilds(jobId, (JArray)data["builds"] ?? new JArray());
         }
 
         public BuildInfo GetBuildInfo(BuildId id)

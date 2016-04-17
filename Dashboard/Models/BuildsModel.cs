@@ -45,6 +45,7 @@ namespace Dashboard.Models
         public string JobName { get; set; }
         public string JobShortName { get; set; }
         public string JobUri { get; set; }
+        public string MachineName { get; set; }
         public DateTime DateTime { get; set; }
     }
 }

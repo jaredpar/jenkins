@@ -12,8 +12,8 @@ namespace Dashboard.Jenkins
 {
     internal static class JsonUtil
     {
-        internal const string BuildInfoTreeFilter = "result,id,duration,timestamp";
-        internal const string BuildInfoListTreeFilter = "builds[result,id,duration,timestamp]";
+        internal const string BuildInfoTreeFilter = "result,id,duration,timestamp,builtOn";
+        internal const string BuildInfoListTreeFilter = "builds[result,id,duration,timestamp,builtOn]";
 
         /// <summary>
         /// Parse out a <see cref="JobInfo"/> from the JSON data from the "builds" and "jobs" arrays.
@@ -59,7 +59,8 @@ namespace Dashboard.Jenkins
             var state = ParseBuildInfoState(build);
             var date = JenkinsUtil.ConvertTimestampToDateTime(build.Value<long>("timestamp"));
             var buildId = new BuildId(id, jobId);
-            return new BuildInfo(buildId, state, date, duration);
+            var machineName = build.Value<string>("builtOn");
+            return new BuildInfo(buildId, state, date, duration, machineName);
         }
 
         internal static List<BuildInfo> ParseBuildInfoList(JobId jobId, JObject data)

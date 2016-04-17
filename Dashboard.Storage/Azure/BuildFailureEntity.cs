@@ -19,6 +19,7 @@ namespace Dashboard.Azure
         public string KindRaw { get; set; }
         public DateTime BuildDate { get; set; }
         public string Extra { get; set; }
+        public string MachineName { get; set; }
 
         public string Identifier => RowKey;
         public BuildId BuildId => ParseBuildId();
@@ -35,10 +36,11 @@ namespace Dashboard.Azure
             BuildDate = buildDate;
         }
 
-        public static BuildFailureEntity CreateTestCaseFailure(BuildId buildId, string testCaseName, DateTime buildDate, string extra = "")
+        public static BuildFailureEntity CreateTestCaseFailure(BuildId buildId, string testCaseName, DateTime buildDate, string machineName, string extra = "")
         {
             return new BuildFailureEntity(buildId, kind: BuildFailureKind.TestCase, rowKey: testCaseName, buildDate: buildDate)
             {
+                MachineName = machineName,
                 Extra = extra
             };
         }

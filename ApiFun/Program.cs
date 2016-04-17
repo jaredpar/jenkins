@@ -28,7 +28,7 @@ namespace Dashboard.ApiFun
             // ScanAllFailedJobs();
             // PrintJobNames();
             // PrintJobInfo();
-            PrintQueue();
+            // PrintQueue();
             // PrintViews();
             // PrintPullRequestData();
             // PrintFailure();
@@ -37,6 +37,7 @@ namespace Dashboard.ApiFun
             /*
             roslyn_stabil_lin_dbg_unit32
             */
+            Random();
         }
 
         private static JenkinsClient CreateClient(bool auth = true)
@@ -57,6 +58,14 @@ namespace Dashboard.ApiFun
                 return new JenkinsClient(SharedConstants.DotnetJenkinsUri);
             }
         }
+
+        private static void Random()
+        {
+            var client = CreateClient();
+            var jobId = JobId.ParseName("dotnet_buildtools");
+            var buildIds = client.GetBuildIds(jobId);
+        }
+
 
         private static void PrintJobs()
         {
@@ -214,22 +223,6 @@ namespace Dashboard.ApiFun
                         Console.WriteLine($"\t{id} can't read data");
                     }
                 }
-            }
-        }
-
-        private static void Random()
-        {
-            var client = CreateClient();
-            var list = client.GetQueuedItemInfoList();
-
-            var query = list
-                .Where(x => x.PullRequestInfo != null)
-                .GroupBy(x => x.PullRequestInfo.PullUrl)
-                .OrderByDescending(x => x.Count());
-
-            foreach (var pr in query)
-            {
-                Console.WriteLine($"{pr.Key} {pr.First().PullRequestInfo.AuthorEmail} {pr.Count()}");
             }
         }
 
