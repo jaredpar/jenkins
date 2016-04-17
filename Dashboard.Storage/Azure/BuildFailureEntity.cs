@@ -38,6 +38,7 @@ namespace Dashboard.Azure
 
         public static BuildFailureEntity CreateTestCaseFailure(BuildId buildId, string testCaseName, DateTime buildDate, string machineName, string extra = "")
         {
+            testCaseName = DashboardStorage.NormalizeTestCaseName(testCaseName);
             return new BuildFailureEntity(buildId, kind: BuildFailureKind.TestCase, rowKey: testCaseName, buildDate: buildDate)
             {
                 MachineName = machineName,

@@ -24,6 +24,11 @@ namespace Dashboard.Azure
             _buildProcessedTable = tableClient.GetTableReference(AzureConstants.TableNameBuildProcessed);
         }
 
+        public static string NormalizeTestCaseName(string testCaseName)
+        {
+            return AzureUtil.NormalizeKey(testCaseName, '_');
+        }
+
         public IEnumerable<BuildFailureEntity> GetBuildFailureEntities(DateTime? startDate = null)
         { 
             var startDateValue = GetStartDateValue(startDate);
@@ -36,6 +41,7 @@ namespace Dashboard.Azure
         /// </summary>
         public IEnumerable<BuildFailureEntity> GetBuildFailureEntities(string name, DateTime? startDate = null)
         {
+            name = NormalizeTestCaseName(name);
             var startDateValue = GetStartDateValue(startDate);
             var dateFilter = GenerateFilterBuildFailureDate(startDateValue);
             var rowFilter = TableQuery.GenerateFilterCondition(

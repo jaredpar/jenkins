@@ -10,6 +10,7 @@ using Dashboard.Jenkins;
 using System.Diagnostics;
 using System.IO;
 using RestSharp.Authenticators;
+using System.Configuration;
 
 namespace Dashboard.ApiFun
 {
@@ -44,7 +45,7 @@ namespace Dashboard.ApiFun
         {
             try
             {
-                var text = File.ReadAllLines(@"c:\users\jaredpar\jenkins.txt")[0].Trim();
+                var text = ConfigurationManager.AppSettings[SharedConstants.GithubConnectionStringName];
                 if (string.IsNullOrEmpty(text) || !auth)
                 {
                     return new JenkinsClient(SharedConstants.DotnetJenkinsUri);
@@ -61,11 +62,32 @@ namespace Dashboard.ApiFun
 
         private static void Random()
         {
-            var client = CreateClient();
-            var jobId = JobId.ParseName("dotnet_buildtools");
-            var buildIds = client.GetBuildIds(jobId);
-        }
+            var client = CreateClient(auth: true);
+            foreach (var jobId in client.GetJobIdsInView("Roslyn"))
+            {
+                if (!jobId.Name.Contains("_eta"))
+                {
+                    continue;
+                }
 
+                foreach (var buildId in client.GetBuildIds(jobId))
+                {
+                    try
+                    {
+                        var buildResult = client.GetBuildResult(buildId);
+                        if (buildResult.Failed)
+                        {
+                            var info = client.GetBuildFailureInfo(buildId);
+                            Console.WriteLine(info.Category);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Cannot process {buildId}: {ex.Message}");
+                    }
+                }
+            }
+        }
 
         private static void PrintJobs()
         {

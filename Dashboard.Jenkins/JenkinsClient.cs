@@ -123,22 +123,20 @@ namespace Dashboard.Jenkins
             return JsonUtil.ParseJobInfo(id, json);
         }
 
-        public BuildResult GetBuildResult(BuildId id)
+        public BuildResult GetBuildResult(BuildInfo buildInfo)
         {
-            var data = GetJson(JenkinsUtil.GetBuildPath(id));
-            var buildInfo = JsonUtil.ParseBuildInfo(id.JobId, data);
+            var data = GetJson(JenkinsUtil.GetBuildPath(buildInfo.Id));
             var failureInfo = buildInfo.State == BuildState.Failed
-                ? GetBuildFailureInfo(id)
+                ? GetBuildFailureInfo(buildInfo.Id)
                 : null;
             return new BuildResult(buildInfo, failureInfo);
         }
 
-        public async Task<BuildResult> GetBuildResultAsync(BuildId id)
+        public async Task<BuildResult> GetBuildResultAsync(BuildInfo buildInfo)
         {
-            var data = await GetJsonAsync(JenkinsUtil.GetBuildPath(id));
-            var buildInfo = JsonUtil.ParseBuildInfo(id.JobId, data);
+            var data = await GetJsonAsync(JenkinsUtil.GetBuildPath(buildInfo.Id));
             var failureInfo = buildInfo.State == BuildState.Failed
-                ? await GetBuildFailureInfoAsync(id)
+                ? await GetBuildFailureInfoAsync(buildInfo.Id)
                 : null;
             return new BuildResult(buildInfo, failureInfo);
         }

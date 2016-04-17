@@ -19,6 +19,9 @@ namespace JenkinsJobs
         private readonly CloudTable _buildFailureTable;
         private readonly JenkinsClient _client;
         private readonly TextWriter _textWriter;
+        private readonly List<BuildAnalyzeError> _buildAnalyzeErrors = new List<BuildAnalyzeError>();
+
+        internal List<BuildAnalyzeError> BuildAnalyzeErrors => _buildAnalyzeErrors;
 
         // TODO: consider the impact of parallel runs of this job run.  Perhaps just disallow for now.
         internal JobTableUtil(CloudTable buildProcessedTable, CloudTable buildFailureTable, JenkinsClient client, TextWriter textWriter)
@@ -47,14 +50,17 @@ namespace JenkinsJobs
                 entity.KindRaw = BuildResultKind.IgnoredFailure.ToString();
                 var operation = TableOperation.Replace(entity);
                 await _buildProcessedTable.ExecuteAsync(operation);
-                _textWriter.WriteLine($"{entity.BuildId.JobName} - {entity.BuildId.Id} moved to ignored");
+                WriteLine(entity.BuildId, "moved to ignored");
             }
         }
 
         internal async Task Populate()
         {
+            _buildAnalyzeErrors.Clear();
+
             foreach (var jobId in _client.GetJobIdsInView("Roslyn"))
             {
+                _textWriter.WriteLine($"Processing {jobId.Name}");
                 var buildIdList = _client.GetBuildIds(jobId);
                 await PopulateBuildIds(jobId, buildIdList);
             }
@@ -71,34 +77,44 @@ namespace JenkinsJobs
                 // the job previously had an unknown failure or was listed as running.  In either case it needs
                 // to be reprocessed to see if we can identify the failure.
                 var oldEntity = oldProcessedList.FirstOrDefault(x => x.BuildId.Id == buildId.Id);
-                if (oldEntity != null &&
-                    oldEntity.Kind != BuildResultKind.Running &&
-                    oldEntity.Kind != BuildResultKind.UnknownFailure)
+                if (oldEntity != null && !ShouldProcessExisting(oldEntity.Kind))
                 {
-                    _textWriter.WriteLine($"{buildId.JobName} - {buildId.Id}: already processed {oldEntity.Kind}");
                     continue;
                 }
 
                 try
                 {
-                    var entity = await PopulateBuildId(buildId);
+                    var entity = await GetBuildFailureEntity(buildId);
 
                     if (oldEntity != null && entity.Kind == oldEntity.Kind)
                     {
-                        _textWriter.WriteLine($"{buildId.JobName} - {buildId.Id}: still in state {entity.Kind}");
+                        WriteLine(buildId, $"still in state {entity.Kind}");
                         continue;
                     }
 
-                    _textWriter.WriteLine($"{buildId.JobName} - {buildId.Id}: adding reason {entity.Kind}");
+                    WriteLine(buildId, $"adding reason {entity.Kind}");
                     newProcessedList.Add(entity);
                 }
                 catch (Exception ex)
                 {
-                    _textWriter.WriteLine($"{buildId.JobName} - {buildId.Id} error processing: {ex.Message}");
+                    WriteLine(buildId, $"error processing {ex.Message}");
+                    _buildAnalyzeErrors.Add(new BuildAnalyzeError(buildId, ex));
                 }
             }
 
             await InsertBatch(_buildProcessedTable, newProcessedList);
+        }
+
+        /// <summary>
+        /// Should a build which was previously processed with the specified result be processed 
+        /// again? 
+        /// </summary>
+        private static bool ShouldProcessExisting(BuildResultKind kind)
+        {
+            return
+                kind == BuildResultKind.Running ||
+                kind == BuildResultKind.UnknownFailure ||
+                kind == BuildResultKind.AnalyzeError;
         }
 
         private List<BuildProcessedEntity> GetBuildProcessedList(JobId id)
@@ -113,11 +129,11 @@ namespace JenkinsJobs
         /// <summary>
         /// Update the table storage to contain the result of the specified build.
         /// </summary>
-        private async Task<BuildProcessedEntity> PopulateBuildId(BuildId buildId)
+        private async Task<BuildProcessedEntity> GetBuildFailureEntity(BuildId id)
         {
-            var buildResult = _client.GetBuildResult(buildId);
+            var buildInfo = _client.GetBuildInfo(id); 
             BuildResultKind kind;
-            switch (buildResult.State)
+            switch (buildInfo.State)
             {
                 case BuildState.Succeeded:
                     kind = BuildResultKind.Succeeded;
@@ -126,21 +142,33 @@ namespace JenkinsJobs
                     kind = BuildResultKind.Aborted;
                     break;
                 case BuildState.Failed:
-                    kind = await PopulateFailedBuildResult(buildResult);
+                    kind = await PopulateFailedBuildResult(buildInfo);
                     break;
                 case BuildState.Running:
                     kind = BuildResultKind.Running;
                     break;
                 default:
-                    throw new Exception($"Invalid enum: {buildResult.State} for {buildId.JobName} - {buildId.Id}");
+                    throw new Exception($"Invalid enum: {buildInfo.State} for {id.JobName} - {id.Id}");
             }
 
-            return new BuildProcessedEntity(buildId, buildResult.BuildInfo.Date, kind);
+            return new BuildProcessedEntity(id, buildInfo.Date, kind);
         }
 
-        private async Task<BuildResultKind> PopulateFailedBuildResult(BuildResult buildResult)
+        private async Task<BuildResultKind> PopulateFailedBuildResult(BuildInfo buildInfo)
         {
-            var buildId = buildResult.BuildId;
+            var buildId = buildInfo.Id;
+            BuildResult buildResult;
+            try
+            {
+                buildResult = await _client.GetBuildResultAsync(buildInfo);
+            }
+            catch (Exception ex)
+            {
+                WriteLine(buildId, $"error getting build result {ex.Message}");
+                _buildAnalyzeErrors.Add(new BuildAnalyzeError(buildId, ex));
+                return BuildResultKind.AnalyzeError;
+            }
+
             var category = buildResult.FailureInfo?.Category ?? BuildFailureCategory.Unknown;
             switch (category)
             {
@@ -157,7 +185,6 @@ namespace JenkinsJobs
                 case BuildFailureCategory.TestCase:
                     await PopulateUnitTestFailure(buildId, buildResult.BuildInfo);
                     return BuildResultKind.UnitTestFailure;
-
                 default:
                     throw new Exception($"Invalid enum value: {category}");
             }
@@ -170,6 +197,11 @@ namespace JenkinsJobs
                 .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildId, x, buildInfo.Date, buildInfo.MachineName))
                 .ToList();
             return InsertBatch(_buildFailureTable, entityList);
+        }
+
+        private void WriteLine(BuildId buildId, string message)
+        {
+            _textWriter.WriteLine($"{buildId.JobName} - {buildId.Id}: {message}");
         }
 
         /// <summary>

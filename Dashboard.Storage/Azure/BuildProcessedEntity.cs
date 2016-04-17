@@ -15,12 +15,21 @@ namespace Dashboard.Azure
         Running,
 
         /// <summary>
+        /// There was an error analyzing the build.
+        /// </summary>
+        AnalyzeError,
+
+        /// <summary>
         /// An unknown failure which was not resolved in a specific time period will 
         /// transition to the ignored state.  At this point the web job will no longer 
         /// attempt to find a reason for it.
         /// </summary>
         IgnoredFailure,
 
+        /// <summary>
+        /// Jenkins has not established a cause for this failure.  The code was able to 
+        /// process the build correctly, Jenkins is just lacking data.
+        /// </summary>
         UnknownFailure,
         UnitTestFailure,
         NuGetFailure,
