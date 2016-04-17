@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JenkinsJobs
+namespace Dashboard.StorageBuilder
 {
     public struct BuildAnalyzeError
     {

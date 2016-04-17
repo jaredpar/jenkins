@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JenkinsJobs
+namespace Dashboard.StorageBuilder
 {
     internal sealed class JobTableUtil
     {
@@ -131,7 +131,7 @@ namespace JenkinsJobs
         /// </summary>
         private async Task<BuildProcessedEntity> GetBuildFailureEntity(BuildId id)
         {
-            var buildInfo = _client.GetBuildInfo(id); 
+            var buildInfo = _client.GetBuildInfo(id);
             BuildResultKind kind;
             switch (buildInfo.State)
             {
@@ -196,6 +196,7 @@ namespace JenkinsJobs
             var entityList = testCaseNames
                 .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildId, x, buildInfo.Date, buildInfo.MachineName))
                 .ToList();
+            EnsureTestCaseNamesUnique(entityList);
             return InsertBatch(_buildFailureTable, entityList);
         }
 
@@ -234,6 +235,25 @@ namespace JenkinsJobs
             if (operation.Count > 0)
             {
                 await table.ExecuteBatchAsync(operation);
+            }
+        }
+
+        /// <summary>
+        /// It's possible, although technically invalid for a job to produce multiple test cases with 
+        /// the same name.  Normalize those now because our table scheme requires them to be unique. 
+        /// </summary>
+        private static void EnsureTestCaseNamesUnique(List<BuildFailureEntity> list)
+        {
+            var set = new HashSet<string>();
+            foreach (var entity in list)
+            {
+                var rowKey = entity.RowKey;
+                var suffix = 0;
+                while (!set.Add(entity.RowKey))
+                {
+                    entity.RowKey = $"{rowKey}_{suffix}";
+                    suffix++;
+                }
             }
         }
     }

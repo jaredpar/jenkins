@@ -37,7 +37,7 @@ namespace DashboardCleaner
 
             try
             {
-                var key = ConfigurationManager.AppSettings["sendgrid-api-key"];
+                var key = ConfigurationManager.AppSettings[SharedConstants.SendGridApiKeySettingName];
                 var web = new Web(apiKey: key);
                 await web.DeliverAsync(message).ConfigureAwait(false);
             }

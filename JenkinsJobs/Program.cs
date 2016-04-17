@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Azure.WebJobs;
 
-namespace JenkinsJobs
+namespace Dashboard.StorageBuilder
 {
     internal sealed class Program
     {
