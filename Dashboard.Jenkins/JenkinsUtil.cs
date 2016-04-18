@@ -47,9 +47,12 @@ namespace Dashboard.Jenkins
             return $"job/{id.JobName}/{id.Id}/";
         }
 
-        public static string GetBuildStatusIconPath(BuildId id)
+        public static Uri GetBuildStatusIconUri(Uri jenkinsUri, BuildId id)
         {
-            return $"buildStatus/icon?job={id.JobId.Name}&build={id.Id}";
+            var builder = new UriBuilder(jenkinsUri);
+            builder.Path = "buildStatus/icon";
+            builder.Query = $"job={id.JobId.Name}&build={id.Id}";
+            return builder.Uri;
         }
 
         public static string GetQueuedItemPath(int number)

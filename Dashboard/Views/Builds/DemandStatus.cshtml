@@ -15,8 +15,8 @@
     {
         var buildId = new BuildId(status.BuildNumber.Value, jobId);
         var buildLink = JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, buildId);
-        var statusLink = JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, JenkinsUtil.GetBuildStatusIconPath(buildId));
-        <li><div><a href="@jobLink">@status.JobName</a> <a href="@buildLink">@status.BuildNumber</a> <a href="@buildLink"><img src="@statusLink" /></a></div></li>
+        var statusLink = JenkinsUtil.GetBuildStatusIconUri(SharedConstants.DotnetJenkinsUri, buildId);
+        <li><div><a href="@jobLink">@status.JobName</a> <a href="@buildLink">@status.BuildNumber</a> <a href="@buildLink"><img src="@Html.Raw(statusLink)" /></a></div></li>
     }
     else
     {
