@@ -5,17 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JenkinsThis
+namespace Dashboard.JenkinsThis
 {
     internal static class Program
     {
-        // DEMAND: Use the real list
-        internal static readonly JobId[] JobIds = new[]
-        {
-            JobId.ParseName("roslyn_prtest_win_dbg_unit32"),
-            JobId.ParseName("roslyn_prtest_lin_dbg_unit32")
-        };
-
         public static void Main(string[] args)
         {
             var userName = args[0];
@@ -31,6 +24,11 @@ namespace JenkinsThis
             Uri repoUri,
             string branchName,
             string sha1)
+        {
+
+        }
+
+        private static int PosToJenkins()
         {
 
         }

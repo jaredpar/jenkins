@@ -30,9 +30,7 @@ namespace Dashboard.Jenkins
             : this(baseUrl)
         {
             var items = connectionString.Split(new[] { ':' }, count: 2);
-            var bytes = Encoding.UTF8.GetBytes($"{items[0]}:{items[1]}");
-            var encoded = Convert.ToBase64String(bytes);
-            _authorizationHeaderValue = $"Basic {encoded}";
+            _authorizationHeaderValue = SharedUtil.CreateAuthorizationHeader(items[0], items[1]);
         }
 
         public JenkinsClient(Uri baseUrl, string username, string password) 

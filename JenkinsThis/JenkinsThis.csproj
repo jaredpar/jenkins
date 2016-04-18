@@ -7,7 +7,7 @@
     <ProjectGuid>{1FCDD236-70A8-42C3-B3FC-631A4CF32351}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>JenkinsThis</RootNamespace>
+    <RootNamespace>Dashboard.JenkinsThis</RootNamespace>
     <AssemblyName>JenkinsThis</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -54,6 +54,13 @@
     <Compile Include="..\Shared\JsonTypes.cs">
       <Link>JsonTypes.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\SharedConstants.cs">
+      <Link>SharedConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\SharedUtil.cs">
+      <Link>SharedUtil.cs</Link>
+    </Compile>
+    <Compile Include="JenkinsThis.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

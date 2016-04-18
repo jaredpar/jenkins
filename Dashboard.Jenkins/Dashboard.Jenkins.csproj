@@ -49,6 +49,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\SharedUtil.cs">
+      <Link>SharedUtil.cs</Link>
+    </Compile>
     <Compile Include="BuildFailureUtil.cs" />
     <Compile Include="DataTypes.cs" />
     <Compile Include="JenkinsClient.cs" />
