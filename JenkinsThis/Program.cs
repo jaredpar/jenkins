@@ -1,6 +1,7 @@
 ﻿using Dashboard.Jenkins;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,7 +18,9 @@ namespace Dashboard.JenkinsThis
             var repoUrl = args[2];
             var branchOrCommit = args[3];
 
-            var token = File.ReadAllText(@"c:\users\jaredpar\githubtoken.txt").Trim(Environment.NewLine.ToCharArray());
+            var str = ConfigurationManager.AppSettings[SharedConstants.GithubConnectionStringName];
+            var token = str.Split(':')[1];
+
             var util = new JenkinsThisUtil(userName, token, new Uri(repoUrl), branchOrCommit);
             util.Go();
         }

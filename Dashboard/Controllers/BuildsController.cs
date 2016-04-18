@@ -87,9 +87,6 @@ namespace Dashboard.Controllers
 
         public ActionResult Demand(string userName, string commit)
         {
-            var util = new DemandUtil(_storage);
-            util.MoveQueueToCreated(userName, commit);
-
             var runStatus = new DemandRunStatusModel()
             {
                 UserName = userName,

@@ -9,7 +9,6 @@ namespace Dashboard.Azure
 {
     public enum DemandRunStatus
     {
-        Created,
         Running,
         Completed
     }
@@ -24,16 +23,16 @@ namespace Dashboard.Azure
 
         public Uri RepoUrl => new Uri(RepoUrlRaw);
         public DemandRunStatus Status => (DemandRunStatus)Enum.Parse(typeof(DemandRunStatus), StatusRaw);
-        public string Sha1 => RowKey;
+        public string Commit => RowKey;
 
         public DemandRunEntity()
         {
 
         }
 
-        public DemandRunEntity(string userName, string sha1, Uri repoUrl) : base(partitionKey: userName, rowKey: sha1)
+        public DemandRunEntity(string userName, string commit, Uri repoUrl) : base(partitionKey: userName, rowKey: commit)
         {
-            StatusRaw = DemandRunStatus.Created.ToString();
+            StatusRaw = DemandRunStatus.Running.ToString();
             RepoUrlRaw = repoUrl.ToString();
         }
     }

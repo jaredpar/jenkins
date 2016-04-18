@@ -108,29 +108,20 @@ namespace Dashboard.Controllers
 
         // DEMAND: should return the URI they can use for getting updates
         [Route("api/builds/demand")]
-        public async Task<string> CreateDemandBuild(DemandBuildModel model)
+        public async Task<string> CreateDemandBuild(DemandRunRequestModel model)
         {
-            await InsertBuilds(model);
-
-            var entity = new DemandRunEntity(model.UserName, model.BranchOrCommit, new Uri(model.RepoUrl));
-            var operation = TableOperation.Insert(entity);
-            _storage.DemandRunTable.Execute(operation);
+            var util = new DemandRunUtil(_storage);
+            await util.CreateDemandRun(
+                SharedConstants.DotnetJenkinsUri,
+                model.UserName,
+                model.Token,
+                new Uri(model.RepoUrl),
+                model.BranchOrCommit,
+                model.JobNames.Select(x => JobId.ParseName(x)).ToList());
 
             var path = $"builds/demand?userName={model.UserName}&commit={model.BranchOrCommit}";
             var uri = new Uri(SharedConstants.DashboardUri, path);
             return uri.ToString();
-        }
-
-        private async Task InsertBuilds(DemandBuildModel model)
-        {
-            var list = new List<DemandBuildEntity>();
-            foreach (var item in model.QueuedItems)
-            {
-                var entity = new DemandBuildEntity(model.UserName, model.BranchOrCommit, item.QueueItemNumber, item.JobName);
-                list.Add(entity);
-            }
-
-            await AzureUtil.InsertBatch(_storage.DemandBuildTable, list);
         }
     }
 }

@@ -50,45 +50,22 @@ namespace Dashboard.JenkinsThis
             Console.WriteLine(response.Content);
         }
 
-        private DemandBuildModel CreateModel()
-        { 
-            var model = new DemandBuildModel()
+        private DemandRunRequestModel CreateModel()
+        {
+            var model = new DemandRunRequestModel()
             {
                 UserName = _userName,
+                Token = _token,
                 RepoUrl = _repoUri.ToString(),
                 BranchOrCommit = _branchOrCommit
             };
 
             foreach (var jobId in JobIds)
             {
-                var number = PostToJenkins(jobId);
-                model.QueuedItems.Add(new DemandBuildItem()
-                {
-                    JobName = jobId.Name,
-                    QueueItemNumber = number
-                });
+                model.JobNames.Add(jobId.Name);
             }
 
             return model;
-        }
-
-        private int PostToJenkins(JobId jobId)
-        {
-            var path = $"{JenkinsUtil.GetJobIdPath(jobId)}/buildWithParameters";
-            var request = new RestRequest(path, Method.POST);
-            request.AddParameter("GitRepoUrl", _repoUri.ToString());
-            request.AddParameter("GitBranchOrCommit", _branchOrCommit);
-            SharedUtil.AddAuthorization(request, _userName, _token);
-
-            var client = new RestClient(SharedConstants.DotnetJenkinsUri);
-            var response = client.Execute(request);
-
-            // This comes back as the URI https://server/queue/item/number.  Need the 
-            // number of the queue item.
-            var location = response.Headers.First(x => x.Name == "Location");
-            var queueItemUri = new Uri(Convert.ToString(location.Value));
-            var last = queueItemUri.LocalPath.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).Last();
-            return int.Parse(last);
         }
     }
 }

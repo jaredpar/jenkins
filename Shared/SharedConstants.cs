@@ -11,7 +11,7 @@ namespace Dashboard
         public const string DotnetJenkinsUriString = "https://dotnet-ci.cloudapp.net";
         public static readonly Uri DotnetJenkinsUri = new Uri(DotnetJenkinsUriString);
 
-        public const string DashboardUriString = "http://jdash.azurewebsites.net";
+        public const string DashboardUriString = "https://jdash.azurewebsites.net";
         public static readonly Uri DashboardUri = new Uri(DashboardUriString);
 
 #if DEBUG
