@@ -219,7 +219,6 @@
     <Compile Include="Controllers\BuildsController.cs" />
     <Compile Include="Controllers\JenkinsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\QueueController.cs" />
     <Compile Include="Controllers\TestRunController.cs" />
     <Compile Include="Controllers\TestCacheController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
