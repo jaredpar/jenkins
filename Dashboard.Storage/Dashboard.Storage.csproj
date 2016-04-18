@@ -73,6 +73,8 @@
     <Compile Include="Azure\DashboardStorage.cs" />
     <Compile Include="Azure\BuildFailureEntity.cs" />
     <Compile Include="Azure\BuildProcessedEntity.cs" />
+    <Compile Include="Azure\DemandBuildEntity.cs" />
+    <Compile Include="Azure\DemandRunEntity.cs" />
     <Compile Include="Sql\BuildSource.cs" />
     <Compile Include="Sql\ConsoleLogger.cs" />
     <Compile Include="Sql\ILogger.cs" />

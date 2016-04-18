@@ -10,5 +10,7 @@ namespace Dashboard.Azure
     {
         public const string TableNameBuildFailure = "BuildFailure";
         public const string TableNameBuildProcessed = "BuildProcessed";
+        public const string TableNameDemandRun = "DemandRun";
+        public const string TableNameDemandBuild = "DemandBuild";
     }
 }

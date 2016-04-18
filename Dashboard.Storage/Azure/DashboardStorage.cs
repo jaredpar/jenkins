@@ -14,6 +14,11 @@ namespace Dashboard.Azure
         private readonly CloudStorageAccount _storageAccount;
         private readonly CloudTable _buildFailureTable;
         private readonly CloudTable _buildProcessedTable;
+        private readonly CloudTable _demandRunTable;
+        private readonly CloudTable _demandBuildTable;
+
+        public CloudTable DemandRunTable => _demandRunTable;
+        public CloudTable DemandBuildTable => _demandBuildTable;
 
         public DashboardStorage(string connectionString)
         {
@@ -22,6 +27,8 @@ namespace Dashboard.Azure
             var tableClient = _storageAccount.CreateCloudTableClient();
             _buildFailureTable = tableClient.GetTableReference(AzureConstants.TableNameBuildFailure);
             _buildProcessedTable = tableClient.GetTableReference(AzureConstants.TableNameBuildProcessed);
+            _demandRunTable = tableClient.GetTableReference(AzureConstants.TableNameDemandRun);
+            _demandBuildTable = tableClient.GetTableReference(AzureConstants.TableNameDemandBuild);
         }
 
         public static string NormalizeTestCaseName(string testCaseName)

@@ -12,9 +12,6 @@ namespace Dashboard.StorageBuilder
 {
     internal sealed class JobTableUtil
     {
-        // Current Azure Limit
-        internal const int MaxBatchCount = 100;
-
         private readonly CloudTable _buildProcessedTable;
         private readonly CloudTable _buildFailureTable;
         private readonly JenkinsClient _client;
@@ -102,7 +99,7 @@ namespace Dashboard.StorageBuilder
                 }
             }
 
-            await InsertBatch(_buildProcessedTable, newProcessedList);
+            await AzureUtil.InsertBatch(_buildProcessedTable, newProcessedList);
         }
 
         /// <summary>
@@ -197,45 +194,12 @@ namespace Dashboard.StorageBuilder
                 .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildId, x, buildInfo.Date, buildInfo.MachineName))
                 .ToList();
             EnsureTestCaseNamesUnique(entityList);
-            return InsertBatch(_buildFailureTable, entityList);
+            return AzureUtil.InsertBatch(_buildFailureTable, entityList);
         }
 
         private void WriteLine(BuildId buildId, string message)
         {
             _textWriter.WriteLine($"{buildId.JobName} - {buildId.Id}: {message}");
-        }
-
-        /// <summary>
-        /// Inserts a collection of <see cref="TableEntity"/> values into a table using batch style 
-        /// operations.  All entities must be insertable via batch operations.
-        /// </summary>
-        private static async Task InsertBatch<T>(CloudTable table, List<T> entityList)
-            where T : TableEntity
-        {
-            if (entityList.Count == 0)
-            {
-                return;
-            }
-
-            var operation = new TableBatchOperation();
-            foreach (var entity in entityList)
-            {
-                // Important to use InsertOrReplace here.  It's possible for a populate job to be cut off in the 
-                // middle when the BuildFailure table is updated but not yet the BuildProcessed table.  Hence 
-                // we'll up here again doing a batch insert.
-                operation.InsertOrReplace(entity);
-
-                if (operation.Count == MaxBatchCount)
-                {
-                    await table.ExecuteBatchAsync(operation);
-                    operation.Clear();
-                }
-            }
-
-            if (operation.Count > 0)
-            {
-                await table.ExecuteBatchAsync(operation);
-            }
         }
 
         /// <summary>

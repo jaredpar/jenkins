@@ -60,8 +60,31 @@ namespace Dashboard.ApiFun
             }
         }
 
+        private static void AddAuthentication(RestRequest request)
+        {
+            var text = ConfigurationManager.AppSettings[SharedConstants.GithubConnectionStringName];
+            var items = text.Split(new[] { ':' }, count: 2);
+            var bytes = Encoding.UTF8.GetBytes($"{items[0]}:{items[1]}");
+            var encoded = Convert.ToBase64String(bytes);
+            var header = $"Basic {encoded}";
+            request.AddHeader("Authorization", header);
+        }
+
         private static void Random()
         {
+            var request = new RestRequest("job/roslyn_prtest_win_dbg_unit32/buildWithParameters", Method.POST);
+            request.AddParameter("GitRepoUrl", "https://github.com/jaredpar/roslyn");
+            request.AddParameter("GitBranchOrCommit", "test4");
+            // request.AddParameter("GitRefSpec", "");
+            AddAuthentication(request);
+
+            var text = ConfigurationManager.AppSettings[SharedConstants.GithubConnectionStringName];
+            var client = new RestClient(SharedConstants.DotnetJenkinsUri);
+            var response = client.Execute(request);
+            Console.WriteLine(response.StatusCode);
+            Console.WriteLine(response.Content);
+
+            /*
             var client = CreateClient(auth: true);
             foreach (var jobId in client.GetJobIdsInView("Roslyn"))
             {
@@ -87,6 +110,7 @@ namespace Dashboard.ApiFun
                     }
                 }
             }
+            */
         }
 
         private static void PrintJobs()
@@ -169,7 +193,8 @@ namespace Dashboard.ApiFun
 
             foreach (var buildId in client.GetBuildIds(new JobId("roslyn_prtest_mac_dbg_unit32", JobId.Root)))
             {
-                var result = client.GetBuildResult(buildId);
+                var buildInfo = client.GetBuildInfo(buildId);
+                var result = client.GetBuildResult(buildInfo);
                 if (result.State != BuildState.Succeeded)
                 {
                     continue;
@@ -427,7 +452,8 @@ namespace Dashboard.ApiFun
 
             foreach (var buildId in GetBuildIds(os => os == OS.Mac))
             {
-                var result = _client.GetBuildResult(buildId);
+                var buildInfo = _client.GetBuildInfo(buildId);
+                var result = _client.GetBuildResult(buildInfo);
                 if (result.BuildInfo.Date.Date != yesterday)
                 {
                     continue;
@@ -453,7 +479,8 @@ namespace Dashboard.ApiFun
 
             foreach (var buildId in GetBuildIds(os => os == OS.Mac || os == OS.Linux))
             {
-                var result = _client.GetBuildResult(buildId);
+                var buildInfo = _client.GetBuildInfo(buildId);
+                var result = _client.GetBuildResult(buildInfo);
                 if (result.State == BuildState.Running)
                 {
                     continue;

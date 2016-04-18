@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
+using System.Threading.Tasks;
 
 namespace Dashboard.Controllers
 {
@@ -102,6 +103,29 @@ namespace Dashboard.Controllers
             data.CommitFailures = commitCount;
             data.PullRequestFailures = prCount;
             return data;
+        }
+
+        // DEMAND: should return the URI they can use for getting updates
+        [Route("api/builds/demand")]
+        public async Task CreateDemandBuild(DemandBuildModel model)
+        {
+            await InsertBuilds(model);
+
+            var entity = new DemandRunEntity(model.UserName, model.Sha1, new Uri(model.RepoUrl));
+            var operation = TableOperation.Insert(entity);
+            _storage.DemandRunTable.Execute(operation);
+        }
+
+        private async Task InsertBuilds(DemandBuildModel model)
+        {
+            var list = new List<DemandBuildEntity>();
+            foreach (var item in model.QueuedItems)
+            {
+                var entity = new DemandBuildEntity(model.UserName, model.Sha1, item.QueueItemNumber, item.JobName);
+                list.Add(entity);
+            }
+
+            await AzureUtil.InsertBatch(_storage.DemandBuildTable, list);
         }
     }
 }
