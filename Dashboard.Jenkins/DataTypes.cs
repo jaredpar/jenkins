@@ -202,12 +202,14 @@ namespace Dashboard.Jenkins
         public int Id { get; }
         public JobId JobId { get; }
         public PullRequestInfo PullRequestInfo { get; }
+        public int? BuildNumber { get; }
 
-        public QueuedItemInfo(int id, JobId jobId, PullRequestInfo prInfo)
+        public QueuedItemInfo(int id, JobId jobId, PullRequestInfo prInfo, int? buildNumber)
         {
             Id = id;
             JobId = jobId;
             PullRequestInfo = prInfo;
+            BuildNumber = buildNumber;
         }
 
         public override string ToString()

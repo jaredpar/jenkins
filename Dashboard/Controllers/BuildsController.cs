@@ -110,4 +110,5 @@ namespace Dashboard.Controllers
                 }
             }
         }
+    }
 }
