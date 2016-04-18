@@ -45,7 +45,7 @@ namespace Dashboard.JenkinsThis
             request.RequestFormat = DataFormat.Json;
             request.AddParameter("text/json", obj, ParameterType.RequestBody);
 
-            var client = new RestClient(SharedConstants.DashboardUri);
+            var client = new RestClient(SharedConstants.DashboardDebugUri);
             var response = client.Execute(request);
             Console.WriteLine(response.Content);
         }

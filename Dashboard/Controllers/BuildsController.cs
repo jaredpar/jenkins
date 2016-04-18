@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Dashboard.Helpers;
 
 namespace Dashboard.Controllers
 {
@@ -86,29 +87,9 @@ namespace Dashboard.Controllers
 
         public ActionResult Demand(string name, string sha1)
         {
-            MoveQueueToCreated();
+            var util = new DemandUtil(_storage);
+            util.MoveQueueToCreated();
             throw new Exception();
-        }
-
-        private void MoveQueueToCreated()
-        {
-            var query = new TableQuery<DemandBuildEntity>()
-                .Where(TableQuery.GenerateFilterCondition(
-                    nameof(DemandBuildEntity.StatusRaw),
-                    QueryComparisons.Equal,
-                    DemandBuildStatus.Queued.ToString()));
-            var client = new JenkinsClient(SharedConstants.DotnetJenkinsUri);
-            foreach (var entity in _storage.DemandBuildTable.ExecuteQuery(query))
-            {
-                var info = client.GetQueuedItemInfo(entity.QueueItemNumber);
-                if (info.BuildNumber.HasValue)
-                {
-                    entity.BuildNumber = info.BuildNumber.Value;
-                    entity.StatusRaw = DemandBuildStatus.Running.ToString();
-                    var operation = TableOperation.InsertOrReplace(entity);
-                    _storage.DemandBuildTable.Execute(operation);
-                }
-            }
         }
     }
 }

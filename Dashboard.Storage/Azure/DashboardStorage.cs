@@ -31,6 +31,17 @@ namespace Dashboard.Azure
             _demandBuildTable = tableClient.GetTableReference(AzureConstants.TableNameDemandBuild);
         }
 
+        /// <summary>
+        /// Create all of our azure resources exist.
+        /// </summary>
+        public void EnsureAzureResources()
+        {
+            _buildFailureTable.CreateIfNotExists();
+            _buildProcessedTable.CreateIfNotExists();
+            _demandRunTable.CreateIfNotExists();
+            _demandBuildTable.CreateIfNotExists();
+        }
+
         public static string NormalizeTestCaseName(string testCaseName)
         {
             return AzureUtil.NormalizeKey(testCaseName, '_');

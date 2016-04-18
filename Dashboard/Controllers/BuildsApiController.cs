@@ -108,13 +108,17 @@ namespace Dashboard.Controllers
 
         // DEMAND: should return the URI they can use for getting updates
         [Route("api/builds/demand")]
-        public async Task CreateDemandBuild(DemandBuildModel model)
+        public async Task<string> CreateDemandBuild(DemandBuildModel model)
         {
             await InsertBuilds(model);
 
-            var entity = new DemandRunEntity(model.UserName, model.Sha1, new Uri(model.RepoUrl));
+            var entity = new DemandRunEntity(model.UserName, model.BranchOrCommit, new Uri(model.RepoUrl));
             var operation = TableOperation.Insert(entity);
             _storage.DemandRunTable.Execute(operation);
+
+            var path = $"builds/demand?name={model.UserName}&commit={model.BranchOrCommit}";
+            var uri = new Uri(SharedConstants.DashboardUri, path);
+            return uri.ToString();
         }
 
         private async Task InsertBuilds(DemandBuildModel model)
@@ -122,7 +126,7 @@ namespace Dashboard.Controllers
             var list = new List<DemandBuildEntity>();
             foreach (var item in model.QueuedItems)
             {
-                var entity = new DemandBuildEntity(model.UserName, model.Sha1, item.QueueItemNumber, item.JobName);
+                var entity = new DemandBuildEntity(model.UserName, model.BranchOrCommit, item.QueueItemNumber, item.JobName);
                 list.Add(entity);
             }
 
