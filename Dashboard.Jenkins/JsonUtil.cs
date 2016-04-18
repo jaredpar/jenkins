@@ -106,7 +106,15 @@ namespace Dashboard.Jenkins
             var jobUrlStr = data["task"].Value<string>("url");
             var jobUrl = new Uri(jobUrlStr);
             var jobId = JenkinsUtil.ConvertPathToJobId(jobUrl.LocalPath);
-            return new QueuedItemInfo(id, jobId, prInfo);
+
+            int? buildNumber = null;
+            var executable = data["executable"] as JObject;
+            if (executable != null)
+            {
+                buildNumber = executable.Value<int?>("number");
+            }
+
+            return new QueuedItemInfo(id, jobId, prInfo, buildNumber);
         }
 
         internal static List<ViewInfo> ParseViewInfoList(JObject data)

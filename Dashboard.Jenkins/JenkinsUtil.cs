@@ -35,6 +35,11 @@ namespace Dashboard.Jenkins
             return $"job/{id.JobName}/{id.Id}/";
         }
 
+        public static string GetQueuedItemPath(int number)
+        {
+            return $"queue/item/{number}";
+        }
+
         public static string GetConsoleTextPath(BuildId id)
         {
             return $"{GetBuildPath(id)}consoleText";

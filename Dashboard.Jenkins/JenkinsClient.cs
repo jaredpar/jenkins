@@ -165,6 +165,18 @@ namespace Dashboard.Jenkins
             return JsonUtil.ParseTestCaseListFailed(data);
         }
 
+        public QueuedItemInfo GetQueuedItemInfo(int number)
+        {
+            var data = GetJson(JenkinsUtil.GetQueuedItemPath(number));
+            return JsonUtil.ParseQueuedItemInfo(data);
+        }
+
+        public async Task<QueuedItemInfo> GetQueuedItemInfoAsync(int number)
+        {
+            var data = await GetJsonAsync(JenkinsUtil.GetQueuedItemPath(number));
+            return JsonUtil.ParseQueuedItemInfo(data);
+        }
+
         /// <summary>
         /// Get all of the queued items in Jenkins
         /// </summary>

@@ -69,5 +69,11 @@ namespace Dashboard.Azure
             Debug.Assert(startDate.Kind == DateTimeKind.Utc);
             return TableQuery.GenerateFilterConditionForDate(nameof(BuildFailureEntity.BuildDate), QueryComparisons.GreaterThanOrEqual, new DateTimeOffset(startDate));
         }
+
+        // DEMAND: this function is a hack of hacks.  Proof of concept at the moment.
+        private void MoveForward()
+        {
+
+        }
     }
 }
