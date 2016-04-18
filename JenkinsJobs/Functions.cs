@@ -76,7 +76,7 @@ namespace Dashboard.StorageBuilder
             foreach (var error in buildAnalyzeErrors)
             {
                 builder.AppendLine($"Build: {error.BuildId.JobName} - {error.BuildId.Id}");
-                builder.AppendLine($"Url: {JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, JenkinsUtil.GetBuildPath(error.BuildId))}");
+                builder.AppendLine($"Url: {JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, error.BuildId)}");
                 builder.AppendLine($"Message: {error.Exception.Message}");
                 builder.AppendLine($"Stack: {error.Exception.StackTrace}");
                 builder.AppendLine("");

@@ -85,11 +85,40 @@ namespace Dashboard.Controllers
             return View(viewName: "Failure", model: model);
         }
 
-        public ActionResult Demand(string name, string sha1)
+        public ActionResult Demand(string userName, string commit)
         {
             var util = new DemandUtil(_storage);
             util.MoveQueueToCreated();
-            throw new Exception();
+
+            var runStatus = new DemandRunStatusModel()
+            {
+                UserName = userName,
+                Commit = commit,
+            };
+
+            var query = new TableQuery<DemandBuildEntity>()
+                .Where(TableQuery.CombineFilters(
+                    TableQuery.GenerateFilterCondition(
+                        nameof(DemandBuildEntity.PartitionKey),
+                        QueryComparisons.Equal,
+                        userName),
+                    TableOperators.And,
+                    TableQuery.GenerateFilterCondition(
+                        nameof(DemandBuildEntity.RowKey),
+                        QueryComparisons.Equal,
+                        commit)));
+            foreach (var entity in _storage.DemandBuildTable.ExecuteQuery(query))
+            {
+                var status = new DemandBuildStatusModel()
+                {
+                    BuildNumber = entity.BuildNumber,
+                    JobName = entity.JobName,
+                    QueueNumber = entity.QueueItemNumber
+                };
+                runStatus.StatusList.Add(status);
+            }
+
+            return View(viewName: "DemandStatus", model: runStatus);
         }
     }
 }

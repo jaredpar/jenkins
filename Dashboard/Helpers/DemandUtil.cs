@@ -19,7 +19,7 @@ namespace Dashboard.Helpers
             _storage = storage;
         }
 
-        public  void MoveQueueToCreated()
+        public void MoveQueueToCreated()
         {
             var query = new TableQuery<DemandBuildEntity>()
                 .Where(TableQuery.GenerateFilterCondition(

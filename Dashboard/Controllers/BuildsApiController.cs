@@ -92,7 +92,7 @@ namespace Dashboard.Controllers
                 {
                     JobName = jobId.Name,
                     JobShortName = jobId.ShortName,
-                    JobUri = JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, JenkinsUtil.GetJobIdPath(jobId)).ToString(),
+                    JobUri = JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, jobId).ToString(),
                     MachineName = entity.MachineName,
                     DateTime = startDateValue,
                 };
@@ -116,7 +116,7 @@ namespace Dashboard.Controllers
             var operation = TableOperation.Insert(entity);
             _storage.DemandRunTable.Execute(operation);
 
-            var path = $"builds/demand?name={model.UserName}&commit={model.BranchOrCommit}";
+            var path = $"builds/demand?userName={model.UserName}&commit={model.BranchOrCommit}";
             var uri = new Uri(SharedConstants.DashboardUri, path);
             return uri.ToString();
         }

@@ -293,6 +293,7 @@
     <Content Include="Views\Status\TestRuns.cshtml" />
     <Content Include="Views\Builds\FailureList.cshtml" />
     <Content Include="Views\Builds\Failure.cshtml" />
+    <Content Include="Views\Builds\DemandStatus.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -15,6 +15,18 @@ namespace Dashboard.Jenkins
             return builder.Uri;
         }
 
+        public static Uri GetUri(Uri baseUrl, BuildId buildId)
+        {
+            var path = GetBuildPath(buildId);
+            return GetUri(baseUrl, path);
+        }
+
+        public static Uri GetUri(Uri baseUrl, JobId jobId)
+        {
+            var path = GetJobIdPath(jobId);
+            return GetUri(baseUrl, path);
+        }
+
         public static string GetJobIdPath(JobId id)
         {
             if (id.IsRoot)
@@ -33,6 +45,11 @@ namespace Dashboard.Jenkins
         public static string GetBuildPath(BuildId id)
         {
             return $"job/{id.JobName}/{id.Id}/";
+        }
+
+        public static string GetBuildStatusIconPath(BuildId id)
+        {
+            return $"buildStatus/icon?job={id.JobId.Name}&build={id.Id}";
         }
 
         public static string GetQueuedItemPath(int number)

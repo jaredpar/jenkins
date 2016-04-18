@@ -48,4 +48,18 @@ namespace Dashboard.Models
         public string MachineName { get; set; }
         public DateTime DateTime { get; set; }
     }
+
+    public class DemandRunStatusModel
+    {
+        public string UserName { get; set; }
+        public string Commit { get; set; }
+        public List<DemandBuildStatusModel> StatusList { get; set; } = new List<DemandBuildStatusModel>();
+    }
+
+    public class DemandBuildStatusModel
+    {
+        public string JobName { get; set; }
+        public int? BuildNumber { get; set; }
+        public int QueueNumber { get; set; }
+    }
 }
