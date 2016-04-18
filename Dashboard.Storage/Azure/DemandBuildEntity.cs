@@ -39,6 +39,7 @@ namespace Dashboard.Azure
         {
             QueueItemNumber = queueItemNumber;
             JobName = jobName;
+            StatusRaw = DemandBuildStatus.Queued.ToString();
         }
     }
 }

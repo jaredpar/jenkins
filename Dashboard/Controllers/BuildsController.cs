@@ -88,7 +88,7 @@ namespace Dashboard.Controllers
         public ActionResult Demand(string userName, string commit)
         {
             var util = new DemandUtil(_storage);
-            util.MoveQueueToCreated();
+            util.MoveQueueToCreated(userName, commit);
 
             var runStatus = new DemandRunStatusModel()
             {
@@ -97,16 +97,7 @@ namespace Dashboard.Controllers
             };
 
             var query = new TableQuery<DemandBuildEntity>()
-                .Where(TableQuery.CombineFilters(
-                    TableQuery.GenerateFilterCondition(
-                        nameof(DemandBuildEntity.PartitionKey),
-                        QueryComparisons.Equal,
-                        userName),
-                    TableOperators.And,
-                    TableQuery.GenerateFilterCondition(
-                        nameof(DemandBuildEntity.RowKey),
-                        QueryComparisons.Equal,
-                        commit)));
+                .Where(DashboardStorage.GenerateDemandBuildFilter(userName, commit));
             foreach (var entity in _storage.DemandBuildTable.ExecuteQuery(query))
             {
                 var status = new DemandBuildStatusModel()

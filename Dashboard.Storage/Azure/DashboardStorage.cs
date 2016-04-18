@@ -81,10 +81,18 @@ namespace Dashboard.Azure
             return TableQuery.GenerateFilterConditionForDate(nameof(BuildFailureEntity.BuildDate), QueryComparisons.GreaterThanOrEqual, new DateTimeOffset(startDate));
         }
 
-        // DEMAND: this function is a hack of hacks.  Proof of concept at the moment.
-        private void MoveForward()
+        public static string GenerateDemandBuildFilter(string userName, string commit)
         {
+            var partitionFilter = TableQuery.GenerateFilterCondition(
+                nameof(DemandBuildEntity.PartitionKey),
+                QueryComparisons.Equal,
+                userName);
+            var rowFilter = TableQuery.GenerateFilterCondition(
+                nameof(DemandBuildEntity.RowKey),
+                QueryComparisons.Equal,
+                commit);
 
+            return TableQuery.CombineFilters(partitionFilter, TableOperators.And, rowFilter);
         }
     }
 }

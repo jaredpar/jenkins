@@ -19,13 +19,10 @@ namespace Dashboard.Helpers
             _storage = storage;
         }
 
-        public void MoveQueueToCreated()
+        public void MoveQueueToCreated(string userName, string commit)
         {
             var query = new TableQuery<DemandBuildEntity>()
-                .Where(TableQuery.GenerateFilterCondition(
-                    nameof(DemandBuildEntity.StatusRaw),
-                    QueryComparisons.Equal,
-                    DemandBuildStatus.Queued.ToString()));
+                .Where(DashboardStorage.GenerateDemandBuildFilter(userName, commit));
             var client = new JenkinsClient(SharedConstants.DotnetJenkinsUri);
             foreach (var entity in _storage.DemandBuildTable.ExecuteQuery(query))
             {
