@@ -67,11 +67,11 @@ namespace Dashboard.Controllers
         {
             var connectionString = ConfigurationManager.AppSettings[SharedConstants.SqlConnectionStringName];
             _sqlUtil = new SqlUtil(connectionString);
-            _stats = new TestCacheStats(_sqlUtil);
 
             var dashboardConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
             var dashboardStorage = new DashboardStorage(dashboardConnectionString);
             _storage = new TestResultStorage(dashboardStorage);
+            _stats = new TestCacheStats(_storage, _sqlUtil);
         }
 
         protected override void Dispose(bool disposing)

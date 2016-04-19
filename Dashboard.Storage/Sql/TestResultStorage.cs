@@ -81,5 +81,20 @@ namespace Dashboard.Sql
                 elapsed: TimeSpan.FromSeconds(obj.ElapsedSeconds));
             return true;
         }
+
+        public int GetCount(DateTime? startDate)
+        {
+            var count = 0;
+            foreach (var blob in _storage.TestResultsContainer.ListBlobs().OfType<CloudBlockBlob>())
+            {
+                var lastModified = blob.Properties.LastModified.Value.UtcDateTime;
+                if (!startDate.HasValue || lastModified >= startDate.Value)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
     }
 }

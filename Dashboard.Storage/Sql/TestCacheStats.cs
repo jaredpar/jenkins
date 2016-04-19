@@ -8,9 +8,11 @@ namespace Dashboard.Sql
     public sealed class TestCacheStats
     {
         private readonly SqlUtil _sqlUtil;
+        private readonly TestResultStorage _testResultStorage;
 
-        public TestCacheStats(SqlUtil sqlUtil)
+        public TestCacheStats(TestResultStorage testResultStorage, SqlUtil sqlUtil)
         {
+            _testResultStorage = testResultStorage;
             _sqlUtil = sqlUtil;
         }
 
@@ -21,7 +23,7 @@ namespace Dashboard.Sql
                 missCount: _sqlUtil.GetMissStats(startDate) ?? 0,
                 storeCount: _sqlUtil.GetStoreCount(startDate) ?? 0,
                 cacheCount: _sqlUtil.GetTestResultCount(startDate) ?? 0,
-                runCount: _sqlUtil.GetTestRunCount(startDate) ?? 0);
+                runCount: _testResultStorage.GetCount(startDate));
         }
 
         public List<TestRun> GetTestRuns(DateTime? startDate = null, DateTime? endDate = null)

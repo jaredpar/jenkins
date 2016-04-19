@@ -9,6 +9,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using Microsoft.WindowsAzure;
+using Dashboard.Azure;
 
 namespace Dashboard.Controllers
 {
@@ -36,7 +38,12 @@ namespace Dashboard.Controllers
         {
             var connectionString = ConfigurationManager.AppSettings[SharedConstants.SqlConnectionStringName];
             _sqlUtil = new SqlUtil(connectionString);
-            _stats = new TestCacheStats(_sqlUtil);
+
+            var dashboardConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
+            var dashboardStorage = new DashboardStorage(dashboardConnectionString);
+            var storage = new TestResultStorage(dashboardStorage);
+
+            _stats = new TestCacheStats(storage, _sqlUtil);
         }
 
         protected override void Dispose(bool disposing)
