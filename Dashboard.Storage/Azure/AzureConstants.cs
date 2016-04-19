@@ -8,9 +8,22 @@ namespace Dashboard.Azure
 {
     public static class AzureConstants
     {
-        public const string TableNameBuildFailure = "BuildFailure";
-        public const string TableNameBuildProcessed = "BuildProcessed";
-        public const string TableNameDemandRun = "DemandRun";
-        public const string TableNameDemandBuild = "DemandBuild";
+        public static class TableNames
+        {
+            public const string BuildFailure = "BuildFailure";
+            public const string BuildProcessed = "BuildProcessed";
+            public const string DemandRun = "DemandRun";
+            public const string DemandBuild = "DemandBuild";
+        }
+
+        public static class ContainerNames
+        {
+            public const string TestResults = "testresults";
+        }
+
+        public static class BlobDirectoryNames
+        {
+            public const string TestResults = "testResults";
+        }
     }
 }

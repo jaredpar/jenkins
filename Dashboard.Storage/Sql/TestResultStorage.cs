@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Dashboard.Azure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using Newtonsoft.Json;
+using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace Dashboard.Sql
 {
@@ -13,15 +16,25 @@ namespace Dashboard.Sql
     /// </summary>
     public class TestResultStorage
     {
-        private const int SizeLimit = 10000000;
-        private readonly SqlUtil _sqlUtil;
-
-        public List<string> Keys => _sqlUtil.GetTestResultKeys();
-        public int Count => _sqlUtil.GetTestResultCount() ?? 0;
-
-        public TestResultStorage(SqlUtil sqlUtil)
+        internal sealed class TestResultJson
         {
-            _sqlUtil = sqlUtil;
+            public int ExitCode { get; set; }
+            public string OutputStandard { get; set; }
+            public string OutputError { get; set; }
+            public string ResultsFileName { get; set; }
+            public string ResultsFileContent { get; set; }
+            public double ElapsedSeconds { get; set; }
+        }
+
+        private const int SizeLimit = 10000000;
+        private readonly DashboardStorage _storage;
+
+        public List<string> Keys => _storage.TestResultsContainer.ListBlobs().OfType<CloudBlockBlob>().Select(x => x.Name).ToList();
+        public int Count => Keys.Count;
+
+        public TestResultStorage(DashboardStorage storage)
+        {
+            _storage = storage;
         }
 
         public void Add(string key, TestResult value)
@@ -31,20 +44,42 @@ namespace Dashboard.Sql
                 throw new Exception("Data too big");
             }
 
-            _sqlUtil.InsertTestResult(key, value);
+            var container = _storage.TestResultsContainer;
+            var blob = container.GetBlockBlobReference(key);
+
+            var obj = new TestResultJson()
+            {
+                ExitCode = value.ExitCode,
+                OutputStandard = value.OutputStandard,
+                OutputError = value.OutputError,
+                ResultsFileName = value.ResultsFileName,
+                ResultsFileContent = value.ResultsFileContent,
+                ElapsedSeconds = value.Elapsed.TotalSeconds
+            };
+
+            var str = JsonConvert.SerializeObject(obj);
+            blob.UploadText(str);
         }
 
         public bool TryGetValue(string key, out TestResult testResult)
         {
-            var found = _sqlUtil.GetTestResult(key);
-            if (found.HasValue)
+            var blob = _storage.TestResultsContainer.GetBlockBlobReference(key);
+            if (!blob.Exists())
             {
-                testResult = found.Value;
-                return true;
+                testResult = default(TestResult);
+                return false;
             }
 
-            testResult = default(TestResult);
-            return false;
+            var str = blob.DownloadText();
+            var obj = (TestResultJson)JsonConvert.DeserializeObject(str, typeof(TestResultJson));
+            testResult = new TestResult(
+                exitCode: obj.ExitCode,
+                outputStandard: obj.OutputStandard,
+                outputError: obj.OutputError,
+                resultsFileName: obj.ResultsFileName,
+                resultsFileContent: obj.ResultsFileContent,
+                elapsed: TimeSpan.FromSeconds(obj.ElapsedSeconds));
+            return true;
         }
     }
 }

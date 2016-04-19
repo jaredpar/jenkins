@@ -38,9 +38,9 @@ namespace Dashboard.StorageBuilder
             var connectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
             var storageAccount = CloudStorageAccount.Parse(connectionString);
             var tableClient = storageAccount.CreateCloudTableClient();
-            var buildFailureTable = tableClient.GetTableReference(AzureConstants.TableNameBuildFailure);
+            var buildFailureTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildFailure);
             buildFailureTable.CreateIfNotExists();
-            var buildProcessedTable = tableClient.GetTableReference(AzureConstants.TableNameBuildProcessed);
+            var buildProcessedTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildProcessed);
             buildProcessedTable.CreateIfNotExists();
 
             // TODO: Need a Jenkins token as well to be able to query our non-public jobs.

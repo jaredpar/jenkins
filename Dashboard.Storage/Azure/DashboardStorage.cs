@@ -1,4 +1,5 @@
 ﻿using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Table;
 using System;
 using System.Collections.Generic;
@@ -16,19 +17,25 @@ namespace Dashboard.Azure
         private readonly CloudTable _buildProcessedTable;
         private readonly CloudTable _demandRunTable;
         private readonly CloudTable _demandBuildTable;
+        private readonly CloudBlobContainer _testResultsContainer;
 
+        public CloudStorageAccount StorageAccount => _storageAccount;
         public CloudTable DemandRunTable => _demandRunTable;
         public CloudTable DemandBuildTable => _demandBuildTable;
+        public CloudBlobContainer TestResultsContainer => _testResultsContainer;
 
         public DashboardStorage(string connectionString)
         {
             _storageAccount = CloudStorageAccount.Parse(connectionString);
 
             var tableClient = _storageAccount.CreateCloudTableClient();
-            _buildFailureTable = tableClient.GetTableReference(AzureConstants.TableNameBuildFailure);
-            _buildProcessedTable = tableClient.GetTableReference(AzureConstants.TableNameBuildProcessed);
-            _demandRunTable = tableClient.GetTableReference(AzureConstants.TableNameDemandRun);
-            _demandBuildTable = tableClient.GetTableReference(AzureConstants.TableNameDemandBuild);
+            _buildFailureTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildFailure);
+            _buildProcessedTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildProcessed);
+            _demandRunTable = tableClient.GetTableReference(AzureConstants.TableNames.DemandRun);
+            _demandBuildTable = tableClient.GetTableReference(AzureConstants.TableNames.DemandBuild);
+
+            var blobClient = _storageAccount.CreateCloudBlobClient();
+            _testResultsContainer = blobClient.GetContainerReference(AzureConstants.ContainerNames.TestResults);
         }
 
         /// <summary>
@@ -40,6 +47,7 @@ namespace Dashboard.Azure
             _buildProcessedTable.CreateIfNotExists();
             _demandRunTable.CreateIfNotExists();
             _demandBuildTable.CreateIfNotExists();
+            _testResultsContainer.CreateIfNotExists();
         }
 
         public static string NormalizeTestCaseName(string testCaseName)
