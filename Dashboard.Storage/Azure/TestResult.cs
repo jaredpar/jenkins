@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dashboard.Sql
+namespace Dashboard.Azure
 {
     public struct TestResult
     {

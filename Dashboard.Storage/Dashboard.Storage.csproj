@@ -92,8 +92,8 @@
     <Compile Include="Sql\StorageLogger.cs" />
     <Compile Include="Sql\TestCacheStats.cs" />
     <Compile Include="Sql\TestHitStats.cs" />
-    <Compile Include="Sql\TestResult.cs" />
-    <Compile Include="Sql\TestResultStorage.cs" />
+    <Compile Include="Azure\TestResult.cs" />
+    <Compile Include="Azure\TestResultStorage.cs" />
     <Compile Include="Sql\TestResultSummary.cs" />
     <Compile Include="Sql\TestRun.cs" />
     <Compile Include="Sql\TestStatsData.cs" />

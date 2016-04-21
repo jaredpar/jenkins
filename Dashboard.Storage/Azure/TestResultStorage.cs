@@ -8,7 +8,7 @@ using System.Web;
 using Newtonsoft.Json;
 using Microsoft.WindowsAzure.Storage.Blob;
 
-namespace Dashboard.Sql
+namespace Dashboard.Azure
 {
     /// <summary>
     /// This is a proof of concept implementation only.  I realize that its implementation is pretty terrible
