@@ -32,6 +32,14 @@ namespace Dashboard.Sql
             }
         }
 
+        public int? GetTestRunCount(DateTime? startDate = null)
+        {
+            var commandText = @"
+                SELECT COUNT(*)
+                FROM dbo.TestRuns";
+            return RunCountCore(commandText, "RunDate", startDate);
+        }
+
         public int? GetStoreCount(DateTime? startDate = null)
         {
             var commandText = @"
@@ -454,6 +462,76 @@ namespace Dashboard.Sql
                     _logger.Log(Category, "Cannot insert test result", ex);
                     return false;
                 }
+            }
+        }
+
+        public TestResult? GetTestResult(string checksum)
+        {
+            var commandText = @"
+                SELECT ExitCode, OutputStandard, OutputError, ResultsFileContent, ResultsFileName, ElapsedSeconds
+                FROM dbo.TestResult
+                WHERE Checksum = @Checksum";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var p = command.Parameters;
+                p.AddWithValue("@Checksum", checksum);
+
+                try
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            var exitCode = reader.GetInt32(0);
+                            var outputStandard = GetStringOrNull(reader, 1);
+                            var outputError = GetStringOrNull(reader, 2);
+                            var resultsFileContent = ZipUtil.DecompressText(GetAllBytes(reader, 3).ToArray());
+                            var resultsFileName = reader.GetString(4);
+                            var elapsed = reader.GetInt32(5);
+                            return new TestResult(
+                                exitCode: exitCode,
+                                outputStandard: outputStandard,
+                                outputError: outputError,
+                                resultsFileName: resultsFileName,
+                                resultsFileContent: resultsFileContent,
+                                elapsed: TimeSpan.FromSeconds(elapsed));
+                        }
+
+                        return null;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log(Category, $"Error getting {nameof(TestResult)}", ex);
+                    return null;
+                }
+            }
+        }
+
+        public List<string> GetTestResultKeys()
+        {
+            var commandText = @"
+                SELECT Checksum
+                FROM dbo.TestResult";
+            using (var command = new SqlCommand(commandText, _connection))
+            {
+                var list = new List<string>();
+                try
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            list.Add(reader.GetString(0));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log(Category, "Error reading test result keys", ex);
+                }
+
+                return list;
             }
         }
 
