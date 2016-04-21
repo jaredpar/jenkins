@@ -9,18 +9,21 @@ namespace Dashboard.Sql
     public class TestCacheStatSummary
     {
         public TestHitStats HitStats { get; }
-        public int MissCount { get; }
-        public int StoreCount { get; }
-        public int CacheCount { get; }
-        public int RunCount { get; }
 
-        public TestCacheStatSummary(TestHitStats hitStats, int missCount, int storeCount, int cacheCount, int runCount)
+        public int MissCount { get; }
+        public int UploadCount { get; }
+
+        /// <summary>
+        /// Count of actively stored <see cref="TestResult"/> values
+        /// </summary>
+        public int TestResultCount { get; }
+
+        public TestCacheStatSummary(TestHitStats hitStats, int missCount, int uploadCount, int testResultCount)
         {
             HitStats = hitStats;
             MissCount = missCount;
-            StoreCount = storeCount;
-            CacheCount = cacheCount;
-            RunCount = runCount;
+            UploadCount = uploadCount;
+            TestResultCount = testResultCount;
         }
     }
 }

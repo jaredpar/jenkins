@@ -22,9 +22,8 @@ namespace Dashboard.Sql
             return new TestCacheStatSummary(
                 hitStats: _sqlUtil.GetHitStats(startDate) ?? default(TestHitStats),
                 missCount: _sqlUtil.GetMissStats(startDate) ?? 0,
-                storeCount: _sqlUtil.GetStoreCount(startDate) ?? 0,
-                cacheCount: _sqlUtil.GetTestResultCount(startDate) ?? 0,
-                runCount: _testResultStorage.GetCount(startDate));
+                uploadCount: _sqlUtil.GetStoreCount(startDate) ?? 0,
+                testResultCount: _testResultStorage.GetCount(startDate));
         }
 
         public List<TestRun> GetTestRuns(DateTime? startDate = null, DateTime? endDate = null)
