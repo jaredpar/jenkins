@@ -22,7 +22,7 @@ namespace Dashboard
         public static readonly Uri DashboardDebugUri = new Uri(DashboardDebugUriString);
 
         public const string SendGridApiKeySettingName = "sendgrid-api-key";
-        public const string StorageConnectionStringName = "jaredpar-storage-connection-string";
+        public const string StorageConnectionStringName = "azure-storage-connection-string";
         public const string GithubConnectionStringName = "github-connection-string";
         public const string SqlConnectionStringName = "jenkins-connection-string";
     }

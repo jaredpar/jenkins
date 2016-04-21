@@ -49,6 +49,7 @@ namespace Dashboard.StorageBuilder
                 ? new JenkinsClient(SharedConstants.DotnetJenkinsUri)
                 : new JenkinsClient(SharedConstants.DotnetJenkinsUri, connectionString: githubConnectionString);
 
+            var jobs = client.GetJobIds();
             var util = new JobTableUtil(buildProcessedTable: buildProcessedTable, buildFailureTable: buildFailureTable, client: client, textWriter: logger);
             await util.MoveUnknownToIgnored();
             await util.Populate();
