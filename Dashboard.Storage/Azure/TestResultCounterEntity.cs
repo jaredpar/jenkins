@@ -12,7 +12,7 @@ namespace Dashboard.Azure
     /// Entity keeping track of hit / miss counts for <see cref="TestResult"/> instances.  The rows
     /// are stored in 15 minute chunks. 
     /// </summary>
-    public sealed class TestResultQueryCounterEntity : TableEntity
+    public sealed class TestResultCounterEntity : TableEntity
     {
         public const int MinuteInternal = 15;
 
@@ -20,6 +20,8 @@ namespace Dashboard.Azure
         public int NormalMissCount { get; set; }
         public int JenkinsHitCount { get; set; }
         public int JenkinsMissCount { get; set; }
+        public int StoreCount { get; set; }
+        public int RunCount { get; set; }
         public long TimeOfDayTicks { get; set; }
 
         /// <summary>
@@ -31,16 +33,16 @@ namespace Dashboard.Azure
         public DateTime Date => DateTime.Parse(PartitionKey);
         public TimeSpan TimeOfDay => TimeSpan.FromTicks(TimeOfDayTicks);
 
-        public TestResultQueryCounterEntity()
+        public TestResultCounterEntity()
         {
 
         }
 
-        public static TestResultQueryCounterEntity Create(DateTime dateTime, string entityWriterId)
+        public static TestResultCounterEntity Create(DateTime dateTime, string entityWriterId)
         {
             Debug.Assert(dateTime.Kind == DateTimeKind.Utc);
             var key = GetEntityKey(dateTime, entityWriterId);
-            var entity = new TestResultQueryCounterEntity()
+            var entity = new TestResultCounterEntity()
             {
                 PartitionKey = key.PartitionKey,
                 RowKey = key.RowKey,

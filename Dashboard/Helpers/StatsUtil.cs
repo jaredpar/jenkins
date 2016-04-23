@@ -12,7 +12,7 @@ namespace Dashboard.Helpers
     {
         private static readonly object s_guard = new object();
         private static readonly Guid s_idBase = Guid.NewGuid();
-        private static TestResultQueryCounterEntity s_entity;
+        private static TestResultCounterEntity s_entity;
 
         private readonly DashboardStorage _storage;
 
@@ -36,7 +36,7 @@ namespace Dashboard.Helpers
             Update(entity);
         }
 
-        private void AddMiss(bool isJenkins)
+        public void AddMiss(bool isJenkins)
         {
             var entity = GetEntity();
             if (isJenkins)
@@ -51,18 +51,32 @@ namespace Dashboard.Helpers
             Update(entity);
         }
 
-        private void Update(TestResultQueryCounterEntity entity)
+        public void AddStore()
+        {
+            var entity = GetEntity();
+            entity.StoreCount++;
+            Update(entity);
+        }
+
+        public void AddRun()
+        {
+            var entity = GetEntity();
+            entity.RunCount++;
+            Update(entity);
+        }
+
+        private void Update(TestResultCounterEntity entity)
         {
             var operation = TableOperation.InsertOrReplace(entity);
             _storage.TestResultQueryCounterTable.Execute(operation);
         }
 
-        private TestResultQueryCounterEntity GetEntity()
+        private TestResultCounterEntity GetEntity()
         {
             var dateTime = DateTime.UtcNow;
             var entityWriterId = GetEntityWriterId();
-            var ticks = TestResultQueryCounterEntity.GetTimeOfDayTicks(dateTime);
-            var key = TestResultQueryCounterEntity.GetEntityKey(dateTime, entityWriterId);
+            var ticks = TestResultCounterEntity.GetTimeOfDayTicks(dateTime);
+            var key = TestResultCounterEntity.GetEntityKey(dateTime, entityWriterId);
 
             lock (s_guard)
             {
@@ -71,7 +85,7 @@ namespace Dashboard.Helpers
                     s_entity.RowKey != key.RowKey ||
                     s_entity.TimeOfDayTicks != ticks)
                 {
-                    s_entity = TestResultQueryCounterEntity.Create(dateTime, entityWriterId);
+                    s_entity = TestResultCounterEntity.Create(dateTime, entityWriterId);
                 }
 
                 return s_entity;

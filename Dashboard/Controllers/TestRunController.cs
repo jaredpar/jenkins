@@ -33,6 +33,8 @@ namespace Dashboard.Controllers
     {
         private readonly SqlUtil _sqlUtil;
         private readonly TestCacheStats _stats;
+        private readonly StatsUtil _statsUtil;
+        private readonly TestResultStorage _storage;
 
         public TestRunController()
         {
@@ -44,6 +46,8 @@ namespace Dashboard.Controllers
             var storage = new TestResultStorage(dashboardStorage);
 
             _stats = new TestCacheStats(storage, _sqlUtil);
+            _statsUtil = new StatsUtil(dashboardStorage);
+            _storage = new TestResultStorage(dashboardStorage);
         }
 
         protected override void Dispose(bool disposing)
@@ -72,10 +76,9 @@ namespace Dashboard.Controllers
                     cacheCount: testRunData.CacheCount,
                     chunkCount: testRunData.ChunkCount,
                     assemblyCount: testRunData.AssemblyCount);
-            if (!_stats.AddTestRun(testRun))
-            {
-                throw new Exception("Unable to insert data");
-            }
+
+            // TODO: Need to store this data somewhere
+            _statsUtil.AddRun();
         }
     }
 }

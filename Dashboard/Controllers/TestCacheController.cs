@@ -62,6 +62,7 @@ namespace Dashboard.Controllers
         private readonly SqlUtil _sqlUtil;
         private readonly TestResultStorage _storage;
         private readonly TestCacheStats _stats;
+        private readonly StatsUtil _statsUtil;
 
         public TestCacheController()
         {
@@ -72,6 +73,7 @@ namespace Dashboard.Controllers
             var dashboardStorage = new DashboardStorage(dashboardConnectionString);
             _storage = new TestResultStorage(dashboardStorage);
             _stats = new TestCacheStats(_storage, _sqlUtil);
+            _statsUtil = new StatsUtil(dashboardStorage);
         }
 
         protected override void Dispose(bool disposing)
@@ -100,7 +102,7 @@ namespace Dashboard.Controllers
 
             if (_storage.TryGetValue(id, out testResult))
             {
-                _stats.AddHit(id, assemblyName: testSourceData.AssemblyName, isJenkins: isJenkins, buildSource: buildSource);
+                _statsUtil.AddHit(isJenkins ?? false);
 
                 var testResultData = new TestResultData()
                 {
@@ -115,7 +117,7 @@ namespace Dashboard.Controllers
                 return testResultData;
             }
 
-            _stats.AddMiss(id, assemblyName: testSourceData.AssemblyName, isJenkins: isJenkins, buildSource: buildSource);
+            _statsUtil.AddMiss(isJenkins ?? false);
             throw new HttpResponseException(HttpStatusCode.NotFound);
         }
 
@@ -142,14 +144,7 @@ namespace Dashboard.Controllers
                 : (BuildSource?)null;
 
             _storage.Add(id, testResult);
-            _stats.AddStore(
-                id,
-                assemblyName: testCacheData?.TestSourceData?.AssemblyName,
-                outputStandardLength: testResultData.OutputStandard?.Length ?? 0,
-                outputErrorLength: testResultData.OutputError?.Length ?? 0,
-                contentLength: testResultData.ResultsFileContent?.Length ?? 0,
-                summary: testResultSummary,
-                buildSource: buildSource);
+            _statsUtil.AddStore();
         }
     }
 }
