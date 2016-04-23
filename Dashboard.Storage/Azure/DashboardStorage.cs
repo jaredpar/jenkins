@@ -17,11 +17,13 @@ namespace Dashboard.Azure
         private readonly CloudTable _buildProcessedTable;
         private readonly CloudTable _demandRunTable;
         private readonly CloudTable _demandBuildTable;
+        private readonly CloudTable _testResultQueryCounterTable;
         private readonly CloudBlobContainer _testResultsContainer;
 
         public CloudStorageAccount StorageAccount => _storageAccount;
         public CloudTable DemandRunTable => _demandRunTable;
         public CloudTable DemandBuildTable => _demandBuildTable;
+        public CloudTable TestResultQueryCounterTable => _testResultQueryCounterTable;
         public CloudBlobContainer TestResultsContainer => _testResultsContainer;
 
         public DashboardStorage(string connectionString)
@@ -33,6 +35,7 @@ namespace Dashboard.Azure
             _buildProcessedTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildProcessed);
             _demandRunTable = tableClient.GetTableReference(AzureConstants.TableNames.DemandRun);
             _demandBuildTable = tableClient.GetTableReference(AzureConstants.TableNames.DemandBuild);
+            _testResultQueryCounterTable = tableClient.GetTableReference(AzureConstants.TableNames.TestResultQueryCounter);
 
             var blobClient = _storageAccount.CreateCloudBlobClient();
             _testResultsContainer = blobClient.GetContainerReference(AzureConstants.ContainerNames.TestResults);
@@ -47,6 +50,7 @@ namespace Dashboard.Azure
             _buildProcessedTable.CreateIfNotExists();
             _demandRunTable.CreateIfNotExists();
             _demandBuildTable.CreateIfNotExists();
+            _testResultQueryCounterTable.CreateIfNotExists();
             _testResultsContainer.CreateIfNotExists();
         }
 

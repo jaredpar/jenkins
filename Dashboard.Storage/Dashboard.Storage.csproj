@@ -84,6 +84,8 @@
     <Compile Include="Azure\DemandBuildBuilder.cs" />
     <Compile Include="Azure\DemandRunEntity.cs" />
     <Compile Include="Azure\DemandRunUtil.cs" />
+    <Compile Include="Azure\EntityKey.cs" />
+    <Compile Include="Azure\TestResultQueryCounterEntity.cs" />
     <Compile Include="Sql\BuildSource.cs" />
     <Compile Include="Sql\ConsoleLogger.cs" />
     <Compile Include="Sql\ILogger.cs" />
