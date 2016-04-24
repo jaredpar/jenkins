@@ -11,7 +11,7 @@ namespace Dashboard.Azure
     /// </summary>
     public class TestCacheStatSummary
     {
-        public TestHitStats HitStats { get; }
+        public TestQueryStats HitStats { get; }
 
         public int MissCount { get; }
         public int UploadCount { get; }
@@ -21,7 +21,7 @@ namespace Dashboard.Azure
         /// </summary>
         public int TestResultCount { get; }
 
-        public TestCacheStatSummary(TestHitStats hitStats, int missCount, int uploadCount, int testResultCount)
+        public TestCacheStatSummary(TestQueryStats hitStats, int missCount, int uploadCount, int testResultCount)
         {
             HitStats = hitStats;
             MissCount = missCount;

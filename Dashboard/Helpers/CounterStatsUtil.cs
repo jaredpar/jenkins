@@ -22,7 +22,7 @@ namespace Dashboard.Helpers
                 client.GetTableReference(AzureConstants.TableNames.TestCacheCounter),
                 x => new TestCacheCounterEntity(x));
             _unitTestEntityUtil = new CounterEntityUtil<UnitTestCounterEntity>(
-                client.GetTableReference(AzureConstants.TableNames.UnitTestCounter),
+                client.GetTableReference(AzureConstants.TableNames.UnitTestQueryCounter),
                 x => new UnitTestCounterEntity(x));
             _testRunEntityUtil = new CounterEntityUtil<TestRunCounterEntity>(
                 client.GetTableReference(AzureConstants.TableNames.TestRunCounter),
@@ -50,13 +50,13 @@ namespace Dashboard.Helpers
             _testCacheEntityUtil.Update(entity);
         }
 
-        public void AddUnitTest(int testsPassed, int testsSkipped, int testsFailed, TimeSpan elapsed, bool isJenkins)
+        public void AddUnitTestQuery(UnitTestData unitTestData, TimeSpan elapsed, bool isJenkins)
         {
             var entity = _unitTestEntityUtil.GetEntity(isJenkins);
             entity.AssemblyCount++;
-            entity.TestsPassed += testsPassed;
-            entity.TestsSkipped += testsSkipped;
-            entity.TestsFailed += testsFailed;
+            entity.TestsPassed += unitTestData.Passed;
+            entity.TestsFailed += unitTestData.Failed;
+            entity.TestsSkipped += unitTestData.Skipped;
             entity.ElapsedSeconds += (long)elapsed.TotalSeconds;
             _unitTestEntityUtil.Update(entity);
         }

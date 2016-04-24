@@ -44,7 +44,7 @@ namespace Dashboard.Controllers
 
         public ActionResult Result(string id)
         {
-            TestResult testResult;
+            Azure.TestResult testResult;
             if (!_testResultStorage.TryGetValue(id, out testResult))
             {
                 throw new Exception("Invalid key");

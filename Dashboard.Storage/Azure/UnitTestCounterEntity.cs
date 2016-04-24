@@ -14,6 +14,7 @@ namespace Dashboard.Azure
         public int TestsFailed { get; set; }
         public long ElapsedSeconds { get; set; }
 
+        public int ClientHitCount => AssemblyCount;
         public int TestsTotal => TestsPassed + TestsSkipped + TestsFailed;
 
         public UnitTestCounterEntity()

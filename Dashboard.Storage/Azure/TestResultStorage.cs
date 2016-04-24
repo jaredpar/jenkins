@@ -24,6 +24,9 @@ namespace Dashboard.Azure
             public string ResultsFileName { get; set; }
             public string ResultsFileContent { get; set; }
             public double ElapsedSeconds { get; set; }
+            public int Passed { get; set; }
+            public int Failed { get; set; }
+            public int Skipped { get; set; }
         }
 
         private const int SizeLimit = 10000000;
@@ -55,7 +58,10 @@ namespace Dashboard.Azure
                 OutputError = value.OutputError,
                 ResultsFileName = value.ResultsFileName,
                 ResultsFileContent = value.ResultsFileContent,
-                ElapsedSeconds = value.Elapsed.TotalSeconds
+                ElapsedSeconds = value.Elapsed.TotalSeconds,
+                Passed = value.UnitTestData.Passed,
+                Failed = value.UnitTestData.Failed,
+                Skipped = value.UnitTestData.Skipped
             };
 
             var str = JsonConvert.SerializeObject(obj);
@@ -79,6 +85,10 @@ namespace Dashboard.Azure
                 outputError: obj.OutputError,
                 resultsFileName: obj.ResultsFileName,
                 resultsFileContent: obj.ResultsFileContent,
+                unitTestData: new UnitTestData(
+                    passed: obj.Passed,
+                    failed: obj.Failed,
+                    skipped: obj.Skipped),
                 elapsed: TimeSpan.FromSeconds(obj.ElapsedSeconds));
             return true;
         }

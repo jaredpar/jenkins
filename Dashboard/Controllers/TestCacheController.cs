@@ -76,7 +76,7 @@ namespace Dashboard.Controllers
 
         public TestResultData Get(string id, [FromUri] TestSourceData testSourceData)
         {
-            TestResult testResult;
+            Azure.TestResult testResult;
 
             var buildSource = new BuildSource(testSourceData.MachineName, testSourceData.EnlistmentRoot);
             var isJenkins = string.IsNullOrEmpty(testSourceData.Source)
@@ -85,7 +85,9 @@ namespace Dashboard.Controllers
 
             if (_storage.TryGetValue(id, out testResult))
             {
-                _statsUtil.AddHit(isJenkins ?? false);
+                var isJenkinsValue = isJenkins ?? false;
+                _statsUtil.AddHit(isJenkinsValue);
+                _statsUtil.AddUnitTestQuery(testResult.UnitTestData, testResult.Elapsed, isJenkinsValue);
 
                 var testResultData = new TestResultData()
                 {
@@ -116,6 +118,10 @@ namespace Dashboard.Controllers
                 testResultData.OutputError,
                 testResultData.ResultsFileName,
                 testResultData.ResultsFileContent,
+                new UnitTestData(
+                    passed: testResultData.TestPassed,
+                    failed: testResultData.TestFailed,
+                    skipped: testResultData.TestSkipped),
                 TimeSpan.FromSeconds(seconds));
             var buildSource = testCacheData.TestSourceData != null
                 ? new BuildSource(testCacheData.TestSourceData.MachineName, testCacheData.TestSourceData.EnlistmentRoot)
@@ -124,7 +130,6 @@ namespace Dashboard.Controllers
 
             _storage.Add(id, testResult);
             _statsUtil.AddStore(isJenkins);
-            _statsUtil.AddUnitTest(testResultData.TestPassed, testResultData.TestSkipped, testResultData.TestSkipped, TimeSpan.FromSeconds(seconds), isJenkins);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Dashboard.Azure
             _storage = _testResultStorage.DashboardStorage;
 
             var tableClient = _storage.StorageAccount.CreateCloudTableClient();
-            _unitTestCounterTable = tableClient.GetTableReference(AzureConstants.TableNames.UnitTestCounter);
+            _unitTestCounterTable = tableClient.GetTableReference(AzureConstants.TableNames.UnitTestQueryCounter);
             _testCacheCounterTable = tableClient.GetTableReference(AzureConstants.TableNames.TestCacheCounter);
         }
 
@@ -26,7 +26,7 @@ namespace Dashboard.Azure
             var startDateValue = startDate ?? AzureUtil.DefaultStartDate;
             var endDateValue = DateTime.UtcNow;
 
-            var stats = new TestHitStats();
+            var stats = new TestQueryStats();
             var unitTestQuery = CounterUtil.Query<UnitTestCounterEntity>(_unitTestCounterTable, startDateValue, endDateValue);
             foreach (var cur in unitTestQuery)
             {

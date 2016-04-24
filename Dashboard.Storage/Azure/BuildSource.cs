@@ -17,10 +17,11 @@ namespace Dashboard.Azure
             EnlistmentRoot = enlistmentRoot;
         }
 
-        public static BuildSource CreateAnonymous()
+        public static BuildSource CreateAnonymous(string suffix = null)
         {
+            suffix = suffix ?? $"{Guid.NewGuid().ToString()}";
             return new BuildSource(
-                $"anonymous-{DateTime.UtcNow.Ticks}",
+                $"anonymous-{suffix}",
                 @"c:\anonymous");
         }
     }

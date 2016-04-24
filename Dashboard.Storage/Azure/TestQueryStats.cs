@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 namespace Dashboard.Azure
 {
     /// <summary>
-    /// Information about the hit statistics including number of assembly, test passed, failed, etc ...
-    /// TODO: Does this type belong here???
+    /// Information about successful test queries returned to clients.
     /// </summary>
-    public struct TestHitStats
+    public struct TestQueryStats
     {
         public int AssemblyCount { get; set; }
         public int TestsPassed { get; set; }

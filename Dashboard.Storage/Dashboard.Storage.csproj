@@ -94,12 +94,13 @@
     <Compile Include="Azure\TestRunEntity.cs" />
     <Compile Include="Azure\UnitTestCounterEntity.cs" />
     <Compile Include="Sql\ConsoleLogger.cs" />
+    <Compile Include="Sql\DataMigrater.cs" />
     <Compile Include="Sql\ILogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sql\SqlUtil.cs" />
     <Compile Include="Sql\StorageLogger.cs" />
     <Compile Include="Azure\TestCacheStats.cs" />
-    <Compile Include="Azure\TestHitStats.cs" />
+    <Compile Include="Azure\TestQueryStats.cs" />
     <Compile Include="Azure\TestResult.cs" />
     <Compile Include="Azure\TestResultStorage.cs" />
     <Compile Include="Sql\TestResultSummary.cs" />

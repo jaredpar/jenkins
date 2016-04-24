@@ -11,6 +11,8 @@ using System.Diagnostics;
 using System.IO;
 using RestSharp.Authenticators;
 using System.Configuration;
+using Dashboard.Sql;
+using Dashboard.Azure;
 
 namespace Dashboard.ApiFun
 {
@@ -38,7 +40,19 @@ namespace Dashboard.ApiFun
             /*
             roslyn_stabil_lin_dbg_unit32
             */
-            Random();
+            Migrate().Wait();
+        }
+
+        private static async Task Migrate()
+        {
+            var sqlConnectionString = ConfigurationManager.AppSettings[SharedConstants.SqlConnectionStringName];
+            var tableConnectionString = ConfigurationManager.AppSettings[SharedConstants.StorageConnectionStringName];
+            var tool = new DataMigrater(sqlConnectionString, tableConnectionString);
+            // await tool.MigrateTestRun();
+            // await tool.MigrateTestCacheCounter1();
+            // await tool.MigrateTestCacheCounter2();
+            // await tool.MigrateTestRunCounter();
+            await tool.MigrateUnitTestData();
         }
 
         private static JenkinsClient CreateClient(bool auth = true)

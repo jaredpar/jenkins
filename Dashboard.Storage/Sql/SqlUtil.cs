@@ -17,6 +17,8 @@ namespace Dashboard.Sql
         private SqlConnection _connection;
         private ILogger _logger;
 
+        public SqlConnection Connection => _connection;
+
         public SqlUtil(string connectionString, ILogger logger = null)
         {
             _connection = new SqlConnection(connectionString);
@@ -248,7 +250,7 @@ namespace Dashboard.Sql
         /// <summary>
         /// Get all of the statistics on test cache hits recorded in DB since the given <paramref name="startDate"/>.
         /// </summary>
-        public TestHitStats? GetHitStats(DateTime? startDate)
+        public TestQueryStats? GetHitStats(DateTime? startDate)
         {
             var startDateValue = startDate ?? DateTimeMin;
             var commandText = @"
@@ -275,7 +277,7 @@ namespace Dashboard.Sql
                             var skipped = reader.GetInt32(3);
                             var elapsed = reader.GetInt32(4);
 
-                            return new TestHitStats()
+                            return new TestQueryStats()
                             {
                                 AssemblyCount = assemblyCount,
                                 TestsPassed = passed,
@@ -497,6 +499,7 @@ namespace Dashboard.Sql
                                 outputError: outputError,
                                 resultsFileName: resultsFileName,
                                 resultsFileContent: resultsFileContent,
+                                unitTestData: new UnitTestData(),
                                 elapsed: TimeSpan.FromSeconds(elapsed));
                         }
 

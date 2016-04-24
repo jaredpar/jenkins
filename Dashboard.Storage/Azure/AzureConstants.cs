@@ -16,8 +16,8 @@ namespace Dashboard.Azure
             public const string DemandBuild = "DemandBuild";
             public const string TestCacheCounter = "TestCacheCounter";
             public const string TestRunCounter = "TestRunCounter";
-            public const string UnitTestCounter = "UnitTestCounter";
             public const string TestRunData = "TestRunData";
+            public const string UnitTestQueryCounter = "UnitTestQueryCounter";
 
             public static IEnumerable<string> All()
             {
@@ -27,7 +27,7 @@ namespace Dashboard.Azure
                 yield return DemandBuild;
                 yield return TestCacheCounter;
                 yield return TestRunCounter;
-                yield return UnitTestCounter;
+                yield return UnitTestQueryCounter;
                 yield return TestRunData;
             }
         }
