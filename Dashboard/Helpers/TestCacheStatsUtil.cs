@@ -50,9 +50,8 @@ namespace Dashboard.Helpers
 
         private TestCacheCounterEntity GetEntity(bool isJenkins)
         {
-            var dateTime = DateTime.UtcNow;
-            var entityWriterId = GetEntityWriterId();
-            var key = TestCacheCounterEntity.GetEntityKey(dateTime, entityWriterId, isJenkins);
+            var counterData = new CounterData(GetEntityWriterId(), isJenkins);
+            var key = counterData.EntityKey;
             lock (s_guard)
             {
                 if (s_entity != null && s_entity.EntityKey == key)
@@ -61,7 +60,7 @@ namespace Dashboard.Helpers
                 }
             }
 
-            var entity = GetOrCreateEntity(dateTime, entityWriterId, isJenkins);
+            var entity = GetOrCreateEntity(counterData);
             lock (s_guard)
             {
                 s_entity = entity;
@@ -70,16 +69,16 @@ namespace Dashboard.Helpers
             return entity;
         }
 
-        private TestCacheCounterEntity GetOrCreateEntity(DateTime dateTime, string entityWriterId, bool isJenkins)
+        private TestCacheCounterEntity GetOrCreateEntity(CounterData counterData)
         {
-            var key = TestCacheCounterEntity.GetEntityKey(dateTime, entityWriterId, isJenkins);
+            var key = CounterUtil.GetEntityKey(counterData);
             var entity = AzureUtil.QueryTable<TestCacheCounterEntity>(_storage.TestCacheCounterTable, key);
             if (entity != null)
             {
                 return entity;
             }
 
-            return TestCacheCounterEntity.Create(dateTime, entityWriterId, isJenkins);
+            return new TestCacheCounterEntity(counterData);
         }
 
         private static string GetEntityWriterId() => $"{s_idBase}-{Thread.CurrentThread.ManagedThreadId}";

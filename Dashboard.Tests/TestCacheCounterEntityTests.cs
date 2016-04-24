@@ -14,7 +14,8 @@ namespace Dashboard.Tests
         public void EntityWriterId()
         {
             var id = Guid.NewGuid().ToString();
-            var entity = TestCacheCounterEntity.Create(DateTime.UtcNow, id, isJenkins: true);
+            var counterData = new CounterData(id, isJenkins: true);
+            var entity = new TestCacheCounterEntity(counterData);
             Assert.Equal(id, entity.EntityWriterId);
         }
     }
