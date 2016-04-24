@@ -33,7 +33,7 @@ namespace Dashboard.Controllers
     {
         private readonly SqlUtil _sqlUtil;
         private readonly TestCacheStats _stats;
-        private readonly TestCacheStatsUtil _statsUtil;
+        private readonly CounterStatsUtil _statsUtil;
         private readonly TestResultStorage _storage;
 
         public TestRunController()
@@ -46,7 +46,7 @@ namespace Dashboard.Controllers
             var storage = new TestResultStorage(dashboardStorage);
 
             _stats = new TestCacheStats(storage, _sqlUtil);
-            _statsUtil = new TestCacheStatsUtil(dashboardStorage);
+            _statsUtil = new CounterStatsUtil(dashboardStorage);
             _storage = new TestResultStorage(dashboardStorage);
         }
 
@@ -77,8 +77,9 @@ namespace Dashboard.Controllers
                     chunkCount: testRunData.ChunkCount,
                     assemblyCount: testRunData.AssemblyCount);
 
-            // TODO: Need to store this data somewhere
-            // _statsUtil.AddRun();
+            _statsUtil.AddTestRun(testRun.Succeeded, testRun.IsJenkins);
+
+            // TODO: Should store the full test run data somewhere.
         }
     }
 }

@@ -9,6 +9,7 @@ namespace Dashboard.Azure
     public sealed class TestRunCounterEntity : CounterEntity
     {
         public int RunCount { get; set; }
+        public int SucceededCount { get; set; }
 
         public TestRunCounterEntity()
         {

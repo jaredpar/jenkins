@@ -225,10 +225,11 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\CounterEntityUtil.cs" />
     <Compile Include="Helpers\DashboardController.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\PrettyPrintAttribute.cs" />
-    <Compile Include="Helpers\TestCacheStatsUtil.cs" />
+    <Compile Include="Helpers\CounterStatsUtil.cs" />
     <Compile Include="Models\BuildsModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\QueueModel.cs" />

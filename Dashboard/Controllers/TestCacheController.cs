@@ -62,7 +62,7 @@ namespace Dashboard.Controllers
         private readonly SqlUtil _sqlUtil;
         private readonly TestResultStorage _storage;
         private readonly TestCacheStats _stats;
-        private readonly TestCacheStatsUtil _statsUtil;
+        private readonly CounterStatsUtil _statsUtil;
 
         public TestCacheController()
         {
@@ -73,7 +73,7 @@ namespace Dashboard.Controllers
             var dashboardStorage = new DashboardStorage(dashboardConnectionString);
             _storage = new TestResultStorage(dashboardStorage);
             _stats = new TestCacheStats(_storage, _sqlUtil);
-            _statsUtil = new TestCacheStatsUtil(dashboardStorage);
+            _statsUtil = new CounterStatsUtil(dashboardStorage);
         }
 
         protected override void Dispose(bool disposing)
@@ -142,9 +142,11 @@ namespace Dashboard.Controllers
             var buildSource = testCacheData.TestSourceData != null
                 ? new BuildSource(testCacheData.TestSourceData.MachineName, testCacheData.TestSourceData.EnlistmentRoot)
                 : (BuildSource?)null;
+            var isJenkins = testCacheData.TestSourceData?.IsJenkins ?? false;
 
             _storage.Add(id, testResult);
-            _statsUtil.AddStore(testCacheData.TestSourceData?.IsJenkins ?? false);
+            _statsUtil.AddStore(isJenkins);
+            _statsUtil.AddUnitTest(testResultData.TestPassed, testResultData.TestSkipped, testResultData.TestSkipped, TimeSpan.FromSeconds(seconds), isJenkins);
         }
     }
 }

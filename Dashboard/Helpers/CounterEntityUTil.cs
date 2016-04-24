@@ -8,47 +8,29 @@ using System.Web;
 
 namespace Dashboard.Helpers
 {
-    public sealed class TestCacheStatsUtil
+    public class CounterEntityUtil<T>
+        where T : CounterEntity, new()
     {
         private static readonly object s_guard = new object();
         private static readonly Guid s_idBase = Guid.NewGuid();
-        private static TestCacheCounterEntity s_entity;
+        private static T s_entity;
 
-        private readonly DashboardStorage _storage;
+        private readonly CloudTable _table;
+        private readonly Func<CounterData, T> _createFunc;
 
-        public TestCacheStatsUtil(DashboardStorage storage)
+        public CounterEntityUtil(CloudTable table, Func<CounterData, T> createFunc)
         {
-            _storage = storage;
+            _table = table;
+            _createFunc = createFunc;
         }
 
-        public void AddHit(bool isJenkins)
-        {
-            var entity = GetEntity(isJenkins);
-            entity.HitCount++;
-            Update(entity);
-        }
-
-        public void AddMiss(bool isJenkins)
-        {
-            var entity = GetEntity(isJenkins);
-            entity.MissCount++;
-            Update(entity);
-        }
-
-        public void AddStore(bool isJenkins)
-        {
-            var entity = GetEntity(isJenkins);
-            entity.StoreCount++;
-            Update(entity);
-        }
-
-        private void Update(TestCacheCounterEntity entity)
+        public void Update(T entity)
         {
             var operation = TableOperation.InsertOrReplace(entity);
-            _storage.TestCacheCounterTable.Execute(operation);
+            _table.Execute(operation);
         }
 
-        private TestCacheCounterEntity GetEntity(bool isJenkins)
+        public T GetEntity(bool isJenkins)
         {
             var counterData = new CounterData(GetEntityWriterId(), isJenkins);
             var key = counterData.EntityKey;
@@ -69,16 +51,16 @@ namespace Dashboard.Helpers
             return entity;
         }
 
-        private TestCacheCounterEntity GetOrCreateEntity(CounterData counterData)
+        private T GetOrCreateEntity(CounterData counterData)
         {
             var key = CounterUtil.GetEntityKey(counterData);
-            var entity = AzureUtil.QueryTable<TestCacheCounterEntity>(_storage.TestCacheCounterTable, key);
+            var entity = AzureUtil.QueryTable<T>(_table, key);
             if (entity != null)
             {
                 return entity;
             }
 
-            return new TestCacheCounterEntity(counterData);
+            return _createFunc(counterData);
         }
 
         private static string GetEntityWriterId() => $"{s_idBase}-{Thread.CurrentThread.ManagedThreadId}";
