@@ -29,6 +29,7 @@ namespace Dashboard.Azure
         private const int SizeLimit = 10000000;
         private readonly DashboardStorage _storage;
 
+        public DashboardStorage DashboardStorage => _storage;
         public List<string> Keys => _storage.TestResultsContainer.ListBlobs().OfType<CloudBlockBlob>().Select(x => x.Name).ToList();
         public int Count => Keys.Count;
 

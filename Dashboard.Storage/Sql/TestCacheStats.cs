@@ -1,4 +1,5 @@
 ﻿using Dashboard.Azure;
+using Microsoft.WindowsAzure.Storage.Table;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,20 +10,51 @@ namespace Dashboard.Sql
     public sealed class TestCacheStats
     {
         private readonly SqlUtil _sqlUtil;
+        private readonly DashboardStorage _storage;
         private readonly TestResultStorage _testResultStorage;
+        private readonly CloudTable _unitTestCounterTable;
+        private readonly CloudTable _testCacheCounterTable;
 
         public TestCacheStats(TestResultStorage testResultStorage, SqlUtil sqlUtil)
         {
             _testResultStorage = testResultStorage;
+            _storage = _testResultStorage.DashboardStorage;
             _sqlUtil = sqlUtil;
+
+            var tableClient = _storage.StorageAccount.CreateCloudTableClient();
+            _unitTestCounterTable = tableClient.GetTableReference(AzureConstants.TableNames.UnitTestCounter);
+            _testCacheCounterTable = tableClient.GetTableReference(AzureConstants.TableNames.TestCacheCounter);
         }
 
         public TestCacheStatSummary GetSummary(DateTime? startDate)
         {
+            var startDateValue = startDate ?? AzureUtil.DefaultStartDate;
+            var endDateValue = DateTime.UtcNow;
+
+            var stats = new TestHitStats();
+            var unitTestQuery = CounterUtil.Query<UnitTestCounterEntity>(_unitTestCounterTable, startDateValue, endDateValue);
+            foreach (var cur in unitTestQuery)
+            {
+                stats.AssemblyCount += cur.AssemblyCount;
+                stats.TestsPassed += cur.TestsPassed;
+                stats.TestsSkipped += cur.TestsSkipped;
+                stats.TestsFailed += cur.TestsFailed;
+                stats.ElapsedSeconds += cur.ElapsedSeconds;
+            }
+
+            var missCount = 0;
+            var uploadCount = 0;
+            var cacheQuery = CounterUtil.Query<TestCacheCounterEntity>(_testCacheCounterTable, startDateValue, endDateValue);
+            foreach (var cur in cacheQuery)
+            {
+                missCount += cur.MissCount;
+                uploadCount += cur.StoreCount;
+            }
+
             return new TestCacheStatSummary(
-                hitStats: _sqlUtil.GetHitStats(startDate) ?? default(TestHitStats),
-                missCount: _sqlUtil.GetMissStats(startDate) ?? 0,
-                uploadCount: _sqlUtil.GetStoreCount(startDate) ?? 0,
+                hitStats: stats,
+                missCount: missCount,
+                uploadCount: uploadCount,
                 testResultCount: _testResultStorage.GetCount(startDate));
         }
 

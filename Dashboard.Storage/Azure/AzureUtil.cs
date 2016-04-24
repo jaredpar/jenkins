@@ -12,6 +12,8 @@ namespace Dashboard.Azure
         // Current Azure Limit
         internal const int MaxBatchCount = 100;
 
+        public static readonly DateTime DefaultStartDate = new DateTime(year: 2016, month: 4, day: 1);
+
         /// <summary>
         /// There are a number of characters which are illegal for partition / row keys in Azure.  This 
         /// method will normalize them to the specified value.
@@ -95,25 +97,35 @@ namespace Dashboard.Azure
             }
         }
 
+        public static string GenerateFilterConditionPartitionKey(string partitionKey)
+        {
+            return TableQuery.GenerateFilterCondition(
+                nameof(TableEntity.PartitionKey),
+                QueryComparisons.Equal,
+                partitionKey);
+        }
+
+        public static string GenerateFilterConditionRowKey(string rowKey)
+        {
+            return TableQuery.GenerateFilterCondition(
+                nameof(TableEntity.RowKey),
+                QueryComparisons.Equal,
+                rowKey);
+        }
+
         /// <summary>
         /// Create an exact query for a given entity.
         /// </summary>
         public static TableQuery<T> CreateQuery<T>(EntityKey key)
         {
-            var partitionFilter = TableQuery.GenerateFilterCondition(
-                nameof(TableEntity.PartitionKey),
-                QueryComparisons.Equal,
-                key.PartitionKey);
-            var rowFliter = TableQuery.GenerateFilterCondition(
-                nameof(TableEntity.RowKey),
-                QueryComparisons.Equal,
-                key.RowKey);
+            var partitionFilter = GenerateFilterConditionPartitionKey(key.PartitionKey);
+            var rowFilter = GenerateFilterConditionRowKey(key.RowKey);
 
             return new TableQuery<T>()
                 .Where(TableQuery.CombineFilters(
                     partitionFilter,
                     TableOperators.And,
-                    rowFliter));
+                    rowFilter));
         }
 
         public static T QueryTable<T>(CloudTable table, EntityKey key)

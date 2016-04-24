@@ -11,26 +11,13 @@ namespace Dashboard.Sql
     /// </summary>
     public struct TestHitStats
     {
-        public int AssemblyCount { get; }
-        public int TestsPassed { get; }
-        public int TestsFailed { get; }
-        public int TestsSkipped { get; }
+        public int AssemblyCount { get; set; }
+        public int TestsPassed { get; set; }
+        public int TestsFailed { get; set; }
+        public int TestsSkipped { get; set; }
+        public long ElapsedSeconds { get; set; }
+
         public int TestsTotal => TestsPassed + TestsFailed + TestsSkipped;
-        public TimeSpan Elapsed { get; }
-
-        public TestHitStats(
-            int assemblyCount,
-            int testsPassed,
-            int testsFailed,
-            int testsSkipped,
-            TimeSpan elapsed)
-
-        {
-            AssemblyCount = assemblyCount;
-            TestsPassed = testsPassed;
-            TestsFailed = testsFailed;
-            TestsSkipped = testsSkipped;
-            Elapsed = elapsed;
-        }
+        public TimeSpan Elapsed => TimeSpan.FromSeconds(ElapsedSeconds);
     }
 }

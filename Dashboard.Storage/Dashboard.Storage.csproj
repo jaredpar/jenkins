@@ -90,6 +90,7 @@
     <Compile Include="Azure\EntityKey.cs" />
     <Compile Include="Azure\TestCacheCounterEntity.cs" />
     <Compile Include="Azure\TestRunCounterEntity.cs" />
+    <Compile Include="Azure\UnitTestCounterEntity.cs" />
     <Compile Include="Sql\BuildSource.cs" />
     <Compile Include="Sql\ConsoleLogger.cs" />
     <Compile Include="Sql\ILogger.cs" />

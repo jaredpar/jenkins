@@ -275,12 +275,14 @@ namespace Dashboard.Sql
                             var skipped = reader.GetInt32(3);
                             var elapsed = reader.GetInt32(4);
 
-                            return new TestHitStats(
-                                assemblyCount: assemblyCount,
-                                testsPassed: passed,
-                                testsFailed: failed,
-                                testsSkipped: skipped,
-                                elapsed: TimeSpan.FromSeconds(elapsed));
+                            return new TestHitStats()
+                            {
+                                AssemblyCount = assemblyCount,
+                                TestsPassed = passed,
+                                TestsFailed = failed,
+                                TestsSkipped = skipped,
+                                ElapsedSeconds = elapsed
+                            };
                         }
 
                         return null;

@@ -35,7 +35,7 @@ namespace Dashboard.Azure
             _buildProcessedTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildProcessed);
             _demandRunTable = tableClient.GetTableReference(AzureConstants.TableNames.DemandRun);
             _demandBuildTable = tableClient.GetTableReference(AzureConstants.TableNames.DemandBuild);
-            _testCacheCounterTable = tableClient.GetTableReference(AzureConstants.TableNames.TestCacheCounterTable);
+            _testCacheCounterTable = tableClient.GetTableReference(AzureConstants.TableNames.TestCacheCounter);
 
             var blobClient = _storageAccount.CreateCloudBlobClient();
             _testResultsContainer = blobClient.GetContainerReference(AzureConstants.ContainerNames.TestResults);
@@ -46,12 +46,19 @@ namespace Dashboard.Azure
         /// </summary>
         public void EnsureAzureResources()
         {
-            _buildFailureTable.CreateIfNotExists();
-            _buildProcessedTable.CreateIfNotExists();
-            _demandRunTable.CreateIfNotExists();
-            _demandBuildTable.CreateIfNotExists();
-            _testCacheCounterTable.CreateIfNotExists();
-            _testResultsContainer.CreateIfNotExists();
+            var tableClient = _storageAccount.CreateCloudTableClient();
+            foreach (var name in AzureConstants.TableNames.All())
+            {
+                var table = tableClient.GetTableReference(name);
+                table.CreateIfNotExists();
+            }
+
+            var blobClient = _storageAccount.CreateCloudBlobClient();
+            foreach (var name in AzureConstants.ContainerNames.All())
+            {
+                var container = blobClient.GetContainerReference(name);
+                container.CreateIfNotExists();
+            }
         }
 
         public static string NormalizeTestCaseName(string testCaseName)
