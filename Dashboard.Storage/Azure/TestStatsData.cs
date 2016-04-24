@@ -4,8 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dashboard.Sql
+namespace Dashboard.Azure
 {
+    /// <summary>
+    /// TODO: Does this belong here?
+    /// </summary>
     public class TestCacheStatSummary
     {
         public TestHitStats HitStats { get; }

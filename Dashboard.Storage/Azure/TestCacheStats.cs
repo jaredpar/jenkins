@@ -1,25 +1,20 @@
 ﻿using Dashboard.Azure;
 using Microsoft.WindowsAzure.Storage.Table;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
-namespace Dashboard.Sql
+namespace Dashboard.Azure
 {
     public sealed class TestCacheStats
     {
-        private readonly SqlUtil _sqlUtil;
         private readonly DashboardStorage _storage;
         private readonly TestResultStorage _testResultStorage;
         private readonly CloudTable _unitTestCounterTable;
         private readonly CloudTable _testCacheCounterTable;
 
-        public TestCacheStats(TestResultStorage testResultStorage, SqlUtil sqlUtil)
+        public TestCacheStats(TestResultStorage testResultStorage)
         {
             _testResultStorage = testResultStorage;
             _storage = _testResultStorage.DashboardStorage;
-            _sqlUtil = sqlUtil;
 
             var tableClient = _storage.StorageAccount.CreateCloudTableClient();
             _unitTestCounterTable = tableClient.GetTableReference(AzureConstants.TableNames.UnitTestCounter);

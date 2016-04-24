@@ -1,7 +1,6 @@
 ﻿using Dashboard.Helpers;
 using Dashboard.Models;
 using Dashboard;
-using Dashboard.Sql;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -13,35 +12,21 @@ using Microsoft.WindowsAzure;
 using Dashboard.Azure;
 using System.Diagnostics;
 using Microsoft.WindowsAzure.Storage.Table;
+using Dashboard.Sql;
 
 namespace Dashboard.Controllers
 {
-    public class StatusController : Controller
+    public class StatusController : DashboardController
     {
-        private readonly SqlUtil _sqlUtil;
         private readonly TestCacheStats _testCacheStats;
         private readonly TestResultStorage _testResultStorage;
         private readonly CloudTable _testRunTable;
 
         public StatusController()
         {
-            var connectionString = ConfigurationManager.AppSettings[SharedConstants.SqlConnectionStringName];
-            _sqlUtil = new SqlUtil(connectionString);
-
-            var dashboardConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
-            var dashboardStorage = new DashboardStorage(dashboardConnectionString);
-            _testResultStorage = new TestResultStorage(dashboardStorage);
-            _testCacheStats = new TestCacheStats(_testResultStorage, _sqlUtil);
-            _testRunTable = dashboardStorage.StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.TestRunData);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            if (disposing)
-            {
-                _sqlUtil.Dispose();
-            }
+            _testResultStorage = new TestResultStorage(Storage);
+            _testCacheStats = new TestCacheStats(_testResultStorage);
+            _testRunTable = StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.TestRunData);
         }
 
         public ActionResult Index()

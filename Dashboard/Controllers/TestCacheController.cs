@@ -1,7 +1,6 @@
 ﻿using Dashboard.Helpers;
 using Dashboard.Models;
 using Dashboard;
-using Dashboard.Sql;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -57,33 +56,17 @@ namespace Dashboard.Controllers
     /// This is a proof of concept implementation only.  I realize that its implementation is pretty terrible
     /// and that's fine.  For now it is enough to validate the end to end scenario.
     /// </summary>
-    public class TestCacheController : ApiController
+    public class TestCacheController : DashboardApiController
     {
-        private readonly SqlUtil _sqlUtil;
         private readonly TestResultStorage _storage;
         private readonly TestCacheStats _stats;
         private readonly CounterStatsUtil _statsUtil;
 
         public TestCacheController()
         {
-            var connectionString = ConfigurationManager.AppSettings[SharedConstants.SqlConnectionStringName];
-            _sqlUtil = new SqlUtil(connectionString);
-
-            var dashboardConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
-            var dashboardStorage = new DashboardStorage(dashboardConnectionString);
-            _storage = new TestResultStorage(dashboardStorage);
-            _stats = new TestCacheStats(_storage, _sqlUtil);
-            _statsUtil = new CounterStatsUtil(dashboardStorage);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-
-            if (disposing)
-            {
-                _sqlUtil.Dispose();
-            }
+            _storage = new TestResultStorage(Storage);
+            _stats = new TestCacheStats(_storage);
+            _statsUtil = new CounterStatsUtil(Storage);
         }
 
         public IEnumerable<string> Get()
@@ -127,11 +110,6 @@ namespace Dashboard.Controllers
             var seconds = testResultData.ElapsedSeconds > 0
                 ? testResultData.ElapsedSeconds
                 : testResultData.EllapsedSeconds;
-            var testResultSummary = new TestResultSummary(
-                passed: testResultData.TestPassed,
-                failed: testResultData.TestFailed,
-                skipped: testResultData.TestSkipped,
-                elapsed: TimeSpan.FromSeconds(seconds));
             var testResult = new TestResult(
                 testResultData.ExitCode,
                 testResultData.OutputStandard,

@@ -98,13 +98,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sql\SqlUtil.cs" />
     <Compile Include="Sql\StorageLogger.cs" />
-    <Compile Include="Sql\TestCacheStats.cs" />
-    <Compile Include="Sql\TestHitStats.cs" />
+    <Compile Include="Azure\TestCacheStats.cs" />
+    <Compile Include="Azure\TestHitStats.cs" />
     <Compile Include="Azure\TestResult.cs" />
     <Compile Include="Azure\TestResultStorage.cs" />
     <Compile Include="Sql\TestResultSummary.cs" />
-    <Compile Include="Sql\TestRun.cs" />
-    <Compile Include="Sql\TestStatsData.cs" />
+    <Compile Include="Sql\TestRunLegacy.cs" />
+    <Compile Include="Azure\TestStatsData.cs" />
     <Compile Include="Sql\ZipUtil.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,7 +1,6 @@
 ﻿using Dashboard.Helpers;
 using Dashboard.Models;
 using Dashboard;
-using Dashboard.Sql;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -30,9 +29,8 @@ namespace Dashboard.Controllers
         public int EllapsedSeconds { get; set; }
     }
 
-    public class TestRunController : ApiController
+    public class TestRunController : DashboardApiController
     {
-        private readonly SqlUtil _sqlUtil;
         private readonly TestCacheStats _stats;
         private readonly CounterStatsUtil _statsUtil;
         private readonly TestResultStorage _storage;
@@ -40,27 +38,11 @@ namespace Dashboard.Controllers
 
         public TestRunController()
         {
-            var connectionString = ConfigurationManager.AppSettings[SharedConstants.SqlConnectionStringName];
-            _sqlUtil = new SqlUtil(connectionString);
-
-            var dashboardConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
-            var dashboardStorage = new DashboardStorage(dashboardConnectionString);
-            var storage = new TestResultStorage(dashboardStorage);
-
-            _stats = new TestCacheStats(storage, _sqlUtil);
-            _statsUtil = new CounterStatsUtil(dashboardStorage);
-            _storage = new TestResultStorage(dashboardStorage);
-            _testRunTable = dashboardStorage.StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.TestRunData);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-
-            if (disposing)
-            {
-                _sqlUtil.Dispose();
-            }
+            var storage = new TestResultStorage(Storage);
+            _stats = new TestCacheStats(storage);
+            _statsUtil = new CounterStatsUtil(Storage);
+            _storage = new TestResultStorage(Storage);
+            _testRunTable = StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.TestRunData);
         }
 
         public void Post([FromBody] TestRunData testRunData)
