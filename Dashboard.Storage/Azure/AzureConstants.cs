@@ -14,7 +14,7 @@ namespace Dashboard.Azure
             public const string BuildProcessed = "BuildProcessed";
             public const string DemandRun = "DemandRun";
             public const string DemandBuild = "DemandBuild";
-            public const string TestResultQueryCounter = "TestResultQueryCounter";
+            public const string TestCacheCounterTable = "TestCacheCounter";
         }
 
         public static class ContainerNames

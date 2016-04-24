@@ -57,6 +57,11 @@ namespace Dashboard.Azure
             }
         }
 
+        public static bool IsIllegalKey(string key)
+        {
+            return key.Any(c => IsIllegalKeyChar(c));
+        }
+
         /// <summary>
         /// Inserts a collection of <see cref="TableEntity"/> values into a table using batch style 
         /// operations.  All entities must be insertable via batch operations.
@@ -90,5 +95,33 @@ namespace Dashboard.Azure
             }
         }
 
+        /// <summary>
+        /// Create an exact query for a given entity.
+        /// </summary>
+        public static TableQuery<T> CreateQuery<T>(EntityKey key)
+        {
+            var partitionFilter = TableQuery.GenerateFilterCondition(
+                nameof(TableEntity.PartitionKey),
+                QueryComparisons.Equal,
+                key.PartitionKey);
+            var rowFliter = TableQuery.GenerateFilterCondition(
+                nameof(TableEntity.RowKey),
+                QueryComparisons.Equal,
+                key.RowKey);
+
+            return new TableQuery<T>()
+                .Where(TableQuery.CombineFilters(
+                    partitionFilter,
+                    TableOperators.And,
+                    rowFliter));
+        }
+
+        public static T QueryTable<T>(CloudTable table, EntityKey key)
+            where T : ITableEntity, new()
+        {
+            var query = CreateQuery<T>(key);
+            var enumerable = table.ExecuteQuery(query);
+            return enumerable.SingleOrDefault();
+        }
     }
 }
