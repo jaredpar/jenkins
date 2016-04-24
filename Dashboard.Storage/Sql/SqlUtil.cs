@@ -190,7 +190,7 @@ namespace Dashboard.Sql
             }
         }
 
-        public List<TestRun> GetTestRuns(DateTime? startDateTime = null, DateTime? endDateTime = null)
+        public List<TestRunLegacy> GetTestRuns(DateTime? startDateTime = null, DateTime? endDateTime = null)
         {
             startDateTime = startDateTime?.ToUniversalTime();
             endDateTime = endDateTime?.ToUniversalTime();
@@ -204,7 +204,7 @@ namespace Dashboard.Sql
                 var p = command.Parameters;
                 p.AddWithValue("@StartDate", startDateTime ?? DateTimeMin);
                 p.AddWithValue("@EndDate", endDateTime ?? DateTimeMax);
-                var list = new List<TestRun>();
+                var list = new List<TestRunLegacy>();
                 try
                 {
                     using (var reader = command.ExecuteReader())
@@ -221,7 +221,7 @@ namespace Dashboard.Sql
                             var cacheCount = reader.GetInt32(7);
                             var chunkCount = reader.GetInt32(8);
 
-                            var testRun = new TestRun(
+                            var testRun = new TestRunLegacy(
                                 runDate: runDate,
                                 cache: cache,
                                 elapsed: TimeSpan.FromSeconds(elapsed),
@@ -407,7 +407,7 @@ namespace Dashboard.Sql
             }
         }
 
-        public bool InsertTestRun(TestRun testRun)
+        public bool InsertTestRun(TestRunLegacy testRun)
         {
             var commandText = @"
                 INSERT INTO dbo.TestRuns(RunDate, Cache, ElapsedSeconds, Succeeded, IsJenkins, Is32, AssemblyCount, CacheCount, ChunkCount)

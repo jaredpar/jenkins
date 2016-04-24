@@ -11,6 +11,8 @@ using System.Web.Http;
 using System.Web.Mvc;
 using Microsoft.WindowsAzure;
 using Dashboard.Azure;
+using System.Diagnostics;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Dashboard.Controllers
 {
@@ -19,6 +21,7 @@ namespace Dashboard.Controllers
         private readonly SqlUtil _sqlUtil;
         private readonly TestCacheStats _testCacheStats;
         private readonly TestResultStorage _testResultStorage;
+        private readonly CloudTable _testRunTable;
 
         public StatusController()
         {
@@ -29,6 +32,7 @@ namespace Dashboard.Controllers
             var dashboardStorage = new DashboardStorage(dashboardConnectionString);
             _testResultStorage = new TestResultStorage(dashboardStorage);
             _testCacheStats = new TestCacheStats(_testResultStorage, _sqlUtil);
+            _testRunTable = dashboardStorage.StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.TestRunData);
         }
 
         protected override void Dispose(bool disposing)
@@ -79,30 +83,55 @@ namespace Dashboard.Controllers
 
         public ActionResult TestRuns([FromUri] string startDate = null, [FromUri] string endDate = null)
         {
-            var startDateTime = ParameterToDateTime(startDate, DateTime.Now - TimeSpan.FromDays(7));
+            var startDateTime = ParameterToDateTime(startDate);
             var endDateTime = ParameterToDateTime(endDate);
 
-            var testRunList = _sqlUtil.GetTestRuns(startDateTime, endDateTime);
+            var testRunList = GetTestRuns(
+                startDateTime ?? DateTime.UtcNow - TimeSpan.FromDays(7),
+                endDateTime ?? DateTime.UtcNow).ToList();
             var compList = GetTestRunComparisons(testRunList);
             return View(compList);
         }
 
-        private static Dictionary<DateTime, List<TestRun>> GetTestRunGroupedByDate(List<TestRun> testRunList)
+        // TODO: this is a full table scan.  Terrible.  Should be optimized.
+        private IEnumerable<TestRunEntity> GetTestRuns(DateTime startDate, DateTime endDate)
+        {
+            Debug.Assert(startDate.Kind == DateTimeKind.Utc);
+            Debug.Assert(endDate.Kind == DateTimeKind.Utc);
+
+            var startFilter = TableQuery.GenerateFilterConditionForDate(
+                nameof(TestRunEntity.RunDate),
+                QueryComparisons.GreaterThanOrEqual,
+                startDate);
+            var endFilter = TableQuery.GenerateFilterConditionForDate(
+                nameof(TestRunEntity.RunDate),
+                QueryComparisons.LessThanOrEqual,
+                endDate);
+            var filter = TableQuery.CombineFilters(
+                startFilter,
+                TableOperators.And,
+                endFilter);
+
+            var query = new TableQuery<TestRunEntity>().Where(filter);
+            return _testRunTable.ExecuteQuery(query);
+        }
+
+        private static Dictionary<DateTime, List<TestRunEntity>> GetTestRunGroupedByDate(List<TestRunEntity> testRunList)
         {
             // First group the data by date
-            var map = new Dictionary<DateTime, List<TestRun>>();
+            var map = new Dictionary<DateTime, List<TestRunEntity>>();
             foreach (var cur in testRunList)
             {
-                if (!cur.Succeeded || !cur.IsJenkins || cur.Cache == "test" || cur.AssemblyCount < 35 || cur.Elapsed.Ticks == 0)
+                if (!cur.Succeeded || !cur.IsJenkins || cur.CacheType == "test" || cur.AssemblyCount < 35 || cur.Elapsed.Ticks == 0)
                 {
                     continue;
                 }
 
                 var date = cur.RunDate.Date;
-                List<TestRun> list;
+                List<TestRunEntity> list;
                 if (!map.TryGetValue(date, out list))
                 {
-                    list = new List<TestRun>();
+                    list = new List<TestRunEntity>();
                     map[date] = list;
                 }
 
@@ -115,7 +144,7 @@ namespace Dashboard.Controllers
         /// <summary>
         /// Break up the test runs into a list of comparisons by the date on which they occured. 
         /// </summary>
-        private static List<TestRunComparison> GetTestRunComparisons(List<TestRun> testRunList)
+        private static List<TestRunComparison> GetTestRunComparisons(List<TestRunEntity> testRunList)
         {
             var map = GetTestRunGroupedByDate(testRunList);
             var compList = new List<TestRunComparison>(map.Count);

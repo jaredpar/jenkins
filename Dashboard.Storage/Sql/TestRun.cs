@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dashboard.Sql
 {
-    public sealed class TestRun
+    public sealed class TestRunLegacy
     {
         public DateTime RunDate { get; }
         public string Cache { get; }
@@ -18,7 +18,7 @@ namespace Dashboard.Sql
         public int CacheCount { get; }
         public int ChunkCount { get; }
 
-        public TestRun(
+        public TestRunLegacy(
             DateTime runDate,
             string cache,
             TimeSpan elapsed,

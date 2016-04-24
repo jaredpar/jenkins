@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dashboard.Sql
+namespace Dashboard.Azure
 {
     public struct BuildSource
     {
@@ -15,6 +15,13 @@ namespace Dashboard.Sql
         {
             MachineName = machineName;
             EnlistmentRoot = enlistmentRoot;
+        }
+
+        public static BuildSource CreateAnonymous()
+        {
+            return new BuildSource(
+                $"anonymous-{DateTime.UtcNow.Ticks}",
+                @"c:\anonymous");
         }
     }
 }

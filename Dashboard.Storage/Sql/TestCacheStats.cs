@@ -57,10 +57,5 @@ namespace Dashboard.Sql
                 uploadCount: uploadCount,
                 testResultCount: _testResultStorage.GetCount(startDate));
         }
-
-        public List<TestRun> GetTestRuns(DateTime? startDate = null, DateTime? endDate = null)
-        {
-            return _sqlUtil.GetTestRuns(startDate, endDate);
-        }
     }
 }
