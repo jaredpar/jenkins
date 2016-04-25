@@ -12,6 +12,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Dashboard.Helpers;
+using System.Text;
 
 namespace Dashboard.Controllers
 {
@@ -30,31 +31,7 @@ namespace Dashboard.Controllers
         /// </summary>
         public ActionResult Index(bool pr = false, DateTime? startDate = null, int limit = 10)
         {
-            var startDateValue = _storage.GetStartDateValue(startDate);
-            var failureQuery = _storage.GetBuildFailureEntities(startDateValue)
-                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.BuildId.JobName))
-                .GroupBy(x => x.RowKey)
-                .Select(x => new { Key = x.Key, Count = x.Count() })
-                .OrderByDescending(x => x.Count)
-                .Take(limit);
-
-            var summary = new BuildFailureSummary()
-            {
-                IncludePullRequests = pr,
-                StartDate = startDateValue,
-                Limit = limit,
-            };
-
-            foreach (var pair in failureQuery)
-            {
-                var entry = new BuildFailureEntry()
-                {
-                    Name = pair.Key,
-                    Count = pair.Count
-                };
-                summary.Entries.Add(entry);
-            }
-
+            var summary = GetBuildFailureSummary(pr, startDate, limit);
             return View(viewName: "FailureList", model: summary);
         }
 
@@ -85,6 +62,23 @@ namespace Dashboard.Controllers
             return View(viewName: "Failure", model: model);
         }
 
+        public string Csv(bool pr = false, DateTime? startDate = null, int limit = 10)
+        {
+            var startDateValue = startDate ?? DateTime.UtcNow - TimeSpan.FromDays(7);
+            var summary = GetBuildFailureSummary(pr, startDateValue, limit);
+            var builder = new StringBuilder();
+            foreach (var entry in summary.Entries)
+            {
+                var name = entry.Name.Replace(',', ' ');
+                var index = name.LastIndexOf('.');
+                var suiteName = name.Substring(0, index);
+                var testName = name.Substring(index + 1);
+                builder.AppendLine($"{suiteName},{testName},{entry.Count}");
+            }
+
+            return builder.ToString();
+        }
+
         public ActionResult Demand(string userName, string commit)
         {
             var runStatus = new DemandRunStatusModel()
@@ -107,6 +101,36 @@ namespace Dashboard.Controllers
             }
 
             return View(viewName: "DemandStatus", model: runStatus);
+        }
+
+        public BuildFailureSummary GetBuildFailureSummary(bool pr = false, DateTime? startDate = null, int limit = 10)
+        {
+            var startDateValue = _storage.GetStartDateValue(startDate);
+            var failureQuery = _storage.GetBuildFailureEntities(startDateValue)
+                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.BuildId.JobName))
+                .GroupBy(x => x.RowKey)
+                .Select(x => new { Key = x.Key, Count = x.Count() })
+                .OrderByDescending(x => x.Count)
+                .Take(limit);
+
+            var summary = new BuildFailureSummary()
+            {
+                IncludePullRequests = pr,
+                StartDate = startDateValue,
+                Limit = limit,
+            };
+
+            foreach (var pair in failureQuery)
+            {
+                var entry = new BuildFailureEntry()
+                {
+                    Name = pair.Key,
+                    Count = pair.Count
+                };
+                summary.Entries.Add(entry);
+            }
+
+            return summary;
         }
     }
 }
