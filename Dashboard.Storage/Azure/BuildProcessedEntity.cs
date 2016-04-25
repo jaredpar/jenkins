@@ -40,6 +40,8 @@ namespace Dashboard.Azure
 
     public sealed class BuildProcessedEntity : TableEntity
     {
+        public const string TableName = AzureConstants.TableNames.BuildProcessed;
+
         public string KindRaw { get; set; }
         public DateTime BuildDate { get; set; }
 
@@ -55,6 +57,13 @@ namespace Dashboard.Azure
         {
             BuildDate = buildDate;
             KindRaw = kind.ToString();
+        }
+
+        public static EntityKey GetEntityKey(BuildId buildId)
+        {
+            return new EntityKey(
+                buildId.JobName,
+                buildId.Id.ToString());
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Dashboard.Helpers
             var key = counterData.EntityKey;
             lock (s_guard)
             {
-                if (s_entity != null && s_entity.EntityKey == key)
+                if (s_entity != null && s_entity.GetEntityKey() == key)
                 {
                     return s_entity;
                 }

@@ -12,11 +12,32 @@ using Dashboard.Azure;
 using Dashboard.Jenkins;
 using SendGrid;
 using System.Net.Mail;
+using Microsoft.WindowsAzure.Storage.Table;
+using System.Threading;
 
 namespace Dashboard.StorageBuilder
 {
     public class Functions
     {
+        [Singleton]
+        public static async Task BuildEvent(
+            [QueueTrigger(AzureConstants.QueueNames.BuildEvent)] string message, 
+            [Table(BuildEventEntity.TableName)] CloudTable buildEventTable,
+            [Table(BuildProcessedEntity.TableName)] CloudTable buildProcessedTable,
+            [Table(BuildFailureEntity.TableName)] CloudTable buildFailureTable,
+            TextWriter logger,
+            CancellationToken cancellationToken)
+        {
+            var githubConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.GithubConnectionStringName);
+            var util = new BuildEventUtil(
+                buildEventTable: buildEventTable, 
+                buildProcessedTable: buildProcessedTable, 
+                buildFailureTable: buildFailureTable, 
+                textWriter: logger,
+                githubConnectionString: githubConnectionString);
+            await util.Process(message, cancellationToken);
+        }
+
         public static async Task PopulateBuildTables(TextWriter logger)
         {
             try
@@ -52,7 +73,7 @@ namespace Dashboard.StorageBuilder
             var jobs = client.GetJobIds();
             var util = new JobTableUtil(buildProcessedTable: buildProcessedTable, buildFailureTable: buildFailureTable, client: client, textWriter: logger);
             await util.MoveUnknownToIgnored();
-            await util.Populate();
+            await util.PopulateAllAsync();
             return util.BuildAnalyzeErrors;
         }
 

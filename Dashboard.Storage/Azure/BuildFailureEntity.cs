@@ -16,6 +16,8 @@ namespace Dashboard.Azure
 
     public sealed class BuildFailureEntity : TableEntity
     {
+        public const string TableName = AzureConstants.TableNames.BuildFailure;
+
         public string KindRaw { get; set; }
         public DateTime BuildDate { get; set; }
         public string Extra { get; set; }

@@ -157,7 +157,7 @@ namespace Dashboard.Sql
                 if (!map.TryGetValue(counterData.EntityKey, out entity))
                 {
                     entity = new TestRunCounterEntity(counterData);
-                    map[entity.EntityKey] = entity;
+                    map[entity.GetEntityKey()] = entity;
                 }
 
                 entity.RunCount++;

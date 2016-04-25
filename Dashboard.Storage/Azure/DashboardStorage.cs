@@ -59,6 +59,13 @@ namespace Dashboard.Azure
                 var container = blobClient.GetContainerReference(name);
                 container.CreateIfNotExists();
             }
+
+            var queueClient = _storageAccount.CreateCloudQueueClient();
+            foreach (var name in AzureConstants.QueueNames.All())
+            {
+                var queue = queueClient.GetQueueReference(name);
+                queue.CreateIfNotExists();
+            }
         }
 
         public static string NormalizeTestCaseName(string testCaseName)

@@ -20,7 +20,6 @@ namespace Dashboard.Azure
         public string EntityWriterId => CounterUtil.GetEntityWriterId(RowKey);
         public DateTime Date => DateTime.Parse(PartitionKey);
         public TimeSpan TimeOfDay => TimeSpan.FromTicks(TimeOfDayTicks);
-        public EntityKey EntityKey => new EntityKey(PartitionKey, RowKey);
 
         protected CounterEntity()
         {

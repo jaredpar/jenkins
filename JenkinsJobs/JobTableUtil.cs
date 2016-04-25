@@ -51,7 +51,7 @@ namespace Dashboard.StorageBuilder
             }
         }
 
-        internal async Task Populate()
+        internal async Task PopulateAllAsync()
         {
             _buildAnalyzeErrors.Clear();
 
@@ -60,6 +60,18 @@ namespace Dashboard.StorageBuilder
                 _textWriter.WriteLine($"Processing {jobId.Name}");
                 var buildIdList = _client.GetBuildIds(jobId);
                 await PopulateBuildIds(jobId, buildIdList);
+            }
+        }
+
+        internal async Task PopulateBuildAsync(BuildId buildId)
+        {
+            _buildAnalyzeErrors.Clear();
+
+            var oldEntity = AzureUtil.QueryTable<BuildProcessedEntity>(_buildProcessedTable, BuildProcessedEntity.GetEntityKey(buildId));
+            var newEntity = await PopulateBuildIdCore(buildId, oldEntity);
+            if (newEntity != null)
+            {
+                await _buildProcessedTable.ExecuteAsync(TableOperation.InsertOrReplace(newEntity));
             }
         }
 
@@ -74,32 +86,46 @@ namespace Dashboard.StorageBuilder
                 // the job previously had an unknown failure or was listed as running.  In either case it needs
                 // to be reprocessed to see if we can identify the failure.
                 var oldEntity = oldProcessedList.FirstOrDefault(x => x.BuildId.Id == buildId.Id);
-                if (oldEntity != null && !ShouldProcessExisting(oldEntity.Kind))
+                var newEntity = await PopulateBuildIdCore(buildId, oldEntity);
+                if (newEntity != null)
                 {
-                    continue;
-                }
-
-                try
-                {
-                    var entity = await GetBuildFailureEntity(buildId);
-
-                    if (oldEntity != null && entity.Kind == oldEntity.Kind)
-                    {
-                        WriteLine(buildId, $"still in state {entity.Kind}");
-                        continue;
-                    }
-
-                    WriteLine(buildId, $"adding reason {entity.Kind}");
-                    newProcessedList.Add(entity);
-                }
-                catch (Exception ex)
-                {
-                    WriteLine(buildId, $"error processing {ex.Message}");
-                    _buildAnalyzeErrors.Add(new BuildAnalyzeError(buildId, ex));
+                    newProcessedList.Add(newEntity);
                 }
             }
 
             await AzureUtil.InsertBatch(_buildProcessedTable, newProcessedList);
+        }
+
+
+        private async Task<BuildProcessedEntity> PopulateBuildIdCore(BuildId buildId, BuildProcessedEntity oldEntity)
+        {
+            // Don't want to reprocess build failures that we've already seen.  Must continue though if 
+            // the job previously had an unknown failure or was listed as running.  In either case it needs
+            // to be reprocessed to see if we can identify the failure.
+            if (oldEntity != null && !ShouldProcessExisting(oldEntity.Kind))
+            {
+                return null;
+            }
+
+            try
+            {
+                var entity = await GetBuildFailureEntity(buildId);
+
+                if (oldEntity != null && entity.Kind == oldEntity.Kind)
+                {
+                    WriteLine(buildId, $"still in state {entity.Kind}");
+                    return null;
+                }
+
+                WriteLine(buildId, $"adding reason {entity.Kind}");
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                WriteLine(buildId, $"error processing {ex.Message}");
+                _buildAnalyzeErrors.Add(new BuildAnalyzeError(buildId, ex));
+                return null;
+            }
         }
 
         /// <summary>

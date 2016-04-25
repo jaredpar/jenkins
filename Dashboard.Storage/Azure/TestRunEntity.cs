@@ -25,7 +25,6 @@ namespace Dashboard.Azure
         public int CacheCount { get; set; }
         public int ChunkCount { get; set; }
 
-        public EntityKey EntityKey => new EntityKey(PartitionKey, RowKey);
         public TimeSpan Elapsed => TimeSpan.FromSeconds(ElapsedSeconds);
 
         public TestRunEntity()
