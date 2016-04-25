@@ -19,7 +19,6 @@ namespace Dashboard.StorageBuilder
 {
     public class Functions
     {
-        [Singleton]
         public static async Task BuildEvent(
             [QueueTrigger(AzureConstants.QueueNames.BuildEvent)] string message, 
             [Table(BuildEventEntity.TableName)] CloudTable buildEventTable,
@@ -35,7 +34,11 @@ namespace Dashboard.StorageBuilder
                 buildFailureTable: buildFailureTable, 
                 textWriter: logger,
                 githubConnectionString: githubConnectionString);
-            await util.Process(message, cancellationToken);
+            var list = await util.Process(message, cancellationToken);
+            if (list.Count > 0)
+            {
+                await SendEmail(BuildMessage(list));
+            }
         }
 
         public static async Task PopulateBuildTables(TextWriter logger)

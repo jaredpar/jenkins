@@ -29,7 +29,7 @@ namespace Dashboard.StorageBuilder
             _textWriter = textWriter;
         }
 
-        internal async Task Process(string message, CancellationToken cancellationToken)
+        internal async Task<List<BuildAnalyzeError>> Process(string message, CancellationToken cancellationToken)
         {
             // Ensure there is an entry in the build table noting this build event.  If the actual processing fails later jobs 
             // can come and clean this up. 
@@ -39,17 +39,18 @@ namespace Dashboard.StorageBuilder
             // No point is trying to get build result information until the job is done.
             if (entity.Phase != "COMPLETED" && entity.Phase != "FINALIZED")
             {
-                return;
+                return new List<BuildAnalyzeError>();
             }
 
             var jenkinsUri = new Uri($"https://{entity.JenkinsHostName}");
             var jenkinsClient = new JenkinsClient(jenkinsUri, connectionString: _githubConnectionString); 
             var jobTableUtil = new JobTableUtil(buildProcessedTable: _buildProcessedTable, buildFailureTable: _buildFailureTable, client: jenkinsClient, textWriter: _textWriter);
-            jobTableUtil.PopulateBuildAsync(entity.BuildId);
+            await jobTableUtil.PopulateBuildAsync(entity.BuildId);
 
             // Now that the build is processed delete the entity from the event table to signify that it no longer needs
             // to be processed.
             await _buildEventTable.ExecuteAsync(TableOperation.Delete(entity), cancellationToken);
+            return jobTableUtil.BuildAnalyzeErrors.ToList();
         }
 
         private BuildEventEntity CreateBuildEventEntity(string message)
