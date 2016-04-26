@@ -14,6 +14,7 @@ using SendGrid;
 using System.Net.Mail;
 using Microsoft.WindowsAzure.Storage.Table;
 using System.Threading;
+using Newtonsoft.Json;
 
 namespace Dashboard.StorageBuilder
 {
@@ -34,7 +35,8 @@ namespace Dashboard.StorageBuilder
                 buildFailureTable: buildFailureTable, 
                 textWriter: logger,
                 githubConnectionString: githubConnectionString);
-            var list = await util.Process(message, cancellationToken);
+            var messageJson = (MessageJson)JsonConvert.DeserializeObject(message, typeof(MessageJson));
+            var list = await util.Process(messageJson, cancellationToken);
             if (list.Count > 0)
             {
                 await SendEmail(BuildMessage(list));

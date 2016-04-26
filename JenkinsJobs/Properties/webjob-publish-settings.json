@@ -1,9 +1,9 @@
 ﻿{
   "$schema": "http://schemastore.org/schemas/json/webjob-publish-settings.json",
   "webJobName": "JenkinsJobs",
-  "startTime": "2016-04-12T00:00:00-08:00",
+  "startTime": null,
   "endTime": null,
-  "jobRecurrenceFrequency": "Hour",
-  "interval": 1,
-  "runMode": "Scheduled"
+  "jobRecurrenceFrequency": null,
+  "interval": null,
+  "runMode": "Continuous"
 }

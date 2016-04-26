@@ -32,6 +32,7 @@ namespace Dashboard.Jenkins
 
     public struct BuildId
     {
+        // TODO: rename to number? 
         public int Id { get; }
         public JobId JobId { get; }
         public string JobName => JobId.Name;

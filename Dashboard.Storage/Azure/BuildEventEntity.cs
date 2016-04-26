@@ -34,9 +34,16 @@ namespace Dashboard.Azure
 
         }
 
-        public BuildEventEntity(BuildId id) : base(id.JobName.ToString(), id.Id.ToString())
+        public BuildEventEntity(BuildId id)
         {
+            var key = GetEntityKey(id);
+            PartitionKey = key.PartitionKey;
+            RowKey = key.RowKey;
+        }
 
+        public static EntityKey GetEntityKey(BuildId id)
+        {
+            return new EntityKey(id.JobName.ToString(), id.Id.ToString());
         }
     }
 }

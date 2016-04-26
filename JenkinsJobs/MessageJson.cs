@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dashboard.Jenkins;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,5 +15,9 @@ namespace Dashboard.StorageBuilder
         public string Status { get; set; }
         public int Number { get; set; }
         public int QueueId { get; set; }
+
+        public BuildId BuildId => new BuildId(Number, JobId);
+        public JobId JobId => JenkinsUtil.ConvertPathToJobId(JobName);
+        public string JenkinsHostName => (new Uri(Url)).Host;
     }
 }
