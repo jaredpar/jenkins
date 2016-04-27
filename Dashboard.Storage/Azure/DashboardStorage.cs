@@ -69,6 +69,7 @@ namespace Dashboard.Azure
             return _buildFailureTable.ExecuteQuery(query);
         }
 
+        // TODO: DateTimeOffset
         public DateTime GetStartDateValue(DateTime? startDate)
         {
             return startDate?.ToUniversalTime().Date ?? DateTime.UtcNow.Date - TimeSpan.FromDays(1);

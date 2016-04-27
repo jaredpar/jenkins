@@ -1,0 +1,42 @@
+﻿@model Dashboard.Models.BuildResultSummaryModel
+
+@{
+    ViewBag.Title = "Build Results";
+    var prValue = Model.IncludePullRequests ? @"checked=""checked""" : "";
+    var startDateValue = Model.StartDate.ToString("yyyy-MM-dd");
+}
+
+<h2>Build Failures</h2>
+<table>
+    <thead><tr>
+        <th>Job Name</th>
+        <th>Failure Count</th>
+    </tr></thead>
+<tbody>
+@foreach (var entry in Model.Entries)
+{
+    var link = Html.ActionLink(
+        linkText: @entry.JobId.ShortName, 
+        controllerName: "Builds", 
+        actionName: "Result", 
+        routeValues: new { name = @entry.JobId.Name, pr = Model.IncludePullRequests, startDate = Model.StartDate }, 
+        htmlAttributes: null);
+    <tr>
+        <th>@link</th>
+        <th>@entry.Count</th>
+    </tr>
+}
+</tbody>
+</table>
+
+<h2>Filter Results</h2>
+
+@using (Html.BeginForm(controllerName: "Builds", actionName: "Result", method: FormMethod.Get))
+{
+    <div>
+        <div>Include Pull Requests <input name="pr" type="checkbox" @prValue value="true" /></div>
+        <div>Start Date <input name="startDate" type="date" value="@startDateValue"/></div>
+        <div><input type="submit" value="Refresh" /></div>
+    </div>
+}
+

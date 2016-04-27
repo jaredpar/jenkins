@@ -8,21 +8,44 @@ using System.Web;
 
 namespace Dashboard.Models
 {
-    public class BuildFailureSummary
+    public class BuildResultSummaryModel
+    {
+        public bool IncludePullRequests { get; set; }
+        public DateTimeOffset StartDate { get; set; }
+        public int Limit { get; set; }
+        public JobId JobId { get; set; }
+        public List<BuildResultSummaryEntry> Entries { get; set; } = new List<BuildResultSummaryEntry>();
+    }
+
+    public class BuildResultSummaryEntry
+    {
+        public JobId JobId { get; set; }
+        public int Count { get; set; }
+    }
+
+    public class BuildResultModel
+    {
+        public bool IncludePullRequests { get; set; }
+        public DateTimeOffset StartDate { get; set; }
+        public JobId JobId { get; set; }
+        public List<BuildResultEntity> Entries { get; set; } = new List<BuildResultEntity>();
+    }
+
+    public class TestFailureSummary
     {
         public bool IncludePullRequests { get; set; }
         public DateTime StartDate { get; set; }
         public int Limit { get; set; }
-        public List<BuildFailureEntry> Entries { get; set; } = new List<BuildFailureEntry>();
+        public List<TestFailureEntry> Entries { get; set; } = new List<TestFailureEntry>();
     }
 
-    public class BuildFailureEntry
+    public class TestFailureEntry
     {
         public string Name { get; set; }
         public int Count { get; set; }
     }
 
-    public class BuildFailureModel
+    public class TestFailureModel
     {
         public string Name { get; set; }
         public bool IncludePullRequests { get; set; }

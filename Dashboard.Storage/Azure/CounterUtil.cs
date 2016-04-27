@@ -69,7 +69,7 @@ namespace Dashboard.Azure
         /// Query counter entities between the specified dates.
         /// </summary>
         public static List<T> Query<T>(CloudTable table, DateTime startDate, DateTime endDate)
-            where T : ITableEntity, new()
+            where T : CounterEntity, new()
         {
             Debug.Assert(startDate.Kind == DateTimeKind.Utc);
             Debug.Assert(endDate.Kind == DateTimeKind.Utc);
@@ -88,7 +88,7 @@ namespace Dashboard.Azure
         /// Query the entities which occured on the date here and after the specified time.
         /// </summary>
         private static IEnumerable<T> QueryStart<T>(CloudTable table, DateTime startDate)
-            where T : ITableEntity, new()
+            where T : CounterEntity, new()
         {
             var timeOfDayTicks = GetTimeOfDayTicks(startDate);
             var partitionFilter = AzureUtil.GenerateFilterConditionPartitionKey(GetPartitionKey(startDate));
@@ -107,7 +107,7 @@ namespace Dashboard.Azure
         }
 
         private static IEnumerable<T> QueryEnd<T>(CloudTable table, DateTime endDate)
-            where T : ITableEntity, new()
+            where T : CounterEntity, new()
         {
             var timeOfDayTicks = GetTimeOfDayTicks(endDate);
             var partitionFilter = AzureUtil.GenerateFilterConditionPartitionKey(GetPartitionKey(endDate));
@@ -126,7 +126,7 @@ namespace Dashboard.Azure
         }
 
         private static IEnumerable<T> QueryMiddle<T>(CloudTable table, DateTime startDate, DateTime endDate)
-            where T : ITableEntity, new()
+            where T : CounterEntity, new()
         {
             var list = new List<T>();
             var max = endDate.Subtract(TimeSpan.FromDays(1));
@@ -139,7 +139,7 @@ namespace Dashboard.Azure
         }
 
         private static IEnumerable<T> QueryOne<T>(CloudTable table, DateTime date)
-            where T : ITableEntity, new()
+            where T : CounterEntity, new()
         {
             var filter = AzureUtil.GenerateFilterConditionPartitionKey(GetPartitionKey(date));
             var query = new TableQuery<T>().Where(filter);

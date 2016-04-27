@@ -22,14 +22,16 @@ namespace Dashboard.StorageBuilder
         private readonly CloudTable _buildEventTable;
         private readonly CloudTable _buildProcessedTable;
         private readonly CloudTable _buildFailureTable;
+        private readonly CloudTable _buildResultTable;
         private readonly TextWriter _textWriter;
         private readonly string _githubConnectionString;
 
-        internal BuildEventUtil(CloudTable buildEventTable, CloudTable buildProcessedTable, CloudTable buildFailureTable, TextWriter textWriter, string githubConnectionString)
+        internal BuildEventUtil(CloudTable buildEventTable, CloudTable buildProcessedTable, CloudTable buildFailureTable, CloudTable buildResultTable, TextWriter textWriter, string githubConnectionString)
         {
             _buildEventTable = buildEventTable;
             _buildProcessedTable = buildProcessedTable;
             _buildFailureTable = buildFailureTable;
+            _buildResultTable = buildResultTable;
             _githubConnectionString = githubConnectionString;
             _textWriter = textWriter;
         }
@@ -55,7 +57,7 @@ namespace Dashboard.StorageBuilder
         {
             var jenkinsUri = new Uri($"https://{message.JenkinsHostName}");
             var jenkinsClient = new JenkinsClient(jenkinsUri, connectionString: _githubConnectionString);
-            var jobTableUtil = new JobTableUtil(buildProcessedTable: _buildProcessedTable, buildFailureTable: _buildFailureTable, client: jenkinsClient, textWriter: _textWriter);
+            var jobTableUtil = new JobTableUtil(buildProcessedTable: _buildProcessedTable, buildFailureTable: _buildFailureTable, buildResultTable: _buildResultTable, client: jenkinsClient, textWriter: _textWriter);
 
             try
             {

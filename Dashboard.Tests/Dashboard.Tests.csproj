@@ -85,7 +85,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureUtilTests.cs" />
-    <Compile Include="DatePartitionKeyTests.cs" />
+    <Compile Include="BuildKeyTests.cs" />
+    <Compile Include="DateKeyTests.cs" />
     <Compile Include="EqualityUnit.cs" />
     <Compile Include="EqualityUnit`1.cs" />
     <Compile Include="EqualityUtil.cs" />

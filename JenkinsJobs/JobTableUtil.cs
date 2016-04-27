@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Dashboard.StorageBuilder
 {
@@ -14,6 +15,7 @@ namespace Dashboard.StorageBuilder
     {
         private readonly CloudTable _buildProcessedTable;
         private readonly CloudTable _buildFailureTable;
+        private readonly CloudTable _buildResultTable;
         private readonly JenkinsClient _client;
         private readonly TextWriter _textWriter;
         private readonly List<BuildAnalyzeError> _buildAnalyzeErrors = new List<BuildAnalyzeError>();
@@ -21,10 +23,13 @@ namespace Dashboard.StorageBuilder
         internal List<BuildAnalyzeError> BuildAnalyzeErrors => _buildAnalyzeErrors;
 
         // TODO: consider the impact of parallel runs of this job run.  Perhaps just disallow for now.
-        internal JobTableUtil(CloudTable buildProcessedTable, CloudTable buildFailureTable, JenkinsClient client, TextWriter textWriter)
+        internal JobTableUtil(CloudTable buildProcessedTable, CloudTable buildFailureTable, CloudTable buildResultTable, JenkinsClient client, TextWriter textWriter)
         {
+            Debug.Assert(buildProcessedTable.Name == BuildProcessedEntity.TableName);
+            Debug.Assert(buildResultTable.Name == BuildResultEntity.TableName);
             _buildProcessedTable = buildProcessedTable;
             _buildFailureTable = buildFailureTable;
+            _buildResultTable = buildResultTable;
             _client = client;
             _textWriter = textWriter;
         }
@@ -79,6 +84,7 @@ namespace Dashboard.StorageBuilder
         {
             var oldProcessedList = GetBuildProcessedList(jobId);
             var newProcessedList = new List<BuildProcessedEntity>();
+            var jobList = new List<BuildResultEntity>();
 
             foreach (var buildId in buildIdList)
             {
@@ -90,10 +96,18 @@ namespace Dashboard.StorageBuilder
                 if (newEntity != null)
                 {
                     newProcessedList.Add(newEntity);
+
+                    var jobEntity = new BuildResultEntity(
+                        newEntity.BuildDate,
+                        newEntity.BuildId,
+                        newEntity.MachineName,
+                        newEntity.Kind);
+                    jobList.Add(jobEntity);
                 }
             }
 
             await AzureUtil.InsertBatch(_buildProcessedTable, newProcessedList);
+            await AzureUtil.InsertBatchUnordered(_buildResultTable, jobList);
         }
 
 
@@ -174,7 +188,7 @@ namespace Dashboard.StorageBuilder
                     throw new Exception($"Invalid enum: {buildInfo.State} for {id.JobName} - {id.Id}");
             }
 
-            return new BuildProcessedEntity(id, buildInfo.Date, kind);
+            return new BuildProcessedEntity(id, buildInfo.Date, buildInfo.MachineName, kind);
         }
 
         private async Task<BuildResultKind> PopulateFailedBuildResult(BuildInfo buildInfo)

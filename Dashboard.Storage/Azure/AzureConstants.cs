@@ -13,9 +13,9 @@ namespace Dashboard.Azure
             public const string BuildFailure = "BuildFailure";
             public const string BuildProcessed = "BuildProcessed";
             public const string BuildEvent = "BuildEvent";
+            public const string BuildResult = "BuildResult";
             public const string DemandRun = "DemandRun";
             public const string DemandBuild = "DemandBuild";
-            public const string JobFailure = "JobFailure";
             public const string TestCacheCounter = "TestCacheCounter";
             public const string TestRunCounter = "TestRunCounter";
             public const string TestRunData = "TestRunData";
@@ -23,12 +23,12 @@ namespace Dashboard.Azure
 
             public static IEnumerable<string> All()
             {
-                yield return BuildFailure;
-                yield return BuildProcessed;
                 yield return BuildEvent;
+                yield return BuildFailure;
+                yield return BuildResult;
+                yield return BuildProcessed;
                 yield return DemandRun;
                 yield return DemandBuild;
-                yield return JobFailure;
                 yield return TestCacheCounter;
                 yield return TestRunCounter;
                 yield return UnitTestQueryCounter;

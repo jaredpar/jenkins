@@ -291,9 +291,11 @@
     <Content Include="Views\Status\Results.cshtml" />
     <Content Include="Views\Status\Errors.cshtml" />
     <Content Include="Views\Status\TestRuns.cshtml" />
-    <Content Include="Views\Builds\FailureList.cshtml" />
-    <Content Include="Views\Builds\Failure.cshtml" />
+    <Content Include="Views\Builds\TestFailureList.cshtml" />
+    <Content Include="Views\Builds\TestFailure.cshtml" />
     <Content Include="Views\Builds\DemandStatus.cshtml" />
+    <Content Include="Views\Builds\BuildResultList.cshtml" />
+    <Content Include="Views\Builds\BuildResult.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

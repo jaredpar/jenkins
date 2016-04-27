@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Dashboard.Azure
 {
+    /// <summary>
+    /// Known reasons that a given build can fail.
+    /// </summary>
     public enum BuildResultKind
     {
         Succeeded,
@@ -38,12 +41,16 @@ namespace Dashboard.Azure
         MergeConflict,
     }
 
+    /// <summary>
+    /// Build result data that is unique on the BuildId.  Similar to <see cref="BuildResultEntity"/>.
+    /// </summary>
     public sealed class BuildProcessedEntity : TableEntity
     {
         public const string TableName = AzureConstants.TableNames.BuildProcessed;
 
         public string KindRaw { get; set; }
         public DateTime BuildDate { get; set; }
+        public string MachineName { get; set; }
 
         public BuildResultKind Kind => (BuildResultKind)Enum.Parse(typeof(BuildResultKind), KindRaw);
         public BuildId BuildId => new BuildId(id: int.Parse(RowKey), jobId: JobId.ParseName(PartitionKey));
@@ -53,10 +60,11 @@ namespace Dashboard.Azure
 
         }
 
-        public BuildProcessedEntity(BuildId buildId, DateTime buildDate, BuildResultKind kind) : base(buildId.JobName, buildId.Id.ToString())
+        public BuildProcessedEntity(BuildId buildId, DateTime buildDate, string machineName, BuildResultKind kind) : base(buildId.JobName, buildId.Id.ToString())
         {
             BuildDate = buildDate;
             KindRaw = kind.ToString();
+            MachineName = machineName;
         }
 
         public static EntityKey GetEntityKey(BuildId buildId)

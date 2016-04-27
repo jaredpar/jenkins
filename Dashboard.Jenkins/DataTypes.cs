@@ -30,6 +30,7 @@ namespace Dashboard.Jenkins
         }
     }
 
+    // TODO: equality
     public struct BuildId
     {
         // TODO: rename to number? 
@@ -94,27 +95,6 @@ namespace Dashboard.Jenkins
         public override string ToString()
         {
             return $"{PullUrl} - {AuthorEmail}";
-        }
-    }
-
-    /// <summary>
-    /// The key which uniquely identifies a test asset.  Anytime this appears more than once
-    /// in the set of job infos then the same set of changes were run twice through Jenkins
-    /// </summary>
-    public struct BuildKey
-    {
-        public readonly int PullId;
-        public readonly string Sha1;
-
-        public BuildKey(int pullId, string sha1)
-        {
-            PullId = pullId;
-            Sha1 = sha1;
-        }
-
-        public override string ToString()
-        {
-            return $"{PullId} - {Sha1}";
         }
     }
 

@@ -1,4 +1,4 @@
-﻿@model Dashboard.Models.BuildFailureSummary
+﻿@model Dashboard.Models.TestFailureSummary
 
 @{
     ViewBag.Title = "Failures";
@@ -11,7 +11,7 @@
 @foreach (var entry in Model.Entries)
 {
     var linkText = $"{entry.Name} - {entry.Count}";
-    <li>@Html.ActionLink(linkText: @entry.Name, controllerName: "Builds", actionName: "Failure", routeValues: new { name = @entry.Name, pr = Model.IncludePullRequests }, htmlAttributes: null) - @entry.Count failures</li>
+    <li>@Html.ActionLink(linkText: @entry.Name, controllerName: "Builds", actionName: "TestFailure", routeValues: new { name = @entry.Name, pr = Model.IncludePullRequests }, htmlAttributes: null) - @entry.Count failures</li>
 }
 </ul>
 

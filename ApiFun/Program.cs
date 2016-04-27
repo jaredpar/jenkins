@@ -13,6 +13,8 @@ using RestSharp.Authenticators;
 using System.Configuration;
 using Dashboard.Sql;
 using Dashboard.Azure;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Dashboard.ApiFun
 {
@@ -40,7 +42,8 @@ namespace Dashboard.ApiFun
             /*
             roslyn_stabil_lin_dbg_unit32
             */
-            Migrate().Wait();
+            // Migrate().Wait();
+            PopulateJobFailureTable().Wait();
         }
 
         private static async Task Migrate()
@@ -53,6 +56,37 @@ namespace Dashboard.ApiFun
             // await tool.MigrateTestCacheCounter2();
             // await tool.MigrateTestRunCounter();
             await tool.MigrateUnitTestData();
+        }
+
+        private static async Task PopulateJobFailureTable()
+        {
+            var tableConnectionString = ConfigurationManager.AppSettings[SharedConstants.StorageConnectionStringName];
+            var storageAccount = CloudStorageAccount.Parse(tableConnectionString);
+            var tableClient = storageAccount.CreateCloudTableClient();
+            var buildProcessedTable = tableClient.GetTableReference(BuildProcessedEntity.TableName);
+
+            var list = new List<BuildResultEntity>();
+            var query = new TableQuery<BuildProcessedEntity>();
+            TableContinuationToken token = null;
+            do
+            {
+                var segment = await buildProcessedTable.ExecuteQuerySegmentedAsync(query, token);
+                foreach (var entity in segment.Results)
+                {
+                    var resultEntity = new BuildResultEntity(
+                        new DateTimeOffset(entity.BuildDate),
+                        entity.BuildId,
+                        entity.MachineName,
+                        entity.Kind);
+                    list.Add(resultEntity);
+                }
+
+                token = segment.ContinuationToken;
+            } while (token != null);
+
+            var buildResultTable = tableClient.GetTableReference(BuildResultEntity.TableName);
+            buildResultTable.CreateIfNotExists();
+            await AzureUtil.InsertBatchUnordered(buildResultTable, list);
         }
 
         private static JenkinsClient CreateClient(bool auth = true)

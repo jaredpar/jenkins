@@ -20,11 +20,13 @@ namespace Dashboard.StorageBuilder
 {
     public class Functions
     {
+        [Singleton]
         public static async Task BuildEvent(
-            [QueueTrigger(AzureConstants.QueueNames.BuildEvent)] string message, 
+            [QueueTrigger(AzureConstants.QueueNames.BuildEvent)] string message,
             [Table(BuildEventEntity.TableName)] CloudTable buildEventTable,
             [Table(BuildProcessedEntity.TableName)] CloudTable buildProcessedTable,
             [Table(BuildFailureEntity.TableName)] CloudTable buildFailureTable,
+            [Table(BuildResultEntity.TableName)] CloudTable buildResultTable,
             TextWriter logger,
             CancellationToken cancellationToken)
         {
@@ -33,6 +35,7 @@ namespace Dashboard.StorageBuilder
                 buildEventTable: buildEventTable, 
                 buildProcessedTable: buildProcessedTable, 
                 buildFailureTable: buildFailureTable, 
+                buildResultTable: buildResultTable,
                 textWriter: logger,
                 githubConnectionString: githubConnectionString);
             var messageJson = (MessageJson)JsonConvert.DeserializeObject(message, typeof(MessageJson));
@@ -65,9 +68,8 @@ namespace Dashboard.StorageBuilder
             var storageAccount = CloudStorageAccount.Parse(connectionString);
             var tableClient = storageAccount.CreateCloudTableClient();
             var buildFailureTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildFailure);
-            buildFailureTable.CreateIfNotExists();
             var buildProcessedTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildProcessed);
-            buildProcessedTable.CreateIfNotExists();
+            var buildResultTable = tableClient.GetTableReference(BuildResultEntity.TableName);
 
             // TODO: Need a Jenkins token as well to be able to query our non-public jobs.
             var githubConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.GithubConnectionStringName);
@@ -76,7 +78,7 @@ namespace Dashboard.StorageBuilder
                 : new JenkinsClient(SharedConstants.DotnetJenkinsUri, connectionString: githubConnectionString);
 
             var jobs = client.GetJobIds();
-            var util = new JobTableUtil(buildProcessedTable: buildProcessedTable, buildFailureTable: buildFailureTable, client: client, textWriter: logger);
+            var util = new JobTableUtil(buildProcessedTable: buildProcessedTable, buildFailureTable: buildFailureTable, buildResultTable: buildResultTable, client: client, textWriter: logger);
             await util.MoveUnknownToIgnored();
             await util.PopulateAllAsync();
             return util.BuildAnalyzeErrors;

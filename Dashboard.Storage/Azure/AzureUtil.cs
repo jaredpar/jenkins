@@ -96,6 +96,18 @@ namespace Dashboard.Azure
         }
 
         /// <summary>
+        /// Insert a raw list that is not grouped by partition keys. 
+        /// </summary>
+        public static async Task InsertBatchUnordered<T>(CloudTable table, List<T> entityList)
+            where T : TableEntity
+        {
+            foreach (var group in entityList.GroupBy(x => x.PartitionKey))
+            {
+                await InsertBatch(table, group.ToList());
+            }
+        }
+
+        /// <summary>
         /// Inserts a collection of <see cref="TableEntity"/> values into a table using batch style 
         /// operations.  All entities must be insertable via batch operations.
         /// </summary>
@@ -142,6 +154,28 @@ namespace Dashboard.Azure
                 nameof(TableEntity.RowKey),
                 QueryComparisons.Equal,
                 rowKey);
+        }
+
+        public static string GenerateFilterConditionSinceDate(string columnName, DateKey startDate)
+        {
+            return TableQuery.GenerateFilterCondition(
+                columnName,
+                QueryComparisons.GreaterThanOrEqual,
+                startDate.Key);
+        }
+
+        public static string GenerateFilterConditionBetweenDates(string columnName, DateKey startDate, DateKey endDate)
+        {
+            return TableQuery.CombineFilters(
+                TableQuery.GenerateFilterCondition(
+                    columnName,
+                    QueryComparisons.GreaterThanOrEqual,
+                    startDate.Key),
+                TableOperators.And,
+                TableQuery.GenerateFilterCondition(
+                    columnName,
+                    QueryComparisons.LessThanOrEqual,
+                    endDate.Key));
         }
 
         /// <summary>

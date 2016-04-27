@@ -32,16 +32,16 @@ namespace Dashboard.Controllers
         public ActionResult Index(bool pr = false, DateTime? startDate = null, int limit = 10)
         {
             var summary = GetBuildFailureSummary(pr, startDate, limit);
-            return View(viewName: "FailureList", model: summary);
+            return View(viewName: "TestFailureList", model: summary);
         }
 
         /// <summary>
         /// Summarize the details of an individual failure.
         /// </summary>
-        public ActionResult Failure(string name = null, bool pr = true, DateTime? startDate = null)
+        public ActionResult TestFailure(string name = null, bool pr = true, DateTime? startDate = null)
         {
             var startDateValue = _storage.GetStartDateValue(startDate);
-            var model = new BuildFailureModel()
+            var model = new TestFailureModel()
             {
                 Name = name,
                 IncludePullRequests = pr,
@@ -59,7 +59,25 @@ namespace Dashboard.Controllers
                 model.Builds.Add(entity);
             }
 
-            return View(viewName: "Failure", model: model);
+            return View(viewName: "TestFailure", model: model);
+        }
+
+        public ActionResult Result(string name = null, bool pr = false, DateTime? startDate = null, int limit = 10)
+        {
+            var startDateValue = _storage.GetStartDateValue(startDate);
+            var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(BuildResultEntity.TableName);
+            var key = new DateKey(startDateValue);
+
+            if (name == null)
+            {
+                var model = GetBuildResultSummaryModel(pr, startDateValue, limit);
+                return View(viewName: "BuildResultList", model: model);
+            }
+            else
+            {
+                var model = GetBuildResultModel(name, pr, startDateValue);
+                return View(viewName: "BuildResult", model: model);
+            }
         }
 
         public string Csv(bool pr = false, DateTime? startDate = null, int limit = 10)
@@ -103,7 +121,68 @@ namespace Dashboard.Controllers
             return View(viewName: "DemandStatus", model: runStatus);
         }
 
-        public BuildFailureSummary GetBuildFailureSummary(bool pr = false, DateTime? startDate = null, int limit = 10)
+        private BuildResultSummaryModel GetBuildResultSummaryModel(bool pr, DateTimeOffset startDate, int limit)
+        {
+            var model = new BuildResultSummaryModel()
+            {
+                IncludePullRequests = pr,
+                StartDate = startDate,
+                Limit = limit
+            };
+
+            var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(BuildResultEntity.TableName);
+            var query = new TableQuery<BuildResultEntity>()
+                .Where(AzureUtil.GenerateFilterConditionSinceDate(nameof(BuildResultEntity.PartitionKey), startDate));
+
+            var queryResult = table
+                .ExecuteQuery(query)
+                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId.Name))
+                .Where(x => x.BuildResultKind != BuildResultKind.Succeeded)
+                .GroupBy(x => x.JobId)
+                .Select(x => new { JobId = x.Key, Count = x.Count() })
+                .OrderByDescending(x => x.Count)
+                .Take(limit);
+            foreach (var entity in queryResult)
+            {
+                var entry = new BuildResultSummaryEntry()
+                {
+                    JobId = entity.JobId,
+                    Count = entity.Count
+                };
+
+                model.Entries.Add(entry);
+            }
+
+            return model;
+        }
+
+        private BuildResultModel GetBuildResultModel(string name, bool pr, DateTimeOffset startDate)
+        {
+            var model = new BuildResultModel()
+            {
+                IncludePullRequests = pr,
+                StartDate = startDate,
+                JobId = JobId.ParseName(name),
+            };
+
+            var filter = TableQuery.CombineFilters(
+                AzureUtil.GenerateFilterConditionSinceDate(nameof(BuildResultEntity.PartitionKey), startDate),
+                TableOperators.And,
+                TableQuery.GenerateFilterCondition(nameof(BuildResultEntity.JobName), QueryComparisons.Equal, name));
+            var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(BuildResultEntity.TableName);
+            var query = new TableQuery<BuildResultEntity>().Where(filter);
+
+            var queryResult = table
+                .ExecuteQuery(query)
+                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId.Name))
+                .Where(x => x.BuildResultKind != BuildResultKind.Succeeded)
+                .OrderBy(x => x.BuildNumber);
+            
+            model.Entries.AddRange(queryResult);
+            return model;
+        }
+    
+        public TestFailureSummary GetBuildFailureSummary(bool pr = false, DateTime? startDate = null, int limit = 10)
         {
             var startDateValue = _storage.GetStartDateValue(startDate);
             var failureQuery = _storage.GetBuildFailureEntities(startDateValue)
@@ -113,7 +192,7 @@ namespace Dashboard.Controllers
                 .OrderByDescending(x => x.Count)
                 .Take(limit);
 
-            var summary = new BuildFailureSummary()
+            var summary = new TestFailureSummary()
             {
                 IncludePullRequests = pr,
                 StartDate = startDateValue,
@@ -122,7 +201,7 @@ namespace Dashboard.Controllers
 
             foreach (var pair in failureQuery)
             {
-                var entry = new BuildFailureEntry()
+                var entry = new TestFailureEntry()
                 {
                     Name = pair.Key,
                     Count = pair.Count

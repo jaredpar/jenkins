@@ -78,6 +78,7 @@
     <Compile Include="Azure\AzureConstants.cs" />
     <Compile Include="Azure\AzureUtil.cs" />
     <Compile Include="Azure\BuildEventEntity.cs" />
+    <Compile Include="Azure\BuildKey.cs" />
     <Compile Include="Azure\BuildSource.cs" />
     <Compile Include="Azure\CounterData.cs" />
     <Compile Include="Azure\CounterEntity.cs" />
@@ -85,14 +86,14 @@
     <Compile Include="Azure\DashboardStorage.cs" />
     <Compile Include="Azure\BuildFailureEntity.cs" />
     <Compile Include="Azure\BuildProcessedEntity.cs" />
-    <Compile Include="Azure\DatePartitionKey.cs" />
+    <Compile Include="Azure\DateKey.cs" />
     <Compile Include="Azure\DemandBuildEntity.cs" />
     <Compile Include="Azure\DemandBuildBuilder.cs" />
     <Compile Include="Azure\DemandRunEntity.cs" />
     <Compile Include="Azure\DemandRunUtil.cs" />
     <Compile Include="Azure\EntityKey.cs" />
     <Compile Include="Azure\Extensions.cs" />
-    <Compile Include="Azure\JobFailureEntity.cs" />
+    <Compile Include="Azure\BuildResultEntity.cs" />
     <Compile Include="Azure\TestCacheCounterEntity.cs" />
     <Compile Include="Azure\TestRunCounterEntity.cs" />
     <Compile Include="Azure\TestRunEntity.cs" />
