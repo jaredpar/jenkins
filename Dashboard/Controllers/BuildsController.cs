@@ -38,7 +38,7 @@ namespace Dashboard.Controllers
         /// <summary>
         /// Summarize the details of an individual failure.
         /// </summary>
-        public ActionResult TestFailure(string name = null, bool pr = true, DateTime? startDate = null)
+        public ActionResult Test(string name = null, bool pr = true, DateTime? startDate = null)
         {
             var startDateValue = _storage.GetStartDateValue(startDate);
             var model = new TestFailureModel()

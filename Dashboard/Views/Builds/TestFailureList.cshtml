@@ -6,14 +6,22 @@
     var startDateValue = Model.StartDate.ToString("yyyy-MM-dd");
 }
 
-<h2>Build Failures</h2>
-<ul>
+<h2>Test Failures</h2>
+<table class="table">
+    <thead><tr>
+        <th>Test Name</th>
+        <th>Failure Count</th>
+    </tr></thead>
+<tbody>
 @foreach (var entry in Model.Entries)
 {
-    var linkText = $"{entry.Name} - {entry.Count}";
-    <li>@Html.ActionLink(linkText: @entry.Name, controllerName: "Builds", actionName: "TestFailure", routeValues: new { name = @entry.Name, pr = Model.IncludePullRequests }, htmlAttributes: null) - @entry.Count failures</li>
+    <tr>
+        <td>@Html.ActionLink(linkText: @entry.Name, controllerName: "Builds", actionName: "Test", routeValues: new { name = @entry.Name, pr = Model.IncludePullRequests, startDate = Model.StartDate }, htmlAttributes: null)</td>
+        <td>@entry.Count</td>
+    </tr>
 }
-</ul>
+</tbody>
+</table>
 
 <h2>Filter Results</h2>
 

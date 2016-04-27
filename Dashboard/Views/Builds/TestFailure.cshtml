@@ -9,14 +9,25 @@
 
 <h2>Test Case: @Model.Name</h2>
 <h3>Failed Jenkins Jobs</h3>
-<ul>
+<table class="table">
+    <thead><tr>
+        <th>Build Number</th>
+        <th>Machine Name</th>
+        <th>Date</th>
+    </tr></thead>
+<tbody>
 @foreach (var entity in Model.Builds)
 {
     var id = entity.BuildId;
     var uri = JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, JenkinsUtil.GetBuildPath(id));
-    <li><div><a href="@uri">@id.JobName @id.Id</a> @entity.BuildDate.ToLocalTime().ToString("MM/dd hh:mm tt")</div></li>
+    <tr>
+        <td><a href="@uri">@id.JobName @id.Id</a></td>
+        <td>@entity.MachineName</td>
+        <td>@entity.BuildDate.ToLocalTime().ToString("MM/dd hh:mm tt")</td>
+    </tr>
 }
-</ul>
+</tbody>
+</table>
 
 <h2>Filter Results</h2>
 
