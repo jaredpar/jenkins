@@ -21,7 +21,7 @@ namespace Dashboard.Sql
         {
             _sqlUtil = new SqlUtil(sqlConnectionString);
             _storage = new DashboardStorage(tableConnectionString);
-            _storage.EnsureAzureResources();
+            AzureUtil.EnsureAzureResources(_storage.StorageAccount);
         }
 
         public async Task MigrateTestRun()

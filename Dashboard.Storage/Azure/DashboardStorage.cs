@@ -41,33 +41,6 @@ namespace Dashboard.Azure
             _testResultsContainer = blobClient.GetContainerReference(AzureConstants.ContainerNames.TestResults);
         }
 
-        /// <summary>
-        /// Create all of our azure resources exist.
-        /// </summary>
-        public void EnsureAzureResources()
-        {
-            var tableClient = _storageAccount.CreateCloudTableClient();
-            foreach (var name in AzureConstants.TableNames.All())
-            {
-                var table = tableClient.GetTableReference(name);
-                table.CreateIfNotExists();
-            }
-
-            var blobClient = _storageAccount.CreateCloudBlobClient();
-            foreach (var name in AzureConstants.ContainerNames.All())
-            {
-                var container = blobClient.GetContainerReference(name);
-                container.CreateIfNotExists();
-            }
-
-            var queueClient = _storageAccount.CreateCloudQueueClient();
-            foreach (var name in AzureConstants.QueueNames.All())
-            {
-                var queue = queueClient.GetQueueReference(name);
-                queue.CreateIfNotExists();
-            }
-        }
-
         public static string NormalizeTestCaseName(string testCaseName)
         {
             return AzureUtil.NormalizeKey(testCaseName, '_');

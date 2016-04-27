@@ -14,7 +14,7 @@ namespace Dashboard
 
             var connectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
             var storage = new DashboardStorage(connectionString);
-            storage.EnsureAzureResources();
+            AzureUtil.EnsureAzureResources(storage.StorageAccount);
         }
     }
 }

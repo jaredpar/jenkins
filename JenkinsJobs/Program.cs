@@ -13,7 +13,7 @@ namespace Dashboard.StorageBuilder
         {
             var connectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
             var storage = new DashboardStorage(connectionString);
-            storage.EnsureAzureResources();
+            AzureUtil.EnsureAzureResources(storage.StorageAccount);
 
             // Manually set the values vs. reading from connectionStrings.  Developing with connectionString
             // values is dangerous because you have to keep the password in the developer directory.  Can't use

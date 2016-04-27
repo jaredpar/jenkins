@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAzure.Storage.Table;
+﻿using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +14,35 @@ namespace Dashboard.Azure
         // Current Azure Limit
         internal const int MaxBatchCount = 100;
 
-        public static readonly DateTime DefaultStartDate = new DateTime(year: 2016, month: 4, day: 1);
+        public static readonly DateTime DefaultStartDate = new DateTime(year: 2016, month: 3, day: 1);
+
+        /// <summary>
+        /// Ensure all of our Azure resources exist.
+        /// </summary>
+        /// <param name="storageAccount"></param>
+        public static void EnsureAzureResources(CloudStorageAccount storageAccount)
+        {
+            var tableClient = storageAccount.CreateCloudTableClient();
+            foreach (var name in AzureConstants.TableNames.All())
+            {
+                var table = tableClient.GetTableReference(name);
+                table.CreateIfNotExists();
+            }
+
+            var blobClient = storageAccount.CreateCloudBlobClient();
+            foreach (var name in AzureConstants.ContainerNames.All())
+            {
+                var container = blobClient.GetContainerReference(name);
+                container.CreateIfNotExists();
+            }
+
+            var queueClient = storageAccount.CreateCloudQueueClient();
+            foreach (var name in AzureConstants.QueueNames.All())
+            {
+                var queue = queueClient.GetQueueReference(name);
+                queue.CreateIfNotExists();
+            }
+        }
 
         /// <summary>
         /// There are a number of characters which are illegal for partition / row keys in Azure.  This 

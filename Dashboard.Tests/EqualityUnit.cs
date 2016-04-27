@@ -1,4 +1,4 @@
-﻿namespace Dashboard.Jenkins.Tests
+﻿namespace Dashboard.Tests
 {
     public static class EqualityUnit
     {
