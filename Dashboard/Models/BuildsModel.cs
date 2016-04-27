@@ -31,15 +31,15 @@ namespace Dashboard.Models
         public List<BuildResultEntity> Entries { get; set; } = new List<BuildResultEntity>();
     }
 
-    public class TestFailureSummary
+    public class TestFailureSummaryModel
     {
         public bool IncludePullRequests { get; set; }
         public DateTime StartDate { get; set; }
         public int Limit { get; set; }
-        public List<TestFailureEntry> Entries { get; set; } = new List<TestFailureEntry>();
+        public List<TestFailureSummaryEntry> Entries { get; set; } = new List<TestFailureSummaryEntry>();
     }
 
-    public class TestFailureEntry
+    public class TestFailureSummaryEntry
     {
         public string Name { get; set; }
         public int Count { get; set; }

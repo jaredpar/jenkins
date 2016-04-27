@@ -31,35 +31,24 @@ namespace Dashboard.Controllers
         /// </summary>
         public ActionResult Index(bool pr = false, DateTime? startDate = null, int limit = 10)
         {
-            var summary = GetBuildFailureSummary(pr, startDate, limit);
-            return View(viewName: "TestFailureList", model: summary);
+            return Test(name: null, pr: pr, startDate: startDate, limit: limit);
         }
 
         /// <summary>
         /// Summarize the details of an individual failure.
         /// </summary>
-        public ActionResult Test(string name = null, bool pr = true, DateTime? startDate = null)
+        public ActionResult Test(string name = null, bool pr = false, DateTime? startDate = null, int limit = 10)
         {
-            var startDateValue = _storage.GetStartDateValue(startDate);
-            var model = new TestFailureModel()
+            if (name == null)
             {
-                Name = name,
-                IncludePullRequests = pr,
-                StartDate = startDateValue
-            };
-
-            foreach (var entity in _storage.GetBuildFailureEntities(name, startDateValue))
-            {
-                var buildId = entity.BuildId;
-                if (!pr && JobUtil.IsPullRequestJobName(buildId.JobName))
-                {
-                    continue;
-                }
-
-                model.Builds.Add(entity);
+                var model = GetTestFailureSummaryModel(pr, startDate, limit);
+                return View(viewName: "TestFailureList", model: model);
             }
-
-            return View(viewName: "TestFailure", model: model);
+            else
+            {
+                var model = GetTestFailureModel(name, pr, startDate);
+                return View(viewName: "TestFailure", model: model);
+            }
         }
 
         public ActionResult Result(string name = null, bool pr = false, DateTime? startDate = null, int limit = 10)
@@ -83,7 +72,7 @@ namespace Dashboard.Controllers
         public string Csv(bool pr = false, DateTime? startDate = null, int limit = 10)
         {
             var startDateValue = startDate ?? DateTime.UtcNow - TimeSpan.FromDays(7);
-            var summary = GetBuildFailureSummary(pr, startDateValue, limit);
+            var summary = GetTestFailureSummaryModel(pr, startDateValue, limit);
             var builder = new StringBuilder();
             foreach (var entry in summary.Entries)
             {
@@ -182,7 +171,7 @@ namespace Dashboard.Controllers
             return model;
         }
     
-        public TestFailureSummary GetBuildFailureSummary(bool pr = false, DateTime? startDate = null, int limit = 10)
+        private TestFailureSummaryModel GetTestFailureSummaryModel(bool pr = false, DateTime? startDate = null, int limit = 10)
         {
             var startDateValue = _storage.GetStartDateValue(startDate);
             var failureQuery = _storage.GetBuildFailureEntities(startDateValue)
@@ -192,7 +181,7 @@ namespace Dashboard.Controllers
                 .OrderByDescending(x => x.Count)
                 .Take(limit);
 
-            var summary = new TestFailureSummary()
+            var summary = new TestFailureSummaryModel()
             {
                 IncludePullRequests = pr,
                 StartDate = startDateValue,
@@ -201,7 +190,7 @@ namespace Dashboard.Controllers
 
             foreach (var pair in failureQuery)
             {
-                var entry = new TestFailureEntry()
+                var entry = new TestFailureSummaryEntry()
                 {
                     Name = pair.Key,
                     Count = pair.Count
@@ -210,6 +199,30 @@ namespace Dashboard.Controllers
             }
 
             return summary;
+        }
+
+        private TestFailureModel GetTestFailureModel(string name = null, bool pr = true, DateTime? startDate = null)
+        {
+            var startDateValue = _storage.GetStartDateValue(startDate);
+            var model = new TestFailureModel()
+            {
+                Name = name,
+                IncludePullRequests = pr,
+                StartDate = startDateValue
+            };
+
+            foreach (var entity in _storage.GetBuildFailureEntities(name, startDateValue))
+            {
+                var buildId = entity.BuildId;
+                if (!pr && JobUtil.IsPullRequestJobName(buildId.JobName))
+                {
+                    continue;
+                }
+
+                model.Builds.Add(entity);
+            }
+
+            return model;
         }
     }
 }
