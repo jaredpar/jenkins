@@ -34,6 +34,11 @@ namespace Dashboard.Azure
 
         }
 
+        public BuildResultEntity(BuildProcessedEntity entity) : this(entity.BuildDate, entity.BuildId, entity.MachineName, entity.Kind)
+        {
+
+        }
+
         public BuildResultEntity(DateTimeOffset buildDate, BuildId buildId, string machineName, BuildResultKind buildResultKind)
         {
             var key = GetEntityKey(buildDate, buildId);

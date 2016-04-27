@@ -77,6 +77,7 @@ namespace Dashboard.StorageBuilder
             if (newEntity != null)
             {
                 await _buildProcessedTable.ExecuteAsync(TableOperation.InsertOrReplace(newEntity));
+                await _buildResultTable.ExecuteAsync(TableOperation.InsertOrReplace(new BuildResultEntity(newEntity)));
             }
         }
 
@@ -84,7 +85,7 @@ namespace Dashboard.StorageBuilder
         {
             var oldProcessedList = GetBuildProcessedList(jobId);
             var newProcessedList = new List<BuildProcessedEntity>();
-            var jobList = new List<BuildResultEntity>();
+            var buildResultList = new List<BuildResultEntity>();
 
             foreach (var buildId in buildIdList)
             {
@@ -97,17 +98,13 @@ namespace Dashboard.StorageBuilder
                 {
                     newProcessedList.Add(newEntity);
 
-                    var jobEntity = new BuildResultEntity(
-                        newEntity.BuildDate,
-                        newEntity.BuildId,
-                        newEntity.MachineName,
-                        newEntity.Kind);
-                    jobList.Add(jobEntity);
+                    var buildResultEntity = new BuildResultEntity(newEntity);
+                    buildResultList.Add(buildResultEntity);
                 }
             }
 
             await AzureUtil.InsertBatch(_buildProcessedTable, newProcessedList);
-            await AzureUtil.InsertBatchUnordered(_buildResultTable, jobList);
+            await AzureUtil.InsertBatchUnordered(_buildResultTable, buildResultList);
         }
 
 
