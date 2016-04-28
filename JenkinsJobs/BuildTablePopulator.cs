@@ -135,7 +135,7 @@ namespace Dashboard.StorageBuilder
         {
             var testCaseNames = _client.GetFailedTestCases(buildId);
             var entityList = testCaseNames
-                .Select(x => BuildFailureExactEntity.CreateTestCaseFailure(buildInfo.Date, buildId, x, buildInfo.MachineName))
+                .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildInfo.Date, buildId, x, buildInfo.MachineName))
                 .ToList();
             EnsureTestCaseNamesUnique(entityList);
             await AzureUtil.InsertBatchUnordered(_buildFailureExactTable, entityList);

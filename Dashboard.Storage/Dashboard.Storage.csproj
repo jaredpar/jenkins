@@ -94,6 +94,7 @@
     <Compile Include="Azure\DemandRunUtil.cs" />
     <Compile Include="Azure\EntityKey.cs" />
     <Compile Include="Azure\Extensions.cs" />
+    <Compile Include="Azure\ICopyableTableEntity.cs" />
     <Compile Include="Azure\TestCacheCounterEntity.cs" />
     <Compile Include="Azure\TestRunCounterEntity.cs" />
     <Compile Include="Azure\TestRunEntity.cs" />

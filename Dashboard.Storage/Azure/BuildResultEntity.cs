@@ -13,7 +13,7 @@ namespace Dashboard.Azure
     /// Information about a build result.  The BuildId is unique to this entity irrespective of 
     /// how it is stored.
     /// </summary>
-    public sealed class BuildResultEntity : TableEntity
+    public sealed class BuildResultEntity : TableEntity, ICopyableTableEntity<BuildResultEntity>
     {
         public string JobName { get; set; }
         public int BuildNumber { get; set; }
@@ -53,6 +53,13 @@ namespace Dashboard.Azure
             kind: other.BuildResultKind)
         {
 
+        }
+
+        public BuildResultEntity Copy(EntityKey key)
+        {
+            var entity = new BuildResultEntity(this);
+            entity.SetEntityKey(key);
+            return entity;
         }
 
         public EntityKey GetExactEntityKey()

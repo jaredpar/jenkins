@@ -19,7 +19,7 @@ namespace Dashboard.Azure
     /// <see cref="BuildId"/> should always be unique.  This entity is stored in a number of tables
     /// based on different Partition / Row keys.
     /// </summary>
-    public sealed class BuildFailureEntity : TableEntity
+    public sealed class BuildFailureEntity : TableEntity, ICopyableTableEntity<BuildFailureEntity>
     {
         public string BuildFailureKindRaw { get; set; }
         public DateTime BuildDate { get; set; }
@@ -54,6 +54,13 @@ namespace Dashboard.Azure
             BuildDate = buildDate.UtcDateTime;
         }
 
+        public BuildFailureEntity Copy(EntityKey key)
+        {
+            var entity = new BuildFailureEntity(this);
+            entity.SetEntityKey(key);
+            return entity;
+        }
+
         public EntityKey GetDateEntityKey()
         {
             return GetDateEntityKey(BuildDate, BuildId, Identifier);
@@ -76,6 +83,15 @@ namespace Dashboard.Azure
             return new EntityKey(
                 identifier,
                 new BuildKey(buildId).Key);
+        }
+
+        public static BuildFailureEntity CreateTestCaseFailure(DateTimeOffset buildDateTime, BuildId buildId, string testCaseName, string machineName)
+        {
+            return new BuildFailureEntity(
+                buildDateTime,
+                buildId,
+                testCaseName,
+                BuildFailureKind.TestCase);
         }
     }
 }
