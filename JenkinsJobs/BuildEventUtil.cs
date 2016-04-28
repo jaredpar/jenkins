@@ -36,32 +36,15 @@ namespace Dashboard.StorageBuilder
             _textWriter = textWriter;
         }
 
-        internal async Task<List<BuildAnalyzeError>> Process(MessageJson message, CancellationToken cancellationToken)
-        {
-            if (message.Phase == "COMPLETED")
-            {
-                return await ProcessCompleted(message, cancellationToken);
-            }
-
-            // The Jenkins API has two events for done: finalized and completed.  We use completed and just ignore finalized.
-            if (message.Phase != "FINALIZED")
-            {
-                var entity = CreateBuildEventEntity(message);
-                await _buildEventTable.ExecuteAsync(TableOperation.InsertOrReplace(entity), cancellationToken);
-            }
-
-            return new List<BuildAnalyzeError>();
-        }
-
-        internal async Task<List<BuildAnalyzeError>> ProcessCompleted(MessageJson message, CancellationToken cancellationToken)
+        internal async Task<List<BuildAnalyzeError>> ProcessCompleted(BuildEventMessageJson message, CancellationToken cancellationToken)
         {
             var jenkinsUri = new Uri($"https://{message.JenkinsHostName}");
             var jenkinsClient = new JenkinsClient(jenkinsUri, connectionString: _githubConnectionString);
-            var jobTableUtil = new JobTableUtil(buildProcessedTable: _buildProcessedTable, buildFailureTable: _buildFailureTable, buildResultTable: _buildResultTable, client: jenkinsClient, textWriter: _textWriter);
+            var jobTableUtil = new BuildTableUtil(buildProcessedTable: _buildProcessedTable, buildFailureTable: _buildFailureTable, buildResultTable: _buildResultTable, client: jenkinsClient, textWriter: _textWriter);
 
             try
             {
-                await jobTableUtil.PopulateBuildAsync(message.BuildId);
+                await jobTableUtil.PopulateBuild(message.BuildId);
             }
             catch
             {
@@ -90,7 +73,7 @@ namespace Dashboard.StorageBuilder
             return jobTableUtil.BuildAnalyzeErrors.ToList();
         }
 
-        private BuildEventEntity GetOrCreateBuildEventEntity(MessageJson message)
+        private BuildEventEntity GetOrCreateBuildEventEntity(BuildEventMessageJson message)
         {
             var entity = GetBuildEntity(message.BuildId);
             if (entity != null)
@@ -108,7 +91,7 @@ namespace Dashboard.StorageBuilder
             return AzureUtil.QueryTable<BuildEventEntity>(_buildEventTable, key);
         }
 
-        private BuildEventEntity CreateBuildEventEntity(MessageJson message)
+        private BuildEventEntity CreateBuildEventEntity(BuildEventMessageJson message)
         {
             var jobId = JenkinsUtil.ConvertPathToJobId(message.JobName);
             var uri = new Uri(message.Url);
@@ -121,7 +104,7 @@ namespace Dashboard.StorageBuilder
             };
         }
 
-        private async Task EnsureBuildEventEntity(MessageJson message, CancellationToken cancellationToken)
+        private async Task EnsureBuildEventEntity(BuildEventMessageJson message, CancellationToken cancellationToken)
         {
             try
             {

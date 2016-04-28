@@ -65,7 +65,7 @@ namespace Dashboard.ApiFun
             var tableClient = storageAccount.CreateCloudTableClient();
             var buildProcessedTable = tableClient.GetTableReference(BuildProcessedEntity.TableName);
 
-            var list = new List<BuildResultEntity>();
+            var list = new List<BuildResultDateEntity>();
             var query = new TableQuery<BuildProcessedEntity>();
             TableContinuationToken token = null;
             do
@@ -73,7 +73,7 @@ namespace Dashboard.ApiFun
                 var segment = await buildProcessedTable.ExecuteQuerySegmentedAsync(query, token);
                 foreach (var entity in segment.Results)
                 {
-                    var resultEntity = new BuildResultEntity(
+                    var resultEntity = new BuildResultDateEntity(
                         new DateTimeOffset(entity.BuildDate),
                         entity.BuildId,
                         entity.MachineName,
@@ -84,7 +84,7 @@ namespace Dashboard.ApiFun
                 token = segment.ContinuationToken;
             } while (token != null);
 
-            var buildResultTable = tableClient.GetTableReference(BuildResultEntity.TableName);
+            var buildResultTable = tableClient.GetTableReference(BuildResultDateEntity.TableName);
             buildResultTable.CreateIfNotExists();
             await AzureUtil.InsertBatchUnordered(buildResultTable, list);
         }

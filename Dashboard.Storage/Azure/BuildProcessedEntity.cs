@@ -42,7 +42,7 @@ namespace Dashboard.Azure
     }
 
     /// <summary>
-    /// Build result data that is unique on the BuildId.  Similar to <see cref="BuildResultEntity"/>.
+    /// Build result data that is unique on the BuildId.  Similar to <see cref="BuildResultDateEntity"/>.
     /// </summary>
     public sealed class BuildProcessedEntity : TableEntity
     {

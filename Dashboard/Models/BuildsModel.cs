@@ -28,7 +28,7 @@ namespace Dashboard.Models
         public bool IncludePullRequests { get; set; }
         public DateTimeOffset StartDate { get; set; }
         public JobId JobId { get; set; }
-        public List<BuildResultEntity> Entries { get; set; } = new List<BuildResultEntity>();
+        public List<BuildResultDateEntity> Entries { get; set; } = new List<BuildResultDateEntity>();
     }
 
     public class TestFailureSummaryModel

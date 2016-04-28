@@ -54,7 +54,7 @@ namespace Dashboard.Controllers
         public ActionResult Result(string name = null, bool pr = false, DateTime? startDate = null, int limit = 10)
         {
             var startDateValue = _storage.GetStartDateValue(startDate);
-            var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(BuildResultEntity.TableName);
+            var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(BuildResultDateEntity.TableName);
             var key = new DateKey(startDateValue);
 
             if (name == null)
@@ -119,9 +119,9 @@ namespace Dashboard.Controllers
                 Limit = limit
             };
 
-            var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(BuildResultEntity.TableName);
-            var query = new TableQuery<BuildResultEntity>()
-                .Where(AzureUtil.GenerateFilterConditionSinceDate(nameof(BuildResultEntity.PartitionKey), startDate));
+            var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(BuildResultDateEntity.TableName);
+            var query = new TableQuery<BuildResultDateEntity>()
+                .Where(AzureUtil.GenerateFilterConditionSinceDate(nameof(BuildResultDateEntity.PartitionKey), startDate));
 
             var queryResult = table
                 .ExecuteQuery(query)
@@ -155,11 +155,11 @@ namespace Dashboard.Controllers
             };
 
             var filter = TableQuery.CombineFilters(
-                AzureUtil.GenerateFilterConditionSinceDate(nameof(BuildResultEntity.PartitionKey), startDate),
+                AzureUtil.GenerateFilterConditionSinceDate(nameof(BuildResultDateEntity.PartitionKey), startDate),
                 TableOperators.And,
-                TableQuery.GenerateFilterCondition(nameof(BuildResultEntity.JobName), QueryComparisons.Equal, name));
-            var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(BuildResultEntity.TableName);
-            var query = new TableQuery<BuildResultEntity>().Where(filter);
+                TableQuery.GenerateFilterCondition(nameof(BuildResultDateEntity.JobName), QueryComparisons.Equal, name));
+            var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(BuildResultDateEntity.TableName);
+            var query = new TableQuery<BuildResultDateEntity>().Where(filter);
 
             var queryResult = table
                 .ExecuteQuery(query)

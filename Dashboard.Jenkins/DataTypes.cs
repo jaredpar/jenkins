@@ -11,6 +11,7 @@ namespace Dashboard.Jenkins
     {
         public BuildId Id { get; }
         public BuildState State { get; }
+        // TODO: DateTimeOffset
         public DateTime Date { get; }
         public TimeSpan Duration { get; }
         public string MachineName { get; }

@@ -126,7 +126,7 @@
     </Compile>
     <Compile Include="AnalyzeError.cs" />
     <Compile Include="BuildEventUtil.cs" />
-    <Compile Include="JobTableUtil.cs" />
+    <Compile Include="BuildTableUtil.cs" />
     <Compile Include="MessageJson.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Functions.cs" />
