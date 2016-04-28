@@ -17,7 +17,8 @@ namespace Dashboard.Azure
     {
         public string JobName { get; set; }
         public int BuildNumber { get; set; }
-        public string BuildResultKindRaw { get; set; }
+        public string ClassificationKindRaw { get; set; }
+        public string ClassificationName { get; set; }
         public DateTime BuildDateTime { get; set; }
         public string MachineName { get; set; }
         public int PullRequestId { get; set; }
@@ -29,7 +30,8 @@ namespace Dashboard.Azure
         public DateTimeOffset BuildDateTimeOffset => new DateTimeOffset(BuildDateTime);
         public JobId JobId => JobId.ParseName(JobName);
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
-        public BuildResultKind BuildResultKind => (BuildResultKind)Enum.Parse(typeof(BuildResultKind), BuildResultKindRaw);
+        public ClassificationKind ClassificationKind => (ClassificationKind)Enum.Parse(typeof(ClassificationKind), ClassificationKindRaw);
+        public BuildResultClassification Classification => new BuildResultClassification(ClassificationKind, ClassificationName);
         public bool HasPullRequestInfo =>
             PullRequestId != 0 &&
             PullRequestAuthor != null &&
@@ -49,12 +51,13 @@ namespace Dashboard.Azure
             BuildId buildId,
             DateTimeOffset buildDateTime,
             string machineName,
-            BuildResultKind kind,
+            BuildResultClassification classification,
             PullRequestInfo prInfo)
         {
             JobName = buildId.JobId.Name;
             BuildNumber = buildId.Id;
-            BuildResultKindRaw = kind.ToString();
+            ClassificationKindRaw = classification.Kind.ToString();
+            ClassificationName = classification.Name;
             BuildDateTime = buildDateTime.UtcDateTime;
             MachineName = machineName;
 
@@ -75,7 +78,7 @@ namespace Dashboard.Azure
             buildId: other.BuildId,
             buildDateTime: other.BuildDateTimeOffset,
             machineName: other.MachineName,
-            kind: other.BuildResultKind,
+            classification: other.Classification,
             prInfo: other.PullRequestInfo)
         {
 

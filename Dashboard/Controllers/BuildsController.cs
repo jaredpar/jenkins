@@ -122,7 +122,7 @@ namespace Dashboard.Controllers
             var queryResult = _buildUtil
                 .GetBuildResults(startDate)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId.Name))
-                .Where(x => x.BuildResultKind != BuildResultKind.Succeeded)
+                .Where(x => x.ClassificationKind != ClassificationKind.Succeeded)
                 .GroupBy(x => x.JobId)
                 .Select(x => new { JobId = x.Key, Count = x.Count() })
                 .OrderByDescending(x => x.Count)
@@ -153,7 +153,7 @@ namespace Dashboard.Controllers
             var queryResult = _buildUtil
                 .GetBuildResults(startDate, jobName)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId.Name))
-                .Where(x => x.BuildResultKind != BuildResultKind.Succeeded)
+                .Where(x => x.ClassificationKind != ClassificationKind.Succeeded)
                 .OrderBy(x => x.BuildNumber);
             
             model.Entries.AddRange(queryResult);

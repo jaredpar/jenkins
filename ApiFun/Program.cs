@@ -121,9 +121,11 @@ namespace Dashboard.ApiFun
 
         private static async Task Random()
         {
-            var buildId = new BuildId(6613, JobId.ParseName("roslyn_prtest_lin_dbg_unit32"));
-            var client = CreateClient(auth: false);
-            var prInfo = await client.GetPullRequestInfoAsync(buildId);
+            var buildId = new BuildId(451, JobId.ParseName("roslyn-internal_prtest_win_vsi_p2"));
+            var client = CreateClient(auth: true);
+            var buildInfo = await client.GetBuildInfoAsync(buildId);
+            var buildResult = await client.GetBuildResultAsync(buildInfo);
+            Console.WriteLine("done");
 
             /*
             var client = CreateClient(auth: true);
@@ -177,7 +179,7 @@ namespace Dashboard.ApiFun
         {
             var client = CreateClient(auth: false);
             var info = client.GetBuildFailureInfo(new BuildId(id: 6066, jobId: JobId.ParseName("roslyn_prtest_win_dbg_unit64")));
-            Console.WriteLine(info.Category);
+            // Console.WriteLine(info.Category);
         }
 
         private static void PrintViews()

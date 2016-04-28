@@ -141,13 +141,13 @@ namespace Dashboard.Jenkins
 
         public BuildFailureInfo GetBuildFailureInfo(BuildId id)
         {
-            var data = GetJson(JenkinsUtil.GetBuildPath(id), tree: "actions[*]", depth: 4);
+            var data = GetJson(JenkinsUtil.GetBuildPath(id), depth: 4);
             return JsonUtil.ParseBuildFailureInfo(data);
         }
 
         public async Task<BuildFailureInfo> GetBuildFailureInfoAsync(BuildId id)
         {
-            var data = await GetJsonAsync(JenkinsUtil.GetBuildPath(id), tree: "actions[*]", depth: 4);
+            var data = await GetJsonAsync(JenkinsUtil.GetBuildPath(id), depth: 4);
             return JsonUtil.ParseBuildFailureInfo(data);
         }
 

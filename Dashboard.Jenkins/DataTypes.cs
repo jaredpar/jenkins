@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -149,32 +150,41 @@ namespace Dashboard.Jenkins
         }
     }
 
-    // TODO: Category should be a string in the non-Roslyn version.  It's only an enum in Roslyn where we 
-    // have the context.
-    public enum BuildFailureCategory
+    public struct BuildFailureCause
     {
-        Unknown,
-        TestCase,
-        Build,
-        NuGet,
-        Infrastructure,
-        MergeConflict,
-    }
+        public const string CategoryUnknown = "Unknown";
+        public const string CategoryMergeConflict = "Merge Conflict";
 
-    public sealed class BuildFailureInfo
-    {
-        public static readonly BuildFailureInfo Unknown = new BuildFailureInfo(name: "", description: "", category: BuildFailureCategory.Unknown);
-        public static readonly BuildFailureInfo MergeConflict = new BuildFailureInfo(name: "", description: "", category: BuildFailureCategory.MergeConflict);
+        public static readonly BuildFailureCause Unknown = new BuildFailureCause(name: "", description: "", category: CategoryUnknown);
+        public static readonly BuildFailureCause MergeConflict = new BuildFailureCause(name: "", description: "", category: CategoryMergeConflict);
 
         public string Name { get; }
         public string Description { get; }
-        public BuildFailureCategory Category { get; }
+        public string Category { get; }
 
-        public BuildFailureInfo(string name, string description, BuildFailureCategory category)
+        public BuildFailureCause(string name, string description, string category)
         {
             Name = name;
             Description = description;
             Category = category;
+        }
+    }
+
+    public sealed class BuildFailureInfo
+    {
+        public static readonly BuildFailureInfo Unknown = new BuildFailureInfo(BuildFailureCause.Unknown);
+
+        public ReadOnlyCollection<BuildFailureCause> CauseList { get; }
+
+        public BuildFailureInfo(BuildFailureCause cause) : this(new ReadOnlyCollection<BuildFailureCause>(new[] { cause }))
+        {
+
+        }
+
+        public BuildFailureInfo(ReadOnlyCollection<BuildFailureCause> causeList)
+        {
+            Debug.Assert(causeList.Count > 0);
+            CauseList = causeList;
         }
     }
 

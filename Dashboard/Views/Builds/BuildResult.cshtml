@@ -22,7 +22,7 @@
     var uri = JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, JenkinsUtil.GetBuildPath(id));
     <tr>
         <td><a href="@uri">@entity.BuildNumber</a></td>
-        <td>@entity.BuildResultKind</td>
+        <td>@entity.ClassificationKind</td>
         <td>@entity.MachineName</td>
         <td>@entity.BuildDateTime.ToLocalTime().ToString(@"MM/dd hh:mm tt")</td>
     </tr>

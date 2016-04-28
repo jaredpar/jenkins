@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,33 +19,43 @@ namespace Dashboard.Jenkins
         public static bool TryGetBuildFailureInfo(JObject jobData, out BuildFailureInfo buildFailureInfo)
         {
             var actions = (JArray)jobData["actions"];
+            var causeList = new List<BuildFailureCause>();
+            var any = false;
             foreach (var cur in actions)
             {
                 var foundCauses = (JArray)cur["foundFailureCauses"];
-                if (foundCauses != null && TryGetBuildFailureInfoCustomCauses(foundCauses, out buildFailureInfo))
+                if (foundCauses != null && TryAppendBuildFailureCause(foundCauses, causeList))
                 {
-                    return true;
+                    Debug.Assert(causeList.Count > 0);
+                    any = true;
                 }
 
                 var causes = (JArray)cur["causes"];
                 if (causes != null && IsMergeConflict(causes))
                 {
-                    buildFailureInfo = BuildFailureInfo.MergeConflict;
-                    return true;
+                    causeList.Add(BuildFailureCause.MergeConflict);
+                    any = true;
                 }
 
-                if (cur is JObject && TryGetTestFailureInfo((JObject)cur, out buildFailureInfo))
+                if (cur is JObject && TryGetTestFailureInfo((JObject)cur, causeList))
                 {
-                    return true;
+                    any = true;
                 }
+            }
+
+            if (any)
+            {
+                buildFailureInfo = new BuildFailureInfo(new ReadOnlyCollection<BuildFailureCause>(causeList));
+                return true;
             }
 
             buildFailureInfo = null;
             return false;
         }
 
-        private static bool TryGetBuildFailureInfoCustomCauses(JArray foundCauses, out BuildFailureInfo buildFailureInfo)
+        private static bool TryAppendBuildFailureCause(JArray foundCauses, List<BuildFailureCause> causeList)
         {
+            var any = false;
             foreach (JObject entry in foundCauses)
             {
                 var category = GetCategory(entry);
@@ -54,12 +66,12 @@ namespace Dashboard.Jenkins
 
                 var description = entry.Value<string>("description");
                 var name = entry.Value<string>("name");
-                buildFailureInfo = new BuildFailureInfo(name: name, description: description, category: category.Value);
-                return true;
+                var cause = new BuildFailureCause(name: name, description: description, category: category);
+                causeList.Add(cause);
+                any = true;
             }
 
-            buildFailureInfo = null;
-            return false;
+            return any;
         }
 
         private static bool IsMergeConflict(JArray causes)
@@ -76,35 +88,22 @@ namespace Dashboard.Jenkins
             return false;
         }
 
-        private static BuildFailureCategory? GetCategory(JObject causeItem)
-        {
-            switch (GetCategoryRaw(causeItem).ToLower())
-            {
-                case "build": return BuildFailureCategory.Build;
-                case "infrastructure": return BuildFailureCategory.Infrastructure;
-                case "test": return BuildFailureCategory.TestCase;
-                default: return null;
-            }
-        }
-
-        private static string GetCategoryRaw(JObject causeItem)
+        private static string GetCategory(JObject causeItem)
         {
             var items = (JArray)causeItem["categories"];
             if (items == null || items.Count == 0)
             {
-                return "";
+                return null;
             }
 
-            return items[0].Value<string>() ?? "";
+            return items[0].Value<string>();
         }
 
         /// <summary>
         /// Convert to a unit test entry if this matches.
         /// </summary>
-        private static bool TryGetTestFailureInfo(JObject data, out BuildFailureInfo failureInfo)
+        private static bool TryGetTestFailureInfo(JObject data, List<BuildFailureCause> causeList)
         {
-            failureInfo = null;
-
             // The JSON looks like teh following:
             // {    "failCount" : 1,
             //      "skipCount" : 2546,
@@ -123,7 +122,7 @@ namespace Dashboard.Jenkins
             }
 
             var message = $"Unit Test Failure: {failCount}";
-            failureInfo = new BuildFailureInfo("Unit Test", message, BuildFailureCategory.TestCase);
+            causeList.Add(new BuildFailureCause("Unit Test", message, "Test Case"));
             return true;
         }
 

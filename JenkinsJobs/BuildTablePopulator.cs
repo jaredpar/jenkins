@@ -56,7 +56,7 @@ namespace Dashboard.StorageBuilder
             try
             {
                 var entity = await GetBuildFailureEntity(buildId);
-                WriteLine(buildId, $"adding reason {entity.BuildResultKind}");
+                WriteLine(buildId, $"adding reason {entity.ClassificationKind}");
                 return entity;
             }
             catch (Exception ex)
@@ -72,20 +72,20 @@ namespace Dashboard.StorageBuilder
         private async Task<BuildResultEntity> GetBuildFailureEntity(BuildId id)
         {
             var buildInfo = _client.GetBuildInfo(id);
-            BuildResultKind kind;
+            BuildResultClassification classification;
             switch (buildInfo.State)
             {
                 case BuildState.Succeeded:
-                    kind = BuildResultKind.Succeeded;
+                    classification = BuildResultClassification.Succeeded;
                     break;
                 case BuildState.Aborted:
-                    kind = BuildResultKind.Aborted;
+                    classification = BuildResultClassification.Aborted;
                     break;
                 case BuildState.Failed:
-                    kind = await PopulateFailedBuildResult(buildInfo);
+                    classification = await PopulateFailedBuildResult(buildInfo);
                     break;
                 case BuildState.Running:
-                    kind = BuildResultKind.Running;
+                    classification = BuildResultClassification.Unknown;
                     break;
                 default:
                     throw new Exception($"Invalid enum: {buildInfo.State} for {id.JobName} - {id.Id}");
@@ -97,10 +97,10 @@ namespace Dashboard.StorageBuilder
                 prInfo = await _client.GetPullRequestInfoAsync(id);
             }
 
-            return new BuildResultEntity(buildInfo.Id, buildInfo.Date, buildInfo.MachineName, kind, prInfo);
+            return new BuildResultEntity(buildInfo.Id, buildInfo.Date, buildInfo.MachineName, classification, prInfo);
         }
 
-        private async Task<BuildResultKind> PopulateFailedBuildResult(BuildInfo buildInfo)
+        private async Task<BuildResultClassification> PopulateFailedBuildResult(BuildInfo buildInfo)
         {
             var buildId = buildInfo.Id;
             BuildResult buildResult;
@@ -114,24 +114,47 @@ namespace Dashboard.StorageBuilder
                 throw;
             }
 
-            var category = buildResult.FailureInfo?.Category ?? BuildFailureCategory.Unknown;
+            if (buildResult.FailureInfo == null)
+            {
+                return BuildResultClassification.Unknown;
+            }
+
+            var classification = BuildResultClassification.Unknown;
+            foreach (var cause in buildResult.FailureInfo.CauseList)
+            {
+                var current = ConvertToClassification(cause);
+                if (classification.Kind == ClassificationKind.Unknown || classification.Kind == ClassificationKind.MergeConflict)
+                {
+                    classification = current;
+                }
+            }
+
+            return classification;
+        }
+
+        private BuildResultClassification ConvertToClassification(BuildFailureCause cause)
+        {
+            if (cause.Category == BuildFailureCause.CategoryMergeConflict)
+            {
+                return BuildResultClassification.MergeConflict;
+            }
+
+            if (cause.Category == BuildFailureCause.CategoryUnknown)
+            {
+                return BuildResultClassification.Unknown;
+            }
+
+            var category = cause.Category.ToLower();
             switch (category)
             {
-                case BuildFailureCategory.Unknown:
-                    return BuildResultKind.UnknownFailure;
-                case BuildFailureCategory.NuGet:
-                    return BuildResultKind.NuGetFailure;
-                case BuildFailureCategory.Build:
-                    return BuildResultKind.BuildFailure;
-                case BuildFailureCategory.Infrastructure:
-                    return BuildResultKind.InfrastructureFailure;
-                case BuildFailureCategory.MergeConflict:
-                    return BuildResultKind.MergeConflict;
-                case BuildFailureCategory.TestCase:
-                    await PopulateUnitTestFailure(buildId, buildResult.BuildInfo);
-                    return BuildResultKind.UnitTestFailure;
+                case "test":
+                    return BuildResultClassification.TestFailure;
+                case "build":
+                    return BuildResultClassification.BuildFailure;
+                case "infrastructure":
+                    return BuildResultClassification.Infrastructure;
                 default:
-                    throw new Exception($"Invalid enum value: {category}");
+                    return new BuildResultClassification(ClassificationKind.Custom, cause.Category);
             }
         }
 

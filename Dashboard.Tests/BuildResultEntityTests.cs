@@ -20,8 +20,10 @@ namespace Dashboard.Tests
                 buildId,
                 buildDate,
                 "test",
-                BuildResultKind.BuildFailure,
+                BuildResultClassification.Succeeded,
                 prInfo: null);
+            Assert.Equal(BuildResultClassification.Succeeded.Kind, entity.Classification.Kind);
+            Assert.Equal(BuildResultClassification.Succeeded.Name, entity.Classification.Name);
             Assert.Equal(buildId, entity.BuildId);
             Assert.Equal(buildId.Id, entity.BuildNumber);
             Assert.Equal(buildId.JobId, entity.JobId);
@@ -41,7 +43,7 @@ namespace Dashboard.Tests
                 buildId,
                 buildDate,
                 "test",
-                BuildResultKind.BuildFailure,
+                BuildResultClassification.Succeeded,
                 prInfo: prInfo);
             Assert.True(entity.HasPullRequestInfo);
             Assert.Equal(entity.PullRequestInfo.Author, prInfo.Author);
