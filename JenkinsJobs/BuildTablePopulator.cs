@@ -11,31 +11,34 @@ using System.Diagnostics;
 
 namespace Dashboard.StorageBuilder
 {
-    internal sealed class BuildTableUtil
+    internal sealed class BuildTablePopulator
     {
         private readonly CloudTable _buildResultDateTable;
         private readonly CloudTable _buildResultExactTable;
-        private readonly CloudTable _buildFailureTable;
+        private readonly CloudTable _buildFailureDateTable;
+        private readonly CloudTable _buildFailureExactTable;
         private readonly JenkinsClient _client;
         private readonly TextWriter _textWriter;
 
-        internal BuildTableUtil(CloudTable buildResultDateTable, CloudTable buildResultExactTable, CloudTable buildFailureTable, JenkinsClient client, TextWriter textWriter)
+        internal BuildTablePopulator(CloudTable buildResultDateTable, CloudTable buildResultExactTable, CloudTable buildFailureDateTable, CloudTable buildFailureExactTable, JenkinsClient client, TextWriter textWriter)
         {
-            Debug.Assert(buildResultDateTable.Name == BuildResultDateEntity.TableName);
-            Debug.Assert(buildResultExactTable.Name == BuildResultExactEntity.TableName);
-            Debug.Assert(buildFailureTable.Name == BuildFailureEntity.TableName);
+            Debug.Assert(buildResultDateTable.Name == AzureConstants.TableNames.BuildResultDate);
+            Debug.Assert(buildResultExactTable.Name == AzureConstants.TableNames.BuildResultExact);
+            Debug.Assert(buildFailureDateTable.Name == AzureConstants.TableNames.BuildFailureDate);
+            Debug.Assert(buildFailureExactTable.Name == AzureConstants.TableNames.BuildFailureExact);
             _buildResultDateTable = buildResultDateTable;
             _buildResultExactTable = buildResultExactTable;
-            _buildFailureTable = buildFailureTable;
+            _buildFailureDateTable = buildFailureDateTable;
+            _buildFailureExactTable = buildFailureExactTable;
             _client = client;
             _textWriter = textWriter;
         }
 
         /// <summary>
-        /// Populate the <see cref="BuildResultEntityBase"/> structures for a build overwriting any data 
+        /// Populate the <see cref="BuildResultEntity"/> structures for a build overwriting any data 
         /// that existed before.  Returns the entity if enough information was there to process the value.
         /// </summary>
-        internal async Task<BuildResultExactEntity> PopulateBuild(BuildId buildId)
+        internal async Task<BuildResultEntity> PopulateBuild(BuildId buildId)
         {
             var entity = await PopulateBuildIdCore(buildId);
             if (entity == null)
@@ -43,12 +46,14 @@ namespace Dashboard.StorageBuilder
                 return null;
             }
 
+            entity.SetEntityKey(entity.GetExactEntityKey());
             await _buildResultExactTable.ExecuteAsync(TableOperation.InsertOrReplace(entity));
-            await _buildResultDateTable.ExecuteAsync(TableOperation.InsertOrReplace(new BuildResultDateEntity(entity)));
+            entity.SetEntityKey(entity.GetDateEntityKey());
+            await _buildResultDateTable.ExecuteAsync(TableOperation.InsertOrReplace(entity));
             return entity;
         }
 
-        private async Task<BuildResultExactEntity> PopulateBuildIdCore(BuildId buildId)
+        private async Task<BuildResultEntity> PopulateBuildIdCore(BuildId buildId)
         {
             try
             {
@@ -66,7 +71,7 @@ namespace Dashboard.StorageBuilder
         /// <summary>
         /// Update the table storage to contain the result of the specified build.
         /// </summary>
-        private async Task<BuildResultExactEntity> GetBuildFailureEntity(BuildId id)
+        private async Task<BuildResultEntity> GetBuildFailureEntity(BuildId id)
         {
             var buildInfo = _client.GetBuildInfo(id);
             BuildResultKind kind;
@@ -88,7 +93,7 @@ namespace Dashboard.StorageBuilder
                     throw new Exception($"Invalid enum: {buildInfo.State} for {id.JobName} - {id.Id}");
             }
 
-            return new BuildResultExactEntity(buildInfo.Date, buildInfo.Id, buildInfo.MachineName, kind);
+            return new BuildResultEntity(buildInfo.Id, buildInfo.Date, buildInfo.MachineName, kind);
         }
 
         private async Task<BuildResultKind> PopulateFailedBuildResult(BuildInfo buildInfo)
@@ -126,14 +131,15 @@ namespace Dashboard.StorageBuilder
             }
         }
 
-        private Task PopulateUnitTestFailure(BuildId buildId, BuildInfo buildInfo)
+        private async Task PopulateUnitTestFailure(BuildId buildId, BuildInfo buildInfo)
         {
             var testCaseNames = _client.GetFailedTestCases(buildId);
             var entityList = testCaseNames
-                .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildId, x, buildInfo.Date, buildInfo.MachineName))
+                .Select(x => BuildFailureExactEntity.CreateTestCaseFailure(buildInfo.Date, buildId, x, buildInfo.MachineName))
                 .ToList();
             EnsureTestCaseNamesUnique(entityList);
-            return AzureUtil.InsertBatch(_buildFailureTable, entityList);
+            await AzureUtil.InsertBatchUnordered(_buildFailureExactTable, entityList);
+            await AzureUtil.InsertBatchUnordered(_buildFailureDateTable, entityList.Select(x => new BuildFailureDateEntity(x)).ToList());
         }
 
         private void WriteLine(BuildId buildId, string message)
@@ -145,7 +151,7 @@ namespace Dashboard.StorageBuilder
         /// It's possible, although technically invalid for a job to produce multiple test cases with 
         /// the same name.  Normalize those now because our table scheme requires them to be unique. 
         /// </summary>
-        private static void EnsureTestCaseNamesUnique(List<BuildFailureEntity> list)
+        private static void EnsureTestCaseNamesUnique(List<BuildFailureExactEntity> list)
         {
             var set = new HashSet<string>();
             foreach (var entity in list)

@@ -22,87 +22,29 @@ namespace Dashboard.StorageBuilder
     {
         public static async Task BuildEvent(
             [QueueTrigger(AzureConstants.QueueNames.BuildEvent)] string message,
-            [Table(BuildEventEntity.TableName)] CloudTable buildEventTable,
-            [Table(BuildProcessedEntity.TableName)] CloudTable buildProcessedTable,
-            [Table(BuildFailureEntity.TableName)] CloudTable buildFailureTable,
-            [Table(BuildResultDateEntity.TableName)] CloudTable buildResultTable,
+            [Table(BuildResultDateEntity.TableName)] CloudTable buildResultDateTable,
+            [Table(BuildResultExactEntity.TableName)] CloudTable buildResultExactTable,
+            [Table(BuildFailureDateEntity.TableName)] CloudTable buildFailureDateTable,
+            [Table(BuildFailureExactEntity.TableName)] CloudTable buildFailureExactTable,
             TextWriter logger,
             CancellationToken cancellationToken)
         {
             var githubConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.GithubConnectionStringName);
-            var util = new BuildEventUtil(
-                buildEventTable: buildEventTable, 
-                buildProcessedTable: buildProcessedTable, 
-                buildFailureTable: buildFailureTable, 
-                buildResultTable: buildResultTable,
-                textWriter: logger,
-                githubConnectionString: githubConnectionString);
             var messageJson = (BuildEventMessageJson)JsonConvert.DeserializeObject(message, typeof(BuildEventMessageJson));
             if (messageJson.Phase == "COMPLETED")
             {
-
+                var client = new JenkinsClient(
+                    new Uri($"https://{messageJson.JenkinsHostName}"),
+                    githubConnectionString);
+                var populator = new BuildTablePopulator(
+                    buildResultDateTable: buildResultDateTable,
+                    buildResultExactTable: buildResultExactTable,
+                    buildFailureDateTable: buildFailureDateTable,
+                    buildFailureExactTable: buildFailureExactTable,
+                    client: client,
+                    textWriter: logger);
+                await populator.PopulateBuild(messageJson.BuildId);
             }
-            var entity = await util.Process(messageJson, cancellationToken);
-            if (entity.
-            if (list.Count > 0)
-            {
-                await SendEmail(BuildMessage(list));
-            }
-        }
-
-        /*
-        public static async Task UnknownBuildResult(
-            [QueueTrigger(AzureConstants.QueueNames.UnknownBuildResult)] string message,
-            [Table(BuildEventEntity.TableName)] CloudTable buildEventTable,
-            [Table(BuildProcessedEntity.TableName)] CloudTable buildProcessedTable,
-            [Table(BuildFailureEntity.TableName)] CloudTable buildFailureTable,
-            [Table(BuildResultDateEntity.TableName)] CloudTable buildResultTable,
-            TextWriter logger,
-            CancellationToken cancellationToken)
-        {
-            var githubConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.GithubConnectionStringName);
-            var buildIdJson = (BuildIdJson)JsonConvert.DeserializeObject(message, typeof(BuildIdJson));
-            var client = new JenkinsClient(buildIdJson.JenkinsUrl, githubConnectionString);
-            var buildInfo = await client.GetBuildResultAsync()
-        }
-        */
-
-        public static async Task PopulateBuildTables(TextWriter logger)
-        {
-            try
-            {
-                var list = await PopulateBuildTablesCore(logger);
-                if (list.Count > 0)
-                {
-                    await SendEmail(BuildMessage(list));
-                }
-            }
-            catch (Exception ex)
-            {
-                await SendEmail($"Overall exception: {ex.Message} {Environment.NewLine}{ex.StackTrace}");
-            }
-        }
-
-        private static async Task<List<BuildAnalyzeError>> PopulateBuildTablesCore(TextWriter logger)
-        {
-            var connectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
-            var storageAccount = CloudStorageAccount.Parse(connectionString);
-            var tableClient = storageAccount.CreateCloudTableClient();
-            var buildFailureTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildFailure);
-            var buildProcessedTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildProcessed);
-            var buildResultTable = tableClient.GetTableReference(BuildResultDateEntity.TableName);
-
-            // TODO: Need a Jenkins token as well to be able to query our non-public jobs.
-            var githubConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.GithubConnectionStringName);
-            var client = string.IsNullOrEmpty(githubConnectionString)
-                ? new JenkinsClient(SharedConstants.DotnetJenkinsUri)
-                : new JenkinsClient(SharedConstants.DotnetJenkinsUri, connectionString: githubConnectionString);
-
-            var jobs = client.GetJobIds();
-            var util = new BuildTableUtil(buildProcessedTable: buildProcessedTable, buildFailureTable: buildFailureTable, buildResultTable: buildResultTable, client: client, textWriter: logger);
-            await util.MoveUnknownToIgnored();
-            await util.PopulateAllAsync();
-            return util.BuildAnalyzeErrors;
         }
 
         private static async Task SendEmail(string text)

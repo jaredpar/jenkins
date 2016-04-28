@@ -10,7 +10,8 @@ namespace Dashboard.Azure
     {
         public static class TableNames
         {
-            public const string BuildFailure = "BuildFailure";
+            public const string BuildFailureDate = "BuildFailureDate";
+            public const string BuildFailureExact = "BuildFailureExact";
             public const string BuildProcessed = "BuildProcessed";
             public const string BuildEvent = "BuildEvent";
             public const string BuildResultDate = "BuildResultDate";
@@ -26,7 +27,8 @@ namespace Dashboard.Azure
             public static IEnumerable<string> All()
             {
                 yield return BuildEvent;
-                yield return BuildFailure;
+                yield return BuildFailureDate;
+                yield return BuildFailureExact;
                 yield return BuildResultDate;
                 yield return BuildResultExact;
                 yield return BuildProcessed;

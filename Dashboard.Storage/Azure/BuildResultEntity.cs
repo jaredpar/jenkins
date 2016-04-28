@@ -2,6 +2,7 @@
 using Microsoft.WindowsAzure.Storage.Table;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,10 +10,10 @@ using System.Threading.Tasks;
 namespace Dashboard.Azure
 {
     /// <summary>
-    /// Base type holding all of the properties that are common to entities that hold build 
-    /// result information.
+    /// Information about a build result.  The BuildId is unique to this entity irrespective of 
+    /// how it is stored.
     /// </summary>
-    public abstract class BuildResultEntityBase : TableEntity
+    public sealed class BuildResultEntity : TableEntity
     {
         public string JobName { get; set; }
         public int BuildNumber { get; set; }
@@ -25,12 +26,12 @@ namespace Dashboard.Azure
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
         public BuildResultKind BuildResultKind => (BuildResultKind)Enum.Parse(typeof(BuildResultKind), BuildResultKindRaw);
 
-        protected BuildResultEntityBase()
+        public BuildResultEntity()
         {
 
         }
 
-        protected BuildResultEntityBase(
+        public BuildResultEntity(
             BuildId buildId,
             DateTimeOffset buildDateTime,
             string machineName,
@@ -45,13 +46,37 @@ namespace Dashboard.Azure
             Debug.Assert(BuildDateTime.Kind == DateTimeKind.Utc);
         }
 
-        protected BuildResultEntityBase(BuildResultEntityBase other) : this(
+        public BuildResultEntity(BuildResultEntity other) : this(
             buildId: other.BuildId,
             buildDateTime: other.BuildDateTimeOffset,
             machineName: other.MachineName,
             kind: other.BuildResultKind)
         {
 
+        }
+
+        public EntityKey GetExactEntityKey()
+        {
+            return GetExactEntityKey(BuildId);
+        }
+
+        public static EntityKey GetExactEntityKey(BuildId buildId)
+        {
+            var partitionKey = AzureUtil.NormalizeKey(buildId.JobId.Name, '_');
+            var rowKey = buildId.Id.ToString("0000000000");
+            return new EntityKey(partitionKey, rowKey);
+        }
+
+        public EntityKey GetDateEntityKey()
+        {
+            return GetDateEntityKey(BuildDateTimeOffset, BuildId);
+        }
+
+        public static EntityKey GetDateEntityKey(DateTimeOffset buildDate, BuildId buildId)
+        {
+            return new EntityKey(
+                new DateKey(buildDate).Key,
+                new BuildKey(buildId).Key);
         }
     }
 }

@@ -50,7 +50,7 @@ namespace Dashboard.Models
         public string Name { get; set; }
         public bool IncludePullRequests { get; set; }
         public DateTime StartDate { get; set; }
-        public List<BuildFailureEntity> Builds { get; } = new List<BuildFailureEntity>();
+        public List<BuildFailureDateEntity> Builds { get; } = new List<BuildFailureDateEntity>();
     }
 
     public class TestFailureData

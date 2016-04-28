@@ -14,47 +14,68 @@ namespace Dashboard.Azure
         TestCase,
     }
 
+    /// <summary>
+    /// Base type for tracking build failure information.  The combination of identifier and 
+    /// <see cref="BuildId"/> should always be unique.  This entity is stored in a number of tables
+    /// based on different Partition / Row keys.
+    /// </summary>
     public sealed class BuildFailureEntity : TableEntity
     {
-        public const string TableName = AzureConstants.TableNames.BuildFailure;
-
-        public string KindRaw { get; set; }
+        public string BuildFailureKindRaw { get; set; }
         public DateTime BuildDate { get; set; }
-        public string Extra { get; set; }
-        public string MachineName { get; set; }
+        public string JobName { get; set; }
+        public int BuildNumber { get; set; }
+        public string Identifier { get; set; }
 
-        public string Identifier => RowKey;
-        public BuildId BuildId => ParseBuildId();
-        public BuildFailureKind Kind => (BuildFailureKind)Enum.Parse(typeof(BuildFailureKind), KindRaw);
+        public JobId JobId => JobId.ParseName(JobName);
+        public BuildId BuildId => new BuildId(BuildNumber, JobId);
+        public BuildFailureKind BuildFailureKind => (BuildFailureKind)Enum.Parse(typeof(BuildFailureKind), BuildFailureKindRaw);
 
         public BuildFailureEntity()
         {
 
         }
 
-        private BuildFailureEntity(BuildId buildId, string rowKey, BuildFailureKind kind, DateTime buildDate) : base($"{buildId.JobName} {buildId.Id}", rowKey)
+        public BuildFailureEntity(BuildFailureEntity other) : this(
+            buildDate: other.BuildDate,
+            buildId: other.BuildId,
+            identifier: other.Identifier,
+            kind: other.BuildFailureKind)
         {
-            KindRaw = kind.ToString();
-            BuildDate = buildDate;
+
         }
 
-        public static BuildFailureEntity CreateTestCaseFailure(BuildId buildId, string testCaseName, DateTime buildDate, string machineName, string extra = "")
+        public BuildFailureEntity(DateTimeOffset buildDate, BuildId buildId, string identifier, BuildFailureKind kind)
         {
-            testCaseName = DashboardStorage.NormalizeTestCaseName(testCaseName);
-            return new BuildFailureEntity(buildId, kind: BuildFailureKind.TestCase, rowKey: testCaseName, buildDate: buildDate)
-            {
-                MachineName = machineName,
-                Extra = extra
-            };
+            JobName = buildId.JobName;
+            BuildNumber = buildId.Id;
+            Identifier = identifier;
+            BuildFailureKindRaw = kind.ToString();
+            BuildDate = buildDate.UtcDateTime;
         }
 
-        private BuildId ParseBuildId()
+        public EntityKey GetDateEntityKey()
         {
-            var index = PartitionKey.LastIndexOf(' ');
-            var idStr = PartitionKey.Substring(index);
-            var jobStr = PartitionKey.Substring(0, length: index);
-            var jobId = JobId.ParseName(jobStr);
-            return new BuildId(int.Parse(idStr), jobId);
+            return GetDateEntityKey(BuildDate, BuildId, Identifier);
+        }
+
+        public static EntityKey GetDateEntityKey(DateTimeOffset buildDate, BuildId buildId, string identifier)
+        {
+            return new EntityKey(
+                new DateKey(buildDate).Key,
+                $"{new BuildKey(buildId)}-{identifier}");
+        }
+
+        public EntityKey GetExactEntityKEy()
+        {
+            return GetExactEntityKey(BuildId, Identifier);
+        }
+
+        public static EntityKey GetExactEntityKey(BuildId buildId, string identifier)
+        {
+            return new EntityKey(
+                identifier,
+                new BuildKey(buildId).Key);
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Dashboard.Azure
 {
+    // TODO: What if the JobName has invalid azure elements like '/'
     public struct BuildKey
     {
         public BuildId BuildId { get; }

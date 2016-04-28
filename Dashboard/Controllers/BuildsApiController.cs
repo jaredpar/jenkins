@@ -30,10 +30,18 @@ namespace Dashboard.Controllers
         /// Get all of the the test based failures since the provided date.  Default is 1 day. 
         /// </summary>
         [Route("api/builds/testFailures")]
-        public List<TestFailureData> GetTestFailures([FromUri] DateTime? startDate = null)
+        public List<TestFailureData> GetTestFailures([FromUri] DateTimeOffset? startDate = null)
         {
+            var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            var filter = TableQuery.CombineFilters(
+                AzureUtil.GenerateFilterConditionSinceDate(nameof(BuildFailureDateEntity.PartitionKey), new DateKey(startDateValue)),
+                TableOperators.And,
+                TableQuery.GenerateFilterCondition(nameof(BuildFailureBaseEntity.BuildFailureKindRaw), QueryComparisons.Equal, BuildFailureKind.TestCase.ToString());
+            var table = _storage.GetTable(AzureConstants.TableNames.BuildFailureDate);
+            var query = new TableQuery<BuildFailureDateEntity>().Where(filter);
+
             var list = new List<TestFailureData>();
-            foreach (var group in _storage.GetBuildFailureEntities(startDate).GroupBy(x => x.Identifier))
+            foreach (var group in _
             {
                 var commitFailure = 0;
                 var prFailure = 0;
