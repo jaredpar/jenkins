@@ -30,7 +30,7 @@ namespace Dashboard.Azure
         public DateTimeOffset BuildDateTimeOffset => new DateTimeOffset(BuildDateTime);
         public JobId JobId => JobId.ParseName(JobName);
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
-        public ClassificationKind ClassificationKind => (ClassificationKind)Enum.Parse(typeof(ClassificationKind), ClassificationKindRaw);
+        public ClassificationKind ClassificationKind => (ClassificationKind)Enum.Parse(typeof(ClassificationKind), ClassificationKindRaw ?? ClassificationKind.Unknown.ToString());
         public BuildResultClassification Classification => new BuildResultClassification(ClassificationKind, ClassificationName);
         public bool HasPullRequestInfo =>
             PullRequestId != 0 &&
@@ -64,6 +64,7 @@ namespace Dashboard.Azure
             if (prInfo != null)
             {
                 PullRequestId = prInfo.Id;
+                PullRequestAuthor = prInfo.Author;
                 PullRequestAuthorEmail = prInfo.AuthorEmail;
                 PullRequestUrl = prInfo.PullUrl;
                 PullRequestSha1 = prInfo.Sha1;

@@ -1,0 +1,18 @@
+
+{
+  "jobName": "job/roslyn_prtest_win_dbg_unit64/",
+  "url": "http://dotnet-ci.cloudapp.net/job/roslyn_prtest_win_dbg_unit64/6657/",
+  "number": 6657,
+  "queueId": 100155,
+  "phase": "COMPLETED",
+  "status": null
+}
+
+{
+  "jobName": "job/roslyn-internal_master_win_vsi_p0/",
+  "url": "http://dotnet-ci.cloudapp.net/job/roslyn-internal_master_win_vsi_p0/1214/",
+  "number": 1214,
+  "queueId": 100155,
+  "phase": "STARTED",
+  "status": null
+}

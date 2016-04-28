@@ -5,6 +5,7 @@
     ViewBag.Title = Model.JobId.ShortName;
     var prValue = Model.IncludePullRequests ? @"checked=""checked""" : "";
     var startDateValue = Model.StartDate.ToString("yyyy-MM-dd");
+    var showForPrStyle = JobUtil.IsPullRequestJobName(Model.JobId.Name) ? "" : "display: none";
 }
 
 <h2>Job: @Model.JobId.ShortName</h2>
@@ -14,17 +15,22 @@
         <th>Result</th>
         <th>Machine Name</th>
         <th>Date</th>
+        <th style="@showForPrStyle">PR Author</th>
+        <th style="@showForPrStyle">PR Link</th>
     </tr></thead>
 <tbody>
 @foreach (var entity in Model.Entries)
 {
     var id = entity.BuildId;
     var uri = JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, JenkinsUtil.GetBuildPath(id));
+    var prUri = entity.PullRequestUrl ?? "";
     <tr>
         <td><a href="@uri">@entity.BuildNumber</a></td>
         <td>@entity.ClassificationKind</td>
         <td>@entity.MachineName</td>
         <td>@entity.BuildDateTime.ToLocalTime().ToString(@"MM/dd hh:mm tt")</td>
+        <td>@entity.PullRequestAuthor</td>
+        <td><a href="@prUri">@entity.PullRequestId</a></td>
     </tr>
 }
 </tbody>
