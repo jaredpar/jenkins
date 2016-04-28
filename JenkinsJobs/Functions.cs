@@ -22,10 +22,10 @@ namespace Dashboard.StorageBuilder
     {
         public static async Task BuildEvent(
             [QueueTrigger(AzureConstants.QueueNames.BuildEvent)] string message,
-            [Table(BuildResultDateEntity.TableName)] CloudTable buildResultDateTable,
-            [Table(BuildResultExactEntity.TableName)] CloudTable buildResultExactTable,
-            [Table(BuildFailureDateEntity.TableName)] CloudTable buildFailureDateTable,
-            [Table(BuildFailureExactEntity.TableName)] CloudTable buildFailureExactTable,
+            [Table(AzureConstants.TableNames.BuildResultDate)] CloudTable buildResultDateTable,
+            [Table(AzureConstants.TableNames.BuildResultExact)] CloudTable buildResultExactTable,
+            [Table(AzureConstants.TableNames.BuildFailureDate)] CloudTable buildFailureDateTable,
+            [Table(AzureConstants.TableNames.BuildFailureExact)] CloudTable buildFailureExactTable,
             TextWriter logger,
             CancellationToken cancellationToken)
         {

@@ -54,7 +54,9 @@ namespace Dashboard.Helpers
         private T GetOrCreateEntity(CounterData counterData)
         {
             var key = CounterUtil.GetEntityKey(counterData);
-            var entity = AzureUtil.QueryTable<T>(_table, key);
+            var filter = FilterUtil.Key(key).Filter;
+            var query = new TableQuery<T>().Where(filter);
+            var entity = _table.ExecuteQuery(query).FirstOrDefault();
             if (entity != null)
             {
                 return entity;

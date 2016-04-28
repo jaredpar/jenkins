@@ -98,7 +98,7 @@ namespace Dashboard.Azure
         /// <summary>
         /// Insert a raw list that is not grouped by partition keys. 
         /// </summary>
-        public static async Task InsertBatchUnordered<T>(CloudTable table, List<T> entityList)
+        public static async Task InsertBatchUnordered<T>(CloudTable table, IEnumerable<T> entityList)
             where T : TableEntity
         {
             foreach (var group in entityList.GroupBy(x => x.PartitionKey))
@@ -140,65 +140,5 @@ namespace Dashboard.Azure
             }
         }
 
-        public static string GenerateFilterConditionPartitionKey(string partitionKey)
-        {
-            return TableQuery.GenerateFilterCondition(
-                nameof(TableEntity.PartitionKey),
-                QueryComparisons.Equal,
-                partitionKey);
-        }
-
-        public static string GenerateFilterConditionRowKey(string rowKey)
-        {
-            return TableQuery.GenerateFilterCondition(
-                nameof(TableEntity.RowKey),
-                QueryComparisons.Equal,
-                rowKey);
-        }
-
-        public static string GenerateFilterConditionSinceDate(string columnName, DateKey startDate)
-        {
-            return TableQuery.GenerateFilterCondition(
-                columnName,
-                QueryComparisons.GreaterThanOrEqual,
-                startDate.Key);
-        }
-
-        public static string GenerateFilterConditionBetweenDates(string columnName, DateKey startDate, DateKey endDate)
-        {
-            return TableQuery.CombineFilters(
-                TableQuery.GenerateFilterCondition(
-                    columnName,
-                    QueryComparisons.GreaterThanOrEqual,
-                    startDate.Key),
-                TableOperators.And,
-                TableQuery.GenerateFilterCondition(
-                    columnName,
-                    QueryComparisons.LessThanOrEqual,
-                    endDate.Key));
-        }
-
-        /// <summary>
-        /// Create an exact query for a given entity.
-        /// </summary>
-        public static TableQuery<T> CreateQuery<T>(EntityKey key)
-        {
-            var partitionFilter = GenerateFilterConditionPartitionKey(key.PartitionKey);
-            var rowFilter = GenerateFilterConditionRowKey(key.RowKey);
-
-            return new TableQuery<T>()
-                .Where(TableQuery.CombineFilters(
-                    partitionFilter,
-                    TableOperators.And,
-                    rowFilter));
-        }
-
-        public static T QueryTable<T>(CloudTable table, EntityKey key)
-            where T : ITableEntity, new()
-        {
-            var query = CreateQuery<T>(key);
-            var enumerable = table.ExecuteQuery(query);
-            return enumerable.SingleOrDefault();
-        }
     }
 }

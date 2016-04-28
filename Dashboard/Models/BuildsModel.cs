@@ -28,13 +28,13 @@ namespace Dashboard.Models
         public bool IncludePullRequests { get; set; }
         public DateTimeOffset StartDate { get; set; }
         public JobId JobId { get; set; }
-        public List<BuildResultDateEntity> Entries { get; set; } = new List<BuildResultDateEntity>();
+        public List<BuildResultEntity> Entries { get; set; } = new List<BuildResultEntity>();
     }
 
     public class TestFailureSummaryModel
     {
         public bool IncludePullRequests { get; set; }
-        public DateTime StartDate { get; set; }
+        public DateTimeOffset StartDate { get; set; }
         public int Limit { get; set; }
         public List<TestFailureSummaryEntry> Entries { get; set; } = new List<TestFailureSummaryEntry>();
     }
@@ -49,8 +49,8 @@ namespace Dashboard.Models
     {
         public string Name { get; set; }
         public bool IncludePullRequests { get; set; }
-        public DateTime StartDate { get; set; }
-        public List<BuildFailureDateEntity> Builds { get; } = new List<BuildFailureDateEntity>();
+        public DateTimeOffset StartDate { get; set; }
+        public List<BuildFailureEntity> Builds { get; } = new List<BuildFailureEntity>();
     }
 
     public class TestFailureData
@@ -69,7 +69,7 @@ namespace Dashboard.Models
         public string JobShortName { get; set; }
         public string JobUri { get; set; }
         public string MachineName { get; set; }
-        public DateTime DateTime { get; set; }
+        public DateTimeOffset DateTime { get; set; }
     }
 
     public class DemandRunStatusModel

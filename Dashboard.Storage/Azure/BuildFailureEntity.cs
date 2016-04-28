@@ -19,17 +19,19 @@ namespace Dashboard.Azure
     /// <see cref="BuildId"/> should always be unique.  This entity is stored in a number of tables
     /// based on different Partition / Row keys.
     /// </summary>
-    public sealed class BuildFailureEntity : TableEntity, ICopyableTableEntity<BuildFailureEntity>
+    public sealed class BuildFailureEntity : TableEntity
     {
         public string BuildFailureKindRaw { get; set; }
-        public DateTime BuildDate { get; set; }
+        public DateTime BuildDateTime { get; set; }
         public string JobName { get; set; }
         public int BuildNumber { get; set; }
         public string Identifier { get; set; }
+        public string MachineName { get; set; }
 
         public JobId JobId => JobId.ParseName(JobName);
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
         public BuildFailureKind BuildFailureKind => (BuildFailureKind)Enum.Parse(typeof(BuildFailureKind), BuildFailureKindRaw);
+        public DateTimeOffset BuildDateTimeOffset => BuildDateTime;
 
         public BuildFailureEntity()
         {
@@ -37,33 +39,37 @@ namespace Dashboard.Azure
         }
 
         public BuildFailureEntity(BuildFailureEntity other) : this(
-            buildDate: other.BuildDate,
             buildId: other.BuildId,
             identifier: other.Identifier,
-            kind: other.BuildFailureKind)
+            buildDate: other.BuildDateTime,
+            kind: other.BuildFailureKind,
+            machineName: other.MachineName)
         {
 
         }
 
-        public BuildFailureEntity(DateTimeOffset buildDate, BuildId buildId, string identifier, BuildFailureKind kind)
+        public BuildFailureEntity(BuildId buildId, string identifier, DateTimeOffset buildDate, BuildFailureKind kind, string machineName)
         {
             JobName = buildId.JobName;
             BuildNumber = buildId.Id;
             Identifier = identifier;
             BuildFailureKindRaw = kind.ToString();
-            BuildDate = buildDate.UtcDateTime;
+            BuildDateTime = buildDate.UtcDateTime;
+            MachineName = machineName;
         }
 
-        public BuildFailureEntity Copy(EntityKey key)
+        public BuildFailureEntity CopyExact()
         {
             var entity = new BuildFailureEntity(this);
-            entity.SetEntityKey(key);
+            entity.SetEntityKey(GetExactEntityKey(BuildId, Identifier));
             return entity;
         }
 
-        public EntityKey GetDateEntityKey()
+        public BuildFailureEntity CopyDate()
         {
-            return GetDateEntityKey(BuildDate, BuildId, Identifier);
+            var entity = new BuildFailureEntity(this);
+            entity.SetEntityKey(GetDateEntityKey(BuildDateTime, BuildId, Identifier));
+            return entity;
         }
 
         public static EntityKey GetDateEntityKey(DateTimeOffset buildDate, BuildId buildId, string identifier)
@@ -71,11 +77,6 @@ namespace Dashboard.Azure
             return new EntityKey(
                 new DateKey(buildDate).Key,
                 $"{new BuildKey(buildId)}-{identifier}");
-        }
-
-        public EntityKey GetExactEntityKEy()
-        {
-            return GetExactEntityKey(BuildId, Identifier);
         }
 
         public static EntityKey GetExactEntityKey(BuildId buildId, string identifier)
@@ -88,10 +89,11 @@ namespace Dashboard.Azure
         public static BuildFailureEntity CreateTestCaseFailure(DateTimeOffset buildDateTime, BuildId buildId, string testCaseName, string machineName)
         {
             return new BuildFailureEntity(
-                buildDateTime,
                 buildId,
                 testCaseName,
-                BuildFailureKind.TestCase);
+                buildDateTime,
+                BuildFailureKind.TestCase,
+                machineName: machineName);
         }
     }
 }

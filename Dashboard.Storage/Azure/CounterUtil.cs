@@ -91,17 +91,10 @@ namespace Dashboard.Azure
             where T : CounterEntity, new()
         {
             var timeOfDayTicks = GetTimeOfDayTicks(startDate);
-            var partitionFilter = AzureUtil.GenerateFilterConditionPartitionKey(GetPartitionKey(startDate));
-            var ticksFilter = TableQuery.GenerateFilterConditionForLong(
-                nameof(CounterEntity.TimeOfDayTicks),
-                QueryComparisons.GreaterThanOrEqual,
-                timeOfDayTicks);
-
-            var filter = TableQuery.CombineFilters(
-                partitionFilter,
-                TableOperators.And,
-                ticksFilter);
-
+            var filter = FilterUtil
+                .PartitionKey(GetPartitionKey(startDate))
+                .And(FilterUtil.Column(nameof(CounterEntity.TimeOfDayTicks), timeOfDayTicks, ColumnOperator.GreaterThanOrEqual))
+                .Filter;
             var query = new TableQuery<T>().Where(filter);
             return table.ExecuteQuery<T>(query);
         }
@@ -110,17 +103,10 @@ namespace Dashboard.Azure
             where T : CounterEntity, new()
         {
             var timeOfDayTicks = GetTimeOfDayTicks(endDate);
-            var partitionFilter = AzureUtil.GenerateFilterConditionPartitionKey(GetPartitionKey(endDate));
-            var ticksFilter = TableQuery.GenerateFilterConditionForLong(
-                nameof(CounterEntity.TimeOfDayTicks),
-                QueryComparisons.LessThanOrEqual,
-                timeOfDayTicks);
-
-            var filter = TableQuery.CombineFilters(
-                partitionFilter,
-                TableOperators.And,
-                ticksFilter);
-
+            var filter = FilterUtil
+                .PartitionKey(GetPartitionKey(endDate))
+                .And(FilterUtil.Column(nameof(CounterEntity.TimeOfDayTicks), timeOfDayTicks, ColumnOperator.LessThanOrEqual))
+                .Filter;
             var query = new TableQuery<T>().Where(filter);
             return table.ExecuteQuery<T>(query);
         }
@@ -141,7 +127,7 @@ namespace Dashboard.Azure
         private static IEnumerable<T> QueryOne<T>(CloudTable table, DateTime date)
             where T : CounterEntity, new()
         {
-            var filter = AzureUtil.GenerateFilterConditionPartitionKey(GetPartitionKey(date));
+            var filter = FilterUtil.PartitionKey(GetPartitionKey(date)).Filter;
             var query = new TableQuery<T>().Where(filter);
             return table.ExecuteQuery<T>(query);
         }

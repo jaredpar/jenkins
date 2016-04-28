@@ -19,11 +19,13 @@ namespace Dashboard.Controllers
     public class BuildsApiController : ApiController
     {
         private readonly DashboardStorage _storage;
+        private readonly BuildUtil _buildUtil;
 
         public BuildsApiController()
         {
             var connectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
             _storage = new DashboardStorage(connectionString);
+            _buildUtil = new BuildUtil(_storage.StorageAccount);
         }
 
         /// <summary>
@@ -33,15 +35,8 @@ namespace Dashboard.Controllers
         public List<TestFailureData> GetTestFailures([FromUri] DateTimeOffset? startDate = null)
         {
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
-            var filter = TableQuery.CombineFilters(
-                AzureUtil.GenerateFilterConditionSinceDate(nameof(BuildFailureDateEntity.PartitionKey), new DateKey(startDateValue)),
-                TableOperators.And,
-                TableQuery.GenerateFilterCondition(nameof(BuildFailureBaseEntity.BuildFailureKindRaw), QueryComparisons.Equal, BuildFailureKind.TestCase.ToString());
-            var table = _storage.GetTable(AzureConstants.TableNames.BuildFailureDate);
-            var query = new TableQuery<BuildFailureDateEntity>().Where(filter);
-
             var list = new List<TestFailureData>();
-            foreach (var group in _
+            foreach (var group in _buildUtil.GetTestCaseFailures(startDateValue).GroupBy(x => x.Identifier))
             {
                 var commitFailure = 0;
                 var prFailure = 0;
@@ -72,18 +67,18 @@ namespace Dashboard.Controllers
         }
 
         [Route("api/builds/testFailure")]
-        public TestFailureData GetTestFailure([FromUri] string name, [FromUri] DateTime? startDate = null)
+        public TestFailureData GetTestFailure([FromUri] string name, [FromUri] DateTimeOffset? startDate = null)
         {
-            var startDateValue = _storage.GetStartDateValue(startDate);
             var data = new TestFailureData()
             {
                 Name = name,
                 Builds = new List<BuildData>()
             };
 
+            var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             var prCount = 0;
             var commitCount = 0;
-            foreach (var entity in _storage.GetBuildFailureEntities(name, startDate))
+            foreach (var entity in _buildUtil.GetTestCaseFailures(startDateValue, name))
             {
                 var buildId = entity.BuildId;
                 var jobId = buildId.JobId;

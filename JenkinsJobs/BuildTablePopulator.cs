@@ -46,10 +46,8 @@ namespace Dashboard.StorageBuilder
                 return null;
             }
 
-            entity.SetEntityKey(entity.GetExactEntityKey());
-            await _buildResultExactTable.ExecuteAsync(TableOperation.InsertOrReplace(entity));
-            entity.SetEntityKey(entity.GetDateEntityKey());
-            await _buildResultDateTable.ExecuteAsync(TableOperation.InsertOrReplace(entity));
+            await _buildResultDateTable.ExecuteAsync(TableOperation.InsertOrReplace(entity.CopyDate()));
+            await _buildResultExactTable.ExecuteAsync(TableOperation.InsertOrReplace(entity.CopyExact()));
             return entity;
         }
 
@@ -138,8 +136,8 @@ namespace Dashboard.StorageBuilder
                 .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildInfo.Date, buildId, x, buildInfo.MachineName))
                 .ToList();
             EnsureTestCaseNamesUnique(entityList);
-            await AzureUtil.InsertBatchUnordered(_buildFailureExactTable, entityList);
-            await AzureUtil.InsertBatchUnordered(_buildFailureDateTable, entityList.Select(x => new BuildFailureDateEntity(x)).ToList());
+            await AzureUtil.InsertBatchUnordered(_buildFailureExactTable, entityList.Select(x => x.CopyExact()));
+            await AzureUtil.InsertBatchUnordered(_buildFailureDateTable, entityList.Select(x => x.CopyDate()));
         }
 
         private void WriteLine(BuildId buildId, string message)
@@ -151,7 +149,7 @@ namespace Dashboard.StorageBuilder
         /// It's possible, although technically invalid for a job to produce multiple test cases with 
         /// the same name.  Normalize those now because our table scheme requires them to be unique. 
         /// </summary>
-        private static void EnsureTestCaseNamesUnique(List<BuildFailureExactEntity> list)
+        private static void EnsureTestCaseNamesUnique(List<BuildFailureEntity> list)
         {
             var set = new HashSet<string>();
             foreach (var entity in list)

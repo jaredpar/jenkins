@@ -43,7 +43,6 @@ namespace Dashboard.ApiFun
             roslyn_stabil_lin_dbg_unit32
             */
             // Migrate().Wait();
-            PopulateJobFailureTable().Wait();
         }
 
         private static async Task Migrate()
@@ -58,6 +57,7 @@ namespace Dashboard.ApiFun
             await tool.MigrateUnitTestData();
         }
 
+        /*
         private static async Task PopulateJobFailureTable()
         {
             var tableConnectionString = ConfigurationManager.AppSettings[SharedConstants.StorageConnectionStringName];
@@ -88,6 +88,7 @@ namespace Dashboard.ApiFun
             buildResultTable.CreateIfNotExists();
             await AzureUtil.InsertBatchUnordered(buildResultTable, list);
         }
+        */
 
         private static JenkinsClient CreateClient(bool auth = true)
         {

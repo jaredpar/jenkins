@@ -13,7 +13,7 @@ namespace Dashboard.Azure
     /// Information about a build result.  The BuildId is unique to this entity irrespective of 
     /// how it is stored.
     /// </summary>
-    public sealed class BuildResultEntity : TableEntity, ICopyableTableEntity<BuildResultEntity>
+    public sealed class BuildResultEntity : TableEntity
     {
         public string JobName { get; set; }
         public int BuildNumber { get; set; }
@@ -55,16 +55,18 @@ namespace Dashboard.Azure
 
         }
 
-        public BuildResultEntity Copy(EntityKey key)
+        public BuildResultEntity CopyDate()
         {
             var entity = new BuildResultEntity(this);
-            entity.SetEntityKey(key);
+            entity.SetEntityKey(GetDateEntityKey(BuildDateTimeOffset, BuildId));
             return entity;
         }
 
-        public EntityKey GetExactEntityKey()
+        public BuildResultEntity CopyExact()
         {
-            return GetExactEntityKey(BuildId);
+            var entity = new BuildResultEntity(this);
+            entity.SetEntityKey(GetExactEntityKey(BuildId));
+            return entity;
         }
 
         public static EntityKey GetExactEntityKey(BuildId buildId)
@@ -72,11 +74,6 @@ namespace Dashboard.Azure
             var partitionKey = AzureUtil.NormalizeKey(buildId.JobId.Name, '_');
             var rowKey = buildId.Id.ToString("0000000000");
             return new EntityKey(partitionKey, rowKey);
-        }
-
-        public EntityKey GetDateEntityKey()
-        {
-            return GetDateEntityKey(BuildDateTimeOffset, BuildId);
         }
 
         public static EntityKey GetDateEntityKey(DateTimeOffset buildDate, BuildId buildId)
