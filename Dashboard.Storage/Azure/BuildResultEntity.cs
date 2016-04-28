@@ -20,11 +20,25 @@ namespace Dashboard.Azure
         public string BuildResultKindRaw { get; set; }
         public DateTime BuildDateTime { get; set; }
         public string MachineName { get; set; }
+        public int PullRequestId { get; set; }
+        public string PullRequestAuthor { get; set; }
+        public string PullRequestAuthorEmail { get; set; }
+        public string PullRequestUrl { get; set; }
+        public string PullRequestSha1 { get; set; }
 
         public DateTimeOffset BuildDateTimeOffset => new DateTimeOffset(BuildDateTime);
-        public JobId JobId => BuildId.JobId;
+        public JobId JobId => JobId.ParseName(JobName);
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
         public BuildResultKind BuildResultKind => (BuildResultKind)Enum.Parse(typeof(BuildResultKind), BuildResultKindRaw);
+        public bool HasPullRequestInfo =>
+            PullRequestId != 0 &&
+            PullRequestAuthor != null &&
+            PullRequestAuthorEmail != null &&
+            PullRequestUrl != null &&
+            PullRequestSha1 != null;
+        public PullRequestInfo PullRequestInfo => HasPullRequestInfo
+            ? new PullRequestInfo(author: PullRequestAuthor, authorEmail: PullRequestAuthorEmail, id: PullRequestId, pullUrl: PullRequestUrl, sha1: PullRequestSha1)
+            : null;
 
         public BuildResultEntity()
         {
@@ -35,13 +49,24 @@ namespace Dashboard.Azure
             BuildId buildId,
             DateTimeOffset buildDateTime,
             string machineName,
-            BuildResultKind kind)
+            BuildResultKind kind,
+            PullRequestInfo prInfo)
         {
             JobName = buildId.JobId.Name;
             BuildNumber = buildId.Id;
             BuildResultKindRaw = kind.ToString();
             BuildDateTime = buildDateTime.UtcDateTime;
             MachineName = machineName;
+
+            if (prInfo != null)
+            {
+                PullRequestId = prInfo.Id;
+                PullRequestAuthorEmail = prInfo.AuthorEmail;
+                PullRequestUrl = prInfo.PullUrl;
+                PullRequestSha1 = prInfo.Sha1;
+                Debug.Assert(HasPullRequestInfo);
+                Debug.Assert(PullRequestInfo != null);
+            }
 
             Debug.Assert(BuildDateTime.Kind == DateTimeKind.Utc);
         }
@@ -50,7 +75,8 @@ namespace Dashboard.Azure
             buildId: other.BuildId,
             buildDateTime: other.BuildDateTimeOffset,
             machineName: other.MachineName,
-            kind: other.BuildResultKind)
+            kind: other.BuildResultKind,
+            prInfo: other.PullRequestInfo)
         {
 
         }

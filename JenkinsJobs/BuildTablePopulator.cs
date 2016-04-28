@@ -91,7 +91,13 @@ namespace Dashboard.StorageBuilder
                     throw new Exception($"Invalid enum: {buildInfo.State} for {id.JobName} - {id.Id}");
             }
 
-            return new BuildResultEntity(buildInfo.Id, buildInfo.Date, buildInfo.MachineName, kind);
+            PullRequestInfo prInfo = null;
+            if (JobUtil.IsPullRequestJobName(id.JobId.Name))
+            {
+                prInfo = await _client.GetPullRequestInfoAsync(id);
+            }
+
+            return new BuildResultEntity(buildInfo.Id, buildInfo.Date, buildInfo.MachineName, kind, prInfo);
         }
 
         private async Task<BuildResultKind> PopulateFailedBuildResult(BuildInfo buildInfo)

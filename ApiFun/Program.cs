@@ -26,7 +26,7 @@ namespace Dashboard.ApiFun
             // var util = new MachineCountInvestigation(CreateClient());
             // util.Go();
             // GetMacQueueTimes();
-            // Random();
+            Random().Wait();
             // FindRetest();
             // PrintRetestInfo();
             // InspectReason(5567);
@@ -119,19 +119,11 @@ namespace Dashboard.ApiFun
             request.AddHeader("Authorization", header);
         }
 
-        private static void Random()
+        private static async Task Random()
         {
-            var request = new RestRequest("job/roslyn_prtest_win_dbg_unit32/buildWithParameters", Method.POST);
-            request.AddParameter("GitRepoUrl", "https://github.com/jaredpar/roslyn");
-            request.AddParameter("GitBranchOrCommit", "test4");
-            // request.AddParameter("GitRefSpec", "");
-            AddAuthentication(request);
-
-            var text = ConfigurationManager.AppSettings[SharedConstants.GithubConnectionStringName];
-            var client = new RestClient(SharedConstants.DotnetJenkinsUri);
-            var response = client.Execute(request);
-            Console.WriteLine(response.StatusCode);
-            Console.WriteLine(response.Content);
+            var buildId = new BuildId(6613, JobId.ParseName("roslyn_prtest_lin_dbg_unit32"));
+            var client = CreateClient(auth: false);
+            var prInfo = await client.GetPullRequestInfoAsync(buildId);
 
             /*
             var client = CreateClient(auth: true);

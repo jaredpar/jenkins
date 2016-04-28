@@ -253,7 +253,7 @@ namespace Dashboard.Jenkins
                 throw new Exception("Could not read pull request data");
             }
 
-            return null;
+            return info;
         }
 
         internal static bool TryParsePullRequestInfo(JArray actions, out PullRequestInfo info)
@@ -268,6 +268,7 @@ namespace Dashboard.Jenkins
             string sha1 = null;
             string pullLink = null;
             int? pullId = null;
+            string pullAuthor = null;
             string pullAuthorEmail = null;
             string commitAuthorEmail = null;
             var parameters = (JArray)container["parameters"];
@@ -276,19 +277,22 @@ namespace Dashboard.Jenkins
                 switch (pair.Value<string>("name"))
                 {
                     case "ghprbActualCommit":
-                        sha1 = pair.Value<string>("value");
+                        sha1 = pair.Value<string>("value") ?? sha1;
                         break;
                     case "ghprbPullId":
                         pullId = pair.Value<int>("value");
                         break;
+                    case "ghprbPullAuthorLogin":
+                        pullAuthor = pair.Value<string>("value") ?? pullAuthor;
+                        break;
                     case "ghprbPullAuthorEmail":
-                        pullAuthorEmail = pair.Value<string>("value");
+                        pullAuthorEmail = pair.Value<string>("value") ?? pullAuthorEmail;
                         break;
                     case "ghprbActualCommitAuthorEmail":
-                        commitAuthorEmail = pair.Value<string>("value");
+                        commitAuthorEmail = pair.Value<string>("value") ?? commitAuthorEmail;
                         break;
                     case "ghprbPullLink":
-                        pullLink = pair.Value<string>("value");
+                        pullLink = pair.Value<string>("value") ?? pullLink;
                         break;
                     default:
                         break;
@@ -310,6 +314,7 @@ namespace Dashboard.Jenkins
             }
 
             info = new PullRequestInfo(
+                author: pullAuthor,
                 authorEmail: pullAuthorEmail,
                 id: pullId.Value,
                 pullUrl: pullLink,

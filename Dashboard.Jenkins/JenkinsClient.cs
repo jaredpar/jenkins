@@ -223,7 +223,7 @@ namespace Dashboard.Jenkins
 
         public async Task<PullRequestInfo> GetPullRequestInfoAsync(BuildId id)
         {
-            var data = await GetJsonAsync(JenkinsUtil.GetBuildPath(id), tree: "actions");
+            var data = await GetJsonAsync(JenkinsUtil.GetBuildPath(id), tree: "actions[parameters[*]]");
             return JsonUtil.ParsePullRequestInfo((JArray)data["actions"]);
         }
 

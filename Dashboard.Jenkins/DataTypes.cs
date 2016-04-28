@@ -80,13 +80,15 @@ namespace Dashboard.Jenkins
 
     public sealed class PullRequestInfo
     {
+        public string Author { get; }
         public string AuthorEmail { get; }
         public int Id { get; }
         public string PullUrl { get; }
         public string Sha1 { get; }
 
-        public PullRequestInfo(string authorEmail, int id, string pullUrl, string sha1)
+        public PullRequestInfo(string author, string authorEmail, int id, string pullUrl, string sha1)
         {
+            Author = author;
             AuthorEmail = authorEmail;
             Id = id;
             PullUrl = pullUrl;
