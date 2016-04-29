@@ -20,7 +20,7 @@ namespace Dashboard.StorageBuilder
 {
     public class Functions
     {
-        public static void BuildEvent(
+        public static async Task BuildEvent(
             [QueueTrigger(AzureConstants.QueueNames.BuildEvent)] string message,
             [Table(AzureConstants.TableNames.BuildResultDate)] CloudTable buildResultDateTable,
             [Table(AzureConstants.TableNames.BuildResultExact)] CloudTable buildResultExactTable,
@@ -43,7 +43,7 @@ namespace Dashboard.StorageBuilder
                     buildFailureExactTable: buildFailureExactTable,
                     client: client,
                     textWriter: logger);
-                populator.PopulateBuild(messageJson.BuildId).Wait();
+                await populator.PopulateBuild(messageJson.BuildId);
             }
         }
 

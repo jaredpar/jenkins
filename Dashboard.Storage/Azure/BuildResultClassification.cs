@@ -30,21 +30,23 @@ namespace Dashboard.Azure
 
     public struct BuildResultClassification
     {
-        public static readonly BuildResultClassification Succeeded = new BuildResultClassification(ClassificationKind.Succeeded, "Succeeded");
-        public static readonly BuildResultClassification Unknown = new BuildResultClassification(ClassificationKind.Unknown, "Unknown");
-        public static readonly BuildResultClassification TestFailure = new BuildResultClassification(ClassificationKind.TestFailure, "TestFailure");
-        public static readonly BuildResultClassification MergeConflict = new BuildResultClassification(ClassificationKind.MergeConflict, "MergeConflict");
-        public static readonly BuildResultClassification Infrastructure = new BuildResultClassification(ClassificationKind.Infrastructure, "Infrastructure");
-        public static readonly BuildResultClassification BuildFailure = new BuildResultClassification(ClassificationKind.BuildFailure, "Build");
-        public static readonly BuildResultClassification Aborted = new BuildResultClassification(ClassificationKind.Aborted, "Aborted");
+        public static readonly BuildResultClassification Succeeded = new BuildResultClassification(ClassificationKind.Succeeded, "Succeeded", "");
+        public static readonly BuildResultClassification Unknown = new BuildResultClassification(ClassificationKind.Unknown, "Unknown", "");
+        public static readonly BuildResultClassification TestFailure = new BuildResultClassification(ClassificationKind.TestFailure, "TestFailure", "");
+        public static readonly BuildResultClassification MergeConflict = new BuildResultClassification(ClassificationKind.MergeConflict, "MergeConflict", "");
+        public static readonly BuildResultClassification Infrastructure = new BuildResultClassification(ClassificationKind.Infrastructure, "Infrastructure", "");
+        public static readonly BuildResultClassification BuildFailure = new BuildResultClassification(ClassificationKind.BuildFailure, "Build", "");
+        public static readonly BuildResultClassification Aborted = new BuildResultClassification(ClassificationKind.Aborted, "Aborted", "");
 
         public ClassificationKind Kind { get; }
         public string Name { get; }
+        public string DetailedName { get; }
 
-        public BuildResultClassification(ClassificationKind kind, string name)
+        public BuildResultClassification(ClassificationKind kind, string name, string detailedName)
         {
             Kind = kind;
             Name = name;
+            DetailedName = detailedName ?? "";
         }
     }
 }

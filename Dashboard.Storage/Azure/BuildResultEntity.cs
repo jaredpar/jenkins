@@ -19,6 +19,7 @@ namespace Dashboard.Azure
         public int BuildNumber { get; set; }
         public string ClassificationKindRaw { get; set; }
         public string ClassificationName { get; set; }
+        public string ClassificationDetailedName { get; set; }
         public DateTime BuildDateTime { get; set; }
         public string MachineName { get; set; }
         public int PullRequestId { get; set; }
@@ -31,7 +32,7 @@ namespace Dashboard.Azure
         public JobId JobId => JobId.ParseName(JobName);
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
         public ClassificationKind ClassificationKind => (ClassificationKind)Enum.Parse(typeof(ClassificationKind), ClassificationKindRaw ?? ClassificationKind.Unknown.ToString());
-        public BuildResultClassification Classification => new BuildResultClassification(ClassificationKind, ClassificationName);
+        public BuildResultClassification Classification => new BuildResultClassification(ClassificationKind, ClassificationName, ClassificationDetailedName);
         public bool HasPullRequestInfo =>
             PullRequestId != 0 &&
             PullRequestAuthor != null &&

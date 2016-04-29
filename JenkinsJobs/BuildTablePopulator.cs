@@ -154,7 +154,7 @@ namespace Dashboard.StorageBuilder
                 case "infrastructure":
                     return BuildResultClassification.Infrastructure;
                 default:
-                    return new BuildResultClassification(ClassificationKind.Custom, cause.Category);
+                    return new BuildResultClassification(ClassificationKind.Custom, cause.Category, cause.Name);
             }
         }
 
