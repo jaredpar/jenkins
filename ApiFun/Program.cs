@@ -121,9 +121,11 @@ namespace Dashboard.ApiFun
 
         private static async Task Random()
         {
-            var buildId = new BuildId(6657, JobId.ParseName("roslyn_prtest_win_dbg_unit64"));
+            var buildId = new BuildId(1199, JobId.ParseName("roslyn-internal_master_win_vsi_p2"));
             var client = CreateClient(auth: true);
-            var prInfo = await client.GetPullRequestInfoAsync(buildId);
+            // var buildInfo = await client.GetBuildInfoAsync(buildId);
+            // var buildResult = await client.GetBuildResultAsync(buildInfo);
+            var names = await client.GetFailedTestCasesAsync(buildId);
             Console.WriteLine("done");
 
             /*

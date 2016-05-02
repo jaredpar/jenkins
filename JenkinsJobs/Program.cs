@@ -22,6 +22,7 @@ namespace Dashboard.StorageBuilder
             var config = new JobHostConfiguration();
             config.DashboardConnectionString = connectionString;
             config.StorageConnectionString = connectionString;
+            config.UseTimers();
 
             var host = new JobHost(config);
             host.RunAndBlock();

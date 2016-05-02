@@ -15,6 +15,7 @@ using System.Net.Mail;
 using Microsoft.WindowsAzure.Storage.Table;
 using System.Threading;
 using Newtonsoft.Json;
+using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace Dashboard.StorageBuilder
 {
@@ -45,6 +46,31 @@ namespace Dashboard.StorageBuilder
                     textWriter: logger);
                 await populator.PopulateBuild(messageJson.BuildId);
             }
+        }
+
+        public static async Task CleanTestCache(
+            [TimerTrigger("0 0 * * * *", RunOnStartup = true)] TimerInfo timerInfo,
+            [Blob(AzureConstants.ContainerNames.TestResults)] IEnumerable<ICloudBlob> blobs,
+            TextWriter logger,
+            CancellationToken cancellationToken)
+        {
+            var limit = DateTimeOffset.UtcNow - TimeSpan.FromDays(10);
+            var query = blobs.Where(x => x.Properties.LastModified < limit).ToList();
+            logger.WriteLine($"Deleting {query.Count} stale test results");
+
+            var count = 0;
+            foreach (var blob in query)
+            {
+                await blob.DeleteIfExistsAsync();
+                count++;
+                if (count % 10 == 0)
+                {
+                    Console.WriteLine($"  deleted {count}");
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+            logger.WriteLine($"Completed deleting");
         }
 
         private static async Task SendEmail(string text)

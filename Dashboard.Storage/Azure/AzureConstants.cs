@@ -52,11 +52,6 @@ namespace Dashboard.Azure
             }
         }
 
-        public static class BlobDirectoryNames
-        {
-            public const string TestResults = "testResults";
-        }
-
         public static class QueueNames
         {
             public const string BuildEvent = "build-event";
