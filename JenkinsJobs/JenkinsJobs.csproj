@@ -125,7 +125,6 @@
       <Link>SharedConstants.cs</Link>
     </Compile>
     <Compile Include="AnalyzeError.cs" />
-    <Compile Include="BuildTablePopulator.cs" />
     <Compile Include="MessageJson.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Functions.cs" />

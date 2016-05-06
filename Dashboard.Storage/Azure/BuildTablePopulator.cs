@@ -9,9 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
-namespace Dashboard.StorageBuilder
+namespace Dashboard.Azure
 {
-    internal sealed class BuildTablePopulator
+    public sealed class BuildTablePopulator
     {
         private readonly CloudTable _buildResultDateTable;
         private readonly CloudTable _buildResultExactTable;
@@ -20,7 +20,7 @@ namespace Dashboard.StorageBuilder
         private readonly JenkinsClient _client;
         private readonly TextWriter _textWriter;
 
-        internal BuildTablePopulator(CloudTable buildResultDateTable, CloudTable buildResultExactTable, CloudTable buildFailureDateTable, CloudTable buildFailureExactTable, JenkinsClient client, TextWriter textWriter)
+        public BuildTablePopulator(CloudTable buildResultDateTable, CloudTable buildResultExactTable, CloudTable buildFailureDateTable, CloudTable buildFailureExactTable, JenkinsClient client, TextWriter textWriter)
         {
             Debug.Assert(buildResultDateTable.Name == AzureConstants.TableNames.BuildResultDate);
             Debug.Assert(buildResultExactTable.Name == AzureConstants.TableNames.BuildResultExact);
@@ -38,7 +38,7 @@ namespace Dashboard.StorageBuilder
         /// Populate the <see cref="BuildResultEntity"/> structures for a build overwriting any data 
         /// that existed before.  Returns the entity if enough information was there to process the value.
         /// </summary>
-        internal async Task<BuildResultEntity> PopulateBuild(BuildId buildId)
+        public async Task<BuildResultEntity> PopulateBuild(BuildId buildId)
         {
             var entity = await PopulateBuildIdCore(buildId);
             if (entity == null)
@@ -129,6 +129,11 @@ namespace Dashboard.StorageBuilder
                 }
             }
 
+            if (classification.Kind == ClassificationKind.TestFailure)
+            {
+                await PopulateUnitTestFailure(buildInfo);
+            }
+
             return classification;
         }
 
@@ -158,8 +163,9 @@ namespace Dashboard.StorageBuilder
             }
         }
 
-        private async Task PopulateUnitTestFailure(BuildId buildId, BuildInfo buildInfo)
+        private async Task PopulateUnitTestFailure(BuildInfo buildInfo)
         {
+            var buildId = buildInfo.Id;
             var testCaseNames = _client.GetFailedTestCases(buildId);
             var entityList = testCaseNames
                 .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildInfo.Date, buildId, x, buildInfo.MachineName))

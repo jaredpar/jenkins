@@ -140,5 +140,11 @@ namespace Dashboard.Azure
             }
         }
 
+        public static IEnumerable<T> Query<T>(CloudTable table, string filter)
+            where T : ITableEntity, new()
+        {
+            var query = new TableQuery<T>().Where(filter);
+            return table.ExecuteQuery(query);
+        }
     }
 }

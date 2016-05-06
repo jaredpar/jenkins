@@ -168,6 +168,8 @@ namespace Dashboard.Jenkins
             Description = description;
             Category = category;
         }
+
+        public override string ToString() => $"{Name} -> {Category}";
     }
 
     public sealed class BuildFailureInfo

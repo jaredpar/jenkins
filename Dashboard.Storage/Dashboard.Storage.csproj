@@ -83,6 +83,7 @@
     <Compile Include="Azure\BuildEventEntity.cs" />
     <Compile Include="Azure\BuildKey.cs" />
     <Compile Include="Azure\BuildSource.cs" />
+    <Compile Include="Azure\BuildTablePopulator.cs" />
     <Compile Include="Azure\BuildUtil.cs" />
     <Compile Include="Azure\CounterData.cs" />
     <Compile Include="Azure\CounterEntity.cs" />

@@ -36,11 +36,6 @@ namespace Dashboard.Jenkins
                     causeList.Add(BuildFailureCause.MergeConflict);
                     any = true;
                 }
-
-                if (cur is JObject && TryGetTestFailureInfo((JObject)cur, causeList))
-                {
-                    any = true;
-                }
             }
 
             if (any)
@@ -97,33 +92,6 @@ namespace Dashboard.Jenkins
             }
 
             return items[0].Value<string>();
-        }
-
-        /// <summary>
-        /// Convert to a unit test entry if this matches.
-        /// </summary>
-        private static bool TryGetTestFailureInfo(JObject data, List<BuildFailureCause> causeList)
-        {
-            // The JSON looks like teh following:
-            // {    "failCount" : 1,
-            //      "skipCount" : 2546,
-            //      "totalCount" : 66764,
-            //      "urlName" : "testReport" }
-            var urlName = data.Value<string>("urlName");
-            if (string.IsNullOrEmpty(urlName))
-            {
-                return false;
-            }
-
-            var failCount = data.Value<int?>("failCount");
-            if (!failCount.HasValue)
-            {
-                return false;
-            }
-
-            var message = $"Unit Test Failure: {failCount}";
-            causeList.Add(new BuildFailureCause("Unit Test", message, "Test Case"));
-            return true;
         }
 
         /// <summary>
