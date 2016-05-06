@@ -306,4 +306,2872 @@
   ]
 }</value>
   </data>
+  <data name="Tao1BuildInfo" xml:space="preserve">
+    <value>{
+  "duration" : 2205772,
+  "id" : "4",
+  "result" : "FAILURE",
+  "timestamp" : 1462491047470,
+  "builtOn" : "dci-win-mbld-10"
+}</value>
+  </data>
+  <data name="Tao1BuildResult" xml:space="preserve">
+    <value>{
+  "actions" : [
+    {
+      "parameters" : [
+        {
+          "name" : "GitBranchOrCommit",
+          "value" : "${ghprbTargetBranch}"
+        },
+        {
+          "name" : "GitRepoUrl",
+          "value" : "https://github.com/dotnet/roslyn-internal.git"
+        },
+        {
+          "name" : "GitRefSpec",
+          "value" : ""
+        },
+        {
+          "name" : "sha1",
+          "value" : "origin/pr/11091/merge"
+        },
+        {
+          "name" : "ghprbActualCommit",
+          "value" : "6a3b9fd14a63fd962a88109a4b62ae316ff0c6e9"
+        },
+        {
+          "name" : "ghprbActualCommitAuthor",
+          "value" : "Dustin Campbell"
+        },
+        {
+          "name" : "ghprbActualCommitAuthorEmail",
+          "value" : "dustin@teamcampbell.org"
+        },
+        {
+          "name" : "ghprbAuthorRepoGitUrl",
+          "value" : "https://github.com/DustinCampbell/roslyn.git"
+        },
+        {
+          "name" : "ghprbTriggerAuthor",
+          "value" : "Dustin Campbell"
+        },
+        {
+          "name" : "ghprbTriggerAuthorEmail",
+          "value" : "dustin@teamcampbell.org"
+        },
+        {
+          "name" : "ghprbTriggerAuthorLogin",
+          "value" : "DustinCampbell"
+        },
+        {
+          "name" : "ghprbTriggerAuthorLoginMention",
+          "value" : "@DustinCampbell"
+        },
+        {
+          "name" : "ghprbPullId",
+          "value" : "11091"
+        },
+        {
+          "name" : "ghprbTargetBranch",
+          "value" : "master"
+        },
+        {
+          "name" : "ghprbSourceBranch",
+          "value" : "move-signature-help"
+        },
+        {
+          "name" : "GIT_BRANCH",
+          "value" : "move-signature-help"
+        },
+        {
+          "name" : "ghprbPullAuthorEmail",
+          "value" : "dustin@teamcampbell.org"
+        },
+        {
+          "name" : "ghprbPullAuthorLogin",
+          "value" : "DustinCampbell"
+        },
+        {
+          "name" : "ghprbPullAuthorLoginMention",
+          "value" : "@DustinCampbell"
+        },
+        {
+          "name" : "ghprbPullDescription",
+          "value" : "GitHub pull request #11091 of commit 6a3b9fd14a63fd962a88109a4b62ae316ff0c6e9, no merge conflicts."
+        },
+        {
+          "name" : "ghprbPullTitle",
+          "value" : "Move Signature Help to features layer"
+        },
+        {
+          "name" : "ghprbPullLink",
+          "value" : "https://github.com/dotnet/roslyn/pull/11091"
+        },
+        {
+          "name" : "ghprbPullLongDescription",
+          "value" : "This PR moves the internal Signature Help data API and provider model from the EditorFeatures layer to the Features layer. The code changes are pretty much exclusively mechanical.\\r\\n\\r\\ncc @dotnet/roslyn-ide, @mattwar "
+        },
+        {
+          "name" : "ghprbCommentBody",
+          "value" : "OK. Everything passed. @CyrusNajmabadi, should I wait for @vladima and @paulvanbrenk before merging?"
+        },
+        {
+          "name" : "ghprbGhRepository",
+          "value" : "dotnet/roslyn"
+        },
+        {
+          "name" : "ghprbCredentialsId",
+          "value" : "16bf4379-f3d3-482c-88ee-cdcf4276f3fd"
+        }
+      ]
+    },
+    {
+      "causes" : [
+        {
+          "shortDescription" : "GitHub pull request #11091 of commit 6a3b9fd14a63fd962a88109a4b62ae316ff0c6e9, no merge conflicts."
+        }
+      ]
+    },
+    {
+      
+    },
+    {
+      "tags" : [
+        
+      ]
+    },
+    {
+      
+    },
+    {
+      "failCount" : 2,
+      "skipCount" : 0,
+      "totalCount" : 145,
+      "urlName" : "testReport"
+    },
+    {
+      "failureCauseDisplayData" : {
+        
+      },
+      "foundFailureCauses" : [
+        {
+          
+        }
+      ]
+    },
+    {
+      
+    },
+    {
+      
+    }
+  ],
+  "artifacts" : [
+    
+  ],
+  "building" : false,
+  "description" : "&lt;a title=\"Move Signature Help to features layer\" href=\"https://github.com/dotnet/roslyn/pull/11091\"&gt;PR #11091&lt;/a&gt;: Move Signature Help to feat...",
+  "displayName" : "#4",
+  "duration" : 2205772,
+  "estimatedDuration" : 2155415,
+  "executor" : null,
+  "fullDisplayName" : "roslyn_prtest_win_vsi0 #4",
+  "id" : "4",
+  "keepLog" : false,
+  "number" : 4,
+  "queueId" : 25608,
+  "result" : "FAILURE",
+  "timestamp" : 1462491047470,
+  "url" : "http://dotnet-ci.cloudapp.net/job/roslyn_prtest_win_vsi0/4/",
+  "builtOn" : "dci-win-mbld-10",
+  "changeSet" : {
+    "items" : [
+      
+    ],
+    "kind" : "git"
+  },
+  "culprits" : [
+    
+  ]
+}</value>
+  </data>
+  <data name="Tao1FailureInfo" xml:space="preserve">
+    <value>{
+  "actions" : [
+    {
+      "parameters" : [
+        {
+          "name" : "GitBranchOrCommit",
+          "value" : "${ghprbTargetBranch}"
+        },
+        {
+          "name" : "GitRepoUrl",
+          "value" : "https://github.com/dotnet/roslyn-internal.git"
+        },
+        {
+          "name" : "GitRefSpec",
+          "value" : ""
+        },
+        {
+          "name" : "sha1",
+          "value" : "origin/pr/11091/merge"
+        },
+        {
+          "name" : "ghprbActualCommit",
+          "value" : "6a3b9fd14a63fd962a88109a4b62ae316ff0c6e9"
+        },
+        {
+          "name" : "ghprbActualCommitAuthor",
+          "value" : "Dustin Campbell"
+        },
+        {
+          "name" : "ghprbActualCommitAuthorEmail",
+          "value" : "dustin@teamcampbell.org"
+        },
+        {
+          "name" : "ghprbAuthorRepoGitUrl",
+          "value" : "https://github.com/DustinCampbell/roslyn.git"
+        },
+        {
+          "name" : "ghprbTriggerAuthor",
+          "value" : "Dustin Campbell"
+        },
+        {
+          "name" : "ghprbTriggerAuthorEmail",
+          "value" : "dustin@teamcampbell.org"
+        },
+        {
+          "name" : "ghprbTriggerAuthorLogin",
+          "value" : "DustinCampbell"
+        },
+        {
+          "name" : "ghprbTriggerAuthorLoginMention",
+          "value" : "@DustinCampbell"
+        },
+        {
+          "name" : "ghprbPullId",
+          "value" : "11091"
+        },
+        {
+          "name" : "ghprbTargetBranch",
+          "value" : "master"
+        },
+        {
+          "name" : "ghprbSourceBranch",
+          "value" : "move-signature-help"
+        },
+        {
+          "name" : "GIT_BRANCH",
+          "value" : "move-signature-help"
+        },
+        {
+          "name" : "ghprbPullAuthorEmail",
+          "value" : "dustin@teamcampbell.org"
+        },
+        {
+          "name" : "ghprbPullAuthorLogin",
+          "value" : "DustinCampbell"
+        },
+        {
+          "name" : "ghprbPullAuthorLoginMention",
+          "value" : "@DustinCampbell"
+        },
+        {
+          "name" : "ghprbPullDescription",
+          "value" : "GitHub pull request #11091 of commit 6a3b9fd14a63fd962a88109a4b62ae316ff0c6e9, no merge conflicts."
+        },
+        {
+          "name" : "ghprbPullTitle",
+          "value" : "Move Signature Help to features layer"
+        },
+        {
+          "name" : "ghprbPullLink",
+          "value" : "https://github.com/dotnet/roslyn/pull/11091"
+        },
+        {
+          "name" : "ghprbPullLongDescription",
+          "value" : "This PR moves the internal Signature Help data API and provider model from the EditorFeatures layer to the Features layer. The code changes are pretty much exclusively mechanical.\\r\\n\\r\\ncc @dotnet/roslyn-ide, @mattwar "
+        },
+        {
+          "name" : "ghprbCommentBody",
+          "value" : "OK. Everything passed. @CyrusNajmabadi, should I wait for @vladima and @paulvanbrenk before merging?"
+        },
+        {
+          "name" : "ghprbGhRepository",
+          "value" : "dotnet/roslyn"
+        },
+        {
+          "name" : "ghprbCredentialsId",
+          "value" : "16bf4379-f3d3-482c-88ee-cdcf4276f3fd"
+        }
+      ]
+    },
+    {
+      "causes" : [
+        {
+          "shortDescription" : "GitHub pull request #11091 of commit 6a3b9fd14a63fd962a88109a4b62ae316ff0c6e9, no merge conflicts."
+        }
+      ]
+    },
+    {
+      
+    },
+    {
+      "tags" : [
+        
+      ]
+    },
+    {
+      
+    },
+    {
+      "failCount" : 2,
+      "skipCount" : 0,
+      "totalCount" : 145,
+      "urlName" : "testReport"
+    },
+    {
+      "failureCauseDisplayData" : {
+        
+      },
+      "foundFailureCauses" : [
+        {
+          "categories" : [
+            "Test"
+          ],
+          "description" : "Failing integration tests: \n\nBasicLineCommit.xml\n\nBasicLineSeparators.xml\n\n",
+          "id" : "61aefe2b-268e-4e71-8c03-11b4c0acbfbc",
+          "name" : "Individual TAO Test Failure"
+        }
+      ]
+    },
+    {
+      
+    },
+    {
+      
+    }
+  ],
+  "artifacts" : [
+    
+  ],
+  "building" : false,
+  "description" : "&lt;a title=\"Move Signature Help to features layer\" href=\"https://github.com/dotnet/roslyn/pull/11091\"&gt;PR #11091&lt;/a&gt;: Move Signature Help to feat...",
+  "displayName" : "#4",
+  "duration" : 2205772,
+  "estimatedDuration" : 2141773,
+  "executor" : null,
+  "fullDisplayName" : "roslyn_prtest_win_vsi0 #4",
+  "id" : "4",
+  "keepLog" : false,
+  "number" : 4,
+  "queueId" : 25608,
+  "result" : "FAILURE",
+  "timestamp" : 1462491047470,
+  "url" : "http://dotnet-ci.cloudapp.net/job/roslyn_prtest_win_vsi0/4/",
+  "builtOn" : "dci-win-mbld-10",
+  "changeSet" : {
+    "items" : [
+      
+    ],
+    "kind" : "git"
+  },
+  "culprits" : [
+    
+  ],
+  "fingerprint" : [
+    
+  ]
+}</value>
+  </data>
+  <data name="Tao1TestResult" xml:space="preserve">
+    <value>{
+  "testActions" : [
+    
+  ],
+  "duration" : 1023.6126,
+  "empty" : false,
+  "failCount" : 2,
+  "passCount" : 143,
+  "skipCount" : 0,
+  "suites" : [
+    {
+      "cases" : [
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "AnalyzersNode",
+          "duration" : 102.51714,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "C# Analyzers Node",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "AnalyzersNode",
+          "duration" : 98.94514,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "VB Analyzers Node",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "AndersDemo",
+          "duration" : 0.9999721,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "1) Using some of the BCL types - Math.Sin Method",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "AndersDemo",
+          "duration" : 0.0781252,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "2) IO - Console.WriteLine",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "AndersDemo",
+          "duration" : 0.9687324,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "3) Looping statements - for loop",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "AndersDemo",
+          "duration" : 0.1874936,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "4) Looping statements - foreach",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "AndersDemo",
+          "duration" : 0.0624984,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "5) Top-level method",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "AndersDemo",
+          "duration" : 0.4062644,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "6) Create and display form and WPF window",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "AndersDemo",
+          "duration" : 1.4843688,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "7) Add UI elements to windows and verify",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "AndersDemo",
+          "duration" : 0.0624551,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "8) Close the Window",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "AndersDemo",
+          "duration" : 1.4062271,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "9) Cleanup: Reset Repl",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 5.7342916,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "1.1) Braces - Insertion and TAB completing",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "FIXED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 1.8281026,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "1.3) Braces - Overtyping",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "FIXED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 4.015573,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "1.3.1) Parentheses typeover after string literals",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "FIXED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 2.0937214,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "1.4) Braces - OnReturn. No formatting, only indentation before close brace",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "FIXED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 3.4687064,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "2.1) Paren - Insertion and TAB completing",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 2.281232,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "2.3) Paren - Overtyping",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 0.906233,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "3.1) Bracket - Insertion",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 2.081409,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "3.2) Bracket - Overtyping",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 2.0468595,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "4.1) Double Quote - insertion and TAB completion",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 4.171792,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "5.1) Nested - all kinds",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 3.157392,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "9.1) Negative - No completion in comments",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 1.1249883,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "9.2) Negative - no completion in string literals",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 2.8280492,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "9.3) Negative - No completion in Xml Doc comments",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 1.2656149,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "9.4) Negative - No completion in Xml Doc comments at the end of tag",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 0.828105,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "15.1) Devdiv 652015 - VB line committing issue",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 1.2187312,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "15.2) Devdiv 653399 - virtual space/whitespace issue",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 0.7030912,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "15.3) Devdiv 659684 - Completion with IntelliSense window up",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicAutomaticBraceCompletion",
+          "duration" : 1.204262,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "15.4) Devdiv 657451 - Completion at the end of file",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicBraceHighlighting",
+          "duration" : 0.5156228,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "{",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicBraceHighlighting",
+          "duration" : 0.3125091,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "}",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicBraceHighlighting",
+          "duration" : 1.0624789,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Automatic Brace Completion",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicBraceHighlighting",
+          "duration" : 1.2499771,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Automatic brace completion shift+enter",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicChangeSignatureDialog",
+          "duration" : 6.172777,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Verify CodeRefactoring offered",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicChangeSignatureDialog",
+          "duration" : 3.1687286,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Verify basic Reorder Parameters dialog UI functionality",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicChangeSignatureDialog",
+          "duration" : 13.774362,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Cross-language remove parameter",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicClassification",
+          "duration" : 6.1379123,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Verify color of some tokens",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicClassification",
+          "duration" : 5.7230916,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Semantic classification",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicCodeActions",
+          "duration" : 9.8812475,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Verify IEV on local, rename session, undo",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicCodeActions",
+          "duration" : 7.197554,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Introduce Explaining Variable With Rename",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicCodeActions",
+          "duration" : 7.6963615,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Update Smart Tag Session",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicCodeActions",
+          "duration" : 6.9966583,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Add Import before Rename Tracking",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicCodeActions",
+          "duration" : 7.2340107,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Rename Tracking before GFU",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicCodeActions",
+          "duration" : 6.1710796,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Suppression after GFU",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicCodeActions",
+          "duration" : 7.0601373,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Suppression after GFU regardless of cursor proximity",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicCodeActions",
+          "duration" : 7.2165794,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Suppression after refactorings",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicCodeActions",
+          "duration" : 7.3320427,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Order fixes by cursor proximity (left)",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicCodeActions",
+          "duration" : 7.181944,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Order fixes by cursor proximity (right)",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicCodeActions",
+          "duration" : 11.741151,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Suppress using pragma - user diagnostic warning",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicDebuggerIntellisense",
+          "duration" : 5.688162,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Completion on first character",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicDebuggerIntellisense",
+          "duration" : 5.749053,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Completion after dot",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicDebuggerIntellisense",
+          "duration" : 5.731069,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Completion after ?",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicDebuggerIntellisense",
+          "duration" : 5.829224,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Completion after open paren in method call",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicDebuggerIntellisense",
+          "duration" : 0.8101098,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Signature help",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicDebuggerIntellisense",
+          "duration" : 5.706576,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Completion in an expression",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicDebuggerIntellisense",
+          "duration" : 5.902493,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Locals from previous block are not visible in the current block",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEditAndContinue",
+          "duration" : 14.151853,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Update active statement leaf node",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEditAndContinue",
+          "duration" : 11.45387,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Add try catch around an active statement",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEditAndContinue",
+          "duration" : 28.934534,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Edit lambda expression",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEditAndContinue",
+          "duration" : 12.815899,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "EnC while debugging from Immediate window",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEditAndContinue",
+          "duration" : 45.2702,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Multi project debugging where not all modules are loaded",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEditAndContinue",
+          "duration" : 13.935054,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Document state tracking: readonly in run mode",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEditAndContinue",
+          "duration" : 12.177258,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Locals window updates after local gets its type updated during EnC",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEditing",
+          "duration" : 10.729612,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Indent/Unindent",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEditing",
+          "duration" : 11.419863,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Comment/Uncomment",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEditing",
+          "duration" : 1.0751102,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "''' doc comment generation",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEditing",
+          "duration" : 1.2981687,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "ENTER inside doc comment",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEditing",
+          "duration" : 2.4589186,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Insert Missing Tokens",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEditing",
+          "duration" : 0.7180095,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Case correct",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEditing",
+          "duration" : 0.1269746,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Paste line continuation after column regression",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEncapsulateField",
+          "duration" : 1.1080836,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Encapsulate through refactor -&gt; encapsulateField",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEncapsulateField",
+          "duration" : 1.3213985,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Encapsulate through VS Refactor -&gt; EncapsulateField command, uncheck a file",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEncapsulateField",
+          "duration" : 5.923206,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Through code actions including references",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEncapsulateField",
+          "duration" : 5.9097776,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Through code actions definition only",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEndConstruct",
+          "duration" : 0.1289981,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "End Construct",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEndConstruct",
+          "duration" : 0.7844261,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "IntellisenseCompletedWhile",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEndConstruct",
+          "duration" : 0.0560144,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "End Construct Indentation",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEndConstruct",
+          "duration" : 0.5989894,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "End Construct Fix Up - Change Interface to Class",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicEndConstruct",
+          "duration" : 0.512006,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "End Construct Fix Up - Change Sub to Function - Case Insensitive",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicErrorList",
+          "duration" : 47.67917,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Error List",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicErrorList",
+          "duration" : 45.659035,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Errors during method body editing",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicExpressionEvaluator",
+          "duration" : 68.67007,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Validate Locals Window",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicExpressionEvaluator",
+          "duration" : 3.7751346,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Evaluate primitive values",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicExpressionEvaluator",
+          "duration" : 8.959101,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Evaluate simple expressions (DTEE)",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicExpressionEvaluator",
+          "duration" : 1.877859,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Evaluate invalid expressions",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicExpressionEvaluator",
+          "duration" : 4.3543963,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "State machine type parameters",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicExtractInterfaceDialog",
+          "duration" : 7.180997,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Verify core scenario",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicExtractInterfaceDialog",
+          "duration" : 6.3963413,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Verify code action on the type",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicExtractMethod",
+          "duration" : 1.6537136,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Simple Extract",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicExtractMethod",
+          "duration" : 5.9325137,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Extract via Code Action",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicExtractMethod",
+          "duration" : 5.964737,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Extract + Local via Code Action",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicF1Keyword",
+          "duration" : 5.619002,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "namespace",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicF1Keyword",
+          "duration" : 0.0199789,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "String",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicF1Keyword",
+          "duration" : 0.0479988,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Any",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicF1Keyword",
+          "duration" : 0.0219997,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "From",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicF1Keyword",
+          "duration" : 0.0189986,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "+= operator",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicF1Keyword",
+          "duration" : 0.0230267,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Nothing",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicFindReferences",
+          "duration" : 1.1695791,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Find references to locals",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicFindReferences",
+          "duration" : 1.2039512,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Find references to shared field",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicFormatting",
+          "duration" : 0.1709729,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Verify formatting indent",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicFormatting",
+          "duration" : 0.0719986,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Verify case correction",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicFormatting",
+          "duration" : 1.1819971,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "SHIFT+ENTER with intellisense, brace matching, Bug 13638",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGenerateFromUsage",
+          "duration" : 6.209903,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Generate Local",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGenerateFromUsage",
+          "duration" : 5.592883,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Generate Type",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGenerateFromUsage",
+          "duration" : 6.337314,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Generate Type In New File",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGenerateFromUsage",
+          "duration" : 5.5772123,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Generate Constructor",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGenerateFromUsage",
+          "duration" : 5.758923,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Generate Method",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGenerateFromUsage",
+          "duration" : 5.863301,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Generate Property",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGenerateFromUsage",
+          "duration" : 5.8911676,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Generate Field",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGenerateFromUsage",
+          "duration" : 5.9231544,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Generate Method Using Type Constraints",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGenerateTypeDialog",
+          "duration" : 28.983139,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Generate Type Dialog VB-to-C#",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGenerateTypeDialog",
+          "duration" : 31.440876,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Generate Type Dialog VB-SameProject",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGenerateTypeDialog",
+          "duration" : 27.813643,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Generate Type Dialog Check_Folders_Populating",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGoToDefinition",
+          "duration" : 0.6050137,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "BasicNavigateTo",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGoToDefinition",
+          "duration" : 0.424967,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Go To Def opens in a provisional tab if document wasn't already open",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGoToDefinition",
+          "duration" : 0.1179974,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Go to definition error",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGoToDefinition",
+          "duration" : 1.9427744,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Verify Object Browser navigation",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicGoToImplementation",
+          "duration" : 0.3899963,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Go To Implementation",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicIntellisense",
+          "duration" : 7.605368,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "IntelliSense triggers on '(' with brace completion and correct undo merging",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicIntellisense",
+          "duration" : 11.2155905,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Type a variable declaration",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicIntellisense",
+          "duration" : 2.903291,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Dismiss IntelliSense on apostrophe (Bug #9408)",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicIntellisense",
+          "duration" : 2.772992,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Type left angle after Imports",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicIntellisense",
+          "duration" : 4.177932,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Dismiss and retrigger IntelliSense on equals (Bug #9652)",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicIntellisense",
+          "duration" : 2.265025,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Ctrl+Alt+Space option",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicIntellisense",
+          "duration" : 1.8947386,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Enter should trigger Completion List and Implement Interface (Bug 12269)",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicIntellisense",
+          "duration" : 1.7365379,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Enter should trigger Completion List and Implement Abstract Class (Bug 12269)",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicIntellisense",
+          "duration" : 4.7199097,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Completion's interaction with Undo and Commit (Bug 12294)",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicIntellisense",
+          "duration" : 1.7770998,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Navigating with down key",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicIntellisense",
+          "duration" : 3.3109164,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "XML doc comment intellisense",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicIntellisense",
+          "duration" : 2.4108164,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Xml Tag Completion",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicIntellisense",
+          "duration" : 2.1879969,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Signature help shows up",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicKeywordHighlighting",
+          "duration" : 2.3489032,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "DoLoop",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicKeywordHighlighting",
+          "duration" : 1.6011242,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "MovingInXML",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicKeywordHighlighting",
+          "duration" : 2.4476662,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Preprocessor (conditionals)",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicKeywordHighlighting",
+          "duration" : 1.7461425,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Preprocessor (regions)",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicKeywordHighlighting",
+          "duration" : 1.7643245,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Navigation between highlighted keywords",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicLineCommit",
+          "duration" : 4.840898,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Sanity - Assure that Line Commit is not broken by checking case correction",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicLineCommit",
+          "duration" : 0.5837909,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Cursor positioning when commit indents starting construct and generates end construct: Bug 5219",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicLineCommit",
+          "duration" : 1.3169962,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Undo with End Construct",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicLineCommit",
+          "duration" : 0.6069839,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Undo with No End Construct",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicLineCommit",
+          "duration" : 0.9199623,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Commit on Save",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicLineCommit",
+          "duration" : 1.2443922,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "Commit on focus lost",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 1,
+          "className" : "BasicLineCommit",
+          "duration" : 1.785966,
+          "errorDetails" : null,
+          "errorStackTrace" : "\nMESSAGE:\nException has been thrown by the target of an invocation.\n+++++++++++++++++++\nSTACK TRACE:\nServer stack trace: at Microsoft.Test.Apex.Hosts.Services.UIThreadInvokerHelper.InvokeOn(RemoteInvoker invoker, RemoteAction action, Object[] arguments) in f:\\dd\\src\\Omni\\Apex\\Framework\\Hosts\\Services\\UIThreadInvoker\\UIThreadInvokerHelper.cs:line 105 at Microsoft.Test.Apex.Hosts.Services.UIThreadInvokerHelper.InvokeOn(IRemoteUIThreadInvokerService invoker, RemoteAction action, Object[] arguments) in f:\\dd\\src\\Omni\\Apex\\Framework\\Hosts\\Services\\UIThreadInvoker\\UIThreadInvokerHelper.cs:line 78 at Microsoft.Test.Apex.Hosts.MarshallableApexObject.UIInvoke(RemoteAction action, Object[] arguments) in f:\\dd\\src\\Omni\\Apex\\Framework\\Hosts\\MarshallableApexObject.cs:line 405 at Roslyn.VSHosting.Test.InProcessAPI.InvokeOnUI(RemoteAction action, Object[] args) in d:\\j\\workspace\\roslyn_prtest_win_vsi0\\Closed\\Hosting\\Test\\Actions\\VisualStudio\\Utilities\\InProcessAPI.cs:line 56 at System.Runtime.Remoting.Messaging.StackBuilderSink._PrivateProcessMessage(IntPtr md, Object[] args, Object server, Object[]&amp; outArgs) at System.Runtime.Remoting.Messaging.StackBuilderSink.SyncProcessMessage(IMessage msg) Exception rethrown at [0]: at System.Runtime.Remoting.Proxies.RealProxy.HandleReturnMessage(IMessage reqMsg, IMessage retMsg) at System.Runtime.Remoting.Proxies.RealProxy.PrivateInvoke(MessageData&amp; msgData, Int32 type) at Roslyn.VSHosting.Test.InProcessAPI.InvokeOnUI(RemoteAction action, Object[] args) at Roslyn.VSHosting.Test.VerifyEditorContainsTextAction.Execute(TaoEngine engine) in d:\\j\\workspace\\roslyn_prtest_win_vsi0\\Closed\\Hosting\\Test\\Actions\\VisualStudio\\VerifyEditorContainsTextAction.cs:line 28 at Tao.Engine.DebuggableActionExecutor.Execute() in f:\\dd\\src\\Omni\\Tao\\Tao.Engine\\ActionExecutor.cs:line 139 at Tao.Engine.DefaultActionExecutor.Execute() in f:\\dd\\src\\Omni\\Tao\\Tao.Engine\\ActionExecutor.cs:line 36",
+          "failedSince" : 4,
+          "name" : "Commit on focus lost with Prettylisting off should not format",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "REGRESSION",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 1,
+          "className" : "BasicLineSeparators",
+          "duration" : 2.921815,
+          "errorDetails" : null,
+          "errorStackTrace" : "\nMESSAGE:\nException has been thrown by the target of an invocation.\n+++++++++++++++++++\nSTACK TRACE:\nServer stack trace: at Microsoft.Test.Apex.Hosts.Services.UIThreadInvokerHelper.InvokeOn(RemoteInvoker invoker, RemoteAction action, Object[] arguments) in f:\\dd\\src\\Omni\\Apex\\Framework\\Hosts\\Services\\UIThreadInvoker\\UIThreadInvokerHelper.cs:line 105 at Microsoft.Test.Apex.Hosts.Services.UIThreadInvokerHelper.InvokeOn(IRemoteUIThreadInvokerService invoker, RemoteAction action, Object[] arguments) in f:\\dd\\src\\Omni\\Apex\\Framework\\Hosts\\Services\\UIThreadInvoker\\UIThreadInvokerHelper.cs:line 78 at Microsoft.Test.Apex.Hosts.MarshallableApexObject.UIInvoke(RemoteAction action, Object[] arguments) in f:\\dd\\src\\Omni\\Apex\\Framework\\Hosts\\MarshallableApexObject.cs:line 405 at Roslyn.VSHosting.Test.InProcessAPI.InvokeOnUI(RemoteAction action, Object[] args) in d:\\j\\workspace\\roslyn_prtest_win_vsi0\\Closed\\Hosting\\Test\\Actions\\VisualStudio\\Utilities\\InProcessAPI.cs:line 56 at System.Runtime.Remoting.Messaging.StackBuilderSink._PrivateProcessMessage(IntPtr md, Object[] args, Object server, Object[]&amp; outArgs) at System.Runtime.Remoting.Messaging.StackBuilderSink.SyncProcessMessage(IMessage msg) Exception rethrown at [0]: at System.Runtime.Remoting.Proxies.RealProxy.HandleReturnMessage(IMessage reqMsg, IMessage retMsg) at System.Runtime.Remoting.Proxies.RealProxy.PrivateInvoke(MessageData&amp; msgData, Int32 type) at Roslyn.VSHosting.Test.InProcessAPI.InvokeOnUI(RemoteAction action, Object[] args) at Roslyn.VSHosting.Test.VerifyTagsAction`2.ExecuteHelper(TagSpanDetails tagSpanDetails, Int32 expectedCount) in d:\\j\\workspace\\roslyn_prtest_win_vsi0\\Closed\\Hosting\\RoslynTaoActions\\Actions\\VisualStudio\\VerifyAdornmentsAction.cs:line 53 at Roslyn.VSHosting.Test.VerifyTagsAction`2.Execute(TaoEngine engine) in d:\\j\\workspace\\roslyn_prtest_win_vsi0\\Closed\\Hosting\\RoslynTaoActions\\Actions\\VisualStudio\\VerifyAdornmentsAction.cs:line 41 at Tao.Engine.DebuggableActionExecutor.Execute() in f:\\dd\\src\\Omni\\Tao\\Tao.Engine\\ActionExecutor.cs:line 139 at Tao.Engine.DefaultActionExecutor.Execute() in f:\\dd\\src\\Omni\\Tao\\Tao.Engine\\ActionExecutor.cs:line 36",
+          "failedSince" : 4,
+          "name" : "Line separators",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "REGRESSION",
+          "stderr" : null,
+          "stdout" : null
+        },
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "BasicMetadataAsSource",
+          "duration" : 3.7528546,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "GotoDef on int from source",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        }
+      ],
+      "duration" : 1023.6126,
+      "id" : null,
+      "name" : "(empty)",
+      "stderr" : null,
+      "stdout" : null,
+      "timestamp" : "2016-05-05T23:43:38"
+    }
+  ]
+}</value>
+  </data>
 </root>

@@ -15,15 +15,21 @@ namespace Dashboard.Jenkins
     public sealed class JenkinsClient
     {
         private readonly Uri _baseUrl;
-        private readonly RestClient _restClient;
+        private readonly IRestClient _restClient;
         private readonly string _authorizationHeaderValue;
 
-        public RestClient RestClient => _restClient;
+        public IRestClient RestClient => _restClient;
 
         public JenkinsClient(Uri baseUrl)
         {
             _baseUrl = baseUrl;
             _restClient = new RestClient(baseUrl);
+        }
+
+        public JenkinsClient(Uri baseUrl, IRestClient restClient)
+        {
+            _baseUrl = baseUrl;
+            _restClient = restClient;
         }
 
         public JenkinsClient(Uri baseUrl, string connectionString)

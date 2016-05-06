@@ -89,5 +89,112 @@ namespace Dashboard.Tests {
                 return ResourceManager.GetString("BuildFailure1", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
+        ///  &quot;duration&quot; : 2205772,
+        ///  &quot;id&quot; : &quot;4&quot;,
+        ///  &quot;result&quot; : &quot;FAILURE&quot;,
+        ///  &quot;timestamp&quot; : 1462491047470,
+        ///  &quot;builtOn&quot; : &quot;dci-win-mbld-10&quot;
+        ///}.
+        /// </summary>
+        internal static string Tao1BuildInfo {
+            get {
+                return ResourceManager.GetString("Tao1BuildInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
+        ///  &quot;actions&quot; : [
+        ///    {
+        ///      &quot;parameters&quot; : [
+        ///        {
+        ///          &quot;name&quot; : &quot;GitBranchOrCommit&quot;,
+        ///          &quot;value&quot; : &quot;${ghprbTargetBranch}&quot;
+        ///        },
+        ///        {
+        ///          &quot;name&quot; : &quot;GitRepoUrl&quot;,
+        ///          &quot;value&quot; : &quot;https://github.com/dotnet/roslyn-internal.git&quot;
+        ///        },
+        ///        {
+        ///          &quot;name&quot; : &quot;GitRefSpec&quot;,
+        ///          &quot;value&quot; : &quot;&quot;
+        ///        },
+        ///        {
+        ///          &quot;name&quot; : &quot;sha1&quot;,
+        ///          &quot;value&quot; : &quot;origin/pr/11091/merge&quot;
+        ///        },
+        ///        {
+        ///          &quot;name&quot; : &quot;ghprbActualCommit&quot;, [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string Tao1BuildResult {
+            get {
+                return ResourceManager.GetString("Tao1BuildResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
+        ///  &quot;actions&quot; : [
+        ///    {
+        ///      &quot;parameters&quot; : [
+        ///        {
+        ///          &quot;name&quot; : &quot;GitBranchOrCommit&quot;,
+        ///          &quot;value&quot; : &quot;${ghprbTargetBranch}&quot;
+        ///        },
+        ///        {
+        ///          &quot;name&quot; : &quot;GitRepoUrl&quot;,
+        ///          &quot;value&quot; : &quot;https://github.com/dotnet/roslyn-internal.git&quot;
+        ///        },
+        ///        {
+        ///          &quot;name&quot; : &quot;GitRefSpec&quot;,
+        ///          &quot;value&quot; : &quot;&quot;
+        ///        },
+        ///        {
+        ///          &quot;name&quot; : &quot;sha1&quot;,
+        ///          &quot;value&quot; : &quot;origin/pr/11091/merge&quot;
+        ///        },
+        ///        {
+        ///          &quot;name&quot; : &quot;ghprbActualCommit&quot;, [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string Tao1FailureInfo {
+            get {
+                return ResourceManager.GetString("Tao1FailureInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
+        ///  &quot;testActions&quot; : [
+        ///    
+        ///  ],
+        ///  &quot;duration&quot; : 1023.6126,
+        ///  &quot;empty&quot; : false,
+        ///  &quot;failCount&quot; : 2,
+        ///  &quot;passCount&quot; : 143,
+        ///  &quot;skipCount&quot; : 0,
+        ///  &quot;suites&quot; : [
+        ///    {
+        ///      &quot;cases&quot; : [
+        ///        {
+        ///          &quot;testActions&quot; : [
+        ///            
+        ///          ],
+        ///          &quot;age&quot; : 0,
+        ///          &quot;className&quot; : &quot;AnalyzersNode&quot;,
+        ///          &quot;duration&quot; : 102.51714,
+        ///          &quot;errorDetails&quot; : null,
+        ///          &quot;errorStackTrace&quot; : null,
+        ///          &quot;failedSince&quot; : 0,
+        ///          &quot;name&quot; : &quot;C# Analyzers Node&quot;,
+        ///          &quot;skipp [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string Tao1TestResult {
+            get {
+                return ResourceManager.GetString("Tao1TestResult", resourceCulture);
+            }
+        }
     }
 }

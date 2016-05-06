@@ -15,6 +15,7 @@ namespace Dashboard.Tests
 {
     public class BuildTablePopulatorTests
     {
+        private readonly MockRestClient _restClient;
         private readonly BuildTablePopulator _populator;
         private readonly CloudTable _buildResultDateTable;
         private readonly CloudTable _buildResultExactTable;
@@ -34,10 +35,8 @@ namespace Dashboard.Tests
             _buildFailureDateTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildFailureDate);
             _buildFailureExactTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildFailureExact);
 
-            // TODO: Using a live connection to Jenkins is terrible.  But it gets me coverage in the short term.  Long
-            // term need to mock the requests.
-            var githubConnectionString = ConfigurationManager.AppSettings[SharedConstants.GithubConnectionStringName];
-            var client = new JenkinsClient(SharedConstants.DotnetJenkinsUri, githubConnectionString);
+            _restClient = new MockRestClient();
+            var client = new JenkinsClient(SharedConstants.DotnetJenkinsUri, _restClient.Client);
 
             _populator = new BuildTablePopulator(
                 buildResultDateTable: _buildResultDateTable,
@@ -51,7 +50,14 @@ namespace Dashboard.Tests
         [Fact]
         public async Task TaoFailure()
         {
-            var buildId = new BuildId(4, JobId.ParseName("roslyn_prtest_win_vsi0"));
+            var buildId = new BuildId(4, JobId.ParseName("test"));
+            _restClient.AddJson(
+                buildId: buildId,
+                buildResultJson: TestResources.Tao1BuildResult,
+                buildInfoJson: TestResources.Tao1BuildInfo,
+                failureInfoJson: TestResources.Tao1FailureInfo,
+                testReportJson: TestResources.Tao1TestResult);
+
             var entity = await _populator.PopulateBuild(buildId);
 
             var filter = FilterUtil
