@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Dashboard.Azure
 {
@@ -27,11 +28,25 @@ namespace Dashboard.Azure
         public int BuildNumber { get; set; }
         public string Identifier { get; set; }
         public string MachineName { get; set; }
+        public int PullRequestId { get; set; }
+        public string PullRequestAuthor { get; set; }
+        public string PullRequestAuthorEmail { get; set; }
+        public string PullRequestUrl { get; set; }
+        public string PullRequestSha1 { get; set; }
 
         public JobId JobId => JobId.ParseName(JobName);
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
         public BuildFailureKind BuildFailureKind => (BuildFailureKind)Enum.Parse(typeof(BuildFailureKind), BuildFailureKindRaw);
         public DateTimeOffset BuildDateTimeOffset => BuildDateTime;
+        public bool HasPullRequestInfo =>
+            PullRequestId != 0 &&
+            PullRequestAuthor != null &&
+            PullRequestAuthorEmail != null &&
+            PullRequestUrl != null &&
+            PullRequestSha1 != null;
+        public PullRequestInfo PullRequestInfo => HasPullRequestInfo
+            ? new PullRequestInfo(author: PullRequestAuthor, authorEmail: PullRequestAuthorEmail, id: PullRequestId, pullUrl: PullRequestUrl, sha1: PullRequestSha1)
+            : null;
 
         public BuildFailureEntity()
         {
@@ -43,12 +58,13 @@ namespace Dashboard.Azure
             identifier: other.Identifier,
             buildDate: other.BuildDateTime,
             kind: other.BuildFailureKind,
-            machineName: other.MachineName)
+            machineName: other.MachineName,
+            prInfo: other.PullRequestInfo)
         {
 
         }
 
-        public BuildFailureEntity(BuildId buildId, string identifier, DateTimeOffset buildDate, BuildFailureKind kind, string machineName)
+        public BuildFailureEntity(BuildId buildId, string identifier, DateTimeOffset buildDate, BuildFailureKind kind, string machineName, PullRequestInfo prInfo)
         {
             JobName = buildId.JobName;
             BuildNumber = buildId.Id;
@@ -56,6 +72,16 @@ namespace Dashboard.Azure
             BuildFailureKindRaw = kind.ToString();
             BuildDateTime = buildDate.UtcDateTime;
             MachineName = machineName;
+            if (prInfo != null)
+            {
+                PullRequestId = prInfo.Id;
+                PullRequestAuthor = prInfo.Author;
+                PullRequestAuthorEmail = prInfo.AuthorEmail;
+                PullRequestUrl = prInfo.PullUrl;
+                PullRequestSha1 = prInfo.Sha1;
+                Debug.Assert(HasPullRequestInfo);
+                Debug.Assert(PullRequestInfo != null);
+            }
         }
 
         public BuildFailureEntity CopyExact()
@@ -86,14 +112,15 @@ namespace Dashboard.Azure
                 new BuildKey(buildId).Key);
         }
 
-        public static BuildFailureEntity CreateTestCaseFailure(DateTimeOffset buildDateTime, BuildId buildId, string testCaseName, string machineName)
+        public static BuildFailureEntity CreateTestCaseFailure(DateTimeOffset buildDateTime, BuildId buildId, string testCaseName, string machineName, PullRequestInfo prInfo)
         {
             return new BuildFailureEntity(
                 buildId,
                 testCaseName,
                 buildDateTime,
                 BuildFailureKind.TestCase,
-                machineName: machineName);
+                machineName: machineName,
+                prInfo: prInfo);
         }
     }
 }

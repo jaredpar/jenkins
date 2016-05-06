@@ -5,6 +5,7 @@
     ViewBag.Title = Model.Name;
     var prValue = Model.IncludePullRequests ? @"checked=""checked""" : "";
     var startDateValue = Model.StartDate.ToString("yyyy-MM-dd");
+    var showForPrStyle = Model.IncludePullRequests ? "" : "display: none";
 }
 
 <h2>Test Case: @Model.Name</h2>
@@ -14,6 +15,8 @@
         <th>Build Number</th>
         <th>Machine Name</th>
         <th>Date</th>
+        <th style="@showForPrStyle">PR Author</th>
+        <th style="@showForPrStyle">PR Link</th>
     </tr></thead>
 <tbody>
 @foreach (var entity in Model.Builds)
@@ -24,6 +27,8 @@
         <td><a href="@uri">@id.JobName @id.Id</a></td>
         <td>@entity.MachineName</td>
         <td>@entity.BuildDateTime.ToLocalTime().ToString("MM/dd hh:mm tt")</td>
+        <td>@entity.BuildDateTime.ToLocalTime().ToString(@"MM/dd hh:mm tt")</td>
+        <td>@entity.</td>
     </tr>
 }
 </tbody>
