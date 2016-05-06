@@ -23,12 +23,13 @@
 {
     var id = entity.BuildId;
     var uri = JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, JenkinsUtil.GetBuildPath(id));
+    var prUri = entity.PullRequestUrl ?? "";
     <tr>
         <td><a href="@uri">@id.JobName @id.Id</a></td>
         <td>@entity.MachineName</td>
         <td>@entity.BuildDateTime.ToLocalTime().ToString("MM/dd hh:mm tt")</td>
-        <td>@entity.BuildDateTime.ToLocalTime().ToString(@"MM/dd hh:mm tt")</td>
-        <td>@entity.</td>
+        <td>@entity.PullRequestAuthor</td>
+        <td><a href="@prUri">@entity.PullRequestId</a></td>
     </tr>
 }
 </tbody>

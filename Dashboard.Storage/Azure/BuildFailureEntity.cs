@@ -102,7 +102,7 @@ namespace Dashboard.Azure
         {
             return new EntityKey(
                 new DateKey(buildDate).Key,
-                $"{new BuildKey(buildId)}-{identifier}");
+                $"{new BuildKey(buildId).Key}-{identifier}");
         }
 
         public static EntityKey GetExactEntityKey(BuildId buildId, string identifier)

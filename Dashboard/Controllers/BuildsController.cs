@@ -165,7 +165,7 @@ namespace Dashboard.Controllers
             var failureQuery = _buildUtil
                 .GetTestCaseFailures(startDate)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.BuildId.JobName))
-                .GroupBy(x => x.RowKey)
+                .GroupBy(x => x.Identifier)
                 .Select(x => new { Key = x.Key, Count = x.Count() })
                 .OrderByDescending(x => x.Count)
                 .Take(limit);
