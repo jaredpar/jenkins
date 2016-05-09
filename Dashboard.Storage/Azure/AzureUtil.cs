@@ -99,7 +99,7 @@ namespace Dashboard.Azure
         /// Insert a raw list that is not grouped by partition keys. 
         /// </summary>
         public static async Task InsertBatchUnordered<T>(CloudTable table, IEnumerable<T> entityList)
-            where T : TableEntity
+            where T : ITableEntity
         {
             foreach (var group in entityList.GroupBy(x => x.PartitionKey))
             {
@@ -112,7 +112,7 @@ namespace Dashboard.Azure
         /// operations.  All entities must be insertable via batch operations.
         /// </summary>
         public static async Task InsertBatch<T>(CloudTable table, List<T> entityList)
-            where T : TableEntity
+            where T : ITableEntity
         {
             if (entityList.Count == 0)
             {
@@ -126,6 +126,49 @@ namespace Dashboard.Azure
                 // middle when the BuildFailure table is updated but not yet the BuildProcessed table.  Hence 
                 // we'll up here again doing a batch insert.
                 operation.InsertOrReplace(entity);
+
+                if (operation.Count == MaxBatchCount)
+                {
+                    await table.ExecuteBatchAsync(operation);
+                    operation.Clear();
+                }
+            }
+
+            if (operation.Count > 0)
+            {
+                await table.ExecuteBatchAsync(operation);
+            }
+        }
+
+
+        /// <summary>
+        /// Delete a raw list that is not grouped by partition keys. 
+        /// </summary>
+        public static async Task DeleteBatchUnordered<T>(CloudTable table, IEnumerable<T> entityList)
+            where T : ITableEntity
+        {
+            foreach (var group in entityList.GroupBy(x => x.PartitionKey))
+            {
+                await DeleteBatch(table, group.ToList());
+            }
+        }
+
+        /// <summary>
+        /// Delete a collection of <see cref="TableEntity"/> values into a table using batch style 
+        /// operations.  All entities must be insertable via batch operations.
+        /// </summary>
+        public static async Task DeleteBatch<T>(CloudTable table, List<T> entityList)
+            where T : ITableEntity
+        {
+            if (entityList.Count == 0)
+            {
+                return;
+            }
+
+            var operation = new TableBatchOperation();
+            foreach (var entity in entityList)
+            {
+                operation.Delete(entity);
 
                 if (operation.Count == MaxBatchCount)
                 {
