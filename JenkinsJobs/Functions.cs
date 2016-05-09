@@ -32,7 +32,7 @@ namespace Dashboard.StorageBuilder
         {
             var githubConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.GithubConnectionStringName);
             var messageJson = (BuildEventMessageJson)JsonConvert.DeserializeObject(message, typeof(BuildEventMessageJson));
-            if (messageJson.Phase == "COMPLETED")
+            if (messageJson.Phase == "COMPLETED" || messageJson.Phase == "FINALIZED")
             {
                 var client = new JenkinsClient(
                     new Uri($"https://{messageJson.JenkinsHostName}"),
