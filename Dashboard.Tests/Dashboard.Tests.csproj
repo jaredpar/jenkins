@@ -101,6 +101,8 @@
     <Compile Include="BuildKeyTests.cs" />
     <Compile Include="BuildResultEntityTests.cs" />
     <Compile Include="BuildTablePopulatorTests.cs" />
+    <Compile Include="CounterEntityTests.cs" />
+    <Compile Include="CounterUtilTests.cs" />
     <Compile Include="DateKeyTests.cs" />
     <Compile Include="EqualityUnit.cs" />
     <Compile Include="EqualityUnit`1.cs" />
@@ -117,6 +119,7 @@
       <DependentUpon>TestResources.resx</DependentUpon>
     </Compile>
     <Compile Include="TestCacheCounterEntityTests.cs" />
+    <Compile Include="Util.cs" />
     <Compile Include="ZipUtilTests.cs" />
   </ItemGroup>
   <ItemGroup>

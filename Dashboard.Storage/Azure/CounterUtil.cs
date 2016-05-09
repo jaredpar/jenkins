@@ -18,14 +18,13 @@ namespace Dashboard.Azure
         public static EntityKey GetEntityKey(CounterData counterData)
         {
             return new EntityKey(
-                GetPartitionKey(counterData.DateTime),
+                GetPartitionKey(counterData.DateTime).Key,
                 GetRowKey(counterData));
         }
 
-        public static string GetPartitionKey(DateTimeOffset dateTime)
+        public static DateKey GetPartitionKey(DateTimeOffset dateTime)
         {
-            var date = dateTime.ToUniversalTime().Date;
-            return date.ToString("yyyy-MM-dd");
+            return new DateKey(dateTime);
         }
 
         public static string GetRowKey(CounterData counterData)
@@ -64,70 +63,32 @@ namespace Dashboard.Azure
         }
 
         /// <summary>
-        /// Query counter entities between the specified dates.
+        /// Query counter entities between the specified dates (inclusive)
         /// </summary>
-        public static List<T> Query<T>(CloudTable table, DateTime startDate, DateTime endDate)
+        public static TableQuery<T> CreateTableQuery<T>(DateTimeOffset startDate, DateTimeOffset endDate)
             where T : CounterEntity, new()
         {
-            Debug.Assert(startDate.Kind == DateTimeKind.Utc);
-            Debug.Assert(endDate.Kind == DateTimeKind.Utc);
-
-            // TODO: what if startdate and end date are the same day???
-
-            var list = new List<T>();
-            list.AddRange(QueryStart<T>(table, startDate));
-            list.AddRange(QueryMiddle<T>(table, startDate, endDate));
-            list.AddRange(QueryEnd<T>(table, endDate));
-
-            return list;
+            var startDateKey = new DateKey(startDate);
+            var endDateKey = new DateKey(endDate);
+            var filter = FilterUtil
+                .Combine(
+                    FilterUtil.BetweenDateKeys(ColumnNames.PartitionKey, startDateKey, endDateKey),
+                    CombineOperator.And,
+                    FilterUtil.Combine(
+                        FilterUtil.Column(nameof(CounterEntity.DateTimeUtcTicks), startDate.UtcTicks, ColumnOperator.GreaterThanOrEqual),
+                        CombineOperator.And,
+                        FilterUtil.Column(nameof(CounterEntity.DateTimeUtcTicks), endDate.UtcTicks, ColumnOperator.LessThanOrEqual)));
+            return new TableQuery<T>().Where(filter.Filter);
         }
 
         /// <summary>
-        /// Query the entities which occured on the date here and after the specified time.
+        /// Query counter entities between the specified dates (inclusive)
         /// </summary>
-        private static IEnumerable<T> QueryStart<T>(CloudTable table, DateTime startDate)
+        public static IEnumerable<T> Query<T>(CloudTable table, DateTimeOffset startDate, DateTimeOffset endDate)
             where T : CounterEntity, new()
         {
-            var timeOfDayTicks = GetTimeOfDayTicks(startDate);
-            var filter = FilterUtil
-                .PartitionKey(GetPartitionKey(startDate))
-                .And(FilterUtil.Column(nameof(CounterEntity.TimeOfDayTicks), timeOfDayTicks, ColumnOperator.GreaterThanOrEqual))
-                .Filter;
-            var query = new TableQuery<T>().Where(filter);
-            return table.ExecuteQuery<T>(query);
-        }
-
-        private static IEnumerable<T> QueryEnd<T>(CloudTable table, DateTime endDate)
-            where T : CounterEntity, new()
-        {
-            var timeOfDayTicks = GetTimeOfDayTicks(endDate);
-            var filter = FilterUtil
-                .PartitionKey(GetPartitionKey(endDate))
-                .And(FilterUtil.Column(nameof(CounterEntity.TimeOfDayTicks), timeOfDayTicks, ColumnOperator.LessThanOrEqual))
-                .Filter;
-            var query = new TableQuery<T>().Where(filter);
-            return table.ExecuteQuery<T>(query);
-        }
-
-        private static IEnumerable<T> QueryMiddle<T>(CloudTable table, DateTime startDate, DateTime endDate)
-            where T : CounterEntity, new()
-        {
-            var list = new List<T>();
-            var max = endDate.Subtract(TimeSpan.FromDays(1));
-            for (var cur = startDate.AddDays(1); cur < max; cur = cur.AddDays(1))
-            {
-                list.AddRange(QueryOne<T>(table, cur));
-            }
-
-            return list;
-        }
-
-        private static IEnumerable<T> QueryOne<T>(CloudTable table, DateTime date)
-            where T : CounterEntity, new()
-        {
-            var filter = FilterUtil.PartitionKey(GetPartitionKey(date)).Filter;
-            var query = new TableQuery<T>().Where(filter);
-            return table.ExecuteQuery<T>(query);
+            var query = CreateTableQuery<T>(startDate, endDate);
+            return table.ExecuteQuery(query);
         }
     }
 }

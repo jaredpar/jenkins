@@ -24,11 +24,7 @@ namespace Dashboard.Tests
 
         public BuildTablePopulatorTests()
         {
-            // This is using the storage emulator account.  Make sure to run the following before starting
-            // "C:\Program Files (x86)\Microsoft SDKs\Azure\Storage Emulator\AzureStorageEmulator.exe" start
-            var account = CloudStorageAccount.Parse(ConfigurationManager.AppSettings["StorageConnectionString"]);
-            AzureUtil.EnsureAzureResources(account);
-
+            var account = Util.GetStorageAccount();
             var tableClient = account.CreateCloudTableClient();
             _buildResultDateTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildResultDate);
             _buildResultExactTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildResultExact);

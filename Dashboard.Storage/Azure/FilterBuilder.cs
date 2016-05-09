@@ -18,6 +18,12 @@ namespace Dashboard.Azure
         GreaterThanOrEqual,
     }
 
+    public enum CombineOperator
+    {
+        And,
+        Or
+    }
+
     public enum ColumnNames
     {
         PartitionKey,
@@ -78,38 +84,50 @@ namespace Dashboard.Azure
                 .And(FilterUtil.RowKey(key.RowKey));
         }
 
-        public static FilterUtil SinceDate(ColumnNames name, DateTimeOffset startDate)
+        public static FilterUtil SinceDate(ColumnNames name, DateKey startDate)
         {
             return SinceDate(ToColumnName(name), startDate);
         }
 
-        public static FilterUtil SinceDate(string columnName, DateTimeOffset startDate)
+        public static FilterUtil SinceDate(string columnName, DateKey startDate)
         {
             var filter = TableQuery.GenerateFilterCondition(
                 columnName,
                 QueryComparisons.GreaterThanOrEqual,
-                new DateKey(startDate).Key);
+                startDate.Key);
             return new FilterUtil(filter);
         }
 
-        public static FilterUtil BetweenDates(ColumnNames name, DateTimeOffset startDate, DateTimeOffset endDate)
+        public static FilterUtil BetweenDateKeys(ColumnNames name, DateKey startDate, DateKey endDate)
         {
-            return BetweenDates(ToColumnName(name), startDate, endDate);
+            return BetweenDateKeys(ToColumnName(name), startDate, endDate);
         }
 
-        public static FilterUtil BetweenDates(string columnName, DateTimeOffset startDate, DateTimeOffset endDate)
+        public static FilterUtil BetweenDateKeys(string columnName, DateKey startDate, DateKey endDate)
+        {
+            return Combine(
+                Column(columnName, startDate, ColumnOperator.GreaterThanOrEqual),
+                CombineOperator.And,
+                Column(columnName, endDate, ColumnOperator.LessThanOrEqual));
+        }
+
+        public static FilterUtil Combine(FilterUtil left, CombineOperator op, FilterUtil right)
         {
             var filter = TableQuery.CombineFilters(
-                TableQuery.GenerateFilterCondition(
-                    columnName,
-                    QueryComparisons.GreaterThanOrEqual,
-                    new DateKey(startDate).Key),
-                TableOperators.And,
-                TableQuery.GenerateFilterCondition(
-                    columnName,
-                    QueryComparisons.LessThanOrEqual,
-                    new DateKey(endDate).Key));
+                left.Filter,
+                ToTableOperator(op),
+                right.Filter);
             return new FilterUtil(filter);
+        }
+
+        public static FilterUtil Column(ColumnNames name, DateKey dateKey, ColumnOperator op = ColumnOperator.Equal)
+        {
+            return Column(ToColumnName(name), dateKey, op);
+        }
+
+        public static FilterUtil Column(string columnName, DateKey dateKey, ColumnOperator op = ColumnOperator.Equal)
+        {
+            return Column(columnName, dateKey.Key, op);
         }
 
         public static FilterUtil Column(string columnName, string value, ColumnOperator op = ColumnOperator.Equal)
@@ -169,6 +187,16 @@ namespace Dashboard.Azure
                 case ColumnNames.PartitionKey: return nameof(TableEntity.PartitionKey);
                 case ColumnNames.RowKey: return nameof(TableEntity.RowKey);
                 default: throw new Exception($"Invalid {nameof(ColumnNames)} value: {name}");
+            }
+        }
+
+        public static string ToTableOperator(CombineOperator op)
+        {
+            switch (op)
+            {
+                case CombineOperator.And: return TableOperators.And;
+                case CombineOperator.Or: return TableOperators.Or;
+                default: throw new InvalidOperationException($"Invalid {nameof(CombineOperator)} value {op}");
             }
         }
     }
