@@ -14,22 +14,21 @@ namespace Dashboard.Azure
     /// </summary>
     public struct CounterData
     {
-        public DateTime DateTime { get; }
+        public DateTimeOffset DateTime { get; }
         public string EntityWriterId { get; }
         public bool IsJenkins { get; }
 
         public EntityKey EntityKey => CounterUtil.GetEntityKey(this);
         public long TimeOfDayTicks => CounterUtil.GetTimeOfDayTicks(DateTime);
 
-        public CounterData(DateTime dateTime, string entityWriterId, bool isJenkins)
+        public CounterData(DateTimeOffset dateTime, string entityWriterId, bool isJenkins)
         {
-            Debug.Assert(dateTime.Kind == DateTimeKind.Utc);
             DateTime = dateTime;
             EntityWriterId = entityWriterId;
             IsJenkins = isJenkins;
         }
 
-        public CounterData(string entityWriterId, bool isJenkins) : this(DateTime.UtcNow, entityWriterId, isJenkins)
+        public CounterData(string entityWriterId, bool isJenkins) : this(DateTimeOffset.UtcNow, entityWriterId, isJenkins)
         {
 
         }

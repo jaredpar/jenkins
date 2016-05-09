@@ -22,10 +22,9 @@ namespace Dashboard.Azure
                 GetRowKey(counterData));
         }
 
-        public static string GetPartitionKey(DateTime dateTime)
+        public static string GetPartitionKey(DateTimeOffset dateTime)
         {
-            Debug.Assert(dateTime.Kind == DateTimeKind.Utc);
-            var date = dateTime.Date;
+            var date = dateTime.ToUniversalTime().Date;
             return date.ToString("yyyy-MM-dd");
         }
 
@@ -56,10 +55,9 @@ namespace Dashboard.Azure
         /// Split a UTC <see cref="DateTime"/> into the components used by this Entity.  The time component
         /// will be adjusted for the interval stored by this table.
         /// </summary>
-        public static long GetTimeOfDayTicks(DateTime dateTime)
+        public static long GetTimeOfDayTicks(DateTimeOffset dateTime)
         {
-            Debug.Assert(dateTime.Kind == DateTimeKind.Utc);
-            var minute = dateTime.TimeOfDay.Minutes;
+            var minute = dateTime.ToUniversalTime().TimeOfDay.Minutes;
             minute = (minute / MinuteInternal) * MinuteInternal;
             var timeOfDay = new TimeSpan(hours: dateTime.TimeOfDay.Hours, minutes: minute, seconds: 0);
             return timeOfDay.Ticks;
