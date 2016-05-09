@@ -21,12 +21,18 @@ namespace Dashboard.Azure
         /// </summary>
         public int TestResultCount { get; }
 
-        public TestCacheStatSummary(TestQueryStats hitStats, int missCount, int uploadCount, int testResultCount)
+        /// <summary>
+        /// Number of test runs in the specified time period.
+        /// </summary>
+        public int TestRunCount { get; }
+
+        public TestCacheStatSummary(TestQueryStats hitStats, int missCount, int uploadCount, int testResultCount, int testRunCount)
         {
             HitStats = hitStats;
             MissCount = missCount;
             UploadCount = uploadCount;
             TestResultCount = testResultCount;
+            TestRunCount = testRunCount;
         }
     }
 }

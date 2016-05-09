@@ -10,6 +10,7 @@ namespace Dashboard.Azure
         private readonly TestResultStorage _testResultStorage;
         private readonly CloudTable _unitTestCounterTable;
         private readonly CloudTable _testCacheCounterTable;
+        private readonly CloudTable _testRunCounterTable;
 
         public TestCacheStats(TestResultStorage testResultStorage)
         {
@@ -19,6 +20,7 @@ namespace Dashboard.Azure
             var tableClient = _storage.StorageAccount.CreateCloudTableClient();
             _unitTestCounterTable = tableClient.GetTableReference(AzureConstants.TableNames.UnitTestQueryCounter);
             _testCacheCounterTable = tableClient.GetTableReference(AzureConstants.TableNames.TestCacheCounter);
+            _testRunCounterTable = tableClient.GetTableReference(AzureConstants.TableNames.TestRunCounter);
         }
 
         public TestCacheStatSummary GetSummary(DateTime? startDate)
@@ -46,11 +48,19 @@ namespace Dashboard.Azure
                 uploadCount += cur.StoreCount;
             }
 
+            var testRunCount = 0;
+            var testRunQuery = CounterUtil.Query<TestRunCounterEntity>(_testRunCounterTable, startDateValue, endDateValue);
+            foreach (var cur in testRunQuery)
+            {
+                testRunCount += cur.RunCount;
+            }
+
             return new TestCacheStatSummary(
                 hitStats: stats,
                 missCount: missCount,
                 uploadCount: uploadCount,
-                testResultCount: _testResultStorage.GetCount(startDate));
+                testResultCount: _testResultStorage.GetCount(startDate),
+                testRunCount: testRunCount);
         }
     }
 }
