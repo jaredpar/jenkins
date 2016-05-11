@@ -20,25 +20,9 @@ namespace Dashboard.Jenkins
         {
             var actions = (JArray)jobData["actions"];
             var causeList = new List<BuildFailureCause>();
-            var any = false;
-            foreach (var cur in actions)
-            {
-                var foundCauses = (JArray)cur["foundFailureCauses"];
-                if (foundCauses != null && TryAppendBuildFailureCause(foundCauses, causeList))
-                {
-                    Debug.Assert(causeList.Count > 0);
-                    any = true;
-                }
-
-                var causes = (JArray)cur["causes"];
-                if (causes != null && IsMergeConflict(causes))
-                {
-                    causeList.Add(BuildFailureCause.MergeConflict);
-                    any = true;
-                }
-            }
-
-            if (any)
+            if (TryGetFailureCauses(actions, causeList) ||
+                TryGetUnitTestCauses(actions, causeList) ||
+                TryGetMergeConflict(actions, causeList))
             {
                 buildFailureInfo = new BuildFailureInfo(new ReadOnlyCollection<BuildFailureCause>(causeList));
                 return true;
@@ -48,35 +32,59 @@ namespace Dashboard.Jenkins
             return false;
         }
 
-        private static bool TryAppendBuildFailureCause(JArray foundCauses, List<BuildFailureCause> causeList)
+        /// <summary>
+        /// Look at the "foundFailureCauses" member of the JSON.  This is the custom failures that Jenkins
+        /// admins have assigned via regex.  
+        ///     http://dotnet-ci.cloudapp.net/failure-cause-management/
+        /// </summary>
+        private static bool TryGetFailureCauses(JArray actions, List<BuildFailureCause> causeList)
         {
             var any = false;
-            foreach (JObject entry in foundCauses)
+            foreach (var cur in actions)
             {
-                var category = GetCategory(entry);
-                if (category == null)
+                var foundCauses = (JArray)cur["foundFailureCauses"];
+                if (foundCauses == null)
                 {
                     continue;
                 }
 
-                var description = entry.Value<string>("description");
-                var name = entry.Value<string>("name");
-                var cause = new BuildFailureCause(name: name, description: description, category: category);
-                causeList.Add(cause);
-                any = true;
+                foreach (JObject entry in foundCauses)
+                {
+                    var category = GetCategory(entry);
+                    if (category == null)
+                    {
+                        continue;
+                    }
+
+                    var description = entry.Value<string>("description");
+                    var name = entry.Value<string>("name");
+                    var cause = new BuildFailureCause(name: name, description: description, category: BuildFailureCause.CategoryTest);
+                    causeList.Add(cause);
+                    any = true;
+                }
             }
 
             return any;
         }
 
-        private static bool IsMergeConflict(JArray causes)
+        private static bool TryGetMergeConflict(JArray actions, List<BuildFailureCause> causeList)
         {
-            foreach (JObject obj in causes)
+            foreach (var cur in actions)
             {
-                var value = obj.Value<string>("shortDescription");
-                if (value != null && value.Contains("has merge conflicts"))
+                var causes = (JArray)cur["causes"];
+                if (causes == null)
                 {
-                    return true;
+                    continue;
+                }
+
+                foreach (JObject obj in causes)
+                {
+                    var value = obj.Value<string>("shortDescription");
+                    if (value != null && value.Contains("has merge conflicts"))
+                    {
+                        causeList.Add(BuildFailureCause.MergeConflict);
+                        return true;
+                    }
                 }
             }
 
@@ -92,6 +100,39 @@ namespace Dashboard.Jenkins
             }
 
             return items[0].Value<string>();
+        }
+
+        /// <summary>
+        /// Convert to a unit test entry if this matches.
+        /// </summary>
+        private static bool TryGetUnitTestCauses(JArray actions, List<BuildFailureCause> causeList)
+        {
+            foreach (var cur in actions)
+            {
+                var data = cur as JObject;
+                if (data == null)
+                {
+                    continue;
+                }
+
+                // The JSON looks like teh following:
+                // {    "failCount" : 1,
+                //      "skipCount" : 2546,
+                //      "totalCount" : 66764,
+                //      "urlName" : "testReport" }
+                var urlName = data.Value<string>("urlName");
+                var failCount = data.Value<int?>("failCount");
+                if (string.IsNullOrEmpty(urlName) || !failCount.HasValue)
+                {
+                    continue;
+                }
+
+                var message = $"Unit Test Failure: {failCount}";
+                causeList.Add(new BuildFailureCause("Unit Test", message, category: BuildFailureCause.CategoryTest));
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

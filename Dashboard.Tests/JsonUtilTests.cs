@@ -22,6 +22,15 @@ namespace Dashboard.Tests
                 Assert.Equal(1, result.CauseList.Count);
                 Assert.Equal("Test", result.CauseList[0].Category);
             }
+
+            [Fact]
+            public void UnitTestFailure()
+            {
+                var json = JObject.Parse(TestResources.BuildFailure2);
+                var result = JsonUtil.ParseBuildFailureInfo(json);
+                Assert.Equal(1, result.CauseList.Count);
+                Assert.Equal("Test", result.CauseList[0].Category);
+            }
         }
     }
 }

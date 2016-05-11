@@ -92,6 +92,36 @@ namespace Dashboard.Tests {
         
         /// <summary>
         ///   Looks up a localized string similar to {
+        ///  &quot;actions&quot; : [
+        ///    {
+        ///      &quot;parameters&quot; : [
+        ///        {
+        ///          &quot;name&quot; : &quot;GitBranchOrCommit&quot;,
+        ///          &quot;value&quot; : &quot;${sha1}&quot;
+        ///        },
+        ///        {
+        ///          &quot;name&quot; : &quot;GitRepoUrl&quot;,
+        ///          &quot;value&quot; : &quot;https://github.com/dotnet/roslyn.git&quot;
+        ///        },
+        ///        {
+        ///          &quot;name&quot; : &quot;GitRefSpec&quot;,
+        ///          &quot;value&quot; : &quot;+refs/pull/*:refs/remotes/origin/pr/*&quot;
+        ///        },
+        ///        {
+        ///          &quot;name&quot; : &quot;sha1&quot;,
+        ///          &quot;value&quot; : &quot;origin/pr/11183/merge&quot;
+        ///        },
+        ///        {
+        ///          &quot;name&quot; : &quot;ghpr [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string BuildFailure2 {
+            get {
+                return ResourceManager.GetString("BuildFailure2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
         ///  &quot;duration&quot; : 2205772,
         ///  &quot;id&quot; : &quot;4&quot;,
         ///  &quot;result&quot; : &quot;FAILURE&quot;,

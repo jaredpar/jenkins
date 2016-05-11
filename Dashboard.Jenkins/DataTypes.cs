@@ -154,6 +154,7 @@ namespace Dashboard.Jenkins
     {
         public const string CategoryUnknown = "Unknown";
         public const string CategoryMergeConflict = "Merge Conflict";
+        public const string CategoryTest = "Test";
 
         public static readonly BuildFailureCause Unknown = new BuildFailureCause(name: "", description: "", category: CategoryUnknown);
         public static readonly BuildFailureCause MergeConflict = new BuildFailureCause(name: "", description: "", category: CategoryMergeConflict);
