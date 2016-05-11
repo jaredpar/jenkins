@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using Microsoft.WindowsAzure.Storage;
 
 namespace Dashboard.Azure
 {
@@ -19,6 +20,17 @@ namespace Dashboard.Azure
         private readonly CloudTable _buildFailureExactTable;
         private readonly JenkinsClient _client;
         private readonly TextWriter _textWriter;
+
+        public BuildTablePopulator(CloudTableClient tableClient, JenkinsClient client, TextWriter textWriter) :this(
+            buildResultDateTable: tableClient.GetTableReference(AzureConstants.TableNames.BuildResultDate),
+            buildResultExactTable: tableClient.GetTableReference(AzureConstants.TableNames.BuildResultExact),
+            buildFailureDateTable: tableClient.GetTableReference(AzureConstants.TableNames.BuildFailureDate),
+            buildFailureExactTable: tableClient.GetTableReference(AzureConstants.TableNames.BuildFailureExact),
+            client: client,
+            textWriter: textWriter)
+        {
+
+        }
 
         public BuildTablePopulator(CloudTable buildResultDateTable, CloudTable buildResultExactTable, CloudTable buildFailureDateTable, CloudTable buildFailureExactTable, JenkinsClient client, TextWriter textWriter)
         {

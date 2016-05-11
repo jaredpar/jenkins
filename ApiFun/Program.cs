@@ -27,6 +27,7 @@ namespace Dashboard.ApiFun
             // var util = new MachineCountInvestigation(CreateClient());
             // util.Go();
             // GetMacQueueTimes();
+            CheckUnknown().Wait();
             Random().Wait();
             // MigrateCounter().Wait();
             // FindRetest();
@@ -195,6 +196,18 @@ namespace Dashboard.ApiFun
                 }
             }
             */
+        }
+
+        private static async Task CheckUnknown()
+        {
+            var account = GetStorageAccount();
+            var buildUtil = new BuildUtil(account);
+            var date = DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(), Console.Out);
+            foreach (var entity in buildUtil.GetBuildResults(date, ClassificationKind.Unknown))
+            {
+                await populator.PopulateBuild(entity.BuildId);
+            }
         }
 
         private static void PrintJobs()

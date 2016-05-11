@@ -17,28 +17,18 @@ namespace Dashboard.Tests
     {
         private readonly MockRestClient _restClient;
         private readonly BuildTablePopulator _populator;
-        private readonly CloudTable _buildResultDateTable;
-        private readonly CloudTable _buildResultExactTable;
-        private readonly CloudTable _buildFailureDateTable;
         private readonly CloudTable _buildFailureExactTable;
 
         public BuildTablePopulatorTests()
         {
             var account = Util.GetStorageAccount();
             var tableClient = account.CreateCloudTableClient();
-            _buildResultDateTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildResultDate);
-            _buildResultExactTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildResultExact);
-            _buildFailureDateTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildFailureDate);
-            _buildFailureExactTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildFailureExact);
 
             _restClient = new MockRestClient();
             var client = new JenkinsClient(SharedConstants.DotnetJenkinsUri, _restClient.Client);
-
+            _buildFailureExactTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildFailureExact);
             _populator = new BuildTablePopulator(
-                buildResultDateTable: _buildResultDateTable,
-                buildResultExactTable: _buildResultExactTable,
-                buildFailureDateTable: _buildFailureDateTable,
-                buildFailureExactTable: _buildFailureExactTable,
+                tableClient,
                 client: client,
                 textWriter: new StringWriter());
         }
