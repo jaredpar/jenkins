@@ -85,7 +85,6 @@ namespace Dashboard.Azure
         {
             var buildInfo = _client.GetBuildInfo(id);
 
-
             PullRequestInfo prInfo = null;
             if (JobUtil.IsPullRequestJobName(id.JobId.Name))
             {

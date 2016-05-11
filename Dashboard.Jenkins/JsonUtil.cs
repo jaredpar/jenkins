@@ -57,10 +57,10 @@ namespace Dashboard.Jenkins
             var id = build.Value<int>("id");
             var duration = TimeSpan.FromMilliseconds(build.Value<int>("duration"));
             var state = ParseBuildInfoState(build);
-            var date = JenkinsUtil.ConvertTimestampToDateTime(build.Value<long>("timestamp"));
+            var date = JenkinsUtil.ConvertTimestampToDateTimeOffset(build.Value<long>("timestamp"));
             var buildId = new BuildId(id, jobId);
             var machineName = build.Value<string>("builtOn");
-            return new BuildInfo(buildId, state, date, duration, machineName);
+            return new BuildInfo(buildId, state, date.UtcDateTime, duration, machineName);
         }
 
         internal static List<BuildInfo> ParseBuildInfoList(JobId jobId, JObject data)

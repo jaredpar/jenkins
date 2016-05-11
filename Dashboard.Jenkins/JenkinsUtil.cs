@@ -75,10 +75,10 @@ namespace Dashboard.Jenkins
         /// epoch.  This function will convert the Jenkins representation to a <see cref="DateTime"/>
         /// value.
         /// <returns></returns>
-        public static DateTime ConvertTimestampToDateTime(long timestamp)
+        public static DateTimeOffset ConvertTimestampToDateTimeOffset(long timestamp)
         {
-            var epoch = new DateTime(year: 1970, month: 1, day: 1);
-            return epoch.AddMilliseconds(timestamp).ToUniversalTime();
+            var epoch = new DateTimeOffset(year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0, offset: TimeSpan.Zero);
+            return epoch.AddMilliseconds(timestamp);
         }
 
         public static JobId ConvertPathToJobId(string path)

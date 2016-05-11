@@ -27,7 +27,7 @@ namespace Dashboard.ApiFun
             // var util = new MachineCountInvestigation(CreateClient());
             // util.Go();
             // GetMacQueueTimes();
-            CheckUnknown().Wait();
+            // CheckUnknown().Wait();
             Random().Wait();
             // MigrateCounter().Wait();
             // FindRetest();
@@ -162,7 +162,7 @@ namespace Dashboard.ApiFun
 
         private static async Task Random()
         {
-            var buildId = new BuildId(6976, JobId.ParseName("roslyn_prtest_win_dbg_unit64"));
+            var buildId = new BuildId(1211, JobId.ParseName("roslyn_master_win_rel_unit64"));
             var client = CreateClient(auth: true);
             var buildInfo = await client.GetBuildInfoAsync(buildId);
             var buildResult = await client.GetBuildResultAsync(buildInfo);

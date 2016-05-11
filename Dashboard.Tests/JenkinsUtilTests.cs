@@ -9,7 +9,7 @@ namespace Dashboard.Jenkins.Tests
 {
     public class JenkinsUtilTests
     {
-        public sealed class ConvertJobIdPath
+        public sealed class ConvertJobIdPath : JenkinsUtilTests 
         {
             private static void Test(string path, JobId id)
             {
@@ -36,11 +36,21 @@ namespace Dashboard.Jenkins.Tests
             }
         }
 
-        [Fact]
-        public void GetJobPath()
+        public sealed class MiscTest : JenkinsUtilTests
         {
-            Assert.Equal("job/test", JenkinsUtil.GetJobIdPath(JobId.ParseName("test")));
-            Assert.Equal("job/test/job/op", JenkinsUtil.GetJobIdPath(JobId.ParseName("test/op")));
+            [Fact]
+            public void GetJobPath()
+            {
+                Assert.Equal("job/test", JenkinsUtil.GetJobIdPath(JobId.ParseName("test")));
+                Assert.Equal("job/test/job/op", JenkinsUtil.GetJobIdPath(JobId.ParseName("test/op")));
+            }
+
+            [Fact]
+            public void ConvertTimestamp()
+            {
+                var dateTimeOffset = JenkinsUtil.ConvertTimestampToDateTimeOffset(1462922992229);
+                Assert.Equal(635985197922290000, dateTimeOffset.UtcTicks);
+            }
         }
     }
 }
