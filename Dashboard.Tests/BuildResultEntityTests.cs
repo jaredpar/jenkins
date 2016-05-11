@@ -25,7 +25,7 @@ namespace Dashboard.Tests
             Assert.Equal(BuildResultClassification.Succeeded.Kind, entity.Classification.Kind);
             Assert.Equal(BuildResultClassification.Succeeded.Name, entity.Classification.Name);
             Assert.Equal(buildId, entity.BuildId);
-            Assert.Equal(buildId.Id, entity.BuildNumber);
+            Assert.Equal(buildId.Number, entity.BuildNumber);
             Assert.Equal(buildId.JobId, entity.JobId);
             Assert.Equal(buildDate, entity.BuildDateTimeOffset);
             Assert.Equal("test", entity.MachineName);

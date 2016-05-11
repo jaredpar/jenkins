@@ -43,7 +43,7 @@ namespace Dashboard.Azure
 
         public static EntityKey GetEntityKey(BuildId id)
         {
-            return new EntityKey(id.JobName.ToString(), id.Id.ToString());
+            return new EntityKey(id.JobName.ToString(), id.Number.ToString());
         }
     }
 }

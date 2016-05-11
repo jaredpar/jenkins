@@ -12,7 +12,7 @@ namespace Dashboard.Azure
     {
         public BuildId BuildId { get; }
 
-        public string Key => $"{BuildId.Id}-{BuildId.JobName}";
+        public string Key => $"{BuildId.Number}-{BuildId.JobName}";
 
         public BuildKey(BuildId buildId)
         {

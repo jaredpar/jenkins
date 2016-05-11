@@ -168,7 +168,7 @@ namespace Dashboard.Controllers
                     var summary = new JobQueueSummary()
                     {
                         Name = jobId.Name,
-                        Id = id.Id,
+                        Id = id.Number,
                         QueueTime = time.Value
                     };
                     list.Add(summary);

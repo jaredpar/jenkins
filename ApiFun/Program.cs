@@ -251,7 +251,7 @@ namespace Dashboard.ApiFun
         private static void PrintFailure()
         {
             var client = CreateClient(auth: false);
-            var info = client.GetBuildFailureInfo(new BuildId(id: 6066, jobId: JobId.ParseName("roslyn_prtest_win_dbg_unit64")));
+            var info = client.GetBuildFailureInfo(new BuildId(number: 6066, jobId: JobId.ParseName("roslyn_prtest_win_dbg_unit64")));
             // Console.WriteLine(info.Category);
         }
 
@@ -281,9 +281,9 @@ namespace Dashboard.ApiFun
                 Console.WriteLine($"Job: {jobId}");
                 foreach (var buildId in client.GetBuildIds(jobId))
                 {
-                    Console.WriteLine($"\tBuild: {buildId.Id}");
+                    Console.WriteLine($"\tBuild: {buildId.Number}");
                     var date = client.GetBuildInfo(buildId).Date;
-                    list.Add(Tuple.Create(date, buildId));
+                    // list.Add(Tuple.Create(date, buildId));
                 }
             }
 
@@ -339,7 +339,7 @@ namespace Dashboard.ApiFun
             var client = CreateClient();
             foreach (var buildId in client.GetBuildIds(new JobId("roslyn_prtest_mac_dbg_unit32", JobId.Root)))
             {
-                Console.WriteLine($"Processing {buildId.Id}");
+                Console.WriteLine($"Processing {buildId.Number}");
 
                 var state = client.GetBuildInfo(buildId).State;
                 if (state == BuildState.Running)
@@ -354,7 +354,7 @@ namespace Dashboard.ApiFun
                 }
                 else
                 {
-                    Console.WriteLine($"Could not get duration for {buildId.Id}");
+                    Console.WriteLine($"Could not get duration for {buildId.Number}");
                 }
             }
 
@@ -636,7 +636,7 @@ namespace Dashboard.ApiFun
 
             foreach (var buildId in GetBuildIds(os => os == OS.Mac || os == OS.Linux))
             {
-                Console.WriteLine($"Processing {buildId.JobName} {buildId.Id}");
+                Console.WriteLine($"Processing {buildId.JobName} {buildId.Number}");
 
                 var state = _client.GetBuildInfo(buildId).State;
                 if (state == BuildState.Running)

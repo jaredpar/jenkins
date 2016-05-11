@@ -107,7 +107,7 @@ namespace Dashboard.Azure
                     classification = BuildResultClassification.Unknown;
                     break;
                 default:
-                    throw new Exception($"Invalid enum: {buildInfo.State} for {id.JobName} - {id.Id}");
+                    throw new Exception($"Invalid enum: {buildInfo.State} for {id.JobName} - {id.Number}");
             }
 
             return new BuildResultEntity(buildInfo.Id, buildInfo.Date, buildInfo.MachineName, classification, prInfo);
@@ -190,7 +190,7 @@ namespace Dashboard.Azure
 
         private void WriteLine(BuildId buildId, string message)
         {
-            _textWriter.WriteLine($"{buildId.JobName} - {buildId.Id}: {message}");
+            _textWriter.WriteLine($"{buildId.JobName} - {buildId.Number}: {message}");
         }
 
         /// <summary>

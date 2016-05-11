@@ -56,7 +56,7 @@ namespace Dashboard.Azure
             PullRequestInfo prInfo)
         {
             JobName = buildId.JobId.Name;
-            BuildNumber = buildId.Id;
+            BuildNumber = buildId.Number;
             ClassificationKindRaw = classification.Kind.ToString();
             ClassificationName = classification.Name;
             BuildDateTime = buildDateTime.UtcDateTime;
@@ -103,7 +103,7 @@ namespace Dashboard.Azure
         public static EntityKey GetExactEntityKey(BuildId buildId)
         {
             var partitionKey = AzureUtil.NormalizeKey(buildId.JobId.Name, '_');
-            var rowKey = buildId.Id.ToString("0000000000");
+            var rowKey = buildId.Number.ToString("0000000000");
             return new EntityKey(partitionKey, rowKey);
         }
 

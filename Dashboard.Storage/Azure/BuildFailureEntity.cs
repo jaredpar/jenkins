@@ -67,7 +67,7 @@ namespace Dashboard.Azure
         public BuildFailureEntity(BuildId buildId, string identifier, DateTimeOffset buildDate, BuildFailureKind kind, string machineName, PullRequestInfo prInfo)
         {
             JobName = buildId.JobName;
-            BuildNumber = buildId.Id;
+            BuildNumber = buildId.Number;
             Identifier = identifier;
             BuildFailureKindRaw = kind.ToString();
             BuildDateTime = buildDate.UtcDateTime;

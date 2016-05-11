@@ -34,18 +34,17 @@ namespace Dashboard.Jenkins
     // TODO: equality
     public struct BuildId
     {
-        // TODO: rename to number? 
-        public int Id { get; }
+        public int Number { get; }
         public JobId JobId { get; }
         public string JobName => JobId.Name;
 
-        public BuildId(int id, JobId jobId)
+        public BuildId(int number, JobId jobId)
         {
-            Id = id;
+            Number = number;
             JobId = jobId;
         }
 
-        public override string ToString() => $"{Id} - {JobName}";
+        public override string ToString() => $"{Number} - {JobName}";
     }
 
     public sealed class ViewInfo
@@ -114,7 +113,7 @@ namespace Dashboard.Jenkins
         private readonly BuildInfo buildInfo;
         private readonly BuildFailureInfo _failureInfo;
 
-        public int Id => buildInfo.Id.Id;
+        public int Id => buildInfo.Id.Number;
         public BuildId BuildId => buildInfo.Id;
         public BuildInfo BuildInfo => buildInfo;
         public BuildState State => buildInfo.State;
