@@ -27,8 +27,8 @@ namespace Dashboard.ApiFun
             // var util = new MachineCountInvestigation(CreateClient());
             // util.Go();
             // GetMacQueueTimes();
-            // CheckUnknown().Wait();
-            Random().Wait();
+            CheckUnknown().Wait();
+            //Random().Wait();
             // MigrateCounter().Wait();
             // FindRetest();
             // PrintRetestInfo();
@@ -204,9 +204,28 @@ namespace Dashboard.ApiFun
             var buildUtil = new BuildUtil(account);
             var date = DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(), Console.Out);
+            var table = account.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildResultDate);
             foreach (var entity in buildUtil.GetBuildResults(date, ClassificationKind.Unknown))
             {
-                await populator.PopulateBuild(entity.BuildId);
+                var entityDate = DateKey.Parse(entity.PartitionKey);
+                var before = new DateKey(entityDate.Date.AddDays(-1));
+                var after = new DateKey(entityDate.Date.AddDays(1));
+
+                var op = TableOperation.Retrieve(before.Key, entity.RowKey);
+                var result = await table.ExecuteAsync(op);
+                if (result.Result != null)
+                {
+                    await table.ExecuteAsync(TableOperation.Delete(entity));
+                    continue;
+                }
+
+                op = TableOperation.Retrieve(after.Key, entity.RowKey);
+                result = await table.ExecuteAsync(op);
+                if (result.Result != null)
+                {
+                    await table.ExecuteAsync(TableOperation.Delete(entity));
+                    continue;
+                }
             }
         }
 

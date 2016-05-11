@@ -12,12 +12,11 @@ namespace Dashboard.Jenkins
     {
         public BuildId Id { get; }
         public BuildState State { get; }
-        // TODO: DateTimeOffset
-        public DateTime Date { get; }
+        public DateTimeOffset Date { get; }
         public TimeSpan Duration { get; }
         public string MachineName { get; }
 
-        public BuildInfo(BuildId id, BuildState state, DateTime date, TimeSpan duration, string machineName)
+        public BuildInfo(BuildId id, BuildState state, DateTimeOffset date, TimeSpan duration, string machineName)
         {
             Id = id;
             State = state;
