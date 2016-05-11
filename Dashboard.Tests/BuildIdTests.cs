@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dashboard.Jenkins;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,7 +22,21 @@ namespace Dashboard.Tests
             [Fact]
             public void Number()
             {
+                RunAll(EqualityUnit.Create(new BuildId(42, JobId.Root))
+                    .WithEqualValues(new BuildId(42, JobId.Root))
+                    .WithNotEqualValues(new BuildId(13, JobId.Root)));
+            }
 
+            [Fact]
+            public void JobIdDifferent()
+            {
+                var id1 = JobId.ParseName("dog");
+                var id2 = JobId.ParseName("cat");
+                RunAll(EqualityUnit.Create(new BuildId(42, id1))
+                    .WithEqualValues(new BuildId(42, id1))
+                    .WithNotEqualValues(
+                        new BuildId(42, id2),
+                        new BuildId(42, JobId.Root)));
             }
         }
     }

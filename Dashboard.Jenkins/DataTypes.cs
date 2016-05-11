@@ -31,8 +31,7 @@ namespace Dashboard.Jenkins
         }
     }
 
-    // TODO: equality
-    public struct BuildId
+    public struct BuildId : IEquatable<BuildId>
     {
         public int Number { get; }
         public JobId JobId { get; }
@@ -44,6 +43,11 @@ namespace Dashboard.Jenkins
             JobId = jobId;
         }
 
+        public static bool operator ==(BuildId left, BuildId right) => left.Number == right.Number && left.JobId == right.JobId;
+        public static bool operator !=(BuildId left, BuildId right) => !(left == right);
+        public bool Equals(BuildId other) => this == other;
+        public override bool Equals(object obj) => obj is BuildId && Equals((BuildId)obj);
+        public override int GetHashCode() => Number ^ JobId.GetHashCode();
         public override string ToString() => $"{Number} - {JobName}";
     }
 

@@ -98,6 +98,7 @@
     </Compile>
     <Compile Include="AzureUtilTests.cs" />
     <Compile Include="BuildFailureEntityTests.cs" />
+    <Compile Include="BuildIdTests.cs" />
     <Compile Include="BuildKeyTests.cs" />
     <Compile Include="BuildResultEntityTests.cs" />
     <Compile Include="BuildTablePopulatorTests.cs" />
