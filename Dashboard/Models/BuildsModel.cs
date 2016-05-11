@@ -31,6 +31,14 @@ namespace Dashboard.Models
         public List<BuildResultEntity> Entries { get; set; } = new List<BuildResultEntity>();
     }
 
+    public class BuildResultKindModel
+    {
+        public bool IncludePullRequests { get; set; }
+        public DateTimeOffset StartDate { get; set; }
+        public string ClassificationKind { get; set; }
+        public List<BuildResultEntity> Entries { get; set; } = new List<BuildResultEntity>();
+    }
+
     public class TestFailureSummaryModel
     {
         public bool IncludePullRequests { get; set; }

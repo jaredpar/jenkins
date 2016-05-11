@@ -26,8 +26,8 @@ namespace Dashboard.Helpers
 
         protected JenkinsClient CreateJenkinsClient()
         {
-            // TODO: authentication? 
-            return new JenkinsClient(SharedConstants.DotnetJenkinsUri);
+            var connectionString = ConfigurationManager.AppSettings[SharedConstants.GithubConnectionStringName];
+            return new JenkinsClient(SharedConstants.DotnetJenkinsUri, connectionString);
         }
     }
 

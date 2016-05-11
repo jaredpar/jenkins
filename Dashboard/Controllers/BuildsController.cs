@@ -69,6 +69,24 @@ namespace Dashboard.Controllers
             }
         }
 
+        public ActionResult Kind(string kind = null, bool pr = false, DateTime? startDate = null)
+        {
+            var kindValue = EnumUtil.Parse(kind, ClassificationKind.Unknown);
+            var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            var list = _buildUtil
+                .GetBuildResults(startDateValue, kindValue)
+                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobName))
+                .ToList();
+            var model = new BuildResultKindModel()
+            {
+                IncludePullRequests = pr,
+                ClassificationKind = kindValue.ToString(),
+                Entries = list,
+                StartDate = startDateValue
+            };
+            return View(viewName: "Kind", model: model);
+        }
+
         public string Csv(bool pr = false, DateTime? startDate = null, int limit = 10)
         {
             var startDateValue = startDate ?? DateTime.UtcNow - TimeSpan.FromDays(7);

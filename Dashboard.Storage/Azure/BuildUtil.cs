@@ -38,6 +38,16 @@ namespace Dashboard.Azure
             return _buildResultDateTable.ExecuteQuery(query).ToList();
         }
 
+        public List<BuildResultEntity> GetBuildResults(DateTimeOffset startDate, ClassificationKind kind)
+        {
+            var filter = FilterUtil
+                .SinceDate(ColumnNames.PartitionKey, startDate)
+                .And(FilterUtil.Column(nameof(BuildResultEntity.ClassificationKindRaw), kind.ToString()))
+                .Filter;
+            var query = new TableQuery<BuildResultEntity>().Where(filter);
+            return _buildResultDateTable.ExecuteQuery(query).ToList();
+        }
+
         public List<BuildFailureEntity> GetTestCaseFailures(DateTimeOffset startDate)
         {
             var filter = FilterUtil
