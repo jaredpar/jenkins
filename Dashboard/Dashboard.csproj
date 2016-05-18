@@ -223,6 +223,7 @@
     <Compile Include="Controllers\BuildsController.cs" />
     <Compile Include="Controllers\JenkinsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\TestDataController.cs" />
     <Compile Include="Controllers\TestRunController.cs" />
     <Compile Include="Controllers\TestCacheController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
@@ -232,6 +233,8 @@
     <Compile Include="Helpers\CounterEntityUtil.cs" />
     <Compile Include="Helpers\DashboardController.cs" />
     <Compile Include="Helpers\Extensions.cs" />
+    <Compile Include="Helpers\Json\TestCache.cs" />
+    <Compile Include="Helpers\Json\TestRun.cs" />
     <Compile Include="Helpers\PrettyPrintAttribute.cs" />
     <Compile Include="Helpers\CounterStatsUtil.cs" />
     <Compile Include="Models\BuildsModel.cs" />
