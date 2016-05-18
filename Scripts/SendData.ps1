@@ -1,5 +1,6 @@
 param([switch]$real = $false)
 set-strictmode -version 2.0
+$ErrorActionPreference="Stop"
 
 $url = "http://localhost:9859"
 if ($real) {
@@ -29,14 +30,15 @@ function Test-Values() {
 }
 
 function Test-TestCacheCore() {
-    param ( $data = $(throw "Need the JSON data"))
+    param ( $route = $(throw "Need a route"),
+            $data = $(throw "Need the JSON data"))
 
     $id = Get-Id
-    write-host "Testing result cache $id"
+    write-host "Testing result cache $id in $route"
     $dataJson = ConvertTo-Json $data
-    Invoke-RestMethod "$url/api/testCache/$id" -method put -contenttype application/json -body $dataJson
+    Invoke-RestMethod "$url/$route/$id" -method put -contenttype application/json -body $dataJson
 
-    $requestUri = "$url/api/testcache/$($id)?machineName=jaredpar03&enlistmentRoot=foo"
+    $requestUri = "$url/$route/$($id)?machineName=jaredpar03&enlistmentRoot=foo"
     $result = Invoke-WebRequest $requestUri -method get
     if ($result.StatusCode -ne 200) {
         write-host "Could not retrieve resource"
@@ -52,6 +54,7 @@ function Test-TestCacheCore() {
 }
 
 function Test-TestCache() {
+    param ( $route = $(throw "Need a route"))
     $data = @{
         testResultData = @{
             exitCode = 42;
@@ -71,22 +74,22 @@ function Test-TestCache() {
         };
     }
 
-    Test-TestCacheCore $data
+    Test-TestCacheCore $route $data
 
     $data.testResultData.Remove("testPassed");
     $data.testResultData.Remove("testFailed");
     $data.testResultData.Remove("testSkipped");
-    Test-TestCacheCore $data
+    Test-TestCacheCore $route $data
 
     $data.testResultData.outputError = $null
-    Test-TestCacheCore $data
+    Test-TestCacheCore $route $data
 
     $data.testResultData.outputStandard = $null
-    Test-TestCacheCore $data
+    Test-TestCacheCore $route $data
 
     $data.testSourceData.Remove("machineName");
     $data.testSourceData.Remove("enlistmentRoot");
-    Test-TestCacheCore $data
+    Test-TestCacheCore $route $data
 }
 
 function Test-TestRun() {
@@ -109,5 +112,6 @@ function Test-TestRun() {
     }
 }
 
-Test-TestCache
+Test-TestCache "api/testCache"
+Test-TestCache "api/testData/cache"
 Test-TestRun
