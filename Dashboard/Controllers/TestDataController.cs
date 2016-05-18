@@ -26,6 +26,7 @@ namespace Dashboard.Controllers
         }
 
         [Route("cache/{id}")]
+        [Route("~/api/testCache/{id}")]
         [HttpGet]
         public TestResultData GetTestCache(string id, [FromUri] TestSourceData testSourceData)
         {
@@ -60,6 +61,7 @@ namespace Dashboard.Controllers
         }
 
         [Route("cache/{id}")]
+        [Route("~/api/testCache/{id}")]
         [HttpPut]
         public void PutTestCache(string id, [FromBody] TestCacheData testCacheData)
         {
