@@ -1,6 +1,8 @@
 ﻿using Dashboard.Azure;
 using Dashboard.Helpers;
 using Dashboard.Helpers.Json;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,13 +15,15 @@ namespace Dashboard.Controllers
     [RoutePrefix("api/testData")]
     public class TestDataController : ApiController
     {
+        private readonly CloudStorageAccount _storageAccount;
         private readonly TestResultStorage _storage;
         private readonly TestCacheStats _stats;
         private readonly CounterStatsUtil _statsUtil;
 
         public TestDataController()
         {
-            var dashboardStorage = ControllerUtil.CreateDashboardStorage();
+            _storageAccount = ControllerUtil.CreateStorageAccount();
+            var dashboardStorage = new DashboardStorage(_storageAccount);
             _storage = new TestResultStorage(dashboardStorage);
             _stats = new TestCacheStats(_storage);
             _statsUtil = new CounterStatsUtil(dashboardStorage);
@@ -89,17 +93,35 @@ namespace Dashboard.Controllers
             _statsUtil.AddStore(isJenkins);
         }
 
+        [Route("~/api/testRun")]
         [Route("run")]
-        [HttpGet]
-        public string RunTest()
+        [HttpPut]
+        [HttpPost]
+        public void Post([FromBody] TestRunData testRunData)
         {
-            return "run";
-        }
+            var elapsed = testRunData.ElapsedSeconds > 0
+                ? testRunData.ElapsedSeconds
+                : testRunData.EllapsedSeconds;
 
-        [Route("run")]
-        public void PutTest(string data)
-        {
+            // TODO: Need to send along build source from the test runner.
+            var buildSource = BuildSource.CreateAnonymous();
+            var runDate = DateTime.UtcNow;
+            var entity = new TestRunEntity(runDate, buildSource)
+            {
+                CacheType = testRunData.Cache,
+                ElapsedSeconds = elapsed,
+                Succeeded = testRunData.Succeeded,
+                IsJenkins = testRunData.IsJenkins,
+                Is32Bit = testRunData.Is32Bit,
+                CacheCount = testRunData.CacheCount,
+                ChunkCount = testRunData.ChunkCount,
+                AssemblyCount = testRunData.AssemblyCount
+            };
 
+            var testRunTable = _storageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.TestRunData);
+            _statsUtil.AddTestRun(entity.Succeeded, entity.IsJenkins);
+            var operation = TableOperation.Insert(entity);
+            testRunTable.Execute(operation);
         }
     }
 }

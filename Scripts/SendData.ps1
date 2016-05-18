@@ -93,6 +93,7 @@ function Test-TestCache() {
 }
 
 function Test-TestRun() {
+    param ( $route = $(throw "Need a route"))
 
     $data = @{
         EllapsedSeconds = 42;
@@ -105,7 +106,7 @@ function Test-TestRun() {
     }
 
     $dataJson = ConvertTo-Json $data
-    $result = Invoke-WebRequest "$url/api/testRun" -method post -contenttype application/json -body $dataJson
+    $result = Invoke-WebRequest "$url/$route" -method post -contenttype application/json -body $dataJson
     if ($result.StatusCode -ne 204) {
         write-host "Could not post resource"
         $result;
@@ -114,4 +115,5 @@ function Test-TestRun() {
 
 Test-TestCache "api/testCache"
 Test-TestCache "api/testData/cache"
-Test-TestRun
+Test-TestRun "api/testRun"
+Test-TestRun "api/testData/run"

@@ -224,8 +224,6 @@
     <Compile Include="Controllers\JenkinsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TestDataController.cs" />
-    <Compile Include="Controllers\TestRunController.cs" />
-    <Compile Include="Controllers\TestCacheController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
