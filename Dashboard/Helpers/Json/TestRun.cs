@@ -15,8 +15,5 @@ namespace Dashboard.Helpers.Json
         public int AssemblyCount { get; set; }
         public int CacheCount { get; set; }
         public int ChunkCount { get; set; }
-
-        // Misspelled version to keep until we can flow throw all of the spelling updates.
-        public int EllapsedSeconds { get; set; }
     }
 }

@@ -54,8 +54,7 @@ namespace Dashboard.Controllers
                     OutputError = testResult.OutputError,
                     ResultsFileName = testResult.ResultsFileName,
                     ResultsFileContent = testResult.ResultsFileContent,
-                    ElapsedSeconds = (int)testResult.Elapsed.TotalSeconds,
-                    EllapsedSeconds = (int)testResult.Elapsed.TotalSeconds,
+                    ElapsedSeconds = (int)testResult.Elapsed.TotalSeconds
                 };
                 return testResultData;
             }
@@ -70,9 +69,7 @@ namespace Dashboard.Controllers
         public void PutTestCache(string id, [FromBody] TestCacheData testCacheData)
         {
             var testResultData = testCacheData.TestResultData;
-            var seconds = testResultData.ElapsedSeconds > 0
-                ? testResultData.ElapsedSeconds
-                : testResultData.EllapsedSeconds;
+            var seconds = testResultData.ElapsedSeconds;
             var testResult = new TestResult(
                 testResultData.ExitCode,
                 testResultData.OutputStandard,
@@ -99,9 +96,7 @@ namespace Dashboard.Controllers
         [HttpPost]
         public void Post([FromBody] TestRunData testRunData)
         {
-            var elapsed = testRunData.ElapsedSeconds > 0
-                ? testRunData.ElapsedSeconds
-                : testRunData.EllapsedSeconds;
+            var elapsed = testRunData.ElapsedSeconds;
 
             // TODO: Need to send along build source from the test runner.
             var buildSource = BuildSource.CreateAnonymous();

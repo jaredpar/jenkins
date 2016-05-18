@@ -25,9 +25,6 @@ namespace Dashboard.Helpers.Json
         public int TestPassed { get; set; }
         public int TestFailed { get; set; }
         public int TestSkipped { get; set; }
-
-        // Misspelled version to keep until we can flow throw all of the spelling updates.
-        public int EllapsedSeconds { get; set; }
     }
 
     /// <summary>
