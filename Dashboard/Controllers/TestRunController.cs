@@ -15,7 +15,7 @@ using Dashboard.Helpers.Json;
 
 namespace Dashboard.Controllers
 {
-    public class TestRunController : DashboardApiController
+    public class TestRunController : ApiController
     {
         private readonly TestCacheStats _stats;
         private readonly CounterStatsUtil _statsUtil;
@@ -24,11 +24,12 @@ namespace Dashboard.Controllers
 
         public TestRunController()
         {
-            var storage = new TestResultStorage(Storage);
+            var dashboardStorage = ControllerUtil.CreateDashboardStorage();
+            var storage = new TestResultStorage(dashboardStorage);
             _stats = new TestCacheStats(storage);
-            _statsUtil = new CounterStatsUtil(Storage);
-            _storage = new TestResultStorage(Storage);
-            _testRunTable = StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.TestRunData);
+            _statsUtil = new CounterStatsUtil(dashboardStorage);
+            _storage = new TestResultStorage(dashboardStorage);
+            _testRunTable = dashboardStorage.StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.TestRunData);
         }
 
         public void Post([FromBody] TestRunData testRunData)

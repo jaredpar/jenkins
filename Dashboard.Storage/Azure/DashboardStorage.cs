@@ -24,9 +24,14 @@ namespace Dashboard.Azure
         public CloudTable TestCacheCounterTable => _testCacheCounterTable;
         public CloudBlobContainer TestResultsContainer => _testResultsContainer;
 
-        public DashboardStorage(string connectionString)
+        public DashboardStorage(string connectionString) : this(CloudStorageAccount.Parse(connectionString))
         {
-            _storageAccount = CloudStorageAccount.Parse(connectionString);
+
+        }
+
+        public DashboardStorage(CloudStorageAccount storageAccount)
+        {
+            _storageAccount = storageAccount;
 
             var tableClient = _storageAccount.CreateCloudTableClient();
             _demandRunTable = tableClient.GetTableReference(AzureConstants.TableNames.DemandRun);

@@ -16,7 +16,7 @@ using Dashboard.Sql;
 
 namespace Dashboard.Controllers
 {
-    public class StatusController : DashboardController
+    public class StatusController : Controller
     {
         private readonly TestCacheStats _testCacheStats;
         private readonly TestResultStorage _testResultStorage;
@@ -24,9 +24,10 @@ namespace Dashboard.Controllers
 
         public StatusController()
         {
-            _testResultStorage = new TestResultStorage(Storage);
+            var storage = ControllerUtil.CreateDashboardStorage();
+            _testResultStorage = new TestResultStorage(storage);
             _testCacheStats = new TestCacheStats(_testResultStorage);
-            _testRunTable = StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.TestRunData);
+            _testRunTable = storage.StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.TestRunData);
         }
 
         public ActionResult Index()

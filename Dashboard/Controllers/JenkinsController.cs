@@ -8,7 +8,7 @@ using System.Web.Mvc;
 
 namespace Dashboard.Controllers
 {
-    public class JenkinsController : DashboardController
+    public class JenkinsController : Controller
     {
         public static int DefaultQueueJobCount = 100;
 
@@ -19,7 +19,7 @@ namespace Dashboard.Controllers
 
         public ActionResult Jobs(string name = null, string view = null)
         {
-            var client = CreateJenkinsClient();
+            var client = ControllerUtil.CreateJenkinsClient();
             if (!string.IsNullOrEmpty(name))
             {
                 var jobId = JobId.ParseName(name);
@@ -42,7 +42,7 @@ namespace Dashboard.Controllers
 
         public ActionResult Views()
         {
-            var viewList = CreateJenkinsClient().GetViews();
+            var viewList = ControllerUtil.CreateJenkinsClient().GetViews();
             return View(viewName: "ViewList", model: new ViewModel(viewList));
         }
 
@@ -56,7 +56,7 @@ namespace Dashboard.Controllers
         public ActionResult Waiting()
         {
             var minimumCount = Request.GetParamInt("minimum", defaultValue: 3);
-            var groups = CreateJenkinsClient()
+            var groups = ControllerUtil.CreateJenkinsClient()
                 .GetQueuedItemInfoList()
                 .Where(x => x.PullRequestInfo != null)
                 .GroupBy(x => x.JobId.Name)
@@ -91,7 +91,7 @@ namespace Dashboard.Controllers
 
         private JobSummary GetJobDaySummary(JobId jobId)
         {
-            var client = CreateJenkinsClient();
+            var client = ControllerUtil.CreateJenkinsClient();
             var all = client.GetBuildInfoList(jobId).Where(x => x.State != BuildState.Running);
             var list = new List<JobDaySummary>();
             foreach (var group in all.GroupBy(x => x.Date.Date))
@@ -121,7 +121,7 @@ namespace Dashboard.Controllers
 
         private ActionResult GetQueueJobList()
         {
-            var client = CreateJenkinsClient();
+            var client = ControllerUtil.CreateJenkinsClient();
             var list = client.GetJobIds().Select(x => x.Name).ToList();
             return View(viewName: "QueueJobList", model: list);
         }
@@ -152,7 +152,7 @@ namespace Dashboard.Controllers
         private List<JobQueueSummary> GetJobSummaryList(JobId jobId, int count)
         {
             var list = new List<JobQueueSummary>();
-            var client = CreateJenkinsClient();
+            var client = ControllerUtil.CreateJenkinsClient();
 
             foreach (var id in client.GetBuildIds(jobId).Take(count))
             {

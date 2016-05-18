@@ -230,8 +230,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ControllerUtil.cs" />
     <Compile Include="Helpers\CounterEntityUtil.cs" />
-    <Compile Include="Helpers\DashboardController.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\Json\TestCache.cs" />
     <Compile Include="Helpers\Json\TestRun.cs" />

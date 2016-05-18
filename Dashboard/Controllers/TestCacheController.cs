@@ -18,7 +18,7 @@ namespace Dashboard.Controllers
     /// This is a proof of concept implementation only.  I realize that its implementation is pretty terrible
     /// and that's fine.  For now it is enough to validate the end to end scenario.
     /// </summary>
-    public class TestCacheController : DashboardApiController
+    public class TestCacheController : ApiController
     {
         private readonly TestResultStorage _storage;
         private readonly TestCacheStats _stats;
@@ -26,9 +26,10 @@ namespace Dashboard.Controllers
 
         public TestCacheController()
         {
-            _storage = new TestResultStorage(Storage);
+            var storage = ControllerUtil.CreateDashboardStorage();
+            _storage = new TestResultStorage(storage);
             _stats = new TestCacheStats(_storage);
-            _statsUtil = new CounterStatsUtil(Storage);
+            _statsUtil = new CounterStatsUtil(storage);
         }
 
         public IEnumerable<string> Get()

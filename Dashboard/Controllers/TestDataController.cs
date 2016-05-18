@@ -8,7 +8,7 @@ using System.Web.Http;
 namespace Dashboard.Controllers
 {
     [RoutePrefix("api/testData")]
-    public class TestDataController : DashboardApiController
+    public class TestDataController : ApiController
     {
         [Route("cache")]
         [HttpGet]
