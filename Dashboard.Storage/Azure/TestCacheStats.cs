@@ -23,10 +23,10 @@ namespace Dashboard.Azure
             _testRunCounterTable = tableClient.GetTableReference(AzureConstants.TableNames.TestRunCounter);
         }
 
-        public TestCacheStatSummary GetSummary(DateTime? startDate)
+        public TestCacheStatSummary GetSummary(DateTimeOffset? startDate)
         {
             var startDateValue = startDate ?? AzureUtil.DefaultStartDate;
-            var endDateValue = DateTime.UtcNow;
+            var endDateValue = DateTimeOffset.UtcNow;
 
             var stats = new TestQueryStats();
             var unitTestQuery = CounterUtil.Query<UnitTestCounterEntity>(_unitTestCounterTable, startDateValue, endDateValue);

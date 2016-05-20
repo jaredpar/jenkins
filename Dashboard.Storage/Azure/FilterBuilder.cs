@@ -71,7 +71,7 @@ namespace Dashboard.Azure
         public static FilterUtil RowKey(string rowKey)
         {
             var filter = TableQuery.GenerateFilterCondition(
-                nameof(TableEntity.PartitionKey),
+                nameof(TableEntity.RowKey),
                 QueryComparisons.Equal,
                 rowKey);
             return new FilterUtil(filter);

@@ -93,7 +93,7 @@ namespace Dashboard.Azure
             return true;
         }
 
-        public int GetCount(DateTime? startDate)
+        public int GetCount(DateTimeOffset? startDate)
         {
             var count = 0;
             foreach (var blob in _storage.TestResultsContainer.ListBlobs().OfType<CloudBlockBlob>())

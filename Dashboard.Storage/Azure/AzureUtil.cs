@@ -14,7 +14,7 @@ namespace Dashboard.Azure
         // Current Azure Limit
         internal const int MaxBatchCount = 100;
 
-        public static readonly DateTime DefaultStartDate = new DateTime(year: 2016, month: 3, day: 1);
+        public static readonly DateTimeOffset DefaultStartDate = new DateTimeOffset(year: 2016, month: 3, day: 1, hour: 0, minute: 0, second: 0, offset: TimeSpan.Zero);
 
         /// <summary>
         /// Ensure all of our Azure resources exist.

@@ -39,11 +39,13 @@ function Test-TestCacheCore() {
     Invoke-RestMethod "$url/$route/$id" -method put -contenttype application/json -body $dataJson
 
     $requestUri = "$url/$route/$($id)?machineName=jaredpar03&enlistmentRoot=foo"
-    $result = Invoke-WebRequest $requestUri -method get
-    if ($result.StatusCode -ne 200) {
-        write-host "Could not retrieve resource"
-        $result
-        return
+    for ($i = 0; $i -lt 10; $i++) {
+        $result = Invoke-WebRequest $requestUri -method get
+        if ($result.StatusCode -ne 200) {
+            write-host "Could not retrieve resource"
+            $result
+            return
+        }
     }
 
     $oldData = $data.testResultData

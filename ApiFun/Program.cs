@@ -29,7 +29,8 @@ namespace Dashboard.ApiFun
             // util.Go();
             // GetMacQueueTimes();
             // TestJob().Wait();
-            DrainPoisonQueue().Wait();
+            Test().Wait();
+            //DrainPoisonQueue().Wait();
             // CheckUnknown().Wait();
             //Random().Wait();
             // MigrateCounter().Wait();
@@ -77,6 +78,18 @@ namespace Dashboard.ApiFun
             var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(), Console.Out);
             await populator.PopulateBuild(buildId);
 
+        }
+
+        private static async Task Test()
+        {
+            var account = GetStorageAccount();
+            var storage = new TestResultStorage(new DashboardStorage(account));
+            var stats = new TestCacheStats(storage);
+
+            var startDate = DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            var data = stats.GetSummary(startDate);
+            Console.WriteLine(data.HitStats.AssemblyCount);
+            await Task.Delay(0);
         }
 
         private static async Task DrainPoisonQueue()
