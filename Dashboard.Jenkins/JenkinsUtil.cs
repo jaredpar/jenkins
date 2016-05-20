@@ -70,6 +70,21 @@ namespace Dashboard.Jenkins
             return $"{GetBuildPath(id)}testReport";
         }
 
+        public static string GetJobDeletePath(JobId jobId)
+        {
+            return $"{GetJobIdPath(jobId)}/doDelete";
+        }
+
+        public static string GetJobEnablePath(JobId jobId)
+        {
+            return $"{GetJobIdPath(jobId)}/enable";
+        }
+
+        public static string GetJobDisablePath(JobId jobId)
+        {
+            return $"{GetJobIdPath(jobId)}/disable";
+        }
+
         /// <summary>
         /// Jenkins expresses all dates in a value typically named timestamp.  This seconds since the
         /// epoch.  This function will convert the Jenkins representation to a <see cref="DateTime"/>

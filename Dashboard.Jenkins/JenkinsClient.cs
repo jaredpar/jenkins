@@ -247,30 +247,32 @@ namespace Dashboard.Jenkins
 
         public bool JobDelete(JobId jobId)
         {
-            var request = GetActionRequest(jobId, "doDelete");
-            var response = _restClient.Execute(request);
-            return response.StatusCode == HttpStatusCode.OK;
+            return DoAction(JenkinsUtil.GetJobDeletePath(jobId));
         }
 
         public async Task<bool> JobDeleteAsync(JobId jobId)
         {
-            var request = GetActionRequest(jobId, "doDelete");
-            var response = await _restClient.ExecuteTaskAsync(request);
-            return response.StatusCode == HttpStatusCode.OK;
+            return await DoActionAsync(JenkinsUtil.GetJobDeletePath(jobId));
+        }
+
+        public bool JobEnable(JobId jobId)
+        {
+            return DoAction(JenkinsUtil.GetJobEnablePath(jobId));
+        }
+
+        public async Task<bool> JobEnableAsync(JobId jobId)
+        {
+            return await DoActionAsync(JenkinsUtil.GetJobEnablePath(jobId));
         }
 
         public bool JobDisable(JobId jobId)
         {
-            var request = GetActionRequest(jobId, "disable");
-            var response = _restClient.Execute(request);
-            return response.StatusCode == HttpStatusCode.OK;
+            return DoAction(JenkinsUtil.GetJobDisablePath(jobId));
         }
 
         public async Task<bool> JobDisableAsync(JobId jobId)
         {
-            var request = GetActionRequest(jobId, "disable");
-            var response = await _restClient.ExecuteTaskAsync(request);
-            return response.StatusCode == HttpStatusCode.OK;
+            return await DoActionAsync(JenkinsUtil.GetJobDisablePath(jobId));
         }
 
         public string GetConsoleText(BuildId id)
@@ -334,19 +336,21 @@ namespace Dashboard.Jenkins
             return request;
         }
 
-        private RestRequest GetActionRequest(JobId jobId, string actionName)
+        private bool DoAction(string path)
         {
-            var path = $"{JenkinsUtil.GetJobIdPath(jobId)}/{actionName}";
-            return GetActionRequestCore(path);
+            var request = GetActionRequest(path);
+            var response = _restClient.Execute(request);
+            return response.StatusCode == HttpStatusCode.OK;
         }
 
-        private RestRequest GetActionRequest(BuildId id, string actionName)
+        public async Task<bool> DoActionAsync(string path)
         {
-            var path = $"{JenkinsUtil.GetBuildPath(id)}/{actionName}";
-            return GetActionRequestCore(path);
+            var request = GetActionRequest(path);
+            var response = await _restClient.ExecuteTaskAsync(request);
+            return response.StatusCode == HttpStatusCode.OK;
         }
 
-        private RestRequest GetActionRequestCore(string path)
+        private RestRequest GetActionRequest(string path)
         {
             var request = new RestRequest(path);
             request.Method = Method.POST;
