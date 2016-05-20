@@ -46,6 +46,13 @@ namespace Dashboard.Jenkins.Tests
             }
 
             [Fact]
+            public void GetBuildPath()
+            {
+                Assert.Equal("job/test/2/", JenkinsUtil.GetBuildPath(new BuildId(2, JobId.ParseName("test"))));
+                Assert.Equal("job/test/job/op/13/", JenkinsUtil.GetBuildPath(new BuildId(13, JobId.ParseName("test/op"))));
+            }
+
+            [Fact]
             public void ConvertTimestamp()
             {
                 var dateTimeOffset = JenkinsUtil.ConvertTimestampToDateTimeOffset(1462922992229);

@@ -16,6 +16,7 @@ using Dashboard.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using System.Globalization;
+using Newtonsoft.Json;
 
 namespace Dashboard.ApiFun
 {
@@ -27,7 +28,8 @@ namespace Dashboard.ApiFun
             // var util = new MachineCountInvestigation(CreateClient());
             // util.Go();
             // GetMacQueueTimes();
-            Disable().Wait();
+            // TestJob().Wait();
+            DrainPoisonQueue().Wait();
             // CheckUnknown().Wait();
             //Random().Wait();
             // MigrateCounter().Wait();
@@ -61,32 +63,44 @@ namespace Dashboard.ApiFun
             await tool.MigrateUnitTestData();
         }
 
-        private static async Task Disable()
+        private static async Task TestJob()
         {
-            var client = CreateClient(auth: true);
-            var restClient = client.RestClient;
-            foreach (var job in client.GetJobIds())
+            var jobUrlStr = "http://dotnet-ci.cloudapp.net/job/Private/job/dotnet_roslyn-internal/job/microupdate/job/windows_vsi_p2/2/";
+            var uri = new Uri(jobUrlStr);
+            var parts = uri.PathAndQuery.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            var jobPath = string.Join("/", parts.Take(parts.Length - 1));
+            var number = int.Parse(parts.Last());
+            var jobId = JenkinsUtil.ConvertPathToJobId(jobPath);
+            var buildId = new BuildId(number, jobId);
+
+            var account = GetStorageAccount();
+            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(), Console.Out);
+            await populator.PopulateBuild(buildId);
+
+        }
+
+        private static async Task DrainPoisonQueue()
+        {
+            var account = GetStorageAccount();
+            var client = account.CreateCloudQueueClient();
+            var queue = client.GetQueueReference($"{AzureConstants.QueueNames.BuildEvent}-poison");
+            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(), Console.Out);
+            var set = new HashSet<BuildId>();
+            do
             {
-                if (!job.ShortName.StartsWith("windows_"))
+                var message = await queue.GetMessageAsync();
+                var obj = JObject.Parse(message.AsString);
+                var jobPath = obj.Value<string>("jobName");
+                var number = obj.Value<int>("number");
+                var buildId = new BuildId(number, JenkinsUtil.ConvertPathToJobId(jobPath));
+                if (!set.Add(buildId))
                 {
                     continue;
                 }
 
-                Console.WriteLine($"{job.ShortName} ... ");
-                continue;
-
-
-                /*
-                Console.Write($"{job.ShortName} - ");
-
-                var path = $"{JenkinsUtil.GetJobIdPath(job)}/disable";
-                var request = new RestRequest(resource: path);
-                request.Method = Method.POST;
-                AddAuthentication(request);
-                var response = restClient.Execute(request);
-                Console.WriteLine(response.StatusCode);
-                */
-            }
+                await populator.PopulateBuild(buildId);
+                await queue.DeleteMessageAsync(message);
+            } while (true);
         }
 
         /*

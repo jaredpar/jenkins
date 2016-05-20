@@ -58,7 +58,7 @@ namespace Dashboard.Jenkins
 
                     var description = entry.Value<string>("description");
                     var name = entry.Value<string>("name");
-                    var cause = new BuildFailureCause(name: name, description: description, category: BuildFailureCause.CategoryTest);
+                    var cause = new BuildFailureCause(name: name, description: description, category: category);
                     causeList.Add(cause);
                     any = true;
                 }

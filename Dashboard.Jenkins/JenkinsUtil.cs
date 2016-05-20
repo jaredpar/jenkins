@@ -44,7 +44,7 @@ namespace Dashboard.Jenkins
 
         public static string GetBuildPath(BuildId id)
         {
-            return $"job/{id.JobName}/{id.Number}/";
+            return $"{GetJobIdPath(id.JobId)}/{id.Number}/";
         }
 
         public static Uri GetBuildStatusIconUri(Uri jenkinsUri, BuildId id)
