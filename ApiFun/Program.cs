@@ -27,7 +27,8 @@ namespace Dashboard.ApiFun
             // var util = new MachineCountInvestigation(CreateClient());
             // util.Go();
             // GetMacQueueTimes();
-            CheckUnknown().Wait();
+            Disable().Wait();
+            // CheckUnknown().Wait();
             //Random().Wait();
             // MigrateCounter().Wait();
             // FindRetest();
@@ -58,6 +59,34 @@ namespace Dashboard.ApiFun
             // await tool.MigrateTestCacheCounter2();
             // await tool.MigrateTestRunCounter();
             await tool.MigrateUnitTestData();
+        }
+
+        private static async Task Disable()
+        {
+            var client = CreateClient(auth: true);
+            var restClient = client.RestClient;
+            foreach (var job in client.GetJobIds())
+            {
+                if (!job.ShortName.StartsWith("windows_"))
+                {
+                    continue;
+                }
+
+                Console.WriteLine($"{job.ShortName} ... ");
+                continue;
+
+
+                /*
+                Console.Write($"{job.ShortName} - ");
+
+                var path = $"{JenkinsUtil.GetJobIdPath(job)}/disable";
+                var request = new RestRequest(resource: path);
+                request.Method = Method.POST;
+                AddAuthentication(request);
+                var response = restClient.Execute(request);
+                Console.WriteLine(response.StatusCode);
+                */
+            }
         }
 
         /*
@@ -110,6 +139,13 @@ namespace Dashboard.ApiFun
             {
                 return new JenkinsClient(SharedConstants.DotnetJenkinsUri);
             }
+        }
+
+        private static void Authorize(RestRequest request)
+        {
+            var text = ConfigurationManager.AppSettings[SharedConstants.GithubConnectionStringName];
+            var values = text.Split(':');
+            SharedUtil.AddAuthorization(request, values[0], values[1]);
         }
 
         private static CloudStorageAccount GetStorageAccount()
@@ -539,7 +575,7 @@ namespace Dashboard.ApiFun
 
             if (os.Contains("FreeBSD"))
             {
-                return  OS.FreeBSD;
+                return OS.FreeBSD;
             }
 
             return OS.Unknown;

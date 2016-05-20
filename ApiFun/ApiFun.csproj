@@ -78,6 +78,9 @@
     <Compile Include="..\Shared\SharedConstants.cs">
       <Link>SharedConstants.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\SharedUtil.cs">
+      <Link>SharedUtil.cs</Link>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -245,6 +245,34 @@ namespace Dashboard.Jenkins
             return JsonUtil.ParseTimeInQueue((JArray)data["actions"]);
         }
 
+        public bool JobDelete(JobId jobId)
+        {
+            var request = GetActionRequest(jobId, "doDelete");
+            var response = _restClient.Execute(request);
+            return response.StatusCode == HttpStatusCode.OK;
+        }
+
+        public async Task<bool> JobDeleteAsync(JobId jobId)
+        {
+            var request = GetActionRequest(jobId, "doDelete");
+            var response = await _restClient.ExecuteTaskAsync(request);
+            return response.StatusCode == HttpStatusCode.OK;
+        }
+
+        public bool JobDisable(JobId jobId)
+        {
+            var request = GetActionRequest(jobId, "disable");
+            var response = _restClient.Execute(request);
+            return response.StatusCode == HttpStatusCode.OK;
+        }
+
+        public async Task<bool> JobDisableAsync(JobId jobId)
+        {
+            var request = GetActionRequest(jobId, "disable");
+            var response = await _restClient.ExecuteTaskAsync(request);
+            return response.StatusCode == HttpStatusCode.OK;
+        }
+
         public string GetConsoleText(BuildId id)
         {
             var uri = JenkinsUtil.GetUri(_baseUrl, JenkinsUtil.GetConsoleTextPath(id));
@@ -297,6 +325,31 @@ namespace Dashboard.Jenkins
             {
                 request.AddParameter("tree", tree);
             }
+
+            if (!string.IsNullOrEmpty(_authorizationHeaderValue))
+            {
+                request.AddHeader("Authorization", _authorizationHeaderValue);
+            }
+
+            return request;
+        }
+
+        private RestRequest GetActionRequest(JobId jobId, string actionName)
+        {
+            var path = $"{JenkinsUtil.GetJobIdPath(jobId)}/{actionName}";
+            return GetActionRequestCore(path);
+        }
+
+        private RestRequest GetActionRequest(BuildId id, string actionName)
+        {
+            var path = $"{JenkinsUtil.GetBuildPath(id)}/{actionName}";
+            return GetActionRequestCore(path);
+        }
+
+        private RestRequest GetActionRequestCore(string path)
+        {
+            var request = new RestRequest(path);
+            request.Method = Method.POST;
 
             if (!string.IsNullOrEmpty(_authorizationHeaderValue))
             {
