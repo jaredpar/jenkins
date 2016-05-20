@@ -100,6 +100,7 @@ namespace Dashboard.Azure
 
         public static EntityKey GetDateEntityKey(DateTimeOffset buildDate, BuildId buildId, string identifier)
         {
+            identifier = AzureUtil.NormalizeKey(identifier, '_');
             return new EntityKey(
                 new DateKey(buildDate).Key,
                 $"{new BuildKey(buildId).Key}-{identifier}");
@@ -108,7 +109,7 @@ namespace Dashboard.Azure
         public static EntityKey GetExactEntityKey(BuildId buildId, string identifier)
         {
             return new EntityKey(
-                identifier,
+                AzureUtil.NormalizeKey(identifier, '_'),
                 new BuildKey(buildId).Key);
         }
 

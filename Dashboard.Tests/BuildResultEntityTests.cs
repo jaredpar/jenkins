@@ -52,5 +52,15 @@ namespace Dashboard.Tests
             Assert.Equal(entity.PullRequestInfo.PullUrl, prInfo.PullUrl);
             Assert.Equal(entity.PullRequestSha1, prInfo.Sha1);
         }
+
+        [Fact]
+        public void ComplexJobKey()
+        {
+            var jobId = JobId.ParseName("job/cat/job/dog");
+            var buildId = new BuildId(42, jobId);
+            var entityKey = BuildResultEntity.GetExactEntityKey(buildId);
+            Assert.False(AzureUtil.IsIllegalKey(entityKey.PartitionKey));
+            Assert.False(AzureUtil.IsIllegalKey(entityKey.RowKey));
+        }
     }
 }

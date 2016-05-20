@@ -12,12 +12,22 @@ namespace Dashboard.Tests
     public class BuildKeyTests
     {
         [Fact]
-        public void RoundTrip()
+        public void JobNameInFolder()
         {
-            var buildId = new BuildId(42, JobId.ParseName("hello"));
-            var key1 = new BuildKey(buildId);
-            var key2 = BuildKey.Parse(key1.Key);
-            Assert.Equal(key1, key2);
+            var jobId = JobId.ParseName("job/cat/job/dog");
+            var buildId = new BuildId(42, jobId);
+            var buildKey = new BuildKey(buildId);
+            Assert.False(AzureUtil.IsIllegalKey(buildKey.Key));
+        }
+
+        [Fact]
+        public void Simple()
+        {
+            var jobId = JobId.ParseName("dog");
+            var buildId = new BuildId(42, jobId);
+            var buildKey = new BuildKey(buildId);
+            Assert.False(AzureUtil.IsIllegalKey(buildKey.Key));
+            Assert.Equal("42-dog", buildKey.Key);
         }
     }
 }

@@ -110,7 +110,9 @@ namespace Dashboard.Controllers
                 Is32Bit = testRunData.Is32Bit,
                 CacheCount = testRunData.CacheCount,
                 ChunkCount = testRunData.ChunkCount,
-                AssemblyCount = testRunData.AssemblyCount
+                AssemblyCount = testRunData.AssemblyCount,
+                JenkinsUrl = testRunData.JenkinsUrl,
+                HasErrors = testRunData.HasErrors,
             };
 
             var testRunTable = _storageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.TestRunData);
