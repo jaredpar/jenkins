@@ -69,6 +69,32 @@ namespace Dashboard.Controllers
             }
         }
 
+        /// <summary>
+        /// A view of the builds grouped by the result.
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult View(bool pr = false, bool succeeded = false, DateTimeOffset? startDate = null)
+        {
+            var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            var results =
+                _buildUtil.GetBuildResults(startDateValue)
+                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
+                .Where(x => succeeded || x.ClassificationKind != ClassificationKind.Succeeded)
+                .GroupBy(x => x.ClassificationName)
+                .Select(x => new BuildViewModel() { KindName = x.Key, Count = x.Count() })
+                .ToList();
+
+            var model = new BuildViewSummaryModel()
+            {
+                IncludePullRequests = pr,
+                IncludeSucceeded = succeeded,
+                StartDate = startDateValue,
+                Builds = results
+            };
+
+            return View(viewName: "View", model: model);
+        }
+
         public ActionResult Kind(string kind = null, bool pr = false, DateTime? startDate = null)
         {
             var kindValue = EnumUtil.Parse(kind, ClassificationKind.Unknown);

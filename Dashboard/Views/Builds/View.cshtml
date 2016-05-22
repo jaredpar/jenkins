@@ -1,0 +1,33 @@
+﻿@model Dashboard.Models.BuildViewSummaryModel
+
+@{
+    ViewBag.Title = "Build View Summary";
+
+    var builds = Model.Builds.OrderByDescending(x => x.Count);
+    var buildValues = string.Join(";", builds.Select(x => $"{x.KindName},{x.Count}"));
+    var prValue = Model.IncludePullRequests ? @"checked=""checked""" : "";
+    var succededValue = Model.IncludeSucceeded ? @"checked=""checked""" : "";
+    var startDateValue = Model.StartDate.ToString("yyyy-MM-dd");
+}
+
+<h2>Summary info</h2>
+<!--<div>Average Duration: </div> -->
+
+<div id="build_summary_chart" style="width: 900px; height: 500px" data-values="@buildValues"></div>
+
+<h2>Filter Results</h2>
+
+@using (Html.BeginForm(controllerName: "Builds", actionName: "View", method: FormMethod.Get))
+{
+    <div>
+        <div>Include Pull Requests <input name="pr" type="checkbox" @prValue value="true" /></div>
+        <div>Include Succeeded <input name="succeeded" type="checkbox" @succededValue value="true" /></div>
+        <div>Start Date <input name="startDate" type="date" value="@startDateValue"/></div>
+        <div><input type="submit" value="Refresh" /></div>
+    </div>
+}
+
+@section scripts {
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="@Url.Content("/Scripts/build-view.js")" ></script>
+}

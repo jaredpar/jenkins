@@ -8,10 +8,14 @@ namespace Dashboard.Jenkins
 {
     public static class JobUtil
     {
+        public static bool IsPullRequestJobName(JobId jobId)
+        {
+            return IsPullRequestJobName(jobId.Name);
+        }
+
         public static bool IsPullRequestJobName(string jobName)
         {
-            // TODO: This is super hacky.  But for now it's a correct hueristic and is workable.
-            return jobName.Contains("_pr");
+            return jobName.Contains("_prtest");
         }
 
         public static bool IsCommitJobName(string jobName)

@@ -31,6 +31,26 @@ namespace Dashboard.Models
         public List<BuildResultEntity> Entries { get; set; } = new List<BuildResultEntity>();
     }
 
+    /// <summary>
+    /// Grouping of builds by categorization of the result they had: build failure, succeeded, test failure, etc ...
+    /// </summary>
+    public class BuildViewSummaryModel
+    {
+        public bool IncludePullRequests { get; set; }
+        public bool IncludeSucceeded { get; set; }
+        public DateTimeOffset StartDate { get; set; }
+        public List<BuildViewModel> Builds { get; set; } = new List<BuildViewModel>();
+    }
+
+    /// <summary>
+    /// Build summary and the count of occurences that it had. 
+    /// </summary>
+    public class BuildViewModel
+    {
+        public string KindName;
+        public int Count;
+    }
+
     public class BuildResultKindModel
     {
         public bool IncludePullRequests { get; set; }
