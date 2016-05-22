@@ -8,10 +8,15 @@
     var prValue = Model.IncludePullRequests ? @"checked=""checked""" : "";
     var succededValue = Model.IncludeSucceeded ? @"checked=""checked""" : "";
     var startDateValue = Model.StartDate.ToString("yyyy-MM-dd");
+    var successRate = Model.TotalSucceededCount / (double)Model.TotalBuildCount;
 }
 
-<h2>Summary info</h2>
-<!--<div>Average Duration: </div> -->
+<div>
+    <h2>Build Result Summary</h2>
+    <div>Ran @Model.TotalBuildCount.ToString("n0")</div>
+    <div>Succeded @Model.TotalSucceededCount.ToString("n0")</div>
+    <div>Success rate @successRate.ToString("n2")</div>
+</div>
 
 <div id="build_summary_chart" style="width: 900px; height: 500px" data-values="@buildValues"></div>
 

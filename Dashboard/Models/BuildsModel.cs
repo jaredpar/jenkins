@@ -38,6 +38,18 @@ namespace Dashboard.Models
     {
         public bool IncludePullRequests { get; set; }
         public bool IncludeSucceeded { get; set; }
+
+        /// <summary>
+        /// Total number of builds.  Includes the count of succeeded builds even if <see cref="IncludeSucceeded"/>
+        /// is false.
+        /// </summary>
+        public int TotalBuildCount { get; set; }
+
+        /// <summary>
+        /// Total number of builds that succeeded.
+        /// </summary>
+        public int TotalSucceededCount { get; set; }
+
         public DateTimeOffset StartDate { get; set; }
         public List<BuildViewModel> Builds { get; set; } = new List<BuildViewModel>();
     }

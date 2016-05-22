@@ -79,6 +79,12 @@ namespace Dashboard.Controllers
             var results =
                 _buildUtil.GetBuildResults(startDateValue)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
+                .ToList();
+
+            var totalCount = results.Count;
+            var totalSucceeded = results.Count(x => x.ClassificationKind == ClassificationKind.Succeeded);
+
+            var builds = results
                 .Where(x => succeeded || x.ClassificationKind != ClassificationKind.Succeeded)
                 .GroupBy(x => x.ClassificationName)
                 .Select(x => new BuildViewModel() { KindName = x.Key, Count = x.Count() })
@@ -88,8 +94,10 @@ namespace Dashboard.Controllers
             {
                 IncludePullRequests = pr,
                 IncludeSucceeded = succeeded,
+                TotalBuildCount = totalCount,
+                TotalSucceededCount = totalSucceeded,
                 StartDate = startDateValue,
-                Builds = results
+                Builds = builds
             };
 
             return View(viewName: "View", model: model);
