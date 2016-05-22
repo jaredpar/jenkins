@@ -27,9 +27,12 @@
     </div>
 }
 
+<!-- Hidden form for navigating on selection of categories -->
 @using (Html.BeginForm(controllerName: "Builds", actionName: "Kind", method: FormMethod.Get, htmlAttributes: new { id = "category_form" }))
 {
     <input id="category_form_kind" name="kind" value="" hidden="hidden" />
+    <input name="pr" type="checkbox" @prValue value="true" hidden="hidden" />
+    <input name="startDate" type="date" value="@startDateValue" hidden="hidden"/>
 }
 
 @section scripts {
