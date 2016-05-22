@@ -22,5 +22,11 @@
 
         var chart = new google.visualization.BarChart(elem.get(0));
         chart.draw(dataTable, options);
+
+        google.visualization.events.addListener(chart, 'select', function() {
+            var selectedItem = chart.getSelection()[0];
+            $('#category_form_kind').attr('value', 'Unknown')
+            var form = $('#category_form').submit()
+        });
     }
 });

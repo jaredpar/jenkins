@@ -27,6 +27,11 @@
     </div>
 }
 
+@using (Html.BeginForm(controllerName: "Builds", actionName: "Kind", method: FormMethod.Get, htmlAttributes: new { id = "category_form" }))
+{
+    <input id="category_form_kind" name="kind" value="" hidden="hidden" />
+}
+
 @section scripts {
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript" src="@Url.Content("/Scripts/build-view.js")" ></script>
