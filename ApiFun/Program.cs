@@ -24,12 +24,14 @@ namespace Dashboard.ApiFun
     {
         internal static void Main(string[] args)
         {
+            JenkinsDataUtil.Process();
             // PrintMacTimes();
             // var util = new MachineCountInvestigation(CreateClient());
             // util.Go();
             // GetMacQueueTimes();
             // TestJob().Wait();
-            Test().Wait();
+            //WriteJobList().Wait();
+            // Test().Wait();
             //DrainPoisonQueue().Wait();
             // CheckUnknown().Wait();
             //Random().Wait();
@@ -51,6 +53,15 @@ namespace Dashboard.ApiFun
             */
             // Migrate().Wait();
         }
+
+        /*
+        internal static async Task Iterate()
+        {
+            const string root = @"c:\users\jaredpar\temp\data\builds";
+            var client 
+
+        }
+        */
 
         private static async Task Migrate()
         {

@@ -40,7 +40,11 @@ namespace Dashboard.Jenkins
 
         internal static List<JobId> ParseJobs(JobId parent, JArray jobs)
         {
-            Debug.Assert(jobs != null);
+            if (jobs == null)
+            {
+                return new List<JobId>(capacity: 0);
+            }
+
             var list = new List<JobId>();
             foreach (var cur in jobs)
             {

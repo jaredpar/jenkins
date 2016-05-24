@@ -81,6 +81,7 @@
     <Compile Include="..\Shared\SharedUtil.cs">
       <Link>SharedUtil.cs</Link>
     </Compile>
+    <Compile Include="JenkinsDataUtil.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
