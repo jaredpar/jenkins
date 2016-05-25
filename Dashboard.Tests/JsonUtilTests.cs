@@ -31,6 +31,14 @@ namespace Dashboard.Tests
                 Assert.Equal(1, result.CauseList.Count);
                 Assert.Equal("Test", result.CauseList[0].Category);
             }
+
+            [Fact]
+            public void AlreadyMergedCause()
+            {
+                var json = JObject.Parse(TestResources.BuildFailure3);
+                var result = JsonUtil.ParseBuildFailureInfo(json);
+                Assert.Equal(1, result.CauseList.Count);
+            }
         }
     }
 }

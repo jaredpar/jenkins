@@ -93,7 +93,13 @@ namespace Dashboard.Jenkins
 
         private static string GetCategory(JObject causeItem)
         {
-            var items = (JArray)causeItem["categories"];
+            var obj = causeItem["categories"];
+            if (obj.Type == JTokenType.Null)
+            {
+                return null;
+            }
+
+            var items = (JArray)obj;
             if (items == null || items.Count == 0)
             {
                 return null;

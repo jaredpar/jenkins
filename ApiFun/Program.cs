@@ -24,7 +24,7 @@ namespace Dashboard.ApiFun
     {
         internal static void Main(string[] args)
         {
-            JenkinsDataUtil.Process();
+            JenkinsDataUtil.Go();
             // PrintMacTimes();
             // var util = new MachineCountInvestigation(CreateClient());
             // util.Go();

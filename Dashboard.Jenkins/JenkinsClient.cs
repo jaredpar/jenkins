@@ -129,7 +129,6 @@ namespace Dashboard.Jenkins
 
         public BuildResult GetBuildResult(BuildInfo buildInfo)
         {
-            var data = GetJson(JenkinsUtil.GetBuildPath(buildInfo.Id));
             var failureInfo = buildInfo.State == BuildState.Failed
                 ? GetBuildFailureInfo(buildInfo.Id)
                 : null;
@@ -138,7 +137,6 @@ namespace Dashboard.Jenkins
 
         public async Task<BuildResult> GetBuildResultAsync(BuildInfo buildInfo)
         {
-            var data = await GetJsonAsync(JenkinsUtil.GetBuildPath(buildInfo.Id));
             var failureInfo = buildInfo.State == BuildState.Failed
                 ? await GetBuildFailureInfoAsync(buildInfo.Id)
                 : null;

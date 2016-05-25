@@ -2146,6 +2146,215 @@
 }</value>
     <comment>JSON returned from a bulid that had a unit test failure.</comment>
   </data>
+  <data name="BuildFailure3" xml:space="preserve">
+    <value>{
+  "actions": [
+    {
+      "parameters": [
+        {
+          "name": "GitBranchOrCommit",
+          "value": "${sha1}"
+        },
+        {
+          "name": "GitRepoUrl",
+          "value": "https://github.com/dotnet/coreclr.git"
+        },
+        {
+          "name": "GitRefSpec",
+          "value": "+refs/pull/*:refs/remotes/origin/pr/*"
+        },
+        {
+          "name": "sha1",
+          "value": "dc3168d8d4dd2cf60cdcfad4c8a9a68174612eff"
+        },
+        {
+          "name": "ghprbActualCommit",
+          "value": "dc3168d8d4dd2cf60cdcfad4c8a9a68174612eff"
+        },
+        {
+          "name": "ghprbActualCommitAuthor",
+          "value": "Rama Krishnan Raghupathy"
+        },
+        {
+          "name": "ghprbActualCommitAuthorEmail",
+          "value": "ramarag@microsoft.com"
+        },
+        {
+          "name": "ghprbAuthorRepoGitUrl",
+          "value": "https://github.com/ramarag/coreclr.git"
+        },
+        {
+          "name": "ghprbTriggerAuthor",
+          "value": "Rama krishnan Raghupathy"
+        },
+        {
+          "name": "ghprbTriggerAuthorEmail",
+          "value": ""
+        },
+        {
+          "name": "ghprbTriggerAuthorLogin",
+          "value": "ramarag"
+        },
+        {
+          "name": "ghprbTriggerAuthorLoginMention",
+          "value": "@ramarag"
+        },
+        {
+          "name": "ghprbPullId",
+          "value": "5028"
+        },
+        {
+          "name": "ghprbTargetBranch",
+          "value": "master"
+        },
+        {
+          "name": "ghprbSourceBranch",
+          "value": "R2Rtests"
+        },
+        {
+          "name": "GIT_BRANCH",
+          "value": "R2Rtests"
+        },
+        {
+          "name": "ghprbPullAuthorEmail",
+          "value": ""
+        },
+        {
+          "name": "ghprbPullAuthorLogin",
+          "value": "ramarag"
+        },
+        {
+          "name": "ghprbPullAuthorLoginMention",
+          "value": "@ramarag"
+        },
+        {
+          "name": "ghprbPullDescription",
+          "value": "GitHub pull request #5028 of commit dc3168d8d4dd2cf60cdcfad4c8a9a68174612eff, has merge conflicts."
+        },
+        {
+          "name": "ghprbPullTitle",
+          "value": "Guard Crossgen Test Runtime logic with RunCrossGen Env"
+        },
+        {
+          "name": "ghprbPullLink",
+          "value": "https://github.com/dotnet/coreclr/pull/5028"
+        },
+        {
+          "name": "ghprbPullLongDescription",
+          "value": "Adds Semaphores to prevent race conditions\\r\\nBasic Cleanup for how test Run logic should be generated \\r\\n\\r\\n\\r\\n@wtgodbe @rahku @gkhanna79 @russellhadley  PTAL"
+        },
+        {
+          "name": "ghprbCommentBody",
+          "value": "this fixes https://github.com/dotnet/coreclr/issues/3759"
+        },
+        {
+          "name": "ghprbGhRepository",
+          "value": "dotnet/coreclr"
+        },
+        {
+          "name": "ghprbCredentialsId",
+          "value": "16bf4379-f3d3-482c-88ee-cdcf4276f3fd"
+        }
+      ]
+    },
+    {
+      "causes": [
+        {
+          "shortDescription": "GitHub pull request #5028 of commit dc3168d8d4dd2cf60cdcfad4c8a9a68174612eff, has merge conflicts."
+        }
+      ]
+    },
+    {},
+    {
+      "buildsByBranchName": {
+        "detached": {
+          "buildNumber": 9,
+          "buildResult": null,
+          "marked": {
+            "SHA1": "dc3168d8d4dd2cf60cdcfad4c8a9a68174612eff",
+            "branch": [
+              {
+                "SHA1": "dc3168d8d4dd2cf60cdcfad4c8a9a68174612eff",
+                "name": "detached"
+              }
+            ]
+          },
+          "revision": {
+            "SHA1": "dc3168d8d4dd2cf60cdcfad4c8a9a68174612eff",
+            "branch": [
+              {
+                "SHA1": "dc3168d8d4dd2cf60cdcfad4c8a9a68174612eff",
+                "name": "detached"
+              }
+            ]
+          }
+        }
+      },
+      "lastBuiltRevision": {
+        "SHA1": "dc3168d8d4dd2cf60cdcfad4c8a9a68174612eff",
+        "branch": [
+          {
+            "SHA1": "dc3168d8d4dd2cf60cdcfad4c8a9a68174612eff",
+            "name": "detached"
+          }
+        ]
+      },
+      "remoteUrls": [
+        "${GitRepoUrl}"
+      ],
+      "scmName": ""
+    },
+    {
+      "tags": []
+    },
+    {},
+    {
+      "failureCauseDisplayData": {},
+      "foundFailureCauses": [
+        {
+          "categories": null,
+          "description": "PR has already been merged, builds using the merged sha1 will fail!!!",
+          "id": "9d2d7e4c-c23a-4646-ab1a-afaa25e9af32",
+          "name": "PR already merged"
+        },
+        {
+          "categories": [
+            "Build"
+          ],
+          "description": "The run encountered merge conflicts.",
+          "id": "8d73e2c9-a65a-4d5c-83f6-5cf53a77c473",
+          "name": "Merge conflicts"
+        }
+      ]
+    },
+    {},
+    {}
+  ],
+  "artifacts": [],
+  "building": false,
+  "description": "&lt;a title=\"Guard Crossgen Test Runtime logic with RunCrossGen Env\" href=\"https://github.com/dotnet/coreclr/pull/5028\"&gt;PR #5028&lt;/a&gt;: Guard Crossgen Test Runtime...",
+  "displayName": "#9",
+  "duration": 3159096,
+  "estimatedDuration": 8002738,
+  "executor": null,
+  "fullDisplayName": "dotnet_coreclr » master » x64_release_osx_pri1r2r_flow_prtest #9",
+  "id": "9",
+  "keepLog": false,
+  "number": 9,
+  "queueId": 27801,
+  "result": "FAILURE",
+  "timestamp": 1463558382323,
+  "url": "http://dotnet-ci.cloudapp.net/job/dotnet_coreclr/job/master/job/x64_release_osx_pri1r2r_flow_prtest/9/",
+  "builtOn": "dci-macpro-04",
+  "changeSet": {
+    "items": [],
+    "kind": "git"
+  },
+  "culprits": [],
+  "fingerprint": []
+}</value>
+    <comment>Build Failure that caused parsing a bunch of grief</comment>
+  </data>
   <data name="Tao1BuildInfo" xml:space="preserve">
     <value>{
   "duration" : 2205772,
