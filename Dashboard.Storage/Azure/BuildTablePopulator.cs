@@ -110,7 +110,7 @@ namespace Dashboard.Azure
                     throw new Exception($"Invalid enum: {buildInfo.State} for {id.JobName} - {id.Number}");
             }
 
-            return new BuildResultEntity(buildInfo.Id, buildInfo.Date, buildInfo.MachineName, classification, prInfo);
+            return new BuildResultEntity(buildInfo.Id, buildInfo.Date, buildInfo.Duration, buildInfo.MachineName, classification, prInfo);
         }
 
         private async Task<BuildResultClassification> PopulateFailedBuildResult(BuildInfo buildInfo, PullRequestInfo prInfo)

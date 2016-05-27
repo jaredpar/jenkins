@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAzure.Storage;
+﻿using Dashboard.Jenkins;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,9 @@ namespace Dashboard.Azure
     {
         // Current Azure Limit
         internal const int MaxBatchCount = 100;
+
+        public const string ViewNameAll = "all";
+        public const string ViewNameRoot = "root";
 
         public static readonly DateTimeOffset DefaultStartDate = new DateTimeOffset(year: 2016, month: 3, day: 1, hour: 0, minute: 0, second: 0, offset: TimeSpan.Zero);
 
@@ -188,6 +192,22 @@ namespace Dashboard.Azure
         {
             var query = new TableQuery<T>().Where(filter);
             return table.ExecuteQuery(query);
+        }
+
+        public static string GetViewName(JobId jobId)
+        {
+            if (jobId.IsRoot || jobId.Parent.IsRoot)
+            {
+                return ViewNameRoot;
+            }
+
+            var current = jobId;
+            while (!current.Parent.IsRoot)
+            {
+                current = current.Parent;
+            }
+
+            return current.ShortName;
         }
     }
 }

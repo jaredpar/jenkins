@@ -16,10 +16,12 @@ namespace Dashboard.Azure
     public sealed class BuildResultEntity : TableEntity
     {
         public string JobName { get; set; }
+        public string ViewName { get; set; }
         public int BuildNumber { get; set; }
         public string ClassificationKindRaw { get; set; }
         public string ClassificationName { get; set; }
         public string ClassificationDetailedName { get; set; }
+        public int DurationSeconds { get; set; }
         public DateTime BuildDateTime { get; set; }
         public string MachineName { get; set; }
         public int PullRequestId { get; set; }
@@ -42,6 +44,7 @@ namespace Dashboard.Azure
         public PullRequestInfo PullRequestInfo => HasPullRequestInfo
             ? new PullRequestInfo(author: PullRequestAuthor, authorEmail: PullRequestAuthorEmail, id: PullRequestId, pullUrl: PullRequestUrl, sha1: PullRequestSha1)
             : null;
+        public TimeSpan Duration => TimeSpan.FromSeconds(DurationSeconds);
 
         public BuildResultEntity()
         {
@@ -51,16 +54,19 @@ namespace Dashboard.Azure
         public BuildResultEntity(
             BuildId buildId,
             DateTimeOffset buildDateTime,
+            TimeSpan duration,
             string machineName,
             BuildResultClassification classification,
             PullRequestInfo prInfo)
         {
             JobName = buildId.JobId.Name;
+            ViewName = AzureUtil.GetViewName(BuildId.JobId);
             BuildNumber = buildId.Number;
             ClassificationKindRaw = classification.Kind.ToString();
             ClassificationName = classification.Name;
             BuildDateTime = buildDateTime.UtcDateTime;
             MachineName = machineName;
+            DurationSeconds = (int)duration.TotalSeconds;
 
             if (prInfo != null)
             {
@@ -79,6 +85,7 @@ namespace Dashboard.Azure
         public BuildResultEntity(BuildResultEntity other) : this(
             buildId: other.BuildId,
             buildDateTime: other.BuildDateTimeOffset,
+            duration: other.Duration,
             machineName: other.MachineName,
             classification: other.Classification,
             prInfo: other.PullRequestInfo)
