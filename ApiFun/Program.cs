@@ -24,7 +24,8 @@ namespace Dashboard.ApiFun
     {
         internal static void Main(string[] args)
         {
-            JenkinsDataUtil.Go();
+            // JenkinsDataUtil.Go();
+            FillData().Wait();
             // PrintMacTimes();
             // var util = new MachineCountInvestigation(CreateClient());
             // util.Go();
@@ -73,6 +74,21 @@ namespace Dashboard.ApiFun
             // await tool.MigrateTestCacheCounter2();
             // await tool.MigrateTestRunCounter();
             await tool.MigrateUnitTestData();
+        }
+
+        private static async Task FillData()
+        {
+            var account = GetStorageAccount();
+            var table = account.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildResultDate);
+            var list = new List<BuildResultEntity>();
+            var query = new TableQuery<BuildResultEntity>().Where("PartitionKey gt '00000335'");
+            foreach (var entity in table.ExecuteQuery(query))
+            {
+                entity.ViewName = AzureUtil.GetViewName(entity.JobId);
+                list.Add(entity);
+            }
+
+            await AzureUtil.InsertBatchUnordered(table, list);
         }
 
         private static async Task TestJob()

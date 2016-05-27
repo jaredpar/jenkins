@@ -25,6 +25,7 @@ namespace Dashboard.Azure
         public string BuildFailureKindRaw { get; set; }
         public DateTime BuildDateTime { get; set; }
         public string JobName { get; set; }
+        public string ViewName { get; set; }
         public int BuildNumber { get; set; }
         public string Identifier { get; set; }
         public string MachineName { get; set; }
@@ -67,6 +68,7 @@ namespace Dashboard.Azure
         public BuildFailureEntity(BuildId buildId, string identifier, DateTimeOffset buildDate, BuildFailureKind kind, string machineName, PullRequestInfo prInfo)
         {
             JobName = buildId.JobName;
+            ViewName = AzureUtil.GetViewName(buildId.JobId);
             BuildNumber = buildId.Number;
             Identifier = identifier;
             BuildFailureKindRaw = kind.ToString();
