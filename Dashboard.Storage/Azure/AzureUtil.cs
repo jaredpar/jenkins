@@ -17,6 +17,7 @@ namespace Dashboard.Azure
 
         public const string ViewNameAll = "all";
         public const string ViewNameRoot = "root";
+        public const string ViewNameRoslyn = "dotnet_roslyn";
 
         public static readonly DateTimeOffset DefaultStartDate = new DateTimeOffset(year: 2016, month: 3, day: 1, hour: 0, minute: 0, second: 0, offset: TimeSpan.Zero);
 
@@ -204,6 +205,12 @@ namespace Dashboard.Azure
             var current = jobId;
             while (!current.Parent.IsRoot)
             {
+                // TODO: Hack, formalize this process.
+                if (current.Name == "dotnet_roslyn-internal")
+                {
+                    return ViewNameRoslyn;
+                }
+
                 current = current.Parent;
             }
 

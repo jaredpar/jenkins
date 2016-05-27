@@ -32,11 +32,11 @@ namespace Dashboard.Controllers
         /// Get all of the the test based failures since the provided date.  Default is 1 day. 
         /// </summary>
         [Route("api/builds/testFailures")]
-        public List<TestFailureData> GetTestFailures([FromUri] DateTimeOffset? startDate = null)
+        public List<TestFailureData> GetTestFailures([FromUri] DateTimeOffset? startDate = null, [FromUri] string viewName = AzureUtil.ViewNameAll)
         {
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             var list = new List<TestFailureData>();
-            foreach (var group in _buildUtil.GetTestCaseFailures(startDateValue).GroupBy(x => x.Identifier))
+            foreach (var group in _buildUtil.GetTestCaseFailures(startDateValue, viewName).GroupBy(x => x.Identifier))
             {
                 var commitFailure = 0;
                 var prFailure = 0;

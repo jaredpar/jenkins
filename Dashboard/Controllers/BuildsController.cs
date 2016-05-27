@@ -39,12 +39,12 @@ namespace Dashboard.Controllers
         /// <summary>
         /// Summarize the details of an individual failure.
         /// </summary>
-        public ActionResult Test(string name = null, bool pr = false, DateTimeOffset? startDate = null, int limit = 10)
+        public ActionResult Test(string name = null, string viewName = AzureUtil.ViewNameRoslyn, bool pr = false, DateTimeOffset? startDate = null, int limit = 10)
         {
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             if (name == null)
             {
-                var model = GetTestFailureSummaryModel(pr, startDateValue, limit);
+                var model = GetTestFailureSummaryModel(viewName, pr, startDateValue, limit);
                 return View(viewName: "TestFailureList", model: model);
             }
             else
@@ -54,12 +54,12 @@ namespace Dashboard.Controllers
             }
         }
 
-        public ActionResult Result(string name = null, bool pr = false, DateTime? startDate = null, int limit = 10)
+        public ActionResult Result(string name = null, string viewName = AzureUtil.ViewNameRoslyn, bool pr = false, DateTime? startDate = null, int limit = 10)
         {
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             if (name == null)
             {
-                var model = GetBuildResultSummaryModel(pr, startDateValue, limit);
+                var model = GetBuildResultSummaryModel(viewName, pr, startDateValue, limit);
                 return View(viewName: "BuildResultList", model: model);
             }
             else
@@ -73,11 +73,11 @@ namespace Dashboard.Controllers
         /// A view of the builds grouped by the result.
         /// </summary>
         /// <returns></returns>
-        public ActionResult View(bool pr = false, bool succeeded = false, DateTimeOffset? startDate = null)
+        public ActionResult View(bool pr = false, bool succeeded = false, DateTimeOffset? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
         {
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             var results =
-                _buildUtil.GetBuildResults(startDateValue)
+                _buildUtil.GetBuildResults(startDateValue, viewName)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
                 .ToList();
 
@@ -103,12 +103,12 @@ namespace Dashboard.Controllers
             return View(viewName: "View", model: model);
         }
 
-        public ActionResult Kind(string kind = null, bool pr = false, DateTime? startDate = null)
+        public ActionResult Kind(string kind = null, bool pr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
         {
             var kindValue = EnumUtil.Parse(kind, ClassificationKind.Unknown);
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             var list = _buildUtil
-                .GetBuildResults(startDateValue, kindValue)
+                .GetBuildResults(startDateValue, kindValue, viewName)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobName))
                 .ToList();
             var model = new BuildResultKindModel()
@@ -121,10 +121,10 @@ namespace Dashboard.Controllers
             return View(viewName: "Kind", model: model);
         }
 
-        public string Csv(bool pr = false, DateTime? startDate = null, int limit = 10)
+        public string Csv(string viewName = AzureUtil.ViewNameRoslyn, bool pr = false, DateTime? startDate = null, int limit = 10)
         {
             var startDateValue = startDate ?? DateTime.UtcNow - TimeSpan.FromDays(7);
-            var summary = GetTestFailureSummaryModel(pr, startDateValue, limit);
+            var summary = GetTestFailureSummaryModel(viewName, pr, startDateValue, limit);
             var builder = new StringBuilder();
             foreach (var entry in summary.Entries)
             {
@@ -162,7 +162,7 @@ namespace Dashboard.Controllers
             return View(viewName: "DemandStatus", model: runStatus);
         }
 
-        private BuildResultSummaryModel GetBuildResultSummaryModel(bool pr, DateTimeOffset startDate, int limit)
+        private BuildResultSummaryModel GetBuildResultSummaryModel(string viewName, bool pr, DateTimeOffset startDate, int limit)
         {
             var model = new BuildResultSummaryModel()
             {
@@ -172,7 +172,7 @@ namespace Dashboard.Controllers
             };
 
             var queryResult = _buildUtil
-                .GetBuildResults(startDate)
+                .GetBuildResults(startDate, viewName)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId.Name))
                 .Where(x => x.ClassificationKind != ClassificationKind.Succeeded)
                 .GroupBy(x => x.JobId)
@@ -212,10 +212,10 @@ namespace Dashboard.Controllers
             return model;
         }
     
-        private TestFailureSummaryModel GetTestFailureSummaryModel(bool pr, DateTimeOffset startDate, int limit)
+        private TestFailureSummaryModel GetTestFailureSummaryModel(string viewName, bool pr, DateTimeOffset startDate, int limit)
         {
             var failureQuery = _buildUtil
-                .GetTestCaseFailures(startDate)
+                .GetTestCaseFailures(startDate, viewName)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.BuildId.JobName))
                 .GroupBy(x => x.Identifier)
                 .Select(x => new { Key = x.Key, Count = x.Count() })
