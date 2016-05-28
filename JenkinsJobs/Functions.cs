@@ -23,14 +23,10 @@ namespace Dashboard.StorageBuilder
     {
         public static async Task BuildEvent(
             [QueueTrigger(AzureConstants.QueueNames.BuildEvent)] string message,
-            [Table(AzureConstants.TableNames.BuildResultDate)] CloudTable buildResultDateTable,
-            [Table(AzureConstants.TableNames.BuildResultExact)] CloudTable buildResultExactTable,
-            [Table(AzureConstants.TableNames.BuildFailureDate)] CloudTable buildFailureDateTable,
-            [Table(AzureConstants.TableNames.BuildFailureExact)] CloudTable buildFailureExactTable,
+            [Table(AzureConstants.TableNames.UnprocessedBuild)] CloudTable unprocessedBuildTable,
             TextWriter logger,
             CancellationToken cancellationToken)
         {
-            var githubConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.GithubConnectionStringName);
             var messageJson = (BuildEventMessageJson)JsonConvert.DeserializeObject(message, typeof(BuildEventMessageJson));
             if (messageJson.Phase == "COMPLETED" || messageJson.Phase == "FINALIZED")
             {
@@ -47,6 +43,34 @@ namespace Dashboard.StorageBuilder
                 await populator.PopulateBuild(messageJson.BuildId);
             }
         }
+
+        public static async Task PopulateBuild(
+            [QueueTrigger(AzureConstants.QueueNames.ProcessBuild)] string message,
+            [Table(AzureConstants.TableNames.BuildResultDate)] CloudTable buildResultDateTable,
+            [Table(AzureConstants.TableNames.BuildResultExact)] CloudTable buildResultExactTable,
+            [Table(AzureConstants.TableNames.BuildFailureDate)] CloudTable buildFailureDateTable,
+            [Table(AzureConstants.TableNames.BuildFailureExact)] CloudTable buildFailureExactTable,
+            TextWriter logger,
+            CancellationToken cancellationToken)
+        {
+            // TODO: don't authenticate on every single build 
+            // TODO: don't authenticate when it's not https
+            var githubConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.GithubConnectionStringName);
+            var buildIdJson = (BuildIdJson)JsonConvert.DeserializeObject(message, typeof(BuildIdJson));
+            var client = new JenkinsClient(
+                buildIdJson.JenkinsUrl,
+                githubConnectionString);
+            var populator = new BuildTablePopulator(
+                buildResultDateTable: buildResultDateTable,
+                buildResultExactTable: buildResultExactTable,
+                buildFailureDateTable: buildFailureDateTable,
+                buildFailureExactTable: buildFailureExactTable,
+                client: client,
+                textWriter: logger);
+            await populator.PopulateBuild(buildIdJson.BuildId);
+        }
+
+        public sattic 
 
         public static async Task CleanTestCache(
             [TimerTrigger("0 0 * * * *", RunOnStartup = true)] TimerInfo timerInfo,
@@ -73,6 +97,7 @@ namespace Dashboard.StorageBuilder
             logger.WriteLine($"Completed deleting");
         }
 
+        /*
         private static async Task SendEmail(string text)
         {
             var message = new SendGridMessage();
@@ -102,5 +127,6 @@ namespace Dashboard.StorageBuilder
 
             return builder.ToString();
         }
+        */
     }
 }

@@ -28,5 +28,7 @@ namespace Dashboard.StorageBuilder
         public int BuildNumber { get; set; }
 
         public Uri JenkinsUrl => new Uri($"https://{JenkinsHostName}");
+        public JobId JobId => JobId.ParseName(JobName);
+        public BuildId BuildId => new BuildId(BuildNumber, JobId);
     }
 }

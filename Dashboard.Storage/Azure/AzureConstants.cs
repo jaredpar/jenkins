@@ -10,10 +10,10 @@ namespace Dashboard.Azure
     {
         public static class TableNames
         {
+            public const string BuildEvent = "BuildEvent";
             public const string BuildFailureDate = "BuildFailureDate";
             public const string BuildFailureExact = "BuildFailureExact";
             public const string BuildProcessed = "BuildProcessed";
-            public const string BuildEvent = "BuildEvent";
             public const string BuildResultDate = "BuildResultDate";
             public const string BuildResultExact = "BuildResultExact";
             public const string DemandRun = "DemandRun";
@@ -21,8 +21,8 @@ namespace Dashboard.Azure
             public const string TestCacheCounter = "TestCacheCounter";
             public const string TestRunCounter = "TestRunCounter";
             public const string TestRunData = "TestRunData";
-            public const string UnknownBuildResult = "UnknownBuildResult";
             public const string UnitTestQueryCounter = "UnitTestQueryCounter";
+            public const string UnprocessedBuild = "UnprocessedBuild";
 
             public static IEnumerable<string> All()
             {
@@ -37,8 +37,8 @@ namespace Dashboard.Azure
                 yield return TestCacheCounter;
                 yield return TestRunCounter;
                 yield return TestRunData;
-                yield return UnknownBuildResult;
                 yield return UnitTestQueryCounter;
+                yield return UnprocessedBuild;
             }
         }
 
@@ -55,12 +55,12 @@ namespace Dashboard.Azure
         public static class QueueNames
         {
             public const string BuildEvent = "build-event";
-            public const string UnknownBuildResult = "build-result-unknown";
+            public const string ProcessBuild = "process-build";
 
             public static IEnumerable<string> All()
             {
                 yield return BuildEvent;
-                yield return UnknownBuildResult;
+                yield return ProcessBuild;
             }
         }
     }

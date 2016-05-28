@@ -297,7 +297,18 @@ namespace Dashboard.Jenkins
         {
             var request = GetJsonRestRequest(urlPath, pretty, tree, depth);
             var response = _restClient.Execute(request);
-            return JObject.Parse(response.Content);
+            try
+            {
+                return JObject.Parse(response.Content);
+            }
+            catch (Exception e)
+            {
+                var builder = new StringBuilder();
+                builder.AppendLine($"Unable to parse json");
+                builder.AppendLine($"  Status: {response.StatusDescription}");
+                builder.AppendLine($"  Conent: {response.Content}");
+                throw new Exception(builder.ToString(), e);
+            }
         }
 
         public async Task<JObject> GetJsonAsync(string urlPath, bool pretty = false, string tree = null, int? depth = null)
