@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dashboard.Azure
@@ -188,11 +189,73 @@ namespace Dashboard.Azure
             }
         }
 
+        // TODO: Delete
         public static IEnumerable<T> Query<T>(CloudTable table, string filter)
             where T : ITableEntity, new()
         {
             var query = new TableQuery<T>().Where(filter);
             return table.ExecuteQuery(query);
+        }
+
+        /// <summary>
+        /// Query async for a single entity value matching the specified key
+        /// </summary>
+        public static async Task<T> QueryAsync<T>(
+            CloudTable table,
+            EntityKey key,
+            CancellationToken cancellationToken = default(CancellationToken))
+            where T : ITableEntity, new()
+        {
+            var filter = FilterUtil.Key(key);
+            var query = new TableQuery<T>().Where(filter);
+            var segment = await table.ExecuteQuerySegmentedAsync(query, null, cancellationToken);
+            if (segment.Results.Count == 0)
+            {
+                return default(T);
+            }
+
+            return segment.Results[0];
+        }
+
+        public static async Task QueryAsync<T>(
+            CloudTable table,
+            TableQuery<T> query,
+            Func<T, Task> callback,
+            CancellationToken cancellationToken = default(CancellationToken))
+            where T : ITableEntity, new()
+        {
+            TableContinuationToken token = null;
+            do
+            {
+                var segment = await table.ExecuteQuerySegmentedAsync(query, token, cancellationToken);
+                token = segment.ContinuationToken;
+
+                var results = segment.Results;
+                for (var i = 0; i < results.Count; i++)
+                {
+                    var entity = results[i];
+                    await callback(entity);
+                }
+
+            } while (token != null);
+        }
+
+        public static async Task<List<T>> QueryAsync<T>(
+            CloudTable table,
+            TableQuery<T> query,
+            CancellationToken cancellationToken = default(CancellationToken))
+            where T : ITableEntity, new()
+        {
+            var list = new List<T>();
+            TableContinuationToken token = null;
+            do
+            {
+                var segment = await table.ExecuteQuerySegmentedAsync(query, token, cancellationToken);
+                token = segment.ContinuationToken;
+                list.AddRange(segment.Results);
+            } while (token != null);
+
+            return list;
         }
 
         public static string GetViewName(JobId jobId)

@@ -21,6 +21,11 @@ namespace Dashboard.Azure
         public JobId JobId => JobId.ParseName(JobName);
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
 
+        public UnprocessedBuildEntity()
+        {
+
+        }
+
         public UnprocessedBuildEntity(BuildId buildId)
         {
             var entityKey = GetEntityKey(buildId);
