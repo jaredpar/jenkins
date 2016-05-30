@@ -101,7 +101,6 @@ namespace Dashboard.StorageBuilder
         /// </summary>
         public static async Task CleanUnprocessedTable(
             [TimerTrigger("0 0 * * * *", RunOnStartup = true)] TimerInfo timerInfo,
-            [Queue(AzureConstants.QueueNames.ProcessBuild)] CloudQueue processBuildQueue,
             [Table(AzureConstants.TableNames.UnprocessedBuild)] CloudTable unprocessedBuildTable,
             [Table(AzureConstants.TableNames.BuildResultExact)] CloudTable buildResultExactTable,
             TextWriter logger,
@@ -110,9 +109,19 @@ namespace Dashboard.StorageBuilder
             var util = new StateUtil(
                 unprocessedBuildTable: unprocessedBuildTable,
                 buildResultExact: buildResultExactTable,
-                processBuildQueue: processBuildQueue,
                 logger: logger);
-            await util.Clean(cancellationToken);
+            var message = await util.Clean(cancellationToken);
+            if (message != null)
+            {
+                message.AddTo("jaredpparsons@gmail.com");
+                message.AddTo("jaredpar@microsoft.com");
+                message.From = new MailAddress("jaredpar@jdash.azurewebsites.net");
+                message.Subject = "Jenkins Build Populate Errors";
+
+                var key = CloudConfigurationManager.GetSetting(SharedConstants.SendGridApiKeySettingName);
+                var web = new Web(apiKey: key);
+                await web.DeliverAsync(message).ConfigureAwait(false);
+            }
         }
 
         public static async Task CleanTestCache(
@@ -143,16 +152,6 @@ namespace Dashboard.StorageBuilder
         /*
         private static async Task SendEmail(string text)
         {
-            var message = new SendGridMessage();
-            message.AddTo("jaredpparsons@gmail.com");
-            message.AddTo("jaredpar@microsoft.com");
-            message.From = new MailAddress("jaredpar@jdash.azurewebsites.net");
-            message.Subject = "Jenkins Storage Populate Errors";
-            message.Text = text;
-
-            var key = CloudConfigurationManager.GetSetting(SharedConstants.SendGridApiKeySettingName);
-            var web = new Web(apiKey: key);
-            await web.DeliverAsync(message).ConfigureAwait(false);
         }
 
         private static string BuildMessage(List<BuildAnalyzeError> buildAnalyzeErrors)

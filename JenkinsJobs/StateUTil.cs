@@ -4,10 +4,12 @@ using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
+using SendGrid;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -64,7 +66,7 @@ namespace Dashboard.StorageBuilder
             }
         }
 
-        internal async Task Clean(CancellationToken cancellationToken)
+        internal async Task<SendGridMessage> Clean(CancellationToken cancellationToken)
         {
             var limit = DateTimeOffset.UtcNow - TimeSpan.FromHours(2);
             var filter = FilterUtil.Column(
@@ -72,15 +74,38 @@ namespace Dashboard.StorageBuilder
                 limit,
                 ColumnOperator.LessThanOrEqual);
             var query = new TableQuery<UnprocessedBuildEntity>().Where(filter);
-
-            // TODO: Should really email this as a report
             var list = await AzureUtil.QueryAsync(_unprocessedBuildTable, query, cancellationToken);
+            if (list.Count == 0)
+            {
+                return null;
+            }
+
+            var textBuilder = new StringBuilder();
+            var htmlBuilder = new StringBuilder();
+
             foreach (var entity in list)
             {
-                _logger.WriteLine($"Deleting stale data {entity.BuildId}");
+                // TODO: Need to store the Jenkins URI in the UnprocessedBuildEntity
+                var buildId = entity.BuildId;
+                var boundBuildId = new BoundBuildId(SharedConstants.DotnetJenkinsUri.Host, buildId);
+                _logger.WriteLine($"Deleting stale data {boundBuildId.Uri}");
+
+                textBuilder.Append($"Deleting stale data: {boundBuildId.Uri}");
+                textBuilder.Append($"Eror: {entity.ErrorText}");
+
+                htmlBuilder.Append($@"<div>");
+                htmlBuilder.Append($@"<div>Build <a href=""{boundBuildId.Uri}"">{buildId.JobName} {buildId.Number}</a></div>");
+                htmlBuilder.Append($@"<div>Error: {WebUtility.HtmlEncode(entity.ErrorText)}</div>");
+                htmlBuilder.Append($@"</div>");
             }
 
             await AzureUtil.DeleteBatchUnordered(_unprocessedBuildTable, list);
+
+            return new SendGridMessage()
+            {
+                Text = textBuilder.ToString(),
+                Html = htmlBuilder.ToString()
+            };
         }
 
         internal async Task Update(CloudQueue processBuildQueue, CancellationToken cancellationToken)

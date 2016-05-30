@@ -51,6 +51,50 @@ namespace Dashboard.Jenkins
         public override string ToString() => $"{Number} - {JobName}";
     }
 
+    /// <summary>
+    /// A <see cref="BuildId"/> which is bound to a specific Jenkins server.
+    /// </summary>
+    public struct BoundBuildId
+    {
+        public string UriScheme { get; }
+        public string HostName { get; }
+        public BuildId BuildId { get; }
+
+        public int Number => BuildId.Number;
+        public JobId JobId => BuildId.JobId;
+        public string JobName => BuildId.JobName;
+
+        public Uri HostUri
+        {
+            get
+            {
+                var builder = new UriBuilder();
+                builder.Scheme = UriScheme;
+                builder.Host = HostName;
+                return builder.Uri;
+            }
+        }
+
+        public Uri Uri
+        {
+            get
+            {
+                var builder = new UriBuilder(HostUri);
+                builder.Path = JenkinsUtil.GetBuildPath(BuildId);
+                return builder.Uri;
+            }
+        }
+
+        public BoundBuildId(string hostName, BuildId buildId, string uriScheme = null)
+        {
+            HostName = hostName;
+            BuildId = buildId;
+            UriScheme = uriScheme ?? Uri.UriSchemeHttps;
+        }
+
+        public override string ToString() => Uri.ToString();
+    }
+
     public sealed class ViewInfo
     {
         public string Name { get; }
