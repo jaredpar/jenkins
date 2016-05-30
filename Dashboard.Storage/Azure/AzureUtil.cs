@@ -198,6 +198,42 @@ namespace Dashboard.Azure
         }
 
         /// <summary>
+        /// Delete an entity with the specified partition and row key.  This delete is unconditional and 
+        /// doesn't do any conflict checking.
+        /// </summary>
+        public static Task DeleteAsync(
+            CloudTable table,
+            EntityKey key,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var entity = new DynamicTableEntity();
+            entity.PartitionKey = key.PartitionKey;
+            entity.RowKey = key.RowKey;
+            entity.ETag = "*";
+            var operation = TableOperation.Delete(entity);
+            return table.ExecuteAsync(operation);
+        }
+
+        /// <summary>
+        /// Delete an entity with the specified partition and row key.  This delete is unconditional and 
+        /// doesn't do any conflict checking.  This method doesn't throw any errors on a failed delete.
+        /// </summary>
+        public static async Task MaybeDeleteAsync(
+            CloudTable table,
+            EntityKey key,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            try
+            {
+                await DeleteAsync(table, key, cancellationToken);
+            }
+            catch
+            {
+                // Errors okay here.  Method specifically swallowing when the entity doesn't already exist.
+            }
+        }
+
+        /// <summary>
         /// Query async for a single entity value matching the specified key
         /// </summary>
         public static async Task<T> QueryAsync<T>(

@@ -14,40 +14,91 @@ using System.Threading.Tasks;
 
 namespace Dashboard.StorageBuilder
 {
-    internal class StateUtil
+    internal sealed class StateUtil
     {
         private readonly CloudTable _unprocessedBuildTable;
         private readonly CloudTable _buildResultExact;
-        private readonly CloudQueue _processBuildQueue;
         private readonly TextWriter _logger;
 
         internal StateUtil(
             CloudTable unprocessedBuildTable, 
             CloudTable buildResultExact,
-            CloudQueue processBuildQueue,
             TextWriter logger)
         {
             _unprocessedBuildTable = unprocessedBuildTable;
             _buildResultExact = buildResultExact;
-            _processBuildQueue = processBuildQueue;
             _logger = logger;
         }
 
-        internal async Task Update(CancellationToken cancellationToken)
+        /// <summary>
+        /// Populate the given build and update the unprocessed table accordingly.  If there is no 
+        /// existing entity in the unprocessed table, this won't add one.  It will only update existing
+        /// ones.
+        /// </summary>
+        internal async Task Populate(BuildId buildId, BuildTablePopulator populator, CancellationToken cancellationToken)
+        {
+            var key = UnprocessedBuildEntity.GetEntityKey(buildId);
+            try
+            {
+                await populator.PopulateBuild(buildId);
+                await AzureUtil.MaybeDeleteAsync(_unprocessedBuildTable, key, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                // Update the error state for the row.
+                var entity = await AzureUtil.QueryAsync<UnprocessedBuildEntity>(_unprocessedBuildTable, key, cancellationToken);
+                if (entity != null)
+                {
+                    entity.ErrorText = $"{e.Message} - {e.StackTrace.Take(1000)}";
+                    var operation = TableOperation.Replace(entity);
+                    try
+                    {
+                        await _unprocessedBuildTable.ExecuteAsync(operation);
+                    }
+                    catch
+                    {
+                        // It's possible the enity was deleted / updated in parallel.  That's okay.  This table
+                        // is meant as an approximation of the build state and always moving towards complete.
+                    }
+                }
+            }
+        }
+
+        internal async Task Clean(CancellationToken cancellationToken)
+        {
+            var limit = DateTimeOffset.UtcNow - TimeSpan.FromHours(2);
+            var filter = FilterUtil.Column(
+                nameof(UnprocessedBuildEntity.LastUpdate),
+                limit,
+                ColumnOperator.LessThanOrEqual);
+            var query = new TableQuery<UnprocessedBuildEntity>().Where(filter);
+
+            // TODO: Should really email this as a report
+            var list = await AzureUtil.QueryAsync(_unprocessedBuildTable, query, cancellationToken);
+            foreach (var entity in list)
+            {
+                _logger.WriteLine($"Deleting stale data {entity.BuildId}");
+            }
+
+            await AzureUtil.DeleteBatchUnordered(_unprocessedBuildTable, list);
+        }
+
+        internal async Task Update(CloudQueue processBuildQueue, CancellationToken cancellationToken)
         {
             var query = new TableQuery<UnprocessedBuildEntity>();
             await AzureUtil.QueryAsync(
                 _unprocessedBuildTable, 
                 query, 
-                e => UpdateEntity(e, cancellationToken),
+                e => UpdateEntity(e, processBuildQueue, cancellationToken),
                 cancellationToken);
         }
 
-        private async Task UpdateEntity(UnprocessedBuildEntity entity, CancellationToken cancellationToken)
+        private async Task UpdateEntity(UnprocessedBuildEntity entity, CloudQueue processBuildQueue, CancellationToken cancellationToken)
         {
-            if (await HasPopulatedData(entity.BuildId, cancellationToken))
+            var buildId = entity.BuildId;
+            if (await HasPopulatedData(buildId, cancellationToken))
             {
-                _logger.WriteLine($"Build populated {entity.BuildId}");
+                _logger.WriteLine($"Build {buildId}: was populated");
                 try
                 {
                     var operation = TableOperation.Delete(entity);
@@ -64,11 +115,18 @@ namespace Dashboard.StorageBuilder
             // TODO: Need to store the Jenkins URI in the UnprocessedBuildEntity
             var jenkinsUri = SharedConstants.DotnetJenkinsUri;
             var client = CreateJenkinsClient(jenkinsUri, entity.JobId);
-            var buildInfo = await client.GetBuildInfoAsync(entity.BuildId);
-            if (buildInfo.State != BuildState.Running)
+            try
             {
-                _logger.WriteLine($"Build complete and setting up processing {entity.BuildId}");
-                await EnqueueProcessBuild(_processBuildQueue, jenkinsUri.Host, entity.BuildId);
+                var buildInfo = await client.GetBuildInfoAsync(buildId);
+                if (buildInfo.State != BuildState.Running)
+                {
+                    _logger.WriteLine($"Build {buildId}: sending for processing as it's completed");
+                    await EnqueueProcessBuild(processBuildQueue, jenkinsUri.Host, buildId);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.WriteLine($"Build {buildId}: error querying Jenkins: {e}");
             }
         }
 
@@ -97,7 +155,6 @@ namespace Dashboard.StorageBuilder
                 return new JenkinsClient(jenkinsUrl);
             }
         }
-
 
         internal static async Task EnqueueProcessBuild(CloudQueue processBuildQueue, string jenkinsHostName, BuildId buildId)
         {

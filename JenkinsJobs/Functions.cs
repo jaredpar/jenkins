@@ -53,6 +53,7 @@ namespace Dashboard.StorageBuilder
         /// </summary>
         public static async Task PopulateBuildData(
             [QueueTrigger(AzureConstants.QueueNames.ProcessBuild)] string message,
+            [Table(AzureConstants.TableNames.UnprocessedBuild)] CloudTable unprocessedBuildTable,
             [Table(AzureConstants.TableNames.BuildResultDate)] CloudTable buildResultDateTable,
             [Table(AzureConstants.TableNames.BuildResultExact)] CloudTable buildResultExactTable,
             [Table(AzureConstants.TableNames.BuildFailureDate)] CloudTable buildFailureDateTable,
@@ -61,6 +62,7 @@ namespace Dashboard.StorageBuilder
             CancellationToken cancellationToken)
         {
             var buildIdJson = (BuildIdJson)JsonConvert.DeserializeObject(message, typeof(BuildIdJson));
+
             var client = StateUtil.CreateJenkinsClient(buildIdJson.JenkinsUrl, buildIdJson.JobId);
             var populator = new BuildTablePopulator(
                 buildResultDateTable: buildResultDateTable,
@@ -69,7 +71,11 @@ namespace Dashboard.StorageBuilder
                 buildFailureExactTable: buildFailureExactTable,
                 client: client,
                 textWriter: logger);
-            await populator.PopulateBuild(buildIdJson.BuildId);
+            var stateUtil = new StateUtil(
+                unprocessedBuildTable: unprocessedBuildTable,
+                buildResultExact: buildResultExactTable,
+                logger: logger);
+            await stateUtil.Populate(buildIdJson.BuildId, populator, cancellationToken);
         }
 
         /// <summary>
@@ -77,7 +83,25 @@ namespace Dashboard.StorageBuilder
         /// </summary>
         public static async Task UpdateUnprocessedTable(
             [TimerTrigger("0 0/30 * * * *", RunOnStartup = true)] TimerInfo timerInfo,
-            [QueueTrigger(AzureConstants.QueueNames.ProcessBuild)] CloudQueue processBuildQueue,
+            [Queue(AzureConstants.QueueNames.ProcessBuild)] CloudQueue processBuildQueue,
+            [Table(AzureConstants.TableNames.UnprocessedBuild)] CloudTable unprocessedBuildTable,
+            [Table(AzureConstants.TableNames.BuildResultExact)] CloudTable buildResultExactTable,
+            TextWriter logger,
+            CancellationToken cancellationToken)
+        {
+            var util = new StateUtil(
+                unprocessedBuildTable: unprocessedBuildTable,
+                buildResultExact: buildResultExactTable,
+                logger: logger);
+            await util.Update(processBuildQueue, cancellationToken);
+        }
+
+        /// <summary>
+        /// Clean out the old entries in the unprocessed table.
+        /// </summary>
+        public static async Task CleanUnprocessedTable(
+            [TimerTrigger("0 0 * * * *", RunOnStartup = true)] TimerInfo timerInfo,
+            [Queue(AzureConstants.QueueNames.ProcessBuild)] CloudQueue processBuildQueue,
             [Table(AzureConstants.TableNames.UnprocessedBuild)] CloudTable unprocessedBuildTable,
             [Table(AzureConstants.TableNames.BuildResultExact)] CloudTable buildResultExactTable,
             TextWriter logger,
@@ -88,7 +112,7 @@ namespace Dashboard.StorageBuilder
                 buildResultExact: buildResultExactTable,
                 processBuildQueue: processBuildQueue,
                 logger: logger);
-            await util.Update(cancellationToken);
+            await util.Clean(cancellationToken);
         }
 
         public static async Task CleanTestCache(

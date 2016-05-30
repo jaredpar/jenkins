@@ -166,6 +166,15 @@ namespace Dashboard.Azure
             return new FilterUtil(filter);
         }
 
+        public static FilterUtil Column(string columnName, DateTimeOffset value, ColumnOperator op = ColumnOperator.Equal)
+        {
+            var filter = TableQuery.GenerateFilterConditionForDate(
+                columnName,
+                ToQueryComparison(op),
+                value);
+            return new FilterUtil(filter);
+        }
+
         public static string ToQueryComparison(ColumnOperator op)
         {
             switch (op)
