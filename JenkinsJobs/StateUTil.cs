@@ -170,7 +170,8 @@ namespace Dashboard.StorageBuilder
             // TODO: don't authenticate when it's not https
             // TODO: Bit of a hack.  Avoiding API rate limit issues by using a hueristic of 
             // when to do authentication.
-            if (jobId.Name.Contains("Private"))
+            if (jobId.Name.Contains("Private") ||
+                jobId.Name.Contains("perf_win10_debug 45"))
             {
                 var githubConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.GithubConnectionStringName);
                 return new JenkinsClient(jenkinsUrl, githubConnectionString);
