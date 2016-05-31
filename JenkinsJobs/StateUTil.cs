@@ -68,7 +68,7 @@ namespace Dashboard.StorageBuilder
 
         internal async Task<SendGridMessage> Clean(CancellationToken cancellationToken)
         {
-            var limit = DateTimeOffset.UtcNow - TimeSpan.FromHours(2);
+            var limit = DateTimeOffset.UtcNow - TimeSpan.FromHours(12);
             var filter = FilterUtil.Column(
                 nameof(UnprocessedBuildEntity.LastUpdate),
                 limit,
