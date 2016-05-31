@@ -1,0 +1,17 @@
+﻿@using Dashboard.Azure;
+@model List<UnprocessedBuildEntity>
+
+@{
+    ViewBag.Title = "Unprocessed Build Results";
+}
+
+<h2>Unprocessed build entities</h2>
+@foreach (var entry in Model)
+{
+    var bound = entry.BoundBuildId;
+    <div>
+        <div><a href="@bound.Uri">@bound.JobName @bound.Number</a></div>
+        <div>Error: @entry.ErrorText</div>
+    </div>
+}
+

@@ -138,6 +138,13 @@ namespace Dashboard.Controllers
             return builder.ToString();
         }
 
+        public ActionResult Unprocessed()
+        {
+            var table = _storage.GetTable(AzureConstants.TableNames.UnprocessedBuild);
+            var list = table.ExecuteQuery(new TableQuery<UnprocessedBuildEntity>()).ToList();
+            return View(viewName: "Unprocessed", model: list);
+        }
+
         public ActionResult Demand(string userName, string commit)
         {
             var runStatus = new DemandRunStatusModel()

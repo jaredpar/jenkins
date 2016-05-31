@@ -304,6 +304,7 @@
     <Content Include="Views\Builds\BuildResult.cshtml" />
     <Content Include="Views\Builds\Kind.cshtml" />
     <Content Include="Views\Builds\View.cshtml" />
+    <Content Include="Views\Builds\Unprocessed.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
