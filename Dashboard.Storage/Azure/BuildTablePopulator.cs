@@ -88,7 +88,17 @@ namespace Dashboard.Azure
             PullRequestInfo prInfo = null;
             if (JobUtil.IsPullRequestJobName(id.JobId.Name))
             {
-                prInfo = await _client.GetPullRequestInfoAsync(id);
+                try
+                {
+                    prInfo = await _client.GetPullRequestInfoAsync(id);
+                }
+                catch (Exception ex)
+                {
+                    // TODO: Flow builds don't have the PR directly in the triggered jobs.  Have to walk
+                    // back up to the parent job.  For now swallow this error so we don't trigger false
+                    // positives in the error detection.
+                    _textWriter.WriteLine($"Error pulling PR info for {id}: {ex.Message}");
+                }
             }
 
             BuildResultClassification classification;
