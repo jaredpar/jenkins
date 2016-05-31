@@ -98,10 +98,22 @@ namespace Dashboard.Jenkins
 
         public static JobId ConvertPathToJobId(string path)
         {
+            JobId jobId;
+            if (!TryConvertPathToJobId(path, out jobId))
+            {
+                throw new Exception($"Not a valid job path: {path}");
+            }
+
+            return jobId;
+        }
+
+        public static bool TryConvertPathToJobId(string path, out JobId jobId)
+        {
             var items = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (items.Length % 2 != 0)
             {
-                throw new Exception();
+                jobId = null;
+                return false;
             }
 
             var current = JobId.Root;
@@ -109,13 +121,58 @@ namespace Dashboard.Jenkins
             {
                 if (items[i] != "job")
                 {
-                    throw new Exception();
+                    jobId = null;
+                    return false;
                 }
 
                 current = new JobId(shortName: items[i + 1], parent: current);
             }
 
-            return current;
+            jobId = current;
+            return true;
+        }
+
+        public static BuildId ConvertPathToBuildId(string path)
+        {
+            BuildId buildId;
+            if (!TryConvertPathToBuildId(path, out buildId))
+            {
+                throw new Exception($"Not a valid build id path: {path}");
+            }
+
+            return buildId;
+        }
+
+        public static bool TryConvertPathToBuildId(string path, out BuildId buildId)
+        {
+            buildId = default(BuildId);
+
+            if (path.Contains('?'))
+            {
+                return false;
+            }
+
+            var parts = path.Split(new[] { '/' }, options: StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 0)
+            {
+                return false;
+            }
+
+            int number;
+            if (!int.TryParse(parts[parts.Length - 1], out number))
+            {
+                return false;
+            }
+
+            var jobPath = string.Join("/", parts.Take(parts.Length - 1));
+            JobId jobId;
+            if (!TryConvertPathToJobId(jobPath, out jobId))
+            {
+                return false;
+            }
+
+            buildId = new BuildId(number, jobId);
+            return true;
         }
 
         public static string ConvertJobIdToPath(JobId jobId)

@@ -36,6 +36,28 @@ namespace Dashboard.Jenkins.Tests
             }
         }
 
+        public sealed class ConvertBuildIdPath : JenkinsUtilTests
+        {
+            private static void Test(string path, BuildId buildId)
+            {
+                Assert.Equal(buildId, JenkinsUtil.ConvertPathToBuildId(path));
+            }
+
+            [Fact]
+            public void Simple()
+            {
+                Test("job/dog/4", new BuildId(4, JobId.ParseName("dog")));
+                Test("job/dog/4/", new BuildId(4, JobId.ParseName("dog")));
+            }
+
+            [Fact]
+            public void Nested()
+            {
+                Test("job/house/job/dog/4", new BuildId(4, JobId.ParseName("house/dog")));
+                Test("job/house/job/dog/4/", new BuildId(4, JobId.ParseName("house/dog")));
+            }
+        }
+
         public sealed class MiscTest : JenkinsUtilTests
         {
             [Fact]

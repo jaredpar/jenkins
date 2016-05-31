@@ -92,6 +92,32 @@ namespace Dashboard.Jenkins
             UriScheme = uriScheme ?? Uri.UriSchemeHttps;
         }
 
+        public static bool TryParse(Uri uri, out BoundBuildId boundBuildId)
+        {
+            var hostName = uri.Host;
+            BuildId buildId;
+            if (!JenkinsUtil.TryConvertPathToBuildId(uri.PathAndQuery, out buildId))
+            {
+                boundBuildId = default(BoundBuildId);
+                return false;
+            }
+
+            boundBuildId = new BoundBuildId(hostName, buildId, uri.Scheme);
+            return true;
+        }
+
+        public static BoundBuildId Parse(string uri)
+        {
+            var realUri = new Uri(uri);
+            BoundBuildId boundBuildId;
+            if (!TryParse(realUri, out boundBuildId))
+            {
+                throw new Exception($"Not a valid build uri: {uri}");
+            }
+
+            return boundBuildId;
+        }
+
         public override string ToString() => Uri.ToString();
     }
 

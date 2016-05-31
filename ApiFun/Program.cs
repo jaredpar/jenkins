@@ -25,7 +25,7 @@ namespace Dashboard.ApiFun
         internal static void Main(string[] args)
         {
             // JenkinsDataUtil.Go();
-            FillData().Wait();
+            // FillData().Wait();
             // PrintMacTimes();
             // var util = new MachineCountInvestigation(CreateClient());
             // util.Go();
@@ -35,7 +35,7 @@ namespace Dashboard.ApiFun
             // Test().Wait();
             //DrainPoisonQueue().Wait();
             // CheckUnknown().Wait();
-            //Random().Wait();
+            Random().Wait();
             // MigrateCounter().Wait();
             // FindRetest();
             // PrintRetestInfo();
@@ -176,22 +176,31 @@ namespace Dashboard.ApiFun
         }
         */
 
-        private static JenkinsClient CreateClient(bool auth = true)
+        private static JenkinsClient CreateClient(Uri uri = null, bool auth = true)
         {
+            uri = uri ?? SharedConstants.DotnetJenkinsUri;
+            if (!string.IsNullOrEmpty(uri?.PathAndQuery))
+            {
+                var builder = new UriBuilder();
+                builder.Scheme = uri.Scheme;
+                builder.Host = uri.Host;
+                uri = builder.Uri;
+            }
+
             try
             {
                 var text = ConfigurationManager.AppSettings[SharedConstants.GithubConnectionStringName];
                 if (string.IsNullOrEmpty(text) || !auth)
                 {
-                    return new JenkinsClient(SharedConstants.DotnetJenkinsUri);
+                    return new JenkinsClient(uri);
                 }
 
                 var values = text.Split(':');
-                return new JenkinsClient(SharedConstants.DotnetJenkinsUri, values[0], values[1]);
+                return new JenkinsClient(uri, values[0], values[1]);
             }
             catch
             {
-                return new JenkinsClient(SharedConstants.DotnetJenkinsUri);
+                return new JenkinsClient(uri);
             }
         }
 
@@ -252,12 +261,12 @@ namespace Dashboard.ApiFun
 
         private static async Task Random()
         {
-            var buildId = new BuildId(1211, JobId.ParseName("roslyn_master_win_rel_unit64"));
-            var client = CreateClient(auth: true);
+            var boundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_corefx/job/master/job/fedora23_release_tst_prtest/4/");
+            var buildId = boundBuildId.BuildId;
+            var client = CreateClient(uri: boundBuildId.Uri, auth: false);
             var buildInfo = await client.GetBuildInfoAsync(buildId);
             var buildResult = await client.GetBuildResultAsync(buildInfo);
-            var names = await client.GetFailedTestCasesAsync(buildId);
-            Console.WriteLine("done");
+            var prInfo = await client.GetPullRequestInfoAsync(buildId);
 
             /*
             var client = CreateClient(auth: true);
