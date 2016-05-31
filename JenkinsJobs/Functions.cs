@@ -34,7 +34,7 @@ namespace Dashboard.StorageBuilder
 
             // First make sure that we note this value in the unprocessed table as it has not yet
             // been processed.
-            var entity = new UnprocessedBuildEntity(messageJson.BuildId);
+            var entity = new UnprocessedBuildEntity(messageJson.BoundBuildId);
             var operation = TableOperation.InsertOrReplace(entity);
             await unprocessedBuildTable.ExecuteAsync(TableOperation.InsertOrReplace(entity));
 

@@ -16,7 +16,7 @@ namespace Dashboard.Azure
         public string JobName { get; set; }
         public int BuildNumber { get; set; }
         public DateTime LastUpdate { get; set; }
-        public string ErrorText { get; set; }
+        public string StatusText { get; set; }
         public string HostName { get; set; }
         public string UriScheme { get; set; }
 

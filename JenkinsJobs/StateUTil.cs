@@ -51,7 +51,7 @@ namespace Dashboard.StorageBuilder
                 var entity = await AzureUtil.QueryAsync<UnprocessedBuildEntity>(_unprocessedBuildTable, key, cancellationToken);
                 if (entity != null)
                 {
-                    entity.ErrorText = $"{e.Message} - {e.StackTrace.Take(1000)}";
+                    entity.StatusText = $"{e.Message} - {e.StackTrace.Take(1000)}";
                     var operation = TableOperation.Replace(entity);
                     try
                     {
@@ -91,11 +91,11 @@ namespace Dashboard.StorageBuilder
                 _logger.WriteLine($"Deleting stale data {boundBuildId.Uri}");
 
                 textBuilder.Append($"Deleting stale data: {boundBuildId.Uri}");
-                textBuilder.Append($"Eror: {entity.ErrorText}");
+                textBuilder.Append($"Eror: {entity.StatusText}");
 
                 htmlBuilder.Append($@"<div>");
                 htmlBuilder.Append($@"<div>Build <a href=""{boundBuildId.Uri}"">{buildId.JobName} {buildId.Number}</a></div>");
-                htmlBuilder.Append($@"<div>Error: {WebUtility.HtmlEncode(entity.ErrorText)}</div>");
+                htmlBuilder.Append($@"<div>Error: {WebUtility.HtmlEncode(entity.StatusText)}</div>");
                 htmlBuilder.Append($@"</div>");
             }
 
@@ -120,30 +120,30 @@ namespace Dashboard.StorageBuilder
 
         private async Task UpdateEntity(UnprocessedBuildEntity entity, CloudQueue processBuildQueue, CancellationToken cancellationToken)
         {
-            var buildId = entity.BuildId;
-            if (await HasPopulatedData(buildId, cancellationToken))
-            {
-                _logger.WriteLine($"Build {buildId}: was populated");
-                try
-                {
-                    var operation = TableOperation.Delete(entity);
-                    await _unprocessedBuildTable.ExecuteAsync(operation);
-                }
-                catch
-                {
-                    // It's okay if another task deletes this in parallel.
-                }
-
-                return;
-            }
-
             // TODO: Need to store the Jenkins URI in the UnprocessedBuildEntity
             var jenkinsUri = SharedConstants.DotnetJenkinsUri;
+            var buildId = entity.BuildId;
             var client = CreateJenkinsClient(jenkinsUri, entity.JobId);
             try
             {
                 var buildInfo = await client.GetBuildInfoAsync(buildId);
-                if (buildInfo.State != BuildState.Running)
+                if (buildInfo.State == BuildState.Running)
+                {
+                    _logger.WriteLine($"Build {buildId}: stil running");
+                    if (string.IsNullOrEmpty(entity.StatusText))
+                    {
+                        entity.StatusText = "Still running";
+                        try
+                        {
+                            await _unprocessedBuildTable.ExecuteAsync(TableOperation.Replace(entity));
+                        }
+                        catch
+                        {
+                            // Can be deleted in parallel.  That's okay and should be ignored.
+                        }
+                    }
+                }
+                else
                 {
                     _logger.WriteLine($"Build {buildId}: sending for processing as it's completed");
                     await EnqueueProcessBuild(processBuildQueue, jenkinsUri.Host, buildId);
@@ -171,7 +171,7 @@ namespace Dashboard.StorageBuilder
             // TODO: Bit of a hack.  Avoiding API rate limit issues by using a hueristic of 
             // when to do authentication.
             if (jobId.Name.Contains("Private") ||
-                jobId.Name.Contains("perf_win10_debug 45"))
+                jobId.Name.Contains("perf_win10"))
             {
                 var githubConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.GithubConnectionStringName);
                 return new JenkinsClient(jenkinsUrl, githubConnectionString);

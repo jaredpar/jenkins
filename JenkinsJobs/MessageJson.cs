@@ -19,6 +19,7 @@ namespace Dashboard.StorageBuilder
         public BuildId BuildId => new BuildId(Number, JobId);
         public JobId JobId => JenkinsUtil.ConvertPathToJobId(JobName);
         public string JenkinsHostName => (new Uri(Url)).Host;
+        public BoundBuildId BoundBuildId => new BoundBuildId(JenkinsHostName, BuildId);
     }
 
     internal sealed class BuildIdJson
