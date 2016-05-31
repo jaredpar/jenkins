@@ -261,42 +261,34 @@ namespace Dashboard.ApiFun
 
         private static async Task Random()
         {
-            // var boundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_corefx/job/master/job/fedora23_release_tst_prtest/4/");
-            // var buildId = boundBuildId.BuildId;
-            var buildId = new BuildId(669, JobId.ParseName("dotnet_coreclr/master/x64_release_ubuntu_pri1r2r_tst"));
-            var client = CreateClient(auth: false);
+            /*
+            var boundBuildId = BoundBuildId.Parse("http://dotnet-ci.cloudapp.net/job/Private/job/dotnet_roslyn-internal/job/stabilization/job/windows_vsi_p0/8");
+            var buildId = boundBuildId.BuildId;
+            var client = CreateClient(uri: boundBuildId.HostUri, auth: true);
             var buildInfo = await client.GetBuildInfoAsync(buildId);
             var buildResult = await client.GetBuildResultAsync(buildInfo);
             var test = await client.GetFailedTestCasesAsync(buildId);
             var prInfo = await client.GetPullRequestInfoAsync(buildId);
-
-            /*
-            var client = CreateClient(auth: true);
-            foreach (var jobId in client.GetJobIdsInView("Roslyn"))
-            {
-                if (!jobId.Name.Contains("_eta"))
-                {
-                    continue;
-                }
-
-                foreach (var buildId in client.GetBuildIds(jobId))
-                {
-                    try
-                    {
-                        var buildResult = client.GetBuildResult(buildId);
-                        if (buildResult.Failed)
-                        {
-                            var info = client.GetBuildFailureInfo(buildId);
-                            Console.WriteLine(info.Category);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Cannot process {buildId}: {ex.Message}");
-                    }
-                }
-            }
             */
+
+            var account = GetStorageAccount();
+            var dateKey = new DateKey(DateTimeOffset.UtcNow - TimeSpan.FromDays(1));
+            var table = account.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildFailureDate);
+            var query = new TableQuery<DynamicTableEntity>()
+                .Where(FilterUtil.Column(ColumnNames.PartitionKey, dateKey, ColumnOperator.GreaterThanOrEqual))
+                .Select(new[] { nameof(BuildFailureEntity.JobName), nameof(BuildFailureEntity.ViewName) });
+            var all = await AzureUtil.QueryAsync(table, query);
+            var sub = all
+                .Where(x => JobUtil.IsCommitJobName(x.Properties["JobName"].StringValue))
+                .GroupBy(x => x.Properties["ViewName"].StringValue)
+                .Select(x => new { Name = x.Key, Count = x.Count() })
+                .OrderByDescending(x => x.Count)
+                .ToList();
+            foreach (var pair in sub)
+            {
+                Console.WriteLine($"{pair.Name} - {pair.Count}");
+            }
+
         }
 
         private static async Task CheckUnknown()

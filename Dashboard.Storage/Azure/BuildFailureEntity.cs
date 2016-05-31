@@ -29,6 +29,7 @@ namespace Dashboard.Azure
         public int BuildNumber { get; set; }
         public string Identifier { get; set; }
         public string MachineName { get; set; }
+        public bool IsPullRequest { get; set; }
         public int PullRequestId { get; set; }
         public string PullRequestAuthor { get; set; }
         public string PullRequestAuthorEmail { get; set; }
@@ -73,6 +74,7 @@ namespace Dashboard.Azure
             Identifier = identifier;
             BuildFailureKindRaw = kind.ToString();
             BuildDateTime = buildDate.UtcDateTime;
+            IsPullRequest = JobUtil.IsPullRequestJobName(buildId.JobId);
             MachineName = machineName;
             if (prInfo != null)
             {

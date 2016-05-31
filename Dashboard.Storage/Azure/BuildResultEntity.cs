@@ -24,6 +24,7 @@ namespace Dashboard.Azure
         public int DurationSeconds { get; set; }
         public DateTime BuildDateTime { get; set; }
         public string MachineName { get; set; }
+        public bool IsPullRequest { get; set; }
         public int PullRequestId { get; set; }
         public string PullRequestAuthor { get; set; }
         public string PullRequestAuthorEmail { get; set; }
@@ -66,6 +67,7 @@ namespace Dashboard.Azure
             ClassificationName = classification.Name;
             BuildDateTime = buildDateTime.UtcDateTime;
             MachineName = machineName;
+            IsPullRequest = JobUtil.IsPullRequestJobName(buildId.JobId);
             DurationSeconds = (int)duration.TotalSeconds;
 
             if (prInfo != null)
