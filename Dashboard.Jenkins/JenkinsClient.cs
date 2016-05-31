@@ -317,11 +317,11 @@ namespace Dashboard.Jenkins
             {
                 var builder = new StringBuilder();
                 builder.AppendLine($"Unable to parse json");
+                builder.AppendLine($"  Url: {response.ResponseUri}");
                 builder.AppendLine($"  Status: {response.StatusDescription}");
                 builder.AppendLine($"  Conent: {response.Content}");
                 throw new Exception(builder.ToString(), e);
             }
-
         }
 
         /// <summary>
