@@ -67,7 +67,7 @@ namespace Dashboard.Controllers
         }
 
         [Route("api/builds/testFailure")]
-        public TestFailureData GetTestFailure([FromUri] string name, [FromUri] DateTimeOffset? startDate = null)
+        public TestFailureData GetTestFailure([FromUri] string name, [FromUri] DateTimeOffset? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
         {
             var data = new TestFailureData()
             {
@@ -78,7 +78,7 @@ namespace Dashboard.Controllers
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             var prCount = 0;
             var commitCount = 0;
-            foreach (var entity in _buildUtil.GetTestCaseFailures(startDateValue, name))
+            foreach (var entity in _buildUtil.GetTestCaseFailures(startDateValue, name, viewName))
             {
                 var buildId = entity.BuildId;
                 var jobId = buildId.JobId;

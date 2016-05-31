@@ -261,11 +261,13 @@ namespace Dashboard.ApiFun
 
         private static async Task Random()
         {
-            var boundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_corefx/job/master/job/fedora23_release_tst_prtest/4/");
-            var buildId = boundBuildId.BuildId;
-            var client = CreateClient(uri: boundBuildId.Uri, auth: false);
+            // var boundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_corefx/job/master/job/fedora23_release_tst_prtest/4/");
+            // var buildId = boundBuildId.BuildId;
+            var buildId = new BuildId(669, JobId.ParseName("dotnet_coreclr/master/x64_release_ubuntu_pri1r2r_tst"));
+            var client = CreateClient(auth: false);
             var buildInfo = await client.GetBuildInfoAsync(buildId);
             var buildResult = await client.GetBuildResultAsync(buildInfo);
+            var test = await client.GetFailedTestCasesAsync(buildId);
             var prInfo = await client.GetPullRequestInfoAsync(buildId);
 
             /*

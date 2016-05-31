@@ -49,7 +49,7 @@ namespace Dashboard.Controllers
             }
             else
             {
-                var model = GetTestFailureModel(name, pr, startDateValue);
+                var model = GetTestFailureModel(name, viewName, pr, startDateValue);
                 return View(viewName: "TestFailure", model: model);
             }
         }
@@ -242,7 +242,7 @@ namespace Dashboard.Controllers
             return summary;
         }
 
-        private TestFailureModel GetTestFailureModel(string name, bool pr, DateTimeOffset startDate)
+        private TestFailureModel GetTestFailureModel(string name, string viewName, bool pr, DateTimeOffset startDate)
         {
             var model = new TestFailureModel()
             {
@@ -251,7 +251,7 @@ namespace Dashboard.Controllers
                 StartDate = startDate
             };
 
-            foreach (var entity in _buildUtil.GetTestCaseFailures(startDate, name))
+            foreach (var entity in _buildUtil.GetTestCaseFailures(startDate, name, viewName))
             {
                 var buildId = entity.BuildId;
                 if (!pr && JobUtil.IsPullRequestJobName(buildId.JobName))
