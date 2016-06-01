@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using Microsoft.WindowsAzure.Storage;
+using System.Threading;
 
 namespace Dashboard.Azure
 {
@@ -44,6 +45,16 @@ namespace Dashboard.Azure
             _buildFailureExactTable = buildFailureExactTable;
             _client = client;
             _textWriter = textWriter;
+        }
+
+        /// <summary>
+        /// Is this build alreadiy fully populated.
+        /// </summary>
+        public async Task<bool> IsPopulated(BuildId buildId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var key = BuildResultEntity.GetExactEntityKey(buildId);
+            var entity = await AzureUtil.QueryAsync<DynamicTableEntity>(_buildResultExactTable, key, cancellationToken);
+            return entity != null;
         }
 
         /// <summary>

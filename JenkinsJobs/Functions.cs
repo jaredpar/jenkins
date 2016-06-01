@@ -75,7 +75,7 @@ namespace Dashboard.StorageBuilder
                 unprocessedBuildTable: unprocessedBuildTable,
                 buildResultExact: buildResultExactTable,
                 logger: logger);
-            await stateUtil.Populate(buildIdJson.BuildId, populator, cancellationToken);
+            await stateUtil.Populate(buildIdJson.BuildId, populator, force: false, cancellationToken: cancellationToken);
         }
 
         /// <summary>

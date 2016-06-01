@@ -18,6 +18,7 @@ namespace Dashboard.Tests
         private readonly MockRestClient _restClient;
         private readonly BuildTablePopulator _populator;
         private readonly CloudTable _buildFailureExactTable;
+        private readonly CloudTable _buildResultExactTable;
 
         public BuildTablePopulatorTests()
         {
@@ -27,6 +28,7 @@ namespace Dashboard.Tests
             _restClient = new MockRestClient();
             var client = new JenkinsClient(SharedConstants.DotnetJenkinsUri, _restClient.Client);
             _buildFailureExactTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildFailureExact);
+            _buildResultExactTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildResultExact);
             _populator = new BuildTablePopulator(
                 tableClient,
                 client: client,
@@ -56,6 +58,22 @@ namespace Dashboard.Tests
                 Assert.Equal(BuildFailureKind.TestCase, item.BuildFailureKind);
                 Assert.Equal(buildId, item.BuildId);
             }
+        }
+
+        [Fact]
+        public async Task IsPopulated()
+        {
+            var buildId = new BuildId(42, JobId.ParseName("house"));
+            Assert.False(await _populator.IsPopulated(buildId));
+
+            var key = BuildResultEntity.GetExactEntityKey(buildId);
+            var entity = new DynamicTableEntity()
+            {
+                PartitionKey = key.PartitionKey,
+                RowKey = key.RowKey
+            };
+            await _buildResultExactTable.ExecuteAsync(TableOperation.Insert(entity));
+            Assert.True(await _populator.IsPopulated(buildId));
         }
     }
 }

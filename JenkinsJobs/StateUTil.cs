@@ -37,13 +37,18 @@ namespace Dashboard.StorageBuilder
         /// existing entity in the unprocessed table, this won't add one.  It will only update existing
         /// ones.
         /// </summary>
-        internal async Task Populate(BuildId buildId, BuildTablePopulator populator, CancellationToken cancellationToken)
+        internal async Task Populate(BuildId buildId, BuildTablePopulator populator, bool force, CancellationToken cancellationToken)
         {
             var key = UnprocessedBuildEntity.GetEntityKey(buildId);
             try
             {
-                await populator.PopulateBuild(buildId);
-                await AzureUtil.MaybeDeleteAsync(_unprocessedBuildTable, key, cancellationToken);
+                // If we are not forcing the update then check for the existence of a completed run before
+                // requerying Jenkins.
+                if (force || !(await populator.IsPopulated(buildId)))
+                {
+                    await populator.PopulateBuild(buildId);
+                    await AzureUtil.MaybeDeleteAsync(_unprocessedBuildTable, key, cancellationToken);
+                }
             }
             catch (Exception e)
             {
