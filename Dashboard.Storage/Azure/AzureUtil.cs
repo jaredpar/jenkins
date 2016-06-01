@@ -305,9 +305,16 @@ namespace Dashboard.Azure
             while (!current.Parent.IsRoot)
             {
                 // TODO: Hack, formalize this process.
-                if (current.Name == "dotnet_roslyn-internal")
+                if (current.ShortName == "dotnet_roslyn-internal")
                 {
                     return ViewNameRoslyn;
+                }
+
+                // Give private jobs the view name of the folder that is directly above
+                // Private.
+                if (current.Parent.ShortName == "Private")
+                {
+                    return current.ShortName;
                 }
 
                 current = current.Parent;

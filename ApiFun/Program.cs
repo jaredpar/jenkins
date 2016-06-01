@@ -36,6 +36,7 @@ namespace Dashboard.ApiFun
             //DrainPoisonQueue().Wait();
             // CheckUnknown().Wait();
             Random().Wait();
+            TestPopulator().Wait();
             // MigrateCounter().Wait();
             // FindRetest();
             // PrintRetestInfo();
@@ -289,6 +290,23 @@ namespace Dashboard.ApiFun
                 Console.WriteLine($"{pair.Name} - {pair.Count}");
             }
 
+        }
+
+        private static async Task TestPopulator()
+        {
+            var account = GetStorageAccount();
+            var client = CreateClient(auth: false);
+            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), client, Console.Out);
+
+            var boundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_corefx/job/master/job/centos7.1_release_tst/523/");
+            try
+            {
+                await populator.PopulateBuild(boundBuildId.BuildId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
 
         private static async Task CheckUnknown()

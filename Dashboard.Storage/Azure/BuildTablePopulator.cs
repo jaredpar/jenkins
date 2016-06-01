@@ -188,6 +188,13 @@ namespace Dashboard.Azure
 
         private async Task PopulateUnitTestFailure(BuildInfo buildInfo, PullRequestInfo prInfo)
         {
+            // TODO: Resolve this with CoreCLR.  They are producing way too many failures at the moment though
+            // and we need to stop uploading 50,000 rows a day until we can resolve this.
+            if (buildInfo.Id.JobName.Contains("dotnet_coreclr"))
+            {
+                return;
+            }
+
             var buildId = buildInfo.Id;
             var testCaseNames = _client.GetFailedTestCases(buildId);
             var entityList = testCaseNames
