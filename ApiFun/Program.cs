@@ -35,7 +35,7 @@ namespace Dashboard.ApiFun
             // Test().Wait();
             //DrainPoisonQueue().Wait();
             // CheckUnknown().Wait();
-            Random().Wait();
+            // Random().Wait();
             TestPopulator().Wait();
             // MigrateCounter().Wait();
             // FindRetest();
@@ -262,16 +262,15 @@ namespace Dashboard.ApiFun
 
         private static async Task Random()
         {
-            /*
-            var boundBuildId = BoundBuildId.Parse("http://dotnet-ci.cloudapp.net/job/Private/job/dotnet_roslyn-internal/job/stabilization/job/windows_vsi_p0/8");
+            var boundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_corefx/job/master/job/fedora23_debug_tst/134/");
             var buildId = boundBuildId.BuildId;
             var client = CreateClient(uri: boundBuildId.HostUri, auth: true);
             var buildInfo = await client.GetBuildInfoAsync(buildId);
             var buildResult = await client.GetBuildResultAsync(buildInfo);
             var test = await client.GetFailedTestCasesAsync(buildId);
             var prInfo = await client.GetPullRequestInfoAsync(buildId);
-            */
 
+            /*
             var account = GetStorageAccount();
             var dateKey = new DateKey(DateTimeOffset.UtcNow - TimeSpan.FromDays(1));
             var table = account.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildFailureDate);
@@ -289,6 +288,7 @@ namespace Dashboard.ApiFun
             {
                 Console.WriteLine($"{pair.Name} - {pair.Count}");
             }
+            */
 
         }
 
@@ -298,7 +298,7 @@ namespace Dashboard.ApiFun
             var client = CreateClient(auth: false);
             var populator = new BuildTablePopulator(account.CreateCloudTableClient(), client, Console.Out);
 
-            var boundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_corefx/job/master/job/centos7.1_release_tst/523/");
+            var boundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_corefx/job/master/job/fedora23_debug_tst/134/");
             try
             {
                 await populator.PopulateBuild(boundBuildId.BuildId);
