@@ -257,6 +257,7 @@
     <None Include="Properties\PublishProfiles\jdash.pubxml" />
     <None Include="Properties\PublishProfiles\rosdash.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="Scripts\build-kind-by-viewname.js" />
     <Content Include="Scripts\build-view.js" />
     <Content Include="Scripts\testrun-data.js" />
     <Content Include="Scripts\job-waiting-chart.js" />
@@ -306,6 +307,7 @@
     <Content Include="Views\Builds\Kind.cshtml" />
     <Content Include="Views\Builds\View.cshtml" />
     <Content Include="Views\Builds\Unprocessed.cshtml" />
+    <Content Include="Views\Builds\KindByViewName.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
