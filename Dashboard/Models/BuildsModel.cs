@@ -69,6 +69,7 @@ namespace Dashboard.Models
         public bool IncludePullRequests { get; set; }
         public DateTimeOffset StartDate { get; set; }
         public string ClassificationKind { get; set; }
+        public string SelectedViewName { get; set; }
         public List<BuildResultEntity> Entries { get; set; } = new List<BuildResultEntity>();
     }
 

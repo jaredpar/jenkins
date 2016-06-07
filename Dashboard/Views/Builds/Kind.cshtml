@@ -6,10 +6,11 @@
     var prValue = Model.IncludePullRequests ? @"checked=""checked""" : "";
     var startDateValue = Model.StartDate.ToString("yyyy-MM-dd");
     var showForPrStyle = Model.IncludePullRequests ? "" : "display: none";
+    var selectedViewName = Model.SelectedViewName;
 }
 
 <h2>Kind @Model.ClassificationKind</h2>
-<h3>Jenkins Jobs</h3>
+<h3>Jenkins Jobs (@selectedViewName)</h3>
 <table class="table">
     <thead><tr>
         <th>Job</th>

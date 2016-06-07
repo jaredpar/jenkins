@@ -117,7 +117,8 @@ namespace Dashboard.Controllers
                 IncludePullRequests = pr,
                 ClassificationKind = kindValue.ToString(),
                 Entries = list,
-                StartDate = startDateValue
+                StartDate = startDateValue,
+                SelectedViewName = viewName
             };
             return View(viewName: "Kind", model: model);
         }
