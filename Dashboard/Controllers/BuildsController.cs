@@ -97,7 +97,8 @@ namespace Dashboard.Controllers
                 TotalBuildCount = totalCount,
                 TotalSucceededCount = totalSucceeded,
                 StartDate = startDateValue,
-                Builds = builds
+                Builds = builds,
+                SelectedViewName = viewName
             };
 
             return View(viewName: "View", model: model);

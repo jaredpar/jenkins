@@ -52,6 +52,7 @@ namespace Dashboard.Models
 
         public DateTimeOffset StartDate { get; set; }
         public List<BuildViewModel> Builds { get; set; } = new List<BuildViewModel>();
+        public string SelectedViewName { get; set; }
     }
 
     /// <summary>
