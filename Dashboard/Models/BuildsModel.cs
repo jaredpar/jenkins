@@ -52,6 +52,7 @@ namespace Dashboard.Models
 
         public DateTimeOffset StartDate { get; set; }
         public List<BuildViewModel> Builds { get; set; } = new List<BuildViewModel>();
+        public string SelectedViewName { get; set; }
     }
 
     /// <summary>
@@ -63,11 +64,27 @@ namespace Dashboard.Models
         public int Count;
     }
 
+    public class BuildViewNameModel
+    {
+        public string ViewName;
+        public int Count;
+    }
+
+    public class BuildResultKindByViewNameModel
+    {
+        public bool IncludePullRequests { get; set; }
+        public DateTimeOffset StartDate { get; set; }
+        public string ClassificationKind { get; set; }
+        public List<BuildViewNameModel> Builds { get; set; } = new List<BuildViewNameModel>();
+        public int TotalResultCount { get; set; }
+    }
+
     public class BuildResultKindModel
     {
         public bool IncludePullRequests { get; set; }
         public DateTimeOffset StartDate { get; set; }
         public string ClassificationKind { get; set; }
+        public string SelectedViewName { get; set; }
         public List<BuildResultEntity> Entries { get; set; } = new List<BuildResultEntity>();
     }
 

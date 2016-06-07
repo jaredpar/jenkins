@@ -35,3 +35,26 @@
         });
     }
 });
+
+$(document).ready(function () {
+    var startDate = $('#start_date_field')[0].value;
+    var selectedViewName = $('#view_name_div').attr('data-selected-viewname');
+    $.ajax({
+        dataType: 'json',
+        url: '/api/builds/viewNames',
+        data: {
+            startDate: startDate
+        },
+        success: function (list) {
+            for (var i = 0; i < list.length; i++) {
+                $('#view_name_div select').append('<option>' + list[i] + '</option>');
+            }
+            $('#view_name_div img').css('display', 'none');
+            $('#view_name_div select').val(selectedViewName).css('display', '');
+        },
+        error: function () {
+            $('#view_name_div img').css('display', 'none');
+            $('#view_name_div').append('<span class="error_message">[[ Failed to fetch data ]]</span>');
+        }
+    });
+});

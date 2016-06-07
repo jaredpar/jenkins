@@ -9,10 +9,13 @@
     var succededValue = Model.IncludeSucceeded ? @"checked=""checked""" : "";
     var startDateValue = Model.StartDate.ToString("yyyy-MM-dd");
     var successRate = Model.TotalSucceededCount / (double)Model.TotalBuildCount;
+    var selectedViewName = Model.SelectedViewName;
+    var isSingleViewName = Model.SelectedViewName != Dashboard.Azure.AzureUtil.ViewNameAll;
 }
 
 <div>
     <h2>Build Result Summary</h2>
+    <div>@selectedViewName</div>
     <div>Ran @Model.TotalBuildCount.ToString("n0")</div>
     <div>Succeded @Model.TotalSucceededCount.ToString("n0")</div>
     <div>Success rate @successRate.ToString("n2")</div>
@@ -27,17 +30,30 @@
     <div>
         <div>Include Pull Requests <input name="pr" type="checkbox" @prValue value="true" /></div>
         <div>Include Succeeded <input name="succeeded" type="checkbox" @succededValue value="true" /></div>
-        <div>Start Date <input name="startDate" type="date" value="@startDateValue"/></div>
+        <div>Start Date <input id="start_date_field" name="startDate" type="date" value="@startDateValue"/></div>
+        <div id="view_name_div" data-selected-viewname="@selectedViewName">View Name
+            <select name="viewName" style="display:none;"></select>
+            <img src="@Url.Content("/Content/loading-squares.gif")" alt="Loading..." />
+        </div>
+        <br/>
         <div><input type="submit" value="Refresh" /></div>
     </div>
 }
 
 <!-- Hidden form for navigating on selection of categories -->
-@using (Html.BeginForm(controllerName: "Builds", actionName: "Kind", method: FormMethod.Get, htmlAttributes: new { id = "category_form" }))
+@using (Html.BeginForm(
+    controllerName: "Builds",
+    actionName: isSingleViewName ? "Kind" : "KindByViewName",
+    method: FormMethod.Get,
+    htmlAttributes: new { id = "category_form" }))
 {
     <input id="category_form_kind" name="kind" value="" hidden="hidden" />
     <input name="pr" type="checkbox" @prValue value="true" hidden="hidden" />
     <input name="startDate" type="date" value="@startDateValue" hidden="hidden"/>
+    if (isSingleViewName)
+    {
+        <input name="viewName" value="@selectedViewName" hidden="hidden"/>
+    }
 }
 
 @section scripts {

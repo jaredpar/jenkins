@@ -97,7 +97,8 @@ namespace Dashboard.Controllers
                 TotalBuildCount = totalCount,
                 TotalSucceededCount = totalSucceeded,
                 StartDate = startDateValue,
-                Builds = builds
+                Builds = builds,
+                SelectedViewName = viewName
             };
 
             return View(viewName: "View", model: model);
@@ -116,9 +117,33 @@ namespace Dashboard.Controllers
                 IncludePullRequests = pr,
                 ClassificationKind = kindValue.ToString(),
                 Entries = list,
-                StartDate = startDateValue
+                StartDate = startDateValue,
+                SelectedViewName = viewName
             };
             return View(viewName: "Kind", model: model);
+        }
+
+        public ActionResult KindByViewName(string kind = null, bool pr = false, DateTime? startDate = null)
+        {
+            var kindValue = EnumUtil.Parse(kind, ClassificationKind.Unknown);
+            var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            var results =
+                _buildUtil.GetBuildResults(startDateValue, kindValue, AzureUtil.ViewNameAll)
+                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
+                .ToList();
+            var builds = results
+                .GroupBy(x => x.ViewName)
+                .Select(x => new BuildViewNameModel() { ViewName = x.Key, Count = x.Count() })
+                .ToList();
+            var model = new BuildResultKindByViewNameModel()
+            {
+                IncludePullRequests = pr,
+                ClassificationKind = kindValue.ToString(),
+                StartDate = startDateValue,
+                Builds = builds,
+                TotalResultCount = results.Count
+            };
+            return View(viewName: "KindByViewName", model: model);
         }
 
         public string Csv(string viewName = AzureUtil.ViewNameRoslyn, bool pr = false, DateTime? startDate = null, int limit = 10)

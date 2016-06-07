@@ -71,6 +71,30 @@ namespace Dashboard.Azure
             return _buildFailureDateTable.ExecuteQuery(query).ToList();
         }
 
+        public List<string> GetViewNames(DateTimeOffset startDate)
+        {
+            var filter = FilterUtil
+                .SinceDate(ColumnNames.PartitionKey, startDate)
+                .And(FilterUtil.Column(nameof(BuildResultEntity.ViewName), null, ColumnOperator.NotEqual));
+            var query = new TableQuery<BuildResultEntity>()
+                .Select(new List<string>() {nameof(BuildResultEntity.ViewName)})
+                .Where(filter);
+
+            var defaultViewNames = new List<string>() { "all" };
+
+            // TODO should we union the results from querying _buildFailureDateTable ?
+            // The query takes much longer than _buildResultDateTable for some reason,
+            // and doesn't appear to contain useful data for this purpose (yet).
+            // If we DO need the latter, we need a different approach as the double query
+            // becomes prohibitively slow.
+            var buildResultViewNames = _buildResultDateTable.ExecuteQuery(query)
+                .Select(b => b.ViewName)
+                .Distinct()
+                .ToList();
+
+            return defaultViewNames.Union(buildResultViewNames).ToList();
+        }
+
         private static FilterUtil FilterView(FilterUtil util, string viewName)
         {
             Debug.Assert(nameof(BuildResultEntity.ViewName) == nameof(BuildFailureEntity.ViewName));
