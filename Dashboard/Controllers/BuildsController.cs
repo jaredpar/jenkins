@@ -106,16 +106,15 @@ namespace Dashboard.Controllers
 
         public ActionResult Kind(string kind = null, bool pr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
         {
-            var kindValue = EnumUtil.Parse(kind, ClassificationKind.Unknown);
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             var list = _buildUtil
-                .GetBuildResults(startDateValue, kindValue, viewName)
+                .GetBuildResultsByKindName(startDateValue, kind, viewName)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobName))
                 .ToList();
             var model = new BuildResultKindModel()
             {
                 IncludePullRequests = pr,
-                ClassificationKind = kindValue.ToString(),
+                ClassificationKind = kind,
                 Entries = list,
                 StartDate = startDateValue,
                 SelectedViewName = viewName
@@ -125,10 +124,9 @@ namespace Dashboard.Controllers
 
         public ActionResult KindByViewName(string kind = null, bool pr = false, DateTime? startDate = null)
         {
-            var kindValue = EnumUtil.Parse(kind, ClassificationKind.Unknown);
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             var results =
-                _buildUtil.GetBuildResults(startDateValue, kindValue, AzureUtil.ViewNameAll)
+                _buildUtil.GetBuildResultsByKindName(startDateValue, kind, AzureUtil.ViewNameAll)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
                 .ToList();
             var builds = results
@@ -138,7 +136,7 @@ namespace Dashboard.Controllers
             var model = new BuildResultKindByViewNameModel()
             {
                 IncludePullRequests = pr,
-                ClassificationKind = kindValue.ToString(),
+                ClassificationKind = kind,
                 StartDate = startDateValue,
                 Builds = builds,
                 TotalResultCount = results.Count
