@@ -311,7 +311,7 @@ namespace Dashboard.ApiFun
             var date = DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(), Console.Out);
             var table = account.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildResultDate);
-            foreach (var entity in buildUtil.GetBuildResults(date, ClassificationKind.Unknown, AzureUtil.ViewNameAll))
+            foreach (var entity in buildUtil.GetBuildResultsByKindName(date, BuildResultClassification.Unknown.Name, AzureUtil.ViewNameAll))
             {
                 var entityDate = DateKey.Parse(entity.PartitionKey);
                 var before = new DateKey(entityDate.Date.AddDays(-1));
