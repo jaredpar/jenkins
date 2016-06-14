@@ -35,8 +35,8 @@ namespace Dashboard.ApiFun
             // Test().Wait();
             //DrainPoisonQueue().Wait();
             // CheckUnknown().Wait();
-            // Random().Wait();
-            TestPopulator().Wait();
+            Random().Wait();
+            // TestPopulator().Wait();
             // MigrateCounter().Wait();
             // FindRetest();
             // PrintRetestInfo();
@@ -262,6 +262,7 @@ namespace Dashboard.ApiFun
 
         private static async Task Random()
         {
+            /*
             var boundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_corefx/job/master/job/fedora23_debug_tst/134/");
             var buildId = boundBuildId.BuildId;
             var client = CreateClient(uri: boundBuildId.HostUri, auth: true);
@@ -269,27 +270,21 @@ namespace Dashboard.ApiFun
             var buildResult = await client.GetBuildResultAsync(buildInfo);
             var test = await client.GetFailedTestCasesAsync(buildId);
             var prInfo = await client.GetPullRequestInfoAsync(buildId);
-
-            /*
-            var account = GetStorageAccount();
-            var dateKey = new DateKey(DateTimeOffset.UtcNow - TimeSpan.FromDays(1));
-            var table = account.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildFailureDate);
-            var query = new TableQuery<DynamicTableEntity>()
-                .Where(FilterUtil.Column(ColumnNames.PartitionKey, dateKey, ColumnOperator.GreaterThanOrEqual))
-                .Select(new[] { nameof(BuildFailureEntity.JobName), nameof(BuildFailureEntity.ViewName) });
-            var all = await AzureUtil.QueryAsync(table, query);
-            var sub = all
-                .Where(x => JobUtil.IsCommitJobName(x.Properties["JobName"].StringValue))
-                .GroupBy(x => x.Properties["ViewName"].StringValue)
-                .Select(x => new { Name = x.Key, Count = x.Count() })
-                .OrderByDescending(x => x.Count)
-                .ToList();
-            foreach (var pair in sub)
-            {
-                Console.WriteLine($"{pair.Name} - {pair.Count}");
-            }
             */
 
+            var account = GetStorageAccount();
+            var dateKey = new DateKey(DateTimeOffset.UtcNow - TimeSpan.FromDays(1));
+            var table = account.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildResultDate);
+            var query = new TableQuery<BuildResultEntity>()
+                .Where(FilterUtil
+                    .Column(ColumnNames.PartitionKey, dateKey, ColumnOperator.GreaterThanOrEqual)
+                    .And(FilterUtil.Column("MachineName", "Azure0602081822")));
+            var all = await AzureUtil.QueryAsync(table, query);
+            foreach (var entity in all)
+            {
+                var boundBuildId = new BoundBuildId(SharedConstants.DotnetJenkinsUri.Host, entity.BuildId);
+                Console.WriteLine(boundBuildId.Uri);
+            }
         }
 
         private static async Task TestPopulator()

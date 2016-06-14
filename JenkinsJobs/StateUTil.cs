@@ -47,8 +47,9 @@ namespace Dashboard.StorageBuilder
                 if (force || !(await populator.IsPopulated(buildId)))
                 {
                     await populator.PopulateBuild(buildId);
-                    await AzureUtil.MaybeDeleteAsync(_unprocessedBuildTable, key, cancellationToken);
                 }
+
+                await AzureUtil.MaybeDeleteAsync(_unprocessedBuildTable, key, cancellationToken);
             }
             catch (Exception e)
             {
@@ -176,7 +177,8 @@ namespace Dashboard.StorageBuilder
             // TODO: Bit of a hack.  Avoiding API rate limit issues by using a hueristic of 
             // when to do authentication.
             if (jobId.Name.Contains("Private") ||
-                jobId.Name.Contains("perf_win10"))
+                jobId.Name.Contains("perf_win10") ||
+                jobId.Name.Contains("dotnet_citest"))
             {
                 var githubConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.GithubConnectionStringName);
                 return new JenkinsClient(jenkinsUrl, githubConnectionString);
