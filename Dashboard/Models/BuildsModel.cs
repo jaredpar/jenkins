@@ -151,4 +151,28 @@ namespace Dashboard.Models
         public int? BuildNumber { get; set; }
         public int QueueNumber { get; set; }
     }
+
+    /// <summary>
+    /// List of elapsed time by categorization of their ranges (0 ~ 100ms, 100 ~ 1000ms ...
+    /// </summary>
+    public class ElapsedTimeSummaryModel
+    {
+        public bool IncludePullRequests { get; set; }
+        public bool IncludeSucceeded { get; set; }
+
+        /// <summary>
+        /// Total number of builds.  Includes the count of succeeded builds even if <see cref="IncludeSucceeded"/>
+        /// is false.
+        /// </summary>
+        public int TotalBuildCount { get; set; }
+
+        /// <summary>
+        /// Total number of builds that succeeded.
+        /// </summary>
+        public int TotalSucceededCount { get; set; }
+
+        public DateTimeOffset StartDate { get; set; }
+        public List<BuildViewModel> Builds { get; set; } = new List<BuildViewModel>();
+        public string SelectedViewName { get; set; }
+    }
 }

@@ -258,6 +258,7 @@
     <None Include="Properties\PublishProfiles\rosdash.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\build-kind-by-viewname.js" />
+    <Content Include="Scripts\elapsed-time.js" />
     <Content Include="Scripts\build-view.js" />
     <Content Include="Scripts\build-filter.js" />
     <Content Include="Scripts\testrun-data.js" />
@@ -309,6 +310,7 @@
     <Content Include="Views\Builds\Unprocessed.cshtml" />
     <Content Include="Views\Builds\BuildFilter.cshtml" />
     <Content Include="Views\Builds\KindByViewName.cshtml" />
+    <Content Include="Views\Builds\ElapsedTime.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -101,6 +101,42 @@ namespace Dashboard.Controllers
             return View(viewName: "View", model: model);
         }
 
+
+        /// <summary>
+        /// A view of the elapsed time grouped by the result.
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult ElapsedTime(bool pr = false, bool succeeded = false, DateTimeOffset? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
+        {
+            var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            var results =
+                _buildUtil.GetBuildResults(startDateValue, viewName)
+                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
+                .ToList();
+
+            var totalCount = results.Count;
+            var totalSucceeded = results.Count(x => x.ClassificationKind == ClassificationKind.Succeeded);
+
+            var builds = results
+                .Where(x => succeeded || x.ClassificationKind != ClassificationKind.Succeeded)
+                .GroupBy(x => x.ClassificationName)
+                .Select(x => new BuildViewModel() { KindName = x.Key, Count = x.Count() })
+                .ToList();
+
+            var model = new ElapsedTimeSummaryModel()
+            {
+                IncludePullRequests = pr,
+                IncludeSucceeded = succeeded,
+                TotalBuildCount = totalCount,
+                TotalSucceededCount = totalSucceeded,
+                StartDate = startDateValue,
+                Builds = builds,
+                SelectedViewName = viewName
+            };
+
+            return View(viewName: "ElapsedTime", model: model);
+        }
+
         public ActionResult Kind(string name = null, bool pr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
         {
             var filter = CreateBuildFilter(nameof(Kind), name, viewName, pr, startDate);
