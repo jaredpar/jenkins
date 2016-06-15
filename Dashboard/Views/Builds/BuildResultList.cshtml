@@ -17,7 +17,7 @@
         linkText: @entry.JobId.ShortName, 
         controllerName: "Builds", 
         actionName: "Result", 
-        routeValues: new { name = @entry.JobId.Name, pr = Model.Filter.IncludePullRequests, startDate = Model.Filter.StartDate, viewName = Model.Filter.ViewName }, 
+        routeValues: Model.Filter.GetRouteValues(@entry.JobId.Name),
         htmlAttributes: null);
     <tr>
         <th>@link</th>

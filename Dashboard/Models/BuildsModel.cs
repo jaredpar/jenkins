@@ -16,6 +16,18 @@ namespace Dashboard.Models
         public string Name { get; set; }
         public string ViewName { get; set; }
         public string ActionName { get; set; }
+
+        public object GetRouteValues(string name = null)
+        {
+            return new
+            {
+                name = name ?? Name,
+                viewName = ViewName,
+                pr = IncludePullRequests,
+                limit = Limit,
+                startDate = StartDate.ToString("yyyy-MM-dd")
+            };
+        }
     }
 
     public class BuildResultSummaryModel

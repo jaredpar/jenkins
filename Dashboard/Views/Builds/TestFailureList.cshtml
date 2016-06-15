@@ -14,7 +14,7 @@
 @foreach (var entry in Model.Entries)
 {
     <tr>
-        <td>@Html.ActionLink(linkText: @entry.Name, controllerName: "Builds", actionName: "Test", routeValues: new { name = @entry.Name, pr = Model.Filter.IncludePullRequests, startDate = Model.Filter.StartDate, viewName = Model.Filter.ViewName }, htmlAttributes: null)</td>
+        <td>@Html.ActionLink(linkText: @entry.Name, controllerName: "Builds", actionName: "Test", routeValues: Model.Filter.GetRouteValues(entry.Name), htmlAttributes: null)</td>
         <td>@entry.Count</td>
     </tr>
 }
