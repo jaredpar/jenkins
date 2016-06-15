@@ -299,7 +299,6 @@
     <Content Include="Views\Status\TestRuns.cshtml" />
     <Content Include="Views\Builds\TestFailureList.cshtml" />
     <Content Include="Views\Builds\TestFailure.cshtml" />
-    <Content Include="Views\Builds\DemandStatus.cshtml" />
     <Content Include="Views\Builds\BuildResultList.cshtml" />
     <Content Include="Views\Builds\BuildResult.cshtml" />
     <Content Include="Views\Builds\Kind.cshtml" />

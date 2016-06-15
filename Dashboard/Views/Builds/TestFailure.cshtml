@@ -3,9 +3,7 @@
 
 @{
     ViewBag.Title = Model.Name;
-    var prValue = Model.IncludePullRequests ? @"checked=""checked""" : "";
-    var startDateValue = Model.StartDate.ToString("yyyy-MM-dd");
-    var showForPrStyle = Model.IncludePullRequests ? "" : "display: none";
+    var showForPrStyle = Model.Filter.IncludePullRequests ? "" : "display: none";
 }
 
 <h2>Test Case: @Model.Name</h2>
@@ -35,15 +33,4 @@
 </tbody>
 </table>
 
-<h2>Filter Results</h2>
-
-@using (Html.BeginForm(controllerName: "Builds", actionName: "Test", method: FormMethod.Get))
-{
-    <input type="hidden" name="name" value="@Model.Name" />
-    <div>
-        <div>Include Pull Requests <input name="pr" type="checkbox" @prValue value="true" /></div>
-        <div>Start Date <input name="startDate" type="date" value="@startDateValue"/></div>
-        <div><input type="submit" value="Refresh" /></div>
-    </div>
-}
-
+@Html.Partial("BuildFilter", Model.Filter)

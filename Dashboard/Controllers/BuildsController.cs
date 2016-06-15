@@ -41,34 +41,25 @@ namespace Dashboard.Controllers
         /// </summary>
         public ActionResult Test(string name = null, string viewName = AzureUtil.ViewNameRoslyn, bool pr = false, DateTimeOffset? startDate = null, int limit = 10)
         {
-            var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            var filter = CreateBuildFilter(nameof(Test), name, viewName, pr, startDate, limit);
             if (name == null)
             {
-                var model = GetTestFailureSummaryModel(viewName, pr, startDateValue, limit);
+                var model = GetTestFailureSummaryModel(filter);
                 return View(viewName: "TestFailureList", model: model);
             }
             else
             {
-                var model = GetTestFailureModel(name, viewName, pr, startDateValue);
+                var model = GetTestFailureModel(filter);
                 return View(viewName: "TestFailure", model: model);
             }
         }
 
         public ActionResult Result(string name = null, string viewName = AzureUtil.ViewNameRoslyn, bool pr = false, DateTime? startDate = null, int limit = 10)
         {
-            var filter = new BuildFilterModel()
-            {
-                Name = name,
-                ViewName = viewName,
-                IncludePullRequests = pr,
-                StartDate = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1),
-                Limit = limit,
-                ActionName = nameof(Result)
-            };
-
+            var filter = CreateBuildFilter(nameof(Result), name, viewName, pr, startDate, limit);
             if (name == null)
             {
-                var model = GetBuildResultSummaryModel(viewName, pr, filter.StartDate, limit);
+                var model = GetBuildResultSummaryModel(filter);
                 return View(viewName: "BuildResultList", model: model);
             }
             else
@@ -82,11 +73,12 @@ namespace Dashboard.Controllers
         /// A view of the builds grouped by the result.
         /// </summary>
         /// <returns></returns>
-        public ActionResult View(bool pr = false, bool succeeded = false, DateTimeOffset? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
+        public ActionResult View(bool pr = false, DateTimeOffset? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
         {
-            var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            var filter = CreateBuildFilter(actionName: nameof(View), viewName: viewName, startDate: startDate, pr: pr);
             var results =
-                _buildUtil.GetBuildResults(startDateValue, viewName)
+                _buildUtil.GetBuildResults(filter.StartDate, viewName)
+                .Where(x => x.ClassificationKind != ClassificationKind.Succeeded)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
                 .ToList();
 
@@ -94,27 +86,25 @@ namespace Dashboard.Controllers
             var totalSucceeded = results.Count(x => x.ClassificationKind == ClassificationKind.Succeeded);
 
             var builds = results
-                .Where(x => succeeded || x.ClassificationKind != ClassificationKind.Succeeded)
                 .GroupBy(x => x.ClassificationName)
                 .Select(x => new BuildViewModel() { KindName = x.Key, Count = x.Count() })
                 .ToList();
 
             var model = new BuildViewSummaryModel()
             {
-                IncludePullRequests = pr,
-                IncludeSucceeded = succeeded,
+                Filter = filter,
                 TotalBuildCount = totalCount,
                 TotalSucceededCount = totalSucceeded,
-                StartDate = startDateValue,
                 Builds = builds
             };
 
             return View(viewName: "View", model: model);
         }
 
-        public ActionResult Kind(string kind = null, bool pr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
+        public ActionResult Kind(string name = null, bool pr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
         {
-            var kindValue = EnumUtil.Parse(kind, ClassificationKind.Unknown);
+            var filter = CreateBuildFilter(nameof(Kind), name, viewName, pr, startDate);
+            var kindValue = EnumUtil.Parse(name, ClassificationKind.Unknown);
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             var list = _buildUtil
                 .GetBuildResults(startDateValue, kindValue, viewName)
@@ -122,18 +112,17 @@ namespace Dashboard.Controllers
                 .ToList();
             var model = new BuildResultKindModel()
             {
-                IncludePullRequests = pr,
+                Filter = filter,
                 ClassificationKind = kindValue.ToString(),
                 Entries = list,
-                StartDate = startDateValue
             };
             return View(viewName: "Kind", model: model);
         }
 
-        public string Csv(string viewName = AzureUtil.ViewNameRoslyn, bool pr = false, DateTime? startDate = null, int limit = 10)
+        public string Csv(string viewName = AzureUtil.ViewNameRoslyn, bool pr = false, DateTime? startDate = null)
         {
-            var startDateValue = startDate ?? DateTime.UtcNow - TimeSpan.FromDays(7);
-            var summary = GetTestFailureSummaryModel(viewName, pr, startDateValue, limit);
+            var filter = CreateBuildFilter(nameof(Csv), viewName: viewName, pr: pr, startDate: startDate);
+            var summary = GetTestFailureSummaryModel(filter);
             var builder = new StringBuilder();
             foreach (var entry in summary.Entries)
             {
@@ -178,23 +167,27 @@ namespace Dashboard.Controllers
             return View(viewName: "DemandStatus", model: runStatus);
         }
 
-        private BuildResultSummaryModel GetBuildResultSummaryModel(string viewName, bool pr, DateTimeOffset startDate, int limit)
+        private BuildResultSummaryModel GetBuildResultSummaryModel(BuildFilterModel filter)
         {
             var model = new BuildResultSummaryModel()
             {
-                IncludePullRequests = pr,
-                StartDate = startDate,
-                Limit = limit
+                Filter = filter,
             };
 
             var queryResult = _buildUtil
-                .GetBuildResults(startDate, viewName)
-                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId.Name))
+                .GetBuildResults(filter.StartDate, filter.ViewName)
+                .Where(x => filter.IncludePullRequests || !JobUtil.IsPullRequestJobName(x.JobId.Name))
                 .Where(x => x.ClassificationKind != ClassificationKind.Succeeded)
                 .GroupBy(x => x.JobId)
                 .Select(x => new { JobId = x.Key, Count = x.Count() })
                 .OrderByDescending(x => x.Count)
-                .Take(limit);
+                .AsEnumerable();
+
+            if (filter.Limit.HasValue)
+            {
+                queryResult = queryResult.Take(filter.Limit.Value);
+            }
+
             foreach (var entity in queryResult)
             {
                 var entry = new BuildResultSummaryEntry()
@@ -218,7 +211,7 @@ namespace Dashboard.Controllers
             };
 
             var queryResult = _buildUtil
-                .GetBuildResults(filter.StartDate, jobName)
+                .GetBuildResults(filter.StartDate, jobName, filter.ViewName)
                 .Where(x => filter.IncludePullRequests || !JobUtil.IsPullRequestJobName(x.JobId.Name))
                 .Where(x => x.ClassificationKind != ClassificationKind.Succeeded)
                 .OrderBy(x => x.BuildNumber);
@@ -227,21 +220,24 @@ namespace Dashboard.Controllers
             return model;
         }
     
-        private TestFailureSummaryModel GetTestFailureSummaryModel(string viewName, bool pr, DateTimeOffset startDate, int limit)
+        private TestFailureSummaryModel GetTestFailureSummaryModel(BuildFilterModel filter)
         {
             var failureQuery = _buildUtil
-                .GetTestCaseFailures(startDate, viewName)
-                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.BuildId.JobName))
+                .GetTestCaseFailures(filter.StartDate, filter.ViewName)
+                .Where(x => filter.IncludePullRequests || !JobUtil.IsPullRequestJobName(x.BuildId.JobName))
                 .GroupBy(x => x.Identifier)
                 .Select(x => new { Key = x.Key, Count = x.Count() })
                 .OrderByDescending(x => x.Count)
-                .Take(limit);
+                .AsEnumerable();
+
+            if (filter.Limit.HasValue)
+            {
+                failureQuery = failureQuery.Take(filter.Limit.Value);
+            }
 
             var summary = new TestFailureSummaryModel()
             {
-                IncludePullRequests = pr,
-                StartDate = startDate,
-                Limit = limit,
+                Filter = filter,
             };
 
             foreach (var pair in failureQuery)
@@ -257,19 +253,18 @@ namespace Dashboard.Controllers
             return summary;
         }
 
-        private TestFailureModel GetTestFailureModel(string name, string viewName, bool pr, DateTimeOffset startDate)
+        private TestFailureModel GetTestFailureModel(BuildFilterModel filter)
         {
             var model = new TestFailureModel()
             {
-                Name = name,
-                IncludePullRequests = pr,
-                StartDate = startDate
+                Filter = filter,
+                Name = filter.Name,
             };
 
-            foreach (var entity in _buildUtil.GetTestCaseFailures(startDate, name, viewName))
+            foreach (var entity in _buildUtil.GetTestCaseFailures(filter.StartDate, filter.Name, filter.ViewName))
             {
                 var buildId = entity.BuildId;
-                if (!pr && JobUtil.IsPullRequestJobName(buildId.JobName))
+                if (!filter.IncludePullRequests && JobUtil.IsPullRequestJobName(buildId.JobName))
                 {
                     continue;
                 }
@@ -278,6 +273,19 @@ namespace Dashboard.Controllers
             }
 
             return model;
+        }
+
+        private BuildFilterModel CreateBuildFilter(string actionName, string name = null, string viewName = null, bool pr = false, DateTimeOffset? startDate = null, int? limit = null)
+        {
+            return new BuildFilterModel()
+            {
+                Name = name,
+                ViewName = viewName,
+                IncludePullRequests = pr,
+                StartDate = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1),
+                Limit = limit,
+                ActionName = actionName,
+            };
         }
     }
 }

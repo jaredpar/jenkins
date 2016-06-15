@@ -12,7 +12,7 @@ namespace Dashboard.Models
     {
         public bool IncludePullRequests { get; set; }
         public DateTimeOffset StartDate { get; set; }
-        public int Limit { get; set; }
+        public int? Limit { get; set; }
         public string Name { get; set; }
         public string ViewName { get; set; }
         public string ActionName { get; set; }
@@ -20,10 +20,7 @@ namespace Dashboard.Models
 
     public class BuildResultSummaryModel
     {
-        public bool IncludePullRequests { get; set; }
-        public DateTimeOffset StartDate { get; set; }
-        public int Limit { get; set; }
-        public JobId JobId { get; set; }
+        public BuildFilterModel Filter { get; set; }
         public List<BuildResultSummaryEntry> Entries { get; set; } = new List<BuildResultSummaryEntry>();
     }
 
@@ -45,8 +42,7 @@ namespace Dashboard.Models
     /// </summary>
     public class BuildViewSummaryModel
     {
-        public bool IncludePullRequests { get; set; }
-        public bool IncludeSucceeded { get; set; }
+        public BuildFilterModel Filter { get; set; }
 
         /// <summary>
         /// Total number of builds.  Includes the count of succeeded builds even if <see cref="IncludeSucceeded"/>
@@ -59,7 +55,6 @@ namespace Dashboard.Models
         /// </summary>
         public int TotalSucceededCount { get; set; }
 
-        public DateTimeOffset StartDate { get; set; }
         public List<BuildViewModel> Builds { get; set; } = new List<BuildViewModel>();
     }
 
@@ -74,17 +69,14 @@ namespace Dashboard.Models
 
     public class BuildResultKindModel
     {
-        public bool IncludePullRequests { get; set; }
-        public DateTimeOffset StartDate { get; set; }
+        public BuildFilterModel Filter { get; set; }
         public string ClassificationKind { get; set; }
         public List<BuildResultEntity> Entries { get; set; } = new List<BuildResultEntity>();
     }
 
     public class TestFailureSummaryModel
     {
-        public bool IncludePullRequests { get; set; }
-        public DateTimeOffset StartDate { get; set; }
-        public int Limit { get; set; }
+        public BuildFilterModel Filter { get; set; }
         public List<TestFailureSummaryEntry> Entries { get; set; } = new List<TestFailureSummaryEntry>();
     }
 
@@ -96,9 +88,8 @@ namespace Dashboard.Models
 
     public class TestFailureModel
     {
+        public BuildFilterModel Filter { get; set; }
         public string Name { get; set; }
-        public bool IncludePullRequests { get; set; }
-        public DateTimeOffset StartDate { get; set; }
         public List<BuildFailureEntity> Builds { get; } = new List<BuildFailureEntity>();
     }
 
