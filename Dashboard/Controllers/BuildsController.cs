@@ -78,7 +78,6 @@ namespace Dashboard.Controllers
             var filter = CreateBuildFilter(actionName: nameof(View), viewName: viewName, startDate: startDate, pr: pr);
             var results =
                 _buildUtil.GetBuildResults(filter.StartDate, viewName)
-                .Where(x => x.ClassificationKind != ClassificationKind.Succeeded)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
                 .ToList();
 
@@ -86,6 +85,7 @@ namespace Dashboard.Controllers
             var totalSucceeded = results.Count(x => x.ClassificationKind == ClassificationKind.Succeeded);
 
             var builds = results
+                .Where(x => x.ClassificationKind != ClassificationKind.Succeeded)
                 .GroupBy(x => x.ClassificationName)
                 .Select(x => new BuildViewModel() { KindName = x.Key, Count = x.Count() })
                 .ToList();
