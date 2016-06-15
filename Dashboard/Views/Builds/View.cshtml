@@ -5,17 +5,15 @@
 
     var builds = Model.Builds.OrderByDescending(x => x.Count);
     var buildValues = string.Join(";", builds.Select(x => $"{x.KindName},{x.Count}"));
-    var prValue = Model.IncludePullRequests ? @"checked=""checked""" : "";
-    var succededValue = Model.IncludeSucceeded ? @"checked=""checked""" : "";
-    var startDateValue = Model.StartDate.ToString("yyyy-MM-dd");
+    var prValue = Model.Filter.IncludePullRequests ? @"checked=""checked""" : "";
+    var startDateValue = Model.Filter.StartDate.ToString("yyyy-MM-dd");
     var successRate = Model.TotalSucceededCount / (double)Model.TotalBuildCount;
-    var selectedViewName = Model.SelectedViewName;
-    var isSingleViewName = Model.SelectedViewName != Dashboard.Azure.AzureUtil.ViewNameAll;
+    var isSingleViewName = Model.Filter.ViewName != Dashboard.Azure.AzureUtil.ViewNameAll;
 }
 
 <div>
     <h2>Build Result Summary</h2>
-    <div>@selectedViewName</div>
+    <div>@Model.Filter.ViewName</div>
     <div>Ran @Model.TotalBuildCount.ToString("n0")</div>
     <div>Succeded @Model.TotalSucceededCount.ToString("n0")</div>
     <div>Success rate @successRate.ToString("n2")</div>
@@ -23,22 +21,8 @@
 
 <div id="build_summary_chart" style="width: 900px; height: 500px" data-values="@buildValues"></div>
 
-<h2>Filter Results</h2>
-
-@using (Html.BeginForm(controllerName: "Builds", actionName: "View", method: FormMethod.Get))
-{
-    <div>
-        <div>Include Pull Requests <input name="pr" type="checkbox" @prValue value="true" /></div>
-        <div>Include Succeeded <input name="succeeded" type="checkbox" @succededValue value="true" /></div>
-        <div>Start Date <input id="start_date_field" name="startDate" type="date" value="@startDateValue"/></div>
-        <div id="view_name_div" data-selected-viewname="@selectedViewName">View Name
-            <select name="viewName" style="display:none;"></select>
-            <img src="@Url.Content("/Content/loading-squares.gif")" alt="Loading..." />
-        </div>
-        <br/>
-        <div><input type="submit" value="Refresh" /></div>
-    </div>
-}
+<!-- Filter the action results -->
+@Html.Partial("BuildFilter", Model.Filter)
 
 <!-- Hidden form for navigating on selection of categories -->
 @using (Html.BeginForm(
@@ -47,16 +31,17 @@
     method: FormMethod.Get,
     htmlAttributes: new { id = "category_form" }))
 {
-    <input id="category_form_kind" name="kind" value="" hidden="hidden" />
+    <input id="category_form_kind" name="name" value="" hidden="hidden" />
     <input name="pr" type="checkbox" @prValue value="true" hidden="hidden" />
     <input name="startDate" type="date" value="@startDateValue" hidden="hidden"/>
     if (isSingleViewName)
     {
-        <input name="viewName" value="@selectedViewName" hidden="hidden"/>
+        <input name="viewName" value="@Model.Filter.ViewName" hidden="hidden"/>
     }
 }
 
 @section scripts {
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript" src="@Url.Content("/Scripts/build-view.js")" ></script>
+    <script type="text/javascript" src="@Url.Content("/Scripts/build-filter.js")"></script>
 }

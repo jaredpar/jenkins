@@ -3,15 +3,14 @@
 @{
     ViewBag.Title = "Build Results";
 
-    var currentKind = Model.ClassificationKind;
     var builds = Model.Builds.OrderByDescending(x => x.Count);
     var buildValues = string.Join(";", builds.Select(x => $"{x.ViewName},{x.Count}"));
-    var prValue = Model.IncludePullRequests ? @"checked=""checked""" : "";
-    var startDateValue = Model.StartDate.ToString("yyyy-MM-dd");
+    var prValue = Model.Filter.IncludePullRequests ? @"checked=""checked""" : "";
+    var startDateValue = Model.Filter.StartDate.ToString("yyyy-MM-dd");
 }
 
 <div>
-    <h2>Kind @currentKind</h2>
+    <h2>Kind @Model.ClassificationKind</h2>
     <div>Total Count @Model.TotalResultCount.ToString("n0")</div>
 </div>
 
@@ -21,17 +20,8 @@
     <a href="#" id="submit_form_all" data-viewname="@Dashboard.Azure.AzureUtil.ViewNameAll">Show Jenkins jobs for all projects</a>
 </div>
 
-<h2>Filter Results</h2>
-
-@using (Html.BeginForm(controllerName: "Builds", actionName: "KindByViewName", method: FormMethod.Get))
-{
-    <div>
-        <input name="kind" value="@currentKind" hidden="hidden" />
-        <div>Include Pull Requests <input name="pr" type="checkbox" @prValue value="true" /></div>
-        <div>Start Date <input name="startDate" type="date" value="@startDateValue" /></div>
-        <div><input type="submit" value="Refresh" /></div>
-    </div>
-}
+<!-- Filter the action results -->
+@Html.Partial("BuildFilter", Model.Filter)
 
 <!-- Hidden form for navigating on selection of view names -->
 @using (Html.BeginForm(controllerName: "Builds", actionName: "Kind", method: FormMethod.Get, htmlAttributes: new { id = "viewname_form" }))
@@ -39,10 +29,11 @@
     <input id="viewname_form_kind" name="viewName" value="" hidden="hidden" />
     <input name="pr" type="checkbox" @prValue value="true" hidden="hidden" />
     <input name="startDate" type="date" value="@startDateValue" hidden="hidden" />
-    <input name="kind" value="@currentKind" hidden="hidden" />
+    <input name="name" value="@Model.ClassificationKind" hidden="hidden" />
 }
 
 @section scripts {
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript" src="@Url.Content("/Scripts/build-kind-by-viewname.js")"></script>
+    <script type="text/javascript" src="@Url.Content("/Scripts/build-filter.js")"></script>
 }

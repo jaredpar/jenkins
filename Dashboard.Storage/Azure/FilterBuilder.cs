@@ -208,5 +208,7 @@ namespace Dashboard.Azure
                 default: throw new InvalidOperationException($"Invalid {nameof(CombineOperator)} value {op}");
             }
         }
+
+        public override string ToString() => _filter;
     }
 }

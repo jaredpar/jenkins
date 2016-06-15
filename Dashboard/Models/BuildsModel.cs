@@ -8,12 +8,31 @@ using System.Web;
 
 namespace Dashboard.Models
 {
-    public class BuildResultSummaryModel
+    public sealed class BuildFilterModel
     {
         public bool IncludePullRequests { get; set; }
         public DateTimeOffset StartDate { get; set; }
-        public int Limit { get; set; }
-        public JobId JobId { get; set; }
+        public int? Limit { get; set; }
+        public string Name { get; set; }
+        public string ViewName { get; set; }
+        public string ActionName { get; set; }
+
+        public object GetRouteValues(string name = null)
+        {
+            return new
+            {
+                name = name ?? Name,
+                viewName = ViewName,
+                pr = IncludePullRequests,
+                limit = Limit,
+                startDate = StartDate.ToString("yyyy-MM-dd")
+            };
+        }
+    }
+
+    public class BuildResultSummaryModel
+    {
+        public BuildFilterModel Filter { get; set; }
         public List<BuildResultSummaryEntry> Entries { get; set; } = new List<BuildResultSummaryEntry>();
     }
 
@@ -25,8 +44,7 @@ namespace Dashboard.Models
 
     public class BuildResultModel
     {
-        public bool IncludePullRequests { get; set; }
-        public DateTimeOffset StartDate { get; set; }
+        public BuildFilterModel Filter { get; set; }
         public JobId JobId { get; set; }
         public List<BuildResultEntity> Entries { get; set; } = new List<BuildResultEntity>();
     }
@@ -36,8 +54,7 @@ namespace Dashboard.Models
     /// </summary>
     public class BuildViewSummaryModel
     {
-        public bool IncludePullRequests { get; set; }
-        public bool IncludeSucceeded { get; set; }
+        public BuildFilterModel Filter { get; set; }
 
         /// <summary>
         /// Total number of builds.  Includes the count of succeeded builds even if <see cref="IncludeSucceeded"/>
@@ -50,9 +67,7 @@ namespace Dashboard.Models
         /// </summary>
         public int TotalSucceededCount { get; set; }
 
-        public DateTimeOffset StartDate { get; set; }
         public List<BuildViewModel> Builds { get; set; } = new List<BuildViewModel>();
-        public string SelectedViewName { get; set; }
     }
 
     /// <summary>
@@ -72,8 +87,7 @@ namespace Dashboard.Models
 
     public class BuildResultKindByViewNameModel
     {
-        public bool IncludePullRequests { get; set; }
-        public DateTimeOffset StartDate { get; set; }
+        public BuildFilterModel Filter { get; set; }
         public string ClassificationKind { get; set; }
         public List<BuildViewNameModel> Builds { get; set; } = new List<BuildViewNameModel>();
         public int TotalResultCount { get; set; }
@@ -81,18 +95,14 @@ namespace Dashboard.Models
 
     public class BuildResultKindModel
     {
-        public bool IncludePullRequests { get; set; }
-        public DateTimeOffset StartDate { get; set; }
+        public BuildFilterModel Filter { get; set; }
         public string ClassificationKind { get; set; }
-        public string SelectedViewName { get; set; }
         public List<BuildResultEntity> Entries { get; set; } = new List<BuildResultEntity>();
     }
 
     public class TestFailureSummaryModel
     {
-        public bool IncludePullRequests { get; set; }
-        public DateTimeOffset StartDate { get; set; }
-        public int Limit { get; set; }
+        public BuildFilterModel Filter { get; set; }
         public List<TestFailureSummaryEntry> Entries { get; set; } = new List<TestFailureSummaryEntry>();
     }
 
@@ -104,9 +114,8 @@ namespace Dashboard.Models
 
     public class TestFailureModel
     {
+        public BuildFilterModel Filter { get; set; }
         public string Name { get; set; }
-        public bool IncludePullRequests { get; set; }
-        public DateTimeOffset StartDate { get; set; }
         public List<BuildFailureEntity> Builds { get; } = new List<BuildFailureEntity>();
     }
 
