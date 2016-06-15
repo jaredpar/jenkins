@@ -3,8 +3,6 @@
 
 @{
     ViewBag.Title = Model.JobId.ShortName;
-    var prValue = Model.IncludePullRequests ? @"checked=""checked""" : "";
-    var startDateValue = Model.StartDate.ToString("yyyy-MM-dd");
     var showForPrStyle = JobUtil.IsPullRequestJobName(Model.JobId.Name) ? "" : "display: none";
 }
 
@@ -36,15 +34,5 @@
 </tbody>
 </table>
 
-<h2>Filter Results</h2>
-
-@using (Html.BeginForm(controllerName: "Builds", actionName: "Result", method: FormMethod.Get))
-{
-    <input type="hidden" name="name" value="@Model.JobId.Name" />
-    <div>
-        <div>Include Pull Requests <input name="pr" type="checkbox" @prValue value="true" /></div>
-        <div>Start Date <input name="startDate" type="date" value="@startDateValue"/></div>
-        <div><input type="submit" value="Refresh" /></div>
-    </div>
-}
+@Html.Partial("BuildFilter", Model.Filter)
 

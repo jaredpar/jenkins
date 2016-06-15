@@ -8,6 +8,16 @@ using System.Web;
 
 namespace Dashboard.Models
 {
+    public sealed class BuildFilterModel
+    {
+        public bool IncludePullRequests { get; set; }
+        public DateTimeOffset StartDate { get; set; }
+        public int Limit { get; set; }
+        public string Name { get; set; }
+        public string ViewName { get; set; }
+        public string ActionName { get; set; }
+    }
+
     public class BuildResultSummaryModel
     {
         public bool IncludePullRequests { get; set; }
@@ -25,8 +35,7 @@ namespace Dashboard.Models
 
     public class BuildResultModel
     {
-        public bool IncludePullRequests { get; set; }
-        public DateTimeOffset StartDate { get; set; }
+        public BuildFilterModel Filter { get; set; }
         public JobId JobId { get; set; }
         public List<BuildResultEntity> Entries { get; set; } = new List<BuildResultEntity>();
     }

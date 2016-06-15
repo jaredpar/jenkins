@@ -56,15 +56,24 @@ namespace Dashboard.Controllers
 
         public ActionResult Result(string name = null, string viewName = AzureUtil.ViewNameRoslyn, bool pr = false, DateTime? startDate = null, int limit = 10)
         {
-            var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            var filter = new BuildFilterModel()
+            {
+                Name = name,
+                ViewName = viewName,
+                IncludePullRequests = pr,
+                StartDate = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1),
+                Limit = limit,
+                ActionName = nameof(Result)
+            };
+
             if (name == null)
             {
-                var model = GetBuildResultSummaryModel(viewName, pr, startDateValue, limit);
+                var model = GetBuildResultSummaryModel(viewName, pr, filter.StartDate, limit);
                 return View(viewName: "BuildResultList", model: model);
             }
             else
             {
-                var model = GetBuildResultModel(name, pr, startDateValue);
+                var model = GetBuildResultModel(name, filter);
                 return View(viewName: "BuildResult", model: model);
             }
         }
@@ -200,18 +209,17 @@ namespace Dashboard.Controllers
             return model;
         }
 
-        private BuildResultModel GetBuildResultModel(string jobName, bool pr, DateTimeOffset startDate)
+        private BuildResultModel GetBuildResultModel(string jobName, BuildFilterModel filter)
         {
             var model = new BuildResultModel()
             {
-                IncludePullRequests = pr,
-                StartDate = startDate,
+                Filter = filter,
                 JobId = JobId.ParseName(jobName),
             };
 
             var queryResult = _buildUtil
-                .GetBuildResults(startDate, jobName)
-                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId.Name))
+                .GetBuildResults(filter.StartDate, jobName)
+                .Where(x => filter.IncludePullRequests || !JobUtil.IsPullRequestJobName(x.JobId.Name))
                 .Where(x => x.ClassificationKind != ClassificationKind.Succeeded)
                 .OrderBy(x => x.BuildNumber);
             

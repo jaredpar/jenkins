@@ -1,0 +1,19 @@
+﻿@model Dashboard.Models.BuildFilterModel
+
+@{
+    var prValue = Model.IncludePullRequests ? @"checked=""checked""" : "";
+    var startDateValue = Model.StartDate.ToString("yyyy-MM-dd");
+}
+<h2>Filter Results</h2>
+
+@using (Html.BeginForm(controllerName: "Builds", actionName: Model.ActionName, method: FormMethod.Get))
+{
+    <input type="hidden" name="name" value="@Model.Name" />
+    <input type="hidden" name="limit" value="@Model.Limit" />
+    <input type="hidden" name="viewName" value="@Model.ViewName" />
+    <div>
+        <div>Include Pull Requests <input name="pr" type="checkbox" @prValue value="true" /></div>
+        <div>Start Date <input name="startDate" type="date" value="@startDateValue"/></div>
+        <div><input type="submit" value="Refresh" /></div>
+    </div>
+}
