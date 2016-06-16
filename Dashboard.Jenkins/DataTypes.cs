@@ -54,7 +54,7 @@ namespace Dashboard.Jenkins
     /// <summary>
     /// A <see cref="BuildId"/> which is bound to a specific Jenkins server.
     /// </summary>
-    public struct BoundBuildId
+    public struct BoundBuildId : IEquatable<BoundBuildId>
     {
         public string UriScheme { get; }
         public string HostName { get; }
@@ -118,6 +118,14 @@ namespace Dashboard.Jenkins
             return boundBuildId;
         }
 
+        public static bool operator==(BoundBuildId left, BoundBuildId right) => 
+            left.UriScheme == right.UriScheme &&
+            left.HostName == right.HostName &&
+            left.BuildId == right.BuildId;
+        public static bool operator!=(BoundBuildId left, BoundBuildId right) => !(left == right);
+        public bool Equals(BoundBuildId other) => this == other;
+        public override bool Equals(object obj) => obj is BoundBuildId && Equals((BoundBuildId)obj);
+        public override int GetHashCode() => BuildId.GetHashCode();
         public override string ToString() => Uri.ToString();
     }
 

@@ -97,6 +97,7 @@
       <Link>SharedConstants.cs</Link>
     </Compile>
     <Compile Include="AzureUtilTests.cs" />
+    <Compile Include="BoundBuildIdTests.cs" />
     <Compile Include="BuildFailureEntityTests.cs" />
     <Compile Include="BuildIdTests.cs" />
     <Compile Include="BuildKeyTests.cs" />
