@@ -91,9 +91,8 @@ namespace Dashboard.StorageBuilder
 
             foreach (var entity in list)
             {
-                // TODO: Need to store the Jenkins URI in the UnprocessedBuildEntity
-                var buildId = entity.BuildId;
-                var boundBuildId = new BoundBuildId(SharedConstants.DotnetJenkinsUri.Host, buildId);
+                var boundBuildId = entity.BoundBuildId;
+                var buildId = boundBuildId.BuildId;
                 _logger.WriteLine($"Deleting stale data {boundBuildId.Uri}");
 
                 textBuilder.Append($"Deleting stale data: {boundBuildId.Uri}");
@@ -126,8 +125,7 @@ namespace Dashboard.StorageBuilder
 
         private async Task UpdateEntity(UnprocessedBuildEntity entity, CloudQueue processBuildQueue, CancellationToken cancellationToken)
         {
-            // TODO: Need to store the Jenkins URI in the UnprocessedBuildEntity
-            var jenkinsUri = SharedConstants.DotnetJenkinsUri;
+            var jenkinsUri = entity.BoundBuildId.HostUri;
             var buildId = entity.BuildId;
             var client = CreateJenkinsClient(jenkinsUri, entity.JobId);
             try
