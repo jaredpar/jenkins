@@ -157,8 +157,7 @@ namespace Dashboard.Models
     /// </summary>
     public class ElapsedTimeSummaryModel
     {
-        public bool IncludePullRequests { get; set; }
-        public bool IncludeSucceeded { get; set; }
+        public BuildFilterModel Filter { get; set; }
 
         /// <summary>
         /// Total number of builds.  Includes the count of succeeded builds even if <see cref="IncludeSucceeded"/>
@@ -171,8 +170,6 @@ namespace Dashboard.Models
         /// </summary>
         public int TotalSucceededCount { get; set; }
 
-        public DateTimeOffset StartDate { get; set; }
         public List<BuildViewModel> Builds { get; set; } = new List<BuildViewModel>();
-        public string SelectedViewName { get; set; }
     }
 }

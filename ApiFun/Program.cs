@@ -272,10 +272,10 @@ namespace Dashboard.ApiFun
             var test = await client.GetFailedTestCasesAsync(buildId);
             var prInfo = await client.GetPullRequestInfoAsync(buildId);
             */
-            var boundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_coreclr/job/release_1.0.0/job/x64_release_rhel7.2_pri1_flow/30/");
-            var buildId = boundBuildId.BuildId;
-            var client = CreateClient(uri: boundBuildId.HostUri, auth: true);
-            var elapsedTimeObj = client.GetBuildInfo(buildId).Duration;
+            var testboundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_coreclr/job/release_1.0.0/job/x64_release_rhel7.2_pri1_flow/30/");
+            var testbuildId = testboundBuildId.BuildId;
+            var client = CreateClient(uri: testboundBuildId.HostUri, auth: true);
+            var elapsedTimeObj = client.GetBuildInfo(testbuildId).Duration;
             Console.WriteLine($"\tET: {elapsedTimeObj.TotalMilliseconds}");
 
 //            var buildInfo = await client.GetBuildInfoAsync(buildId);

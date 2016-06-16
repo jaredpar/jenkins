@@ -101,16 +101,15 @@ namespace Dashboard.Controllers
             return View(viewName: "View", model: model);
         }
 
-
         /// <summary>
         /// A view of the elapsed time grouped by the result.
         /// </summary>
         /// <returns></returns>
-        public ActionResult ElapsedTime(bool pr = false, bool succeeded = false, DateTimeOffset? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
+        public ActionResult ElapsedTime(bool pr = false, DateTimeOffset? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
         {
-            var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            var filter = CreateBuildFilter(actionName: nameof(View), viewName: viewName, startDate: startDate, pr: pr);
             var results =
-                _buildUtil.GetBuildResults(startDateValue, viewName)
+                _buildUtil.GetBuildResults(filter.StartDate, viewName)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
                 .ToList();
 
@@ -118,20 +117,17 @@ namespace Dashboard.Controllers
             var totalSucceeded = results.Count(x => x.ClassificationKind == ClassificationKind.Succeeded);
 
             var builds = results
-                .Where(x => succeeded || x.ClassificationKind != ClassificationKind.Succeeded)
+                .Where(x => x.ClassificationKind != ClassificationKind.Succeeded)
                 .GroupBy(x => x.ClassificationName)
                 .Select(x => new BuildViewModel() { KindName = x.Key, Count = x.Count() })
                 .ToList();
 
             var model = new ElapsedTimeSummaryModel()
             {
-                IncludePullRequests = pr,
-                IncludeSucceeded = succeeded,
+                Filter = filter,
                 TotalBuildCount = totalCount,
                 TotalSucceededCount = totalSucceeded,
-                StartDate = startDateValue,
-                Builds = builds,
-                SelectedViewName = viewName
+                Builds = builds
             };
 
             return View(viewName: "ElapsedTime", model: model);

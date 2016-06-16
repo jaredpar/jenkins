@@ -1,7 +1,8 @@
 ﻿$(document).ready(function () {
     if ($('#view_name_div select').length > 0) {
         var startDate = $('input[name=startDate]').val();
-        var selectedViewName = $('input[name=viewName]').val();
+        //var selectedViewName = $('input[name=viewName]').val();
+        var selectedViewName = $('#view_name_div').attr('data-selected-viewname');
         $('#view_name_div select').change(function (e) {
             $('input[name=viewName]').val(e.target.value)
         });
