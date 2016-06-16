@@ -107,7 +107,7 @@ namespace Dashboard.Controllers
         /// <returns></returns>
         public ActionResult ElapsedTime(bool pr = false, DateTimeOffset? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
         {
-            var filter = CreateBuildFilter(actionName: nameof(View), viewName: viewName, startDate: startDate, pr: pr);
+            var filter = CreateBuildFilter(actionName: nameof(ElapsedTime), viewName: viewName, startDate: startDate, pr: pr);
             var results =
                 _buildUtil.GetBuildResults(filter.StartDate, viewName)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
@@ -122,12 +122,30 @@ namespace Dashboard.Controllers
                 .Select(x => new BuildViewModel() { KindName = x.Key, Count = x.Count() })
                 .ToList();
 
+            var runCounts = results
+                .Select(x => new ElapsedTimeModel() { JobId = x.JobId, JobName = x.JobName, ElapsedTime = x.DurationSeconds })
+                .ToList();
+
+            List<int> runsPerETRange = new List<int>();
+
+            for (int i = 0; i < 6; i++)
+            {
+                runsPerETRange.Add(0);
+            }
+
+            foreach (var runElapsedTime in runCounts)
+            {
+                int ETDigits = runElapsedTime.ElapsedTime.ToString().Length;
+                runsPerETRange[ETDigits - 1] = runsPerETRange[ETDigits - 1] + 1;
+            }
+
             var model = new ElapsedTimeSummaryModel()
             {
                 Filter = filter,
                 TotalBuildCount = totalCount,
                 TotalSucceededCount = totalSucceeded,
-                Builds = builds
+                Builds = builds,
+                RunCountsPerETRange = runsPerETRange
             };
 
             return View(viewName: "ElapsedTime", model: model);

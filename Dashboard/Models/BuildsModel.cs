@@ -153,6 +153,16 @@ namespace Dashboard.Models
     }
 
     /// <summary>
+    /// Job info and its elapsed time (in seconds)
+    /// </summary>
+    public class ElapsedTimeModel
+    {
+        public JobId JobId { get; set; }
+        public string JobName { get; set; }
+        public int ElapsedTime;
+    }
+
+    /// <summary>
     /// List of elapsed time by categorization of their ranges (0 ~ 100ms, 100 ~ 1000ms ...
     /// </summary>
     public class ElapsedTimeSummaryModel
@@ -171,5 +181,14 @@ namespace Dashboard.Models
         public int TotalSucceededCount { get; set; }
 
         public List<BuildViewModel> Builds { get; set; } = new List<BuildViewModel>();
+
+        /// <summary>
+        /// Counts of runs per elapsed time range.
+        /// List elements at 0 represents the range of 0 ~ 10ms
+        /// List elements at 1 represents the range of 10 ~ 100ms
+        /// Length of this array is set to 6, which counts runs whose ET is in range as much as 100000 ~ 1000000ms
+        /// </summary>
+        /// </summary>
+        public List<int> RunCountsPerETRange { get; set; } = new List<int>();
     }
 }

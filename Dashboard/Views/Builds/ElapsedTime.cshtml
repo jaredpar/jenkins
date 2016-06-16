@@ -9,17 +9,18 @@
     var startDateValue = Model.Filter.StartDate.ToString("yyyy-MM-dd");
     var successRate = Model.TotalSucceededCount / (double)Model.TotalBuildCount;
     var isSingleViewName = Model.Filter.ViewName != Dashboard.Azure.AzureUtil.ViewNameAll;
+    var runCountsPerETRange = string.Join(";", Model.RunCountsPerETRange.Select(x => x));
 }
 
 <div>
-    <h2>Build Result Summary</h2>
+    <h2>Elapsed Time Summary</h2>
     <div>@Model.Filter.ViewName</div>
     <div>Ran @Model.TotalBuildCount.ToString("n0")</div>
     <div>Succeded @Model.TotalSucceededCount.ToString("n0")</div>
     <div>Success rate @successRate.ToString("n2")</div>
 </div>
 
-<div id="elapsed_time_chart" style="width: 900px; height: 500px" data-values="@buildValues"></div>
+<div id="elapsed_time_chart" style="width: 900px; height: 500px" data-values="@runCountsPerETRange"></div>
 
 <!-- Filter the action results -->
 @Html.Partial("BuildFilter", Model.Filter)

@@ -9,12 +9,11 @@
 
         //Categorize elapsed time based on their range
         var values = elem.attr('data-values').split(';');
-        //Array elements are counts of jobs whose ETs fall into categories of 0~10ms, 10~100ms, 100~1000ms, 1000~10000ms, 10000~100000ms, 100000~1000000ms.
         var eTime = ["0", "0", "0", "0", "0", "0"];
+        var i = 0;
         values.forEach(function (str, _, _) {
-            var all = str.split(',');
-            var ETIndex = all[1].length - 1;
-            eTime[ETIndex] = eTime[ETIndex] + 1;
+            eTime[i] = str;
+            i = i + 1;
         });
 
         var digits = 1;
