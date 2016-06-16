@@ -163,7 +163,7 @@ namespace Dashboard.Models
     }
 
     /// <summary>
-    /// List of elapsed time by categorization of their ranges (0 ~ 100ms, 100 ~ 1000ms ...
+    /// List of elapsed time by categorization of their ranges (0 ~ 100ms), (100 ~ 1000ms) ...
     /// </summary>
     public class ElapsedTimeSummaryModel
     {
@@ -180,8 +180,6 @@ namespace Dashboard.Models
         /// </summary>
         public int TotalSucceededCount { get; set; }
 
-        public List<BuildViewModel> Builds { get; set; } = new List<BuildViewModel>();
-
         /// <summary>
         /// Counts of runs per elapsed time range.
         /// List elements at 0 represents the range of 0 ~ 10ms
@@ -190,5 +188,39 @@ namespace Dashboard.Models
         /// </summary>
         /// </summary>
         public List<int> RunCountsPerETRange { get; set; } = new List<int>();
+    }
+
+    /// <summary>
+    /// Team/Project repo name and the sum of the elapsed time of all their jobs
+    /// </summary>
+    public class RepoETModel
+    {
+        public string RepoName { get; set; }
+        public int ETSum;
+    }
+
+    /// <summary>
+    /// List of team/project repos ranked by the sum of elapsed time of all their jobs
+    /// </summary>
+    public class RepoETSummaryModel
+    {
+        public BuildFilterModel Filter { get; set; }
+
+        /// <summary>
+        /// Total number of builds.  Includes the count of succeeded builds even if <see cref="IncludeSucceeded"/>
+        /// is false.
+        /// </summary>
+        public int TotalBuildCount { get; set; }
+
+        /// <summary>
+        /// Total number of builds that succeeded.
+        /// </summary>
+        public int TotalSucceededCount { get; set; }
+
+        /// <summary>
+        /// Sum of elapsed time of all the jobs of every git repo.
+        /// </summary>
+        /// </summary>
+        public List<RepoETModel> RepoETList { get; set; } = new List<RepoETModel>();
     }
 }

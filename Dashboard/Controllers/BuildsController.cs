@@ -116,12 +116,6 @@ namespace Dashboard.Controllers
             var totalCount = results.Count;
             var totalSucceeded = results.Count(x => x.ClassificationKind == ClassificationKind.Succeeded);
 
-            var builds = results
-                .Where(x => x.ClassificationKind != ClassificationKind.Succeeded)
-                .GroupBy(x => x.ClassificationName)
-                .Select(x => new BuildViewModel() { KindName = x.Key, Count = x.Count() })
-                .ToList();
-
             var runCounts = results
                 .Select(x => new ElapsedTimeModel() { JobId = x.JobId, JobName = x.JobName, ElapsedTime = x.DurationSeconds })
                 .ToList();
@@ -144,11 +138,66 @@ namespace Dashboard.Controllers
                 Filter = filter,
                 TotalBuildCount = totalCount,
                 TotalSucceededCount = totalSucceeded,
-                Builds = builds,
                 RunCountsPerETRange = runsPerETRange
             };
 
             return View(viewName: "ElapsedTime", model: model);
+        }
+
+        /// <summary>
+        /// A view of the total elapsed time per team/project repo, ranked from most elapsed time to least.
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult RepoET(bool pr = false, DateTimeOffset? startDate = null)
+        {
+            var filter = CreateBuildFilter(actionName: nameof(RepoET), startDate: startDate, pr: pr);
+
+            List<string> repoNameList = _buildUtil.GetViewNames(filter.StartDate);
+            List<RepoETModel> ETListOfRepos = new List<RepoETModel>();
+            var totalCount = 0;
+            var totalSucceeded = 0;
+
+            foreach (var repoName in repoNameList)
+            {
+                RepoETModel currRepo = new RepoETModel();
+
+                currRepo.RepoName = repoName;
+
+                var results =
+                _buildUtil.GetBuildResults(filter.StartDate, repoName)
+                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
+                .ToList();
+
+                if (repoName == "all")
+                {
+                    totalCount = results.Count;
+                    totalSucceeded = results.Count(x => x.ClassificationKind == ClassificationKind.Succeeded);
+                }
+
+                var runCounts = results
+                    .Select(x => new ElapsedTimeModel() { JobId = x.JobId, JobName = x.JobName, ElapsedTime = x.DurationSeconds })
+                    .ToList();
+
+                foreach (var runElapsedTime in runCounts)
+                {
+                    currRepo.ETSum = currRepo.ETSum + runElapsedTime.ElapsedTime;
+                }
+
+                //Store total elapsed time in minutes.
+                currRepo.ETSum = currRepo.ETSum / 60;
+
+                ETListOfRepos.Add(currRepo);
+            }
+
+            var model = new RepoETSummaryModel()
+            {
+                Filter = filter,
+                TotalBuildCount = totalCount,
+                TotalSucceededCount = totalSucceeded,
+                RepoETList = ETListOfRepos
+            };
+
+            return View(viewName: "RepoET", model: model);
         }
 
         public ActionResult Kind(string name = null, bool pr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
