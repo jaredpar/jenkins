@@ -93,6 +93,18 @@ namespace Dashboard.StorageBuilder
             {
                 var boundBuildId = entity.BoundBuildId;
                 var buildId = boundBuildId.BuildId;
+
+                // GC Stress jobs can correctly execute for up to 3 days.  This is a bit of an outlier but one we 
+                // need to handle;
+                if (JobUtil.IsGCStressJob(buildId.JobId))
+                {
+                    var stressLimit = DateTimeOffset.UtcNow - TimeSpan.FromDays(3);
+                    if (entity.LastUpdate >= stressLimit)
+                    {
+                        continue;
+                    }
+                }
+
                 _logger.WriteLine($"Deleting stale data {boundBuildId.Uri}");
 
                 textBuilder.Append($"Deleting stale data: {boundBuildId.Uri}");

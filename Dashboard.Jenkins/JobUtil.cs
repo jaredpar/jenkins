@@ -22,5 +22,10 @@ namespace Dashboard.Jenkins
         {
             return !IsPullRequestJobName(jobName);
         }
+
+        public static bool IsGCStressJob(JobId jobid)
+        {
+            return jobId.Name.Contains("_gcstress");
+        }
     }
 }
