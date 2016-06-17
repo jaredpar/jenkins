@@ -4,6 +4,8 @@
 @{
     ViewBag.Title = "Job ET List";
     var showForPrStyle = Model.Filter.IncludePullRequests ? "" : "display: none";
+    var prValue = Model.Filter.IncludePullRequests ? @"checked=""checked""" : "";
+    var startDateValue = Model.Filter.StartDate.ToString("yyyy-MM-dd");
 }
 
 <h2>Job Elapsed Time List</h2>
@@ -19,10 +21,11 @@
     <tbody>
         @foreach (var currJobET in Model.AgJobETDict.OrderByDescending(x => x.Value.ETSum))
         {
+            var uri = "https://dotnet-ci.cloudapp.net/job/Private/job/dotnet_roslyn-internal/job/future-stabilization/job/windows_release_unit64/10/";
             <tr>
                 <td>@currJobET.Key</td>
                 <td>@currJobET.Value.ETSum</td>
-                <td>@currJobET.Value.NumOfBuilds</td>
+                <td><a href="@uri">@currJobET.Value.NumOfBuilds</a></td>
             </tr>
         }
     </tbody>

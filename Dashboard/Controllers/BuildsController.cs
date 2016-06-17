@@ -239,14 +239,30 @@ namespace Dashboard.Controllers
             return View(viewName: "KindByViewName", model: model);
         }
 
-        public ActionResult JobListByRepoName(string name = null, bool pr = false, DateTime? startDate = null)
+        public ActionResult JobListByRepoName(string name = null, bool pr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameAll)
         {
-            var filter = CreateBuildFilter(actionName: nameof(JobListByRepoName), viewName: name, startDate: startDate, pr: pr);
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
-            var results = _buildUtil
-                .GetBuildResults(startDateValue, name)
-                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
-                .ToList();
+            BuildFilterModel filter;
+            List<BuildResultEntity> results;
+
+            //When navigating from "RepoET" view to "JobET" view, var "name" is set to the repo name being selected.
+            //When refreshing "JobET" view via repo name dropdown list, var "viewName" is set to the repo name, var "name" == null
+            if (name != null)
+            {
+                filter = CreateBuildFilter(actionName: nameof(JobListByRepoName), viewName: name, startDate: startDate, pr: pr);
+                results = _buildUtil
+                    .GetBuildResults(startDateValue, name)
+                    .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
+                    .ToList();
+            }
+            else
+            {
+                filter = CreateBuildFilter(actionName: nameof(JobListByRepoName), viewName: viewName, startDate: startDate, pr: pr);
+                results = _buildUtil
+                    .GetBuildResults(startDateValue, viewName)
+                    .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
+                    .ToList();
+            }
 
             SortedDictionary< string, AgJobET> aggregatedJobETDic = new SortedDictionary<string, AgJobET>();
             foreach (var entry in results)
