@@ -1,0 +1,35 @@
+﻿@model Dashboard.Models.JobETModel
+@using Dashboard.Jenkins
+
+@{
+    ViewBag.Title = "Job ET List";
+    var showForPrStyle = Model.Filter.IncludePullRequests ? "" : "display: none";
+}
+
+<h2>Job Elapsed Time List</h2>
+<h3>Jenkins Jobs (@Model.Filter.ViewName)</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Job Name</th>
+            <th>Aggregated Elapsed Time (in secs)</th>
+            <th>Number of runs of current job</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var currJobET in Model.AgJobETDict.OrderByDescending(x => x.Value.ETSum))
+        {
+            <tr>
+                <td>@currJobET.Key</td>
+                <td>@currJobET.Value.ETSum</td>
+                <td>@currJobET.Value.NumOfBuilds</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@Html.Partial("BuildFilter", Model.Filter)
+
+@section scripts {
+    <script type="text/javascript" src="@Url.Content("/Scripts/build-filter.js")"></script>
+}

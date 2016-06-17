@@ -8,7 +8,7 @@
     var prValue = Model.Filter.IncludePullRequests ? @"checked=""checked""" : "";
     var startDateValue = Model.Filter.StartDate.ToString("yyyy-MM-dd");
     var successRate = Model.TotalSucceededCount / (double)Model.TotalBuildCount;
-    var isSingleViewName = Model.Filter.ViewName != Dashboard.Azure.AzureUtil.ViewNameAll;
+    var isSingleViewName = false;
 }
 
 <div>
@@ -27,7 +27,7 @@
 <!-- Hidden form for navigating on selection of categories -->
 @using (Html.BeginForm(
         controllerName: "Builds",
-        actionName: isSingleViewName ? "Kind" : "KindByViewName",
+        actionName: "JobListByRepoName",
         method: FormMethod.Get,
         htmlAttributes: new { id = "category_form" }))
 {

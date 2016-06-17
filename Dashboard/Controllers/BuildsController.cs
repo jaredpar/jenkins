@@ -239,6 +239,41 @@ namespace Dashboard.Controllers
             return View(viewName: "KindByViewName", model: model);
         }
 
+        public ActionResult JobListByRepoName(string name = null, bool pr = false, DateTime? startDate = null)
+        {
+            var filter = CreateBuildFilter(actionName: nameof(JobListByRepoName), viewName: name, startDate: startDate, pr: pr);
+            var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            var results = _buildUtil
+                .GetBuildResults(startDateValue, name)
+                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
+                .ToList();
+
+            SortedDictionary< string, AgJobET> aggregatedJobETDic = new SortedDictionary<string, AgJobET>();
+            foreach (var entry in results)
+            {
+                string currJobName = entry.BuildId.JobName;
+                if (aggregatedJobETDic.ContainsKey(currJobName))
+                {
+                    aggregatedJobETDic[currJobName].ETSum = aggregatedJobETDic[currJobName].ETSum + entry.DurationSeconds;
+                    aggregatedJobETDic[currJobName].NumOfBuilds++;
+                }
+                else
+                {
+                    AgJobET newAgJobET = new AgJobET();
+                    newAgJobET.ETSum = entry.DurationSeconds;
+                    newAgJobET.NumOfBuilds = 1;
+                    aggregatedJobETDic.Add(currJobName, newAgJobET);
+                }
+            }
+
+            var model = new JobETModel()
+            {
+                Filter = filter,
+                AgJobETDict = aggregatedJobETDic
+            };
+            return View(viewName: "JobET", model: model);
+        }
+
         public string Csv(string viewName = AzureUtil.ViewNameRoslyn, bool pr = false, DateTime? startDate = null)
         {
             var filter = CreateBuildFilter(nameof(Csv), viewName: viewName, pr: pr, startDate: startDate);

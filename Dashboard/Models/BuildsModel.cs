@@ -223,4 +223,29 @@ namespace Dashboard.Models
         /// </summary>
         public List<RepoETModel> RepoETList { get; set; } = new List<RepoETModel>();
     }
+
+    /// <summary>
+    /// Aggregated Job ET entry.
+    /// 1st element is the ET sum of all its runs (each run has a different build number)
+    /// 2nd element is the # of its runs
+    /// </summary>
+    public class AgJobET
+    {
+        public int ETSum { get; set; }
+        public int NumOfBuilds { get; set; }
+    }
+
+    /// <summary>
+    /// Job ET list of selected repo, ranked from job with most ET to least.
+    /// </summary>
+    public class JobETModel
+    {
+        public BuildFilterModel Filter { get; set; }
+        /// <summary>
+        /// Aggregated map of job elapsed time, where key is the job name.
+        /// Elapsed time from runs of the same job (but different build IDs) are summed up.
+        /// </summary>
+        /// </summary>
+        public SortedDictionary<string, AgJobET> AgJobETDict { get; set; } = new SortedDictionary<string, AgJobET>();
+    }
 }
