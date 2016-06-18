@@ -290,6 +290,27 @@ namespace Dashboard.Controllers
             return View(viewName: "JobET", model: model);
         }
 
+
+        public ActionResult JobETPerBuild(bool pr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameRoslyn, string jobName = "dotnet_coreclr/master/checked_windows_nt_bld")
+        {
+            var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            var filter = CreateBuildFilter(actionName: nameof(JobETPerBuild), viewName: viewName, startDate: startDate, pr: pr);
+            var results = _buildUtil
+                .GetBuildResults(startDateValue, viewName)
+                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId) && x.JobId.Name == jobName)
+                .ToList();
+
+            var model = new BuildResultKindModel()
+            {
+                Filter = filter,
+                ClassificationKind = null,
+                Entries = results
+            };
+
+            return View(viewName: "JobETPerBuild", model: model);
+        }
+
+
         public string Csv(string viewName = AzureUtil.ViewNameRoslyn, bool pr = false, DateTime? startDate = null)
         {
             var filter = CreateBuildFilter(nameof(Csv), viewName: viewName, pr: pr, startDate: startDate);

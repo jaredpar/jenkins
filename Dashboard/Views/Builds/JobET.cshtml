@@ -21,7 +21,10 @@
     <tbody>
         @foreach (var currJobET in Model.AgJobETDict.OrderByDescending(x => x.Value.ETSum))
         {
-            var uri = "https://dotnet-ci.cloudapp.net/job/Private/job/dotnet_roslyn-internal/job/future-stabilization/job/windows_release_unit64/10/";
+            var uri = "http://localhost:9859/builds/JobETPerBuild?";
+                uri = uri + "viewName=" + Model.Filter.ViewName;
+                uri = uri + "&startDate=" + startDateValue;
+                uri = uri + "&jobName=" + currJobET.Key;
             <tr>
                 <td>@currJobET.Key</td>
                 <td>@currJobET.Value.ETSum</td>
@@ -32,6 +35,19 @@
 </table>
 
 @Html.Partial("BuildFilter", Model.Filter)
+
+<!-- Hidden form for navigating on selection of categories -->
+@using (Html.BeginForm(
+        controllerName: "Builds",
+        actionName: "JobETPerBuild",
+        method: FormMethod.Get,
+        htmlAttributes: new { id = "category_form" }))
+{
+    <input id="category_form_kind" name="name" value="" hidden="hidden" />
+    <input name="pr" type="checkbox" @prValue value="true" hidden="hidden" />
+    <input name="startDate" type="date" value="@startDateValue" hidden="hidden" />
+    <input name="viewName" value="@Model.Filter.ViewName" hidden="hidden" />
+}
 
 @section scripts {
     <script type="text/javascript" src="@Url.Content("/Scripts/build-filter.js")"></script>
