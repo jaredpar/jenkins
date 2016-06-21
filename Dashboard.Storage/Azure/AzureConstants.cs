@@ -23,6 +23,7 @@ namespace Dashboard.Azure
             public const string TestRunData = "TestRunData";
             public const string UnitTestQueryCounter = "UnitTestQueryCounter";
             public const string UnprocessedBuild = "UnprocessedBuild";
+            public const string ViewNameDate = "ViewNameDate";
 
             public static IEnumerable<string> All()
             {
@@ -39,6 +40,7 @@ namespace Dashboard.Azure
                 yield return TestRunData;
                 yield return UnitTestQueryCounter;
                 yield return UnprocessedBuild;
+                yield return ViewNameDate;
             }
         }
 

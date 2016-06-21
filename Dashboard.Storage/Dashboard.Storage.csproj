@@ -102,6 +102,7 @@
     <Compile Include="Azure\TestRunCounterEntity.cs" />
     <Compile Include="Azure\TestRunEntity.cs" />
     <Compile Include="Azure\UnitTestCounterEntity.cs" />
+    <Compile Include="Azure\ViewNameEntity.cs" />
     <Compile Include="EnumUtil.cs" />
     <Compile Include="Sql\ConsoleLogger.cs" />
     <Compile Include="Sql\DataMigrater.cs" />
