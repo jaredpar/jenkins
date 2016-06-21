@@ -73,11 +73,13 @@ namespace Dashboard.Azure
 
         public List<string> GetViewNames(DateTimeOffset startDate)
         {
+            var dateColumnName = nameof(BuildResultEntity.PartitionKey);
+            var viewNameColumnName = nameof(BuildResultEntity.ViewName);
             var filter = FilterUtil
                 .SinceDate(ColumnNames.PartitionKey, startDate)
-                .And(FilterUtil.Column(nameof(BuildResultEntity.ViewName), null, ColumnOperator.NotEqual));
-            var query = new TableQuery<BuildResultEntity>()
-                .Select(new List<string>() {nameof(BuildResultEntity.ViewName)})
+                .And(FilterUtil.Column(viewNameColumnName, null, ColumnOperator.NotEqual));
+            var query = new TableQuery<DynamicTableEntity>()
+                .Select(new [] { dateColumnName, viewNameColumnName })
                 .Where(filter);
 
             var defaultViewNames = new List<string>() { "all" };
@@ -88,7 +90,7 @@ namespace Dashboard.Azure
             // If we DO need the latter, we need a different approach as the double query
             // becomes prohibitively slow.
             var buildResultViewNames = _buildResultDateTable.ExecuteQuery(query)
-                .Select(b => b.ViewName)
+                .Select(b => b.Properties[viewNameColumnName].StringValue)
                 .Distinct()
                 .ToList();
 
