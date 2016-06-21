@@ -79,6 +79,20 @@ namespace Dashboard.Models
         public int Count;
     }
 
+    public class BuildViewNameModel
+    {
+        public string ViewName;
+        public int Count;
+    }
+
+    public class BuildResultKindByViewNameModel
+    {
+        public BuildFilterModel Filter { get; set; }
+        public string ClassificationKind { get; set; }
+        public List<BuildViewNameModel> Builds { get; set; } = new List<BuildViewNameModel>();
+        public int TotalResultCount { get; set; }
+    }
+
     public class BuildResultKindModel
     {
         public BuildFilterModel Filter { get; set; }

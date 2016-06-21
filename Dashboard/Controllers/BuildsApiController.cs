@@ -109,6 +109,13 @@ namespace Dashboard.Controllers
             return data;
         }
 
+        [Route("api/builds/viewNames")]
+        public List<string> GetViewNames([FromUri] DateTimeOffset? startDate = null)
+        {
+            var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            return _buildUtil.GetViewNames(startDateValue);
+        }
+
         // DEMAND: should return the URI they can use for getting updates
         [Route("api/builds/demand")]
         public async Task<string> CreateDemandBuild(DemandRunRequestModel model)

@@ -27,6 +27,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Jenkins", "Dashboard.Jenkins\Dashboard.Jenkins.csproj", "{93ED4B41-CBC6-4423-BDDC-612C9BB607BA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Tests", "Dashboard.Tests\Dashboard.Tests.csproj", "{37C8575D-8E4E-45EB-861B-3720E883A663}"
+	ProjectSection(ProjectDependencies) = postProject
+		{33DB7715-7742-44BE-AE4B-34CE54A40AF5} = {33DB7715-7742-44BE-AE4B-34CE54A40AF5}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JenkinsThis", "JenkinsThis\JenkinsThis.csproj", "{1FCDD236-70A8-42C3-B3FC-631A4CF32351}"
 EndProject

@@ -41,11 +41,11 @@ namespace Dashboard.Azure
             return _buildResultDateTable.ExecuteQuery(query).ToList();
         }
 
-        public List<BuildResultEntity> GetBuildResults(DateTimeOffset startDate, ClassificationKind kind, string viewName)
+        public List<BuildResultEntity> GetBuildResultsByKindName(DateTimeOffset startDate, string kindName, string viewName)
         {
             var filter = FilterUtil
                 .SinceDate(ColumnNames.PartitionKey, startDate)
-                .And(FilterUtil.Column(nameof(BuildResultEntity.ClassificationKindRaw), kind.ToString()));
+                .And(FilterUtil.Column(nameof(BuildResultEntity.ClassificationName), kindName));
             filter = FilterView(filter, viewName);
             var query = new TableQuery<BuildResultEntity>().Where(filter);
             return _buildResultDateTable.ExecuteQuery(query).ToList();
@@ -69,6 +69,30 @@ namespace Dashboard.Azure
             filter = FilterView(filter, viewName);
             var query = new TableQuery<BuildFailureEntity>().Where(filter);
             return _buildFailureDateTable.ExecuteQuery(query).ToList();
+        }
+
+        public List<string> GetViewNames(DateTimeOffset startDate)
+        {
+            var filter = FilterUtil
+                .SinceDate(ColumnNames.PartitionKey, startDate)
+                .And(FilterUtil.Column(nameof(BuildResultEntity.ViewName), null, ColumnOperator.NotEqual));
+            var query = new TableQuery<BuildResultEntity>()
+                .Select(new List<string>() {nameof(BuildResultEntity.ViewName)})
+                .Where(filter);
+
+            var defaultViewNames = new List<string>() { "all" };
+
+            // TODO should we union the results from querying _buildFailureDateTable ?
+            // The query takes much longer than _buildResultDateTable for some reason,
+            // and doesn't appear to contain useful data for this purpose (yet).
+            // If we DO need the latter, we need a different approach as the double query
+            // becomes prohibitively slow.
+            var buildResultViewNames = _buildResultDateTable.ExecuteQuery(query)
+                .Select(b => b.ViewName)
+                .Distinct()
+                .ToList();
+
+            return defaultViewNames.Union(buildResultViewNames).ToList();
         }
 
         private static FilterUtil FilterView(FilterUtil util, string viewName)

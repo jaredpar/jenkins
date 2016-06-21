@@ -26,6 +26,14 @@
     <div>
         <div>Include Pull Requests <input name="pr" type="checkbox" @prValue value="true" /></div>
         <div>Start Date <input name="startDate" type="date" value="@startDateValue"/></div>
+        @if (Model.ViewName != null)
+        {
+            <div id="view_name_div" data-selected-viewname="@Model.ViewName">
+                View Name
+                <select style="display:none;"></select>
+                <img src="@Url.Content("/Content/loading-squares.gif")" alt="Loading..." />
+            </div>
+        }
         <div><input type="submit" value="Refresh" /></div>
     </div>
 }

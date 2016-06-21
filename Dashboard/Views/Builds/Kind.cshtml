@@ -7,7 +7,7 @@
 }
 
 <h2>Kind @Model.ClassificationKind</h2>
-<h3>Jenkins Jobs</h3>
+<h3>Jenkins Jobs (@Model.Filter.ViewName)</h3>
 <table class="table">
     <thead><tr>
         <th>Job</th>
@@ -39,3 +39,6 @@
 
 @Html.Partial("BuildFilter", Model.Filter)
 
+@section scripts {
+    <script type="text/javascript" src="@Url.Content("/Scripts/build-filter.js")"></script>
+}

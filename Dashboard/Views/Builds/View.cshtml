@@ -8,10 +8,12 @@
     var prValue = Model.Filter.IncludePullRequests ? @"checked=""checked""" : "";
     var startDateValue = Model.Filter.StartDate.ToString("yyyy-MM-dd");
     var successRate = Model.TotalSucceededCount / (double)Model.TotalBuildCount;
+    var isSingleViewName = Model.Filter.ViewName != Dashboard.Azure.AzureUtil.ViewNameAll;
 }
 
 <div>
     <h2>Build Result Summary</h2>
+    <div>@Model.Filter.ViewName</div>
     <div>Ran @Model.TotalBuildCount.ToString("n0")</div>
     <div>Succeded @Model.TotalSucceededCount.ToString("n0")</div>
     <div>Success rate @successRate.ToString("n2")</div>
@@ -23,15 +25,23 @@
 @Html.Partial("BuildFilter", Model.Filter)
 
 <!-- Hidden form for navigating on selection of categories -->
-<!-- TODO Move this to the shared filter as well -->
-@using (Html.BeginForm(controllerName: "Builds", actionName: "Kind", method: FormMethod.Get, htmlAttributes: new { id = "category_form" }))
+@using (Html.BeginForm(
+    controllerName: "Builds",
+    actionName: isSingleViewName ? "Kind" : "KindByViewName",
+    method: FormMethod.Get,
+    htmlAttributes: new { id = "category_form" }))
 {
-    <input id="category_form_kind" name="kind" value="" hidden="hidden" />
+    <input id="category_form_kind" name="name" value="" hidden="hidden" />
     <input name="pr" type="checkbox" @prValue value="true" hidden="hidden" />
     <input name="startDate" type="date" value="@startDateValue" hidden="hidden"/>
+    if (isSingleViewName)
+    {
+        <input name="viewName" value="@Model.Filter.ViewName" hidden="hidden"/>
+    }
 }
 
 @section scripts {
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript" src="@Url.Content("/Scripts/build-view.js")" ></script>
+    <script type="text/javascript" src="@Url.Content("/Scripts/build-filter.js")"></script>
 }

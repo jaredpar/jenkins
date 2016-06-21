@@ -22,3 +22,7 @@
 </table>
 
 @Html.Partial("BuildFilter", Model.Filter)
+
+@section scripts {
+    <script type="text/javascript" src="@Url.Content("/Scripts/build-filter.js")"></script>
+}

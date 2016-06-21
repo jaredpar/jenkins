@@ -104,19 +104,40 @@ namespace Dashboard.Controllers
         public ActionResult Kind(string name = null, bool pr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
         {
             var filter = CreateBuildFilter(nameof(Kind), name, viewName, pr, startDate);
-            var kindValue = EnumUtil.Parse(name, ClassificationKind.Unknown);
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             var list = _buildUtil
-                .GetBuildResults(startDateValue, kindValue, viewName)
+                .GetBuildResultsByKindName(startDateValue, name, viewName)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobName))
                 .ToList();
             var model = new BuildResultKindModel()
             {
                 Filter = filter,
-                ClassificationKind = kindValue.ToString(),
+                ClassificationKind = name,
                 Entries = list,
             };
             return View(viewName: "Kind", model: model);
+        }
+
+        public ActionResult KindByViewName(string name = null, bool pr = false, DateTime? startDate = null)
+        {
+            var filter = CreateBuildFilter(actionName: nameof(KindByViewName), name: name, startDate: startDate, pr: pr);
+            var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            var results = _buildUtil
+                .GetBuildResultsByKindName(startDateValue, name, AzureUtil.ViewNameAll)
+                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
+                .ToList();
+            var builds = results
+                .GroupBy(x => x.ViewName)
+                .Select(x => new BuildViewNameModel() { ViewName = x.Key, Count = x.Count() })
+                .ToList();
+            var model = new BuildResultKindByViewNameModel()
+            {
+                Filter = filter,
+                ClassificationKind = name,
+                Builds = builds,
+                TotalResultCount = results.Count
+            };
+            return View(viewName: "KindByViewName", model: model);
         }
 
         public string Csv(string viewName = AzureUtil.ViewNameRoslyn, bool pr = false, DateTime? startDate = null)
