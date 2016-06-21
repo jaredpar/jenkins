@@ -58,6 +58,7 @@ namespace Dashboard.StorageBuilder
             [Table(AzureConstants.TableNames.BuildResultExact)] CloudTable buildResultExactTable,
             [Table(AzureConstants.TableNames.BuildFailureDate)] CloudTable buildFailureDateTable,
             [Table(AzureConstants.TableNames.BuildFailureExact)] CloudTable buildFailureExactTable,
+            [Table(AzureConstants.TableNames.ViewNameDate)] CloudTable viewNameDateTable,
             TextWriter logger,
             CancellationToken cancellationToken)
         {
@@ -69,6 +70,7 @@ namespace Dashboard.StorageBuilder
                 buildResultExactTable: buildResultExactTable,
                 buildFailureDateTable: buildFailureDateTable,
                 buildFailureExactTable: buildFailureExactTable,
+                viewNameDateTable: viewNameDateTable,
                 client: client,
                 textWriter: logger);
             var stateUtil = new StateUtil(

@@ -19,6 +19,7 @@ namespace Dashboard.Azure
         private readonly CloudTable _buildResultExactTable;
         private readonly CloudTable _buildFailureDateTable;
         private readonly CloudTable _buildFailureExactTable;
+        private readonly CloudTable _viewNameDateTable;
         private readonly JenkinsClient _client;
         private readonly TextWriter _textWriter;
 
@@ -27,22 +28,25 @@ namespace Dashboard.Azure
             buildResultExactTable: tableClient.GetTableReference(AzureConstants.TableNames.BuildResultExact),
             buildFailureDateTable: tableClient.GetTableReference(AzureConstants.TableNames.BuildFailureDate),
             buildFailureExactTable: tableClient.GetTableReference(AzureConstants.TableNames.BuildFailureExact),
+            viewNameDateTable : tableClient.GetTableReference(AzureConstants.TableNames.ViewNameDate),
             client: client,
             textWriter: textWriter)
         {
 
         }
 
-        public BuildTablePopulator(CloudTable buildResultDateTable, CloudTable buildResultExactTable, CloudTable buildFailureDateTable, CloudTable buildFailureExactTable, JenkinsClient client, TextWriter textWriter)
+        public BuildTablePopulator(CloudTable buildResultDateTable, CloudTable buildResultExactTable, CloudTable buildFailureDateTable, CloudTable buildFailureExactTable, CloudTable viewNameDateTable, JenkinsClient client, TextWriter textWriter)
         {
             Debug.Assert(buildResultDateTable.Name == AzureConstants.TableNames.BuildResultDate);
             Debug.Assert(buildResultExactTable.Name == AzureConstants.TableNames.BuildResultExact);
             Debug.Assert(buildFailureDateTable.Name == AzureConstants.TableNames.BuildFailureDate);
             Debug.Assert(buildFailureExactTable.Name == AzureConstants.TableNames.BuildFailureExact);
+            Debug.Assert(viewNameDateTable.Name == AzureConstants.TableNames.ViewNameDate);
             _buildResultDateTable = buildResultDateTable;
             _buildResultExactTable = buildResultExactTable;
             _buildFailureDateTable = buildFailureDateTable;
             _buildFailureExactTable = buildFailureExactTable;
+            _viewNameDateTable = viewNameDateTable;
             _client = client;
             _textWriter = textWriter;
         }
@@ -69,6 +73,8 @@ namespace Dashboard.Azure
                 return null;
             }
 
+            await PopulateViewName(buildId.JobId, entity.BuildDateTimeOffset);
+
             await _buildResultDateTable.ExecuteAsync(TableOperation.InsertOrReplace(entity.CopyDate()));
             await _buildResultExactTable.ExecuteAsync(TableOperation.InsertOrReplace(entity.CopyExact()));
             return entity;
@@ -86,6 +92,25 @@ namespace Dashboard.Azure
             {
                 WriteLine(buildId, $"error processing {ex.Message}");
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// Ensure the view name for the given job is present in the <see cref="AzureConstants.TableNames.ViewNameDate"/> table.
+        /// </summary>
+        private async Task PopulateViewName(JobId jobId, DateTimeOffset buildDate)
+        {
+            try
+            {
+                var dateKey = new DateKey(buildDate);
+                var entity = new ViewNameEntity(dateKey, AzureUtil.GetViewName(jobId));
+                var op = TableOperation.Insert(entity);
+                await _viewNameDateTable.ExecuteAsync(op);
+            }
+            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == 409)
+            {
+                // It's expected to get errors here because we're inserting duplicate data.  All that matters is the
+                // data is present in the table.  
             }
         }
 

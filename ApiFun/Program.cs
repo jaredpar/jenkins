@@ -35,7 +35,8 @@ namespace Dashboard.ApiFun
             // Test().Wait();
             //DrainPoisonQueue().Wait();
             // CheckUnknown().Wait();
-            Random().Wait();
+            // Random().Wait();
+            ViewNameMigration().Wait();
             // TestPopulator().Wait();
             // MigrateCounter().Wait();
             // FindRetest();
@@ -285,6 +286,34 @@ namespace Dashboard.ApiFun
                 var boundBuildId = new BoundBuildId(SharedConstants.DotnetJenkinsUri.Host, entity.BuildId);
                 Console.WriteLine(boundBuildId.Uri);
             }
+        }
+
+        private static async Task ViewNameMigration()
+        {
+            var account = GetStorageAccount();
+            var client = account.CreateCloudTableClient();
+            var viewNameTable = client.GetTableReference(AzureConstants.TableNames.ViewNameDate);
+            var buildResultTable = client.GetTableReference(AzureConstants.TableNames.BuildResultDate);
+            var startDate = DateTimeOffset.UtcNow - TimeSpan.FromDays(14);
+
+            var query = new TableQuery<DynamicTableEntity>()
+                .Where(FilterUtil.SinceDate(ColumnNames.PartitionKey, startDate))
+                .Select(new[] { "PartitionKey", nameof(BuildResultEntity.ViewName) });
+            var all = await AzureUtil.QueryAsync(buildResultTable, query);
+            var set = new HashSet<Tuple<DateKey, string>>();
+            var list = new List<ViewNameEntity>();
+            foreach (var entity in all)
+            {
+                var dateKey = DateKey.Parse(entity.PartitionKey);
+                var viewName = entity.Properties[nameof(BuildResultEntity.ViewName)].StringValue;
+                var tuple = Tuple.Create(dateKey, viewName);
+                if (set.Add(tuple))
+                {
+                    list.Add(new ViewNameEntity(dateKey, viewName));
+                }
+            }
+
+            await AzureUtil.InsertBatchUnordered(viewNameTable, list);
         }
 
         private static async Task TestPopulator()
