@@ -15,12 +15,14 @@ namespace Dashboard.Azure
     {
         private readonly CloudTable _buildResultDateTable;
         private readonly CloudTable _buildFailureDateTable;
+        private readonly CloudTable _viewNameDateTable;
 
         public BuildUtil(CloudStorageAccount account)
         {
             var client = account.CreateCloudTableClient();
             _buildResultDateTable = client.GetTableReference(AzureConstants.TableNames.BuildResultDate);
             _buildFailureDateTable = client.GetTableReference(AzureConstants.TableNames.BuildFailureDate);
+            _viewNameDateTable = client.GetTableReference(AzureConstants.TableNames.ViewNameDate);
         }
 
         public List<BuildResultEntity> GetBuildResults(DateTimeOffset startDate, string viewName)
@@ -73,26 +75,13 @@ namespace Dashboard.Azure
 
         public List<string> GetViewNames(DateTimeOffset startDate)
         {
-            var filter = FilterUtil
-                .SinceDate(ColumnNames.PartitionKey, startDate)
-                .And(FilterUtil.Column(nameof(BuildResultEntity.ViewName), null, ColumnOperator.NotEqual));
-            var query = new TableQuery<BuildResultEntity>()
-                .Select(new List<string>() {nameof(BuildResultEntity.ViewName)})
-                .Where(filter);
+            var query = new TableQuery<ViewNameEntity>().Where(FilterUtil.SinceDate(ColumnNames.PartitionKey, startDate));
+            var viewNameList = _viewNameDateTable.ExecuteQuery(query);
 
-            var defaultViewNames = new List<string>() { "all" };
-
-            // TODO should we union the results from querying _buildFailureDateTable ?
-            // The query takes much longer than _buildResultDateTable for some reason,
-            // and doesn't appear to contain useful data for this purpose (yet).
-            // If we DO need the latter, we need a different approach as the double query
-            // becomes prohibitively slow.
-            var buildResultViewNames = _buildResultDateTable.ExecuteQuery(query)
-                .Select(b => b.ViewName)
-                .Distinct()
-                .ToList();
-
-            return defaultViewNames.Union(buildResultViewNames).ToList();
+            var list = new List<string>();
+            list.Add(AzureUtil.ViewNameAll);
+            list.AddRange(viewNameList.Select(x => x.ViewName).Distinct());
+            return list;
         }
 
         private static FilterUtil FilterView(FilterUtil util, string viewName)
