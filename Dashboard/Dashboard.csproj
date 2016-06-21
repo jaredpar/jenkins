@@ -245,6 +245,7 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\bootstrap-sortable.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\loading-squares.gif" />
@@ -252,12 +253,14 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Scripts\bootstrap-sortable.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <None Include="Properties\PublishProfiles\jdash.pubxml" />
     <None Include="Properties\PublishProfiles\rosdash.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\build-kind-by-viewname.js" />
+    <Content Include="Scripts\moment.min.js" />
     <Content Include="Scripts\repo-ET.js" />
     <Content Include="Scripts\elapsed-time.js" />
     <Content Include="Scripts\build-view.js" />
