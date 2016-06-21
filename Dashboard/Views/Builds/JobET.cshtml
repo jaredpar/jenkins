@@ -21,11 +21,12 @@
     <tbody>
         @foreach (var currJobET in Model.AgJobETDict.OrderByDescending(x => x.Value.ETSum))
         {
-              @*var uri = SharedConstants.DashboardDebugUriString + "/builds/JobETPerBuild?";*@
-              var uri = "http://jdash-et.azurewebsites.net/builds/JobETPerBuild?";
-                uri = uri + "viewName=" + Model.Filter.ViewName;
-                uri = uri + "&startDate=" + startDateValue;
-                uri = uri + "&jobName=" + currJobET.Key;
+            var uri = Url.Action(controllerName: "builds", actionName: "JobETPerBuild", routeValues: new
+            {
+                viewName = Model.Filter.ViewName,
+                startDate = startDateValue,
+                jobName = currJobET.Key
+            });
             <tr>
                 <td>@currJobET.Key</td>
                 <td>@currJobET.Value.ETSum</td>
