@@ -6,10 +6,17 @@
     var showForPrStyle = Model.Filter.IncludePullRequests ? "" : "display: none";
     var prValue = Model.Filter.IncludePullRequests ? @"checked=""checked""" : "";
     var startDateValue = Model.Filter.StartDate.ToString("yyyy-MM-dd");
+    var aveET = Model.TotalETOfCurrRepo / (double)Model.TotalJobCount;
 }
 
-<h2>Job Elapsed Time List</h2>
-<h3>Jenkins Jobs (@Model.Filter.ViewName)</h3>
+<div>
+    <h2>Job Elapsed Time List</h2>
+    <div>Jenkins Jobs (@Model.Filter.ViewName)</div>
+    <div>Job count: @Model.TotalJobCount.ToString("n0")</div>
+    <div>Total elapsed time (in secs) @Model.TotalETOfCurrRepo.ToString("n0")</div>
+    <div>Average elapsed time per job (in secs) @aveET.ToString("n2")</div>
+</div>
+
 <table class="table">
     <thead>
         <tr>

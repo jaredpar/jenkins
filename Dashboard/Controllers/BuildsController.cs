@@ -244,6 +244,8 @@ namespace Dashboard.Controllers
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             BuildFilterModel filter;
             List<BuildResultEntity> results;
+            var totalJobCount = 0;
+            var totalETOfCurrRepo = 0;
 
             //When navigating from "RepoET" view to "JobET" view, var "name" is set to the repo name being selected.
             //When refreshing "JobET" view via repo name dropdown list, var "viewName" is set to the repo name, var "name" == null
@@ -264,10 +266,12 @@ namespace Dashboard.Controllers
                     .ToList();
             }
 
-            SortedDictionary< string, AgJobET> aggregatedJobETDic = new SortedDictionary<string, AgJobET>();
+            SortedDictionary<string, AgJobET> aggregatedJobETDic = new SortedDictionary<string, AgJobET>();
             foreach (var entry in results)
             {
                 string currJobName = entry.BuildId.JobName;
+                totalETOfCurrRepo += entry.DurationSeconds;
+
                 if (aggregatedJobETDic.ContainsKey(currJobName))
                 {
                     aggregatedJobETDic[currJobName].ETSum = aggregatedJobETDic[currJobName].ETSum + entry.DurationSeconds;
@@ -282,9 +286,13 @@ namespace Dashboard.Controllers
                 }
             }
 
+            totalJobCount = aggregatedJobETDic.Count;
+
             var model = new JobETModel()
             {
                 Filter = filter,
+                TotalJobCount = totalJobCount,
+                TotalETOfCurrRepo = totalETOfCurrRepo,
                 AgJobETDict = aggregatedJobETDic
             };
             return View(viewName: "JobET", model: model);
@@ -299,11 +307,19 @@ namespace Dashboard.Controllers
                 .GetBuildResults(startDateValue, viewName)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId) && x.JobId.Name == jobName)
                 .ToList();
+            var buildCount = results.Count;
+            var totalETOfCurrJob = 0;
 
-            var model = new BuildResultKindModel()
+            foreach (var entry in results)
+            {
+                totalETOfCurrJob += entry.DurationSeconds;
+            }
+
+            var model = new JobETPerBuildModel()
             {
                 Filter = filter,
-                ClassificationKind = null,
+                TotalBuildCount = buildCount,
+                TotalETOfCurrJob = totalETOfCurrJob,
                 Entries = results
             };
 

@@ -241,11 +241,40 @@ namespace Dashboard.Models
     public class JobETModel
     {
         public BuildFilterModel Filter { get; set; }
+
+        /// <summary>
+        /// Total number of jobs
+        /// Note even though each job can have multiple builds, its job count is still 1.
+        /// </summary>
+        public int TotalJobCount { get; set; }
+
+        /// <summary>
+        /// Total elapsed time of current repo
+        /// </summary>
+        public int TotalETOfCurrRepo { get; set; }
+
         /// <summary>
         /// Aggregated map of job elapsed time, where key is the job name.
         /// Elapsed time from runs of the same job (but different build IDs) are summed up.
         /// </summary>
         /// </summary>
         public SortedDictionary<string, AgJobET> AgJobETDict { get; set; } = new SortedDictionary<string, AgJobET>();
+    }
+
+    public class JobETPerBuildModel
+    {
+        public BuildFilterModel Filter { get; set; }
+
+        /// <summary>
+        /// Total number of runs/builds of current job
+        /// </summary>
+        public int TotalBuildCount { get; set; }
+
+        /// <summary>
+        /// Total elapsed time of current job
+        /// </summary>
+        public int TotalETOfCurrJob { get; set; }
+
+        public List<BuildResultEntity> Entries { get; set; } = new List<BuildResultEntity>();
     }
 }
