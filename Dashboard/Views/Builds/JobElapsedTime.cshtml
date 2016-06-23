@@ -1,0 +1,63 @@
+﻿@model Dashboard.Models.JobElapsedTimeModel
+@using Dashboard.Jenkins
+
+@{
+    ViewBag.Title = "Job Elapsed Time List";
+    var showForPrStyle = Model.Filter.IncludePullRequests ? "" : "display: none";
+    var prValue = Model.Filter.IncludePullRequests ? @"checked=""checked""" : "";
+    var startDateValue = Model.Filter.StartDate.ToString("yyyy-MM-dd");
+    var aveET = Model.TotalETOfCurrRepo / (double)Model.TotalJobCount;
+}
+
+<div>
+    <h2>Job Elapsed Time List</h2>
+    <div>Jenkins Jobs (@Model.Filter.ViewName)</div>
+    <div>Job count: @Model.TotalJobCount.ToString("n0")</div>
+    <div>Total elapsed time (in secs) @Model.TotalETOfCurrRepo.ToString("n0")</div>
+    <div>Average elapsed time per job (in secs) @aveET.ToString("n2")</div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Job Name</th>
+            <th>Aggregated Elapsed Time (in secs)</th>
+            <th>Number of runs of current job</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var currJobElapsedTime in Model.AgJobElapsedTimeDict.OrderByDescending(x => x.Value.ETSum))
+        {
+            var uri = Url.Action(controllerName: "builds", actionName: "JobElapsedTimePerBuild", routeValues: new
+            {
+                viewName = Model.Filter.ViewName,
+                startDate = startDateValue,
+                jobName = currJobElapsedTime.Key
+            });
+            <tr>
+                <td>@currJobElapsedTime.Key</td>
+                <td>@currJobElapsedTime.Value.ETSum</td>
+                <td><a href="@uri">@currJobElapsedTime.Value.NumOfBuilds</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@Html.Partial("BuildFilter", Model.Filter)
+
+<!-- Hidden form for navigating on selection of categories -->
+@using (Html.BeginForm(
+        controllerName: "Builds",
+        actionName: "JobElapsedTimePerBuild",
+        method: FormMethod.Get,
+        htmlAttributes: new { id = "category_form" }))
+{
+    <input id="category_form_kind" name="name" value="" hidden="hidden" />
+    <input name="pr" type="checkbox" @prValue value="true" hidden="hidden" />
+    <input name="startDate" type="date" value="@startDateValue" hidden="hidden" />
+    <input name="viewName" value="@Model.Filter.ViewName" hidden="hidden" />
+}
+
+@section scripts {
+    <script type="text/javascript" src="@Url.Content("/Scripts/build-filter.js")"></script>
+}

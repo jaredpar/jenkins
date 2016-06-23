@@ -1,0 +1,47 @@
+﻿@model Dashboard.Models.ProjectElapsedTimeSummaryModel
+
+@{
+    ViewBag.Title = "Sum of Elapsed Time of all Projects";
+
+    var ETList = Model.ProjectElapsedTimeList.OrderByDescending(x => x.ETSum);
+    var rankedETList = string.Join(";", ETList.Select(x => $"{x.RepoName},{x.ETSum}"));
+    var prValue = Model.Filter.IncludePullRequests ? @"checked=""checked""" : "";
+    var startDateValue = Model.Filter.StartDate.ToString("yyyy-MM-dd");
+    var successRate = Model.TotalSucceededCount / (double)Model.TotalBuildCount;
+    var isSingleViewName = false;
+}
+
+<div>
+    <h2>Total Elapsed Time List of all Projects</h2>
+    <div>@Model.Filter.ViewName</div>
+    <div>Ran @Model.TotalBuildCount.ToString("n0")</div>
+    <div>Succeded @Model.TotalSucceededCount.ToString("n0")</div>
+    <div>Success rate @successRate.ToString("n2")</div>
+</div>
+
+<div id="repo_ET_chart" style="width: 900px; height:700px" data-values="@rankedETList"></div>
+
+<!-- Filter the action results -->
+@Html.Partial("BuildFilter", Model.Filter)
+
+<!-- Hidden form for navigating on selection of categories -->
+@using (Html.BeginForm(
+        controllerName: "Builds",
+        actionName: "JobListByRepoName",
+        method: FormMethod.Get,
+        htmlAttributes: new { id = "category_form" }))
+{
+    <input id="category_form_kind" name="name" value="" hidden="hidden" />
+    <input name="pr" type="checkbox" @prValue value="true" hidden="hidden" />
+    <input name="startDate" type="date" value="@startDateValue" hidden="hidden" />
+    if (isSingleViewName)
+    {
+        <input name="viewName" value="@Model.Filter.ViewName" hidden="hidden" />
+    }
+}
+
+@section scripts {
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="@Url.Content("/Scripts/repo-ET.js")"></script>
+    <script type="text/javascript" src="@Url.Content("/Scripts/build-filter.js")"></script>
+}
