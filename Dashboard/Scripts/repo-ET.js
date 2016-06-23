@@ -16,7 +16,7 @@
 
         var dataTable = google.visualization.arrayToDataTable(data);
         var options = {
-            title: 'Repo ET List',
+            title: 'Repo Elapsed Time List',
             curveType: 'function',
             bar: { groupWidth: '75%' },
             isStacked: true

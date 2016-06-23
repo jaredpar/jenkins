@@ -1,14 +1,14 @@
-﻿@model Dashboard.Models.JobETPerBuildModel
+﻿@model Dashboard.Models.JobElapsedTimePerBuildModel
 @using Dashboard.Jenkins
 
 @{
-    ViewBag.Title = "Job ET per build";
+    ViewBag.Title = "Job Elapsed Time per build";
     var showForPrStyle = Model.Filter.IncludePullRequests ? "" : "display: none";
     var aveET = Model.TotalETOfCurrJob / (double)Model.TotalBuildCount;
 }
 
 <div>
-    <h2>Job ET per build</h2>
+    <h2>Job Elapsed Time per build</h2>
     <div>Job builds of repo (@Model.Filter.ViewName)</div>
     <div>Build/run count of current job: @Model.TotalBuildCount.ToString("n0")</div>
     <div>Total elapsed time (in secs) @Model.TotalETOfCurrJob.ToString("n0")</div>

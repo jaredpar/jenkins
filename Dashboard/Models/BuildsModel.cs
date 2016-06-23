@@ -159,11 +159,11 @@ namespace Dashboard.Models
     {
         public JobId JobId { get; set; }
         public string JobName { get; set; }
-        public int ElapsedTime;
+        public int ElapsedTime { get; set; }
     }
 
     /// <summary>
-    /// List of elapsed time by categorization of their ranges (0 ~ 100ms), (100 ~ 1000ms) ...
+    /// List of elapsed time by categorization of their ranges (0 ~ 100s), (100 ~ 1000s) ...
     /// </summary>
     public class ElapsedTimeSummaryModel
     {
@@ -182,9 +182,9 @@ namespace Dashboard.Models
 
         /// <summary>
         /// Counts of runs per elapsed time range.
-        /// List elements at 0 represents the range of 0 ~ 10ms
-        /// List elements at 1 represents the range of 10 ~ 100ms
-        /// Length of this array is set to 6, which counts runs whose ET is in range as much as 100000 ~ 1000000ms
+        /// List elements at 0 represents the range of 0 ~ 10s
+        /// List elements at 1 represents the range of 10 ~ 100s
+        /// Length of this array is set to _ETRangeCount, which counts runs whose ET is in range as much as 100000 ~ 1000000s
         /// </summary>
         /// </summary>
         public List<int> RunCountsPerETRange { get; set; } = new List<int>();
@@ -193,16 +193,16 @@ namespace Dashboard.Models
     /// <summary>
     /// Team/Project repo name and the sum of the elapsed time of all their jobs
     /// </summary>
-    public class RepoETModel
+    public class ProjectElapsedTimeModel
     {
         public string RepoName { get; set; }
-        public int ETSum;
+        public int ETSum { get; set; }
     }
 
     /// <summary>
-    /// List of team/project repos ranked by the sum of elapsed time of all their jobs
+    /// List of projects ranked by the sum of elapsed time of all their jobs
     /// </summary>
-    public class RepoETSummaryModel
+    public class ProjectElapsedTimeSummaryModel
     {
         public BuildFilterModel Filter { get; set; }
 
@@ -221,7 +221,7 @@ namespace Dashboard.Models
         /// Sum of elapsed time of all the jobs of every git repo.
         /// </summary>
         /// </summary>
-        public List<RepoETModel> RepoETList { get; set; } = new List<RepoETModel>();
+        public List<ProjectElapsedTimeModel> ProjectElapsedTimeList { get; set; } = new List<ProjectElapsedTimeModel>();
     }
 
     /// <summary>
@@ -229,7 +229,7 @@ namespace Dashboard.Models
     /// 1st element is the ET sum of all its runs (each run has a different build number)
     /// 2nd element is the # of its runs
     /// </summary>
-    public class AgJobET
+    public class AgJobElapsedTime
     {
         public int ETSum { get; set; }
         public int NumOfBuilds { get; set; }
@@ -238,7 +238,7 @@ namespace Dashboard.Models
     /// <summary>
     /// Job ET list of selected repo, ranked from job with most ET to least.
     /// </summary>
-    public class JobETModel
+    public class JobElapsedTimeModel
     {
         public BuildFilterModel Filter { get; set; }
 
@@ -258,10 +258,10 @@ namespace Dashboard.Models
         /// Elapsed time from runs of the same job (but different build IDs) are summed up.
         /// </summary>
         /// </summary>
-        public SortedDictionary<string, AgJobET> AgJobETDict { get; set; } = new SortedDictionary<string, AgJobET>();
+        public SortedDictionary<string, AgJobElapsedTime> AgJobElapsedTimeDict { get; set; } = new SortedDictionary<string, AgJobElapsedTime>();
     }
 
-    public class JobETPerBuildModel
+    public class JobElapsedTimePerBuildModel
     {
         public BuildFilterModel Filter { get; set; }
 

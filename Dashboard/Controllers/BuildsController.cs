@@ -20,6 +20,7 @@ namespace Dashboard.Controllers
     {
         private readonly DashboardStorage _storage;
         private readonly BuildUtil _buildUtil;
+        private const int _ETRangeCount = 6;
 
         public BuildsController()
         {
@@ -122,7 +123,7 @@ namespace Dashboard.Controllers
 
             List<int> runsPerETRange = new List<int>();
 
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < _ETRangeCount; i++)
             {
                 runsPerETRange.Add(0);
             }
@@ -148,27 +149,27 @@ namespace Dashboard.Controllers
         /// A view of the total elapsed time per team/project repo, ranked from most elapsed time to least.
         /// </summary>
         /// <returns></returns>
-        public ActionResult RepoET(bool pr = false, DateTimeOffset? startDate = null)
+        public ActionResult ProjectElapsedTime(bool pr = false, DateTimeOffset? startDate = null)
         {
-            var filter = CreateBuildFilter(actionName: nameof(RepoET), startDate: startDate, pr: pr);
+            var filter = CreateBuildFilter(actionName: nameof(ProjectElapsedTime), startDate: startDate, pr: pr);
 
             List<string> repoNameList = _buildUtil.GetViewNames(filter.StartDate);
-            List<RepoETModel> ETListOfRepos = new List<RepoETModel>();
+            List<ProjectElapsedTimeModel> ETListOfProjects = new List<ProjectElapsedTimeModel>();
             var totalCount = 0;
             var totalSucceeded = 0;
 
             foreach (var repoName in repoNameList)
             {
-                RepoETModel currRepo = new RepoETModel();
+                ProjectElapsedTimeModel currRepo = new ProjectElapsedTimeModel();
 
                 currRepo.RepoName = repoName;
 
                 var results =
-                _buildUtil.GetBuildResults(filter.StartDate, repoName)
-                .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
-                .ToList();
+                    _buildUtil.GetBuildResults(filter.StartDate, repoName)
+                    .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
+                    .ToList();
 
-                if (repoName == "all")
+                if (repoName == AzureUtil.ViewNameAll)
                 {
                     totalCount = results.Count;
                     totalSucceeded = results.Count(x => x.ClassificationKind == ClassificationKind.Succeeded);
@@ -186,18 +187,18 @@ namespace Dashboard.Controllers
                 //Store total elapsed time in minutes.
                 currRepo.ETSum = currRepo.ETSum / 60;
 
-                ETListOfRepos.Add(currRepo);
+                ETListOfProjects.Add(currRepo);
             }
 
-            var model = new RepoETSummaryModel()
+            var model = new ProjectElapsedTimeSummaryModel()
             {
                 Filter = filter,
                 TotalBuildCount = totalCount,
                 TotalSucceededCount = totalSucceeded,
-                RepoETList = ETListOfRepos
+                ProjectElapsedTimeList = ETListOfProjects
             };
 
-            return View(viewName: "RepoET", model: model);
+            return View(viewName: "ProjectElapsedTime", model: model);
         }
 
         public ActionResult Kind(string name = null, bool pr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameRoslyn)
@@ -247,8 +248,8 @@ namespace Dashboard.Controllers
             var totalJobCount = 0;
             var totalETOfCurrRepo = 0;
 
-            //When navigating from "RepoET" view to "JobET" view, var "name" is set to the repo name being selected.
-            //When refreshing "JobET" view via repo name dropdown list, var "viewName" is set to the repo name, var "name" == null
+            //When navigating from "ProjectElapsedTime" view to "JobElapsedTime" view, var "name" is set to the repo name being selected.
+            //When refreshing "JobElapsedTime" view via repo name dropdown list, var "viewName" is set to the repo name, var "name" == null
             if (name != null)
             {
                 filter = CreateBuildFilter(actionName: nameof(JobListByRepoName), viewName: name, startDate: startDate, pr: pr);
@@ -266,43 +267,43 @@ namespace Dashboard.Controllers
                     .ToList();
             }
 
-            SortedDictionary<string, AgJobET> aggregatedJobETDic = new SortedDictionary<string, AgJobET>();
+            SortedDictionary<string, AgJobElapsedTime> aggregatedJobElapsedTimeDic = new SortedDictionary<string, AgJobElapsedTime>();
             foreach (var entry in results)
             {
                 string currJobName = entry.BuildId.JobName;
                 totalETOfCurrRepo += entry.DurationSeconds;
 
-                if (aggregatedJobETDic.ContainsKey(currJobName))
+                if (aggregatedJobElapsedTimeDic.ContainsKey(currJobName))
                 {
-                    aggregatedJobETDic[currJobName].ETSum = aggregatedJobETDic[currJobName].ETSum + entry.DurationSeconds;
-                    aggregatedJobETDic[currJobName].NumOfBuilds++;
+                    aggregatedJobElapsedTimeDic[currJobName].ETSum = aggregatedJobElapsedTimeDic[currJobName].ETSum + entry.DurationSeconds;
+                    aggregatedJobElapsedTimeDic[currJobName].NumOfBuilds++;
                 }
                 else
                 {
-                    AgJobET newAgJobET = new AgJobET();
-                    newAgJobET.ETSum = entry.DurationSeconds;
-                    newAgJobET.NumOfBuilds = 1;
-                    aggregatedJobETDic.Add(currJobName, newAgJobET);
+                    AgJobElapsedTime newAgJobElapsedTime = new AgJobElapsedTime();
+                    newAgJobElapsedTime.ETSum = entry.DurationSeconds;
+                    newAgJobElapsedTime.NumOfBuilds = 1;
+                    aggregatedJobElapsedTimeDic.Add(currJobName, newAgJobElapsedTime);
                 }
             }
 
-            totalJobCount = aggregatedJobETDic.Count;
+            totalJobCount = aggregatedJobElapsedTimeDic.Count;
 
-            var model = new JobETModel()
+            var model = new JobElapsedTimeModel()
             {
                 Filter = filter,
                 TotalJobCount = totalJobCount,
                 TotalETOfCurrRepo = totalETOfCurrRepo,
-                AgJobETDict = aggregatedJobETDic
+                AgJobElapsedTimeDict = aggregatedJobElapsedTimeDic
             };
-            return View(viewName: "JobET", model: model);
+            return View(viewName: "JobElapsedTime", model: model);
         }
 
 
-        public ActionResult JobETPerBuild(bool pr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameRoslyn, string jobName = "dotnet_coreclr/master/checked_windows_nt_bld")
+        public ActionResult JobElapsedTimePerBuild(bool pr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameRoslyn, string jobName = "dotnet_coreclr/master/checked_windows_nt_bld")
         {
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
-            var filter = CreateBuildFilter(actionName: nameof(JobETPerBuild), viewName: viewName, startDate: startDate, pr: pr);
+            var filter = CreateBuildFilter(actionName: nameof(JobElapsedTimePerBuild), viewName: viewName, startDate: startDate, pr: pr);
             var results = _buildUtil
                 .GetBuildResults(startDateValue, viewName)
                 .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId) && x.JobId.Name == jobName)
@@ -315,7 +316,7 @@ namespace Dashboard.Controllers
                 totalETOfCurrJob += entry.DurationSeconds;
             }
 
-            var model = new JobETPerBuildModel()
+            var model = new JobElapsedTimePerBuildModel()
             {
                 Filter = filter,
                 TotalBuildCount = buildCount,
@@ -323,7 +324,7 @@ namespace Dashboard.Controllers
                 Entries = results
             };
 
-            return View(viewName: "JobETPerBuild", model: model);
+            return View(viewName: "JobElapsedTimePerBuild", model: model);
         }
 
 

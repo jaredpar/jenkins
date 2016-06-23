@@ -1,8 +1,8 @@
-﻿@model Dashboard.Models.JobETModel
+﻿@model Dashboard.Models.JobElapsedTimeModel
 @using Dashboard.Jenkins
 
 @{
-    ViewBag.Title = "Job ET List";
+    ViewBag.Title = "Job Elapsed Time List";
     var showForPrStyle = Model.Filter.IncludePullRequests ? "" : "display: none";
     var prValue = Model.Filter.IncludePullRequests ? @"checked=""checked""" : "";
     var startDateValue = Model.Filter.StartDate.ToString("yyyy-MM-dd");
@@ -26,18 +26,18 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var currJobET in Model.AgJobETDict.OrderByDescending(x => x.Value.ETSum))
+        @foreach (var currJobElapsedTime in Model.AgJobElapsedTimeDict.OrderByDescending(x => x.Value.ETSum))
         {
-            var uri = Url.Action(controllerName: "builds", actionName: "JobETPerBuild", routeValues: new
+            var uri = Url.Action(controllerName: "builds", actionName: "JobElapsedTimePerBuild", routeValues: new
             {
                 viewName = Model.Filter.ViewName,
                 startDate = startDateValue,
-                jobName = currJobET.Key
+                jobName = currJobElapsedTime.Key
             });
             <tr>
-                <td>@currJobET.Key</td>
-                <td>@currJobET.Value.ETSum</td>
-                <td><a href="@uri">@currJobET.Value.NumOfBuilds</a></td>
+                <td>@currJobElapsedTime.Key</td>
+                <td>@currJobElapsedTime.Value.ETSum</td>
+                <td><a href="@uri">@currJobElapsedTime.Value.NumOfBuilds</a></td>
             </tr>
         }
     </tbody>
@@ -48,7 +48,7 @@
 <!-- Hidden form for navigating on selection of categories -->
 @using (Html.BeginForm(
         controllerName: "Builds",
-        actionName: "JobETPerBuild",
+        actionName: "JobElapsedTimePerBuild",
         method: FormMethod.Get,
         htmlAttributes: new { id = "category_form" }))
 {

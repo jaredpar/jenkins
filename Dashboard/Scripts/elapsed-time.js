@@ -20,7 +20,7 @@
         var lowerRange = '0 ~ '
         for (var i in eTime) {
             var upperRange = Math.pow(10, digits);
-            var strRange = lowerRange + upperRange + 'ms'
+            var strRange = lowerRange + upperRange + 's'
             data.push([strRange, parseInt(eTime[i])]);
             categories.push(strRange);
             lowerRange = upperRange + ' ~ ';

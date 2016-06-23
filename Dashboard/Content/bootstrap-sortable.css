@@ -43,20 +43,20 @@ table.sortable span.arrow, span.reversed, th.arrow.down:after, th.reversedarrow.
     margin-top: -2px;
 }
 
-    table.sortable span.arrow.up, th.arrow.up:after {
-        border-color: transparent transparent #ccc transparent;
-        margin-top: -7px;
-    }
+table.sortable span.arrow.up, th.arrow.up:after {
+    border-color: transparent transparent #ccc transparent;
+    margin-top: -7px;
+}
 
 table.sortable span.reversed, th.reversedarrow.down:after {
     border-color: transparent transparent #ccc transparent;
     margin-top: -7px;
 }
 
-    table.sortable span.reversed.up, th.reversedarrow.up:after {
-        border-color: #ccc transparent transparent transparent;
-        margin-top: -2px;
-    }
+table.sortable span.reversed.up, th.reversedarrow.up:after {
+    border-color: #ccc transparent transparent transparent;
+    margin-top: -2px;
+}
 
 table.sortable span.az:before, th.az.down:after {
     content: "a .. z";

@@ -1,9 +1,9 @@
-﻿@model Dashboard.Models.RepoETSummaryModel
+﻿@model Dashboard.Models.ProjectElapsedTimeSummaryModel
 
 @{
-    ViewBag.Title = "Sum of Elapsed Time of all Repos";
+    ViewBag.Title = "Sum of Elapsed Time of all Projects";
 
-    var ETList = Model.RepoETList.OrderByDescending(x => x.ETSum);
+    var ETList = Model.ProjectElapsedTimeList.OrderByDescending(x => x.ETSum);
     var rankedETList = string.Join(";", ETList.Select(x => $"{x.RepoName},{x.ETSum}"));
     var prValue = Model.Filter.IncludePullRequests ? @"checked=""checked""" : "";
     var startDateValue = Model.Filter.StartDate.ToString("yyyy-MM-dd");
@@ -12,7 +12,7 @@
 }
 
 <div>
-    <h2>Total Elapsed Time List of all Repos</h2>
+    <h2>Total Elapsed Time List of all Projects</h2>
     <div>@Model.Filter.ViewName</div>
     <div>Ran @Model.TotalBuildCount.ToString("n0")</div>
     <div>Succeded @Model.TotalSucceededCount.ToString("n0")</div>
