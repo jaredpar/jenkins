@@ -32,7 +32,7 @@ namespace Dashboard.ApiFun
             // GetMacQueueTimes();
             // TestJob().Wait();
             //WriteJobList().Wait();
-            // Test().Wait();
+            Test().Wait();
             //DrainPoisonQueue().Wait();
             // CheckUnknown().Wait();
             // Random().Wait();
@@ -107,18 +107,6 @@ namespace Dashboard.ApiFun
             var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(), Console.Out);
             await populator.PopulateBuild(buildId);
 
-        }
-
-        private static async Task Test()
-        {
-            var account = GetStorageAccount();
-            var storage = new TestResultStorage(new DashboardStorage(account));
-            var stats = new TestCacheStats(storage);
-
-            var startDate = DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
-            var data = stats.GetSummary(startDate);
-            Console.WriteLine(data.HitStats.AssemblyCount);
-            await Task.Delay(0);
         }
 
         private static async Task DrainPoisonQueue()
@@ -278,11 +266,6 @@ namespace Dashboard.ApiFun
             var elapsedTimeObj = client.GetBuildInfo(testbuildId).Duration;
             Console.WriteLine($"\tET: {elapsedTimeObj.TotalMilliseconds}");
 
-//            var buildInfo = await client.GetBuildInfoAsync(buildId);
-//            var buildResult = await client.GetBuildResultAsync(buildInfo);
-//            var test = await client.GetFailedTestCasesAsync(buildId);
-//            var prInfo = await client.GetPullRequestInfoAsync(buildId);
-
             var account = GetStorageAccount();
             var dateKey = new DateKey(DateTimeOffset.UtcNow - TimeSpan.FromDays(1));
             var table = account.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildResultDate);
@@ -296,6 +279,14 @@ namespace Dashboard.ApiFun
                 var boundBuildId = new BoundBuildId(SharedConstants.DotnetJenkinsUri.Host, entity.BuildId);
                 Console.WriteLine(boundBuildId.Uri);
             }
+        }
+
+        private static async Task Test()
+        {
+            var client = CreateClient(auth: false);
+            var element = await client.GetXmlAsync("job/dotnet_coreclr/job/master/job/checked_ubuntu_flow_prtest");
+            var isFlow = element.Name == "buildFlow";
+            Console.WriteLine(isFlow);
         }
 
         private static async Task ViewNameMigration()

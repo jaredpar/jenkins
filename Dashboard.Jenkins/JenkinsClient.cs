@@ -9,6 +9,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Dashboard.Jenkins
 {
@@ -324,6 +325,37 @@ namespace Dashboard.Jenkins
             }
         }
 
+        public XElement GetXml(string urlPath)
+        {
+            var request = GetXmlRestRequest(urlPath);
+            var response = _restClient.Execute(request);
+            return ParseXmlCore(response);
+        }
+
+        public async Task<XElement> GetXmlAsync(string urlPath)
+        {
+            var request = GetXmlRestRequest(urlPath);
+            var response = await _restClient.ExecuteTaskAsync(request);
+            return ParseXmlCore(response);
+        }
+
+        private static XElement ParseXmlCore(IRestResponse response)
+        {
+            try
+            {
+                return XElement.Parse(response.Content);
+            }
+            catch (Exception e)
+            {
+                var builder = new StringBuilder();
+                builder.AppendLine($"Unable to parse xml");
+                builder.AppendLine($"  Url: {response.ResponseUri}");
+                builder.AppendLine($"  Status: {response.StatusDescription}");
+                builder.AppendLine($"  Conent: {response.Content}");
+                throw new Exception(builder.ToString(), e);
+            }
+        }
+
         /// <summary>
         /// Build up the <see cref="RestRequest"/> object for the JSON query. 
         /// </summary>
@@ -348,6 +380,14 @@ namespace Dashboard.Jenkins
                 request.AddHeader("Authorization", _authorizationHeaderValue);
             }
 
+            return request;
+        }
+
+        private RestRequest GetXmlRestRequest(string urlPath)
+        {
+            urlPath = urlPath.TrimEnd('/');
+            var request = new RestRequest($"{urlPath}/api/xml", Method.GET);
+            // TODO: xpath filter? 
             return request;
         }
 
