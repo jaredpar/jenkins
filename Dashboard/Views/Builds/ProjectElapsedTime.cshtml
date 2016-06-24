@@ -6,6 +6,7 @@
     var ETList = Model.ProjectElapsedTimeList.OrderByDescending(x => x.ETSum);
     var rankedETList = string.Join(";", ETList.Select(x => $"{x.RepoName},{x.ETSum}"));
     var prValue = Model.Filter.IncludePullRequests ? @"checked=""checked""" : "";
+    var frValue = Model.Filter.IncludeFlowRunResults ? @"checked=""checked""" : "";
     var startDateValue = Model.Filter.StartDate.ToString("yyyy-MM-dd");
     var successRate = Model.TotalSucceededCount / (double)Model.TotalBuildCount;
     var isSingleViewName = false;
@@ -33,6 +34,7 @@
 {
     <input id="category_form_kind" name="name" value="" hidden="hidden" />
     <input name="pr" type="checkbox" @prValue value="true" hidden="hidden" />
+    <input name="fr" type="checkbox" @frValue value="true" hidden="hidden" />
     <input name="startDate" type="date" value="@startDateValue" hidden="hidden" />
     if (isSingleViewName)
     {

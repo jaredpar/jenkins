@@ -13,6 +13,7 @@ using System.Web;
 using System.Web.Mvc;
 using Dashboard.Helpers;
 using System.Text;
+using System.Xml;
 
 namespace Dashboard.Controllers
 {
@@ -149,14 +150,15 @@ namespace Dashboard.Controllers
         /// A view of the total elapsed time per team/project repo, ranked from most elapsed time to least.
         /// </summary>
         /// <returns></returns>
-        public ActionResult ProjectElapsedTime(bool pr = false, DateTimeOffset? startDate = null)
+        public ActionResult ProjectElapsedTime(bool pr = false, bool fr = true, DateTimeOffset? startDate = null)
         {
-            var filter = CreateBuildFilter(actionName: nameof(ProjectElapsedTime), startDate: startDate, pr: pr);
+            var filter = CreateBuildFilter(actionName: nameof(ProjectElapsedTime), startDate: startDate, pr: pr, fr: fr, disFRBox: true);
 
             List<string> repoNameList = _buildUtil.GetViewNames(filter.StartDate);
             List<ProjectElapsedTimeModel> ETListOfProjects = new List<ProjectElapsedTimeModel>();
             var totalCount = 0;
             var totalSucceeded = 0;
+            var flowJobCount = 0;
 
             foreach (var repoName in repoNameList)
             {
@@ -169,19 +171,31 @@ namespace Dashboard.Controllers
                     .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
                     .ToList();
 
-                if (repoName == AzureUtil.ViewNameAll)
-                {
-                    totalCount = results.Count;
-                    totalSucceeded = results.Count(x => x.ClassificationKind == ClassificationKind.Succeeded);
-                }
-
                 var runCounts = results
-                    .Select(x => new ElapsedTimeModel() { JobId = x.JobId, JobName = x.JobName, ElapsedTime = x.DurationSeconds })
+                    .Select(x => new ElapsedTimeModel() { JobId = x.JobId, JobName = x.JobName, ElapsedTime = x.DurationSeconds, ClassificationKind = x.ClassificationKind })
                     .ToList();
 
                 foreach (var runElapsedTime in runCounts)
                 {
+                    //If users choose to exclude flow run results
+                    if (!filter.IncludeFlowRunResults)
+                    {
+                        if (IsFlowJob(runElapsedTime.JobId))
+                        {
+                            flowJobCount++;
+                            continue;
+                        }
+                    }
+
                     currRepo.ETSum = currRepo.ETSum + runElapsedTime.ElapsedTime;
+
+                    if (repoName == AzureUtil.ViewNameAll)
+                    {
+                        totalCount++;
+
+                        if (runElapsedTime.ClassificationKind == ClassificationKind.Succeeded)
+                            totalSucceeded++;
+                    }
                 }
 
                 //Store total elapsed time in minutes.
@@ -299,7 +313,6 @@ namespace Dashboard.Controllers
             return View(viewName: "JobElapsedTime", model: model);
         }
 
-
         public ActionResult JobElapsedTimePerBuild(bool pr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameRoslyn, string jobName = "dotnet_coreclr/master/checked_windows_nt_bld")
         {
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
@@ -326,8 +339,7 @@ namespace Dashboard.Controllers
 
             return View(viewName: "JobElapsedTimePerBuild", model: model);
         }
-
-
+        
         public string Csv(string viewName = AzureUtil.ViewNameRoslyn, bool pr = false, DateTime? startDate = null)
         {
             var filter = CreateBuildFilter(nameof(Csv), viewName: viewName, pr: pr, startDate: startDate);
@@ -460,17 +472,39 @@ namespace Dashboard.Controllers
             return model;
         }
 
-        private BuildFilterModel CreateBuildFilter(string actionName, string name = null, string viewName = null, bool pr = false, DateTimeOffset? startDate = null, int? limit = null)
+        private BuildFilterModel CreateBuildFilter(string actionName, string name = null, string viewName = null, bool pr = false, DateTimeOffset? startDate = null, int? limit = null, bool fr = true, bool disFRBox = false)
         {
             return new BuildFilterModel()
             {
                 Name = name,
                 ViewName = viewName,
                 IncludePullRequests = pr,
+                IncludeFlowRunResults = fr,
+                DisplayFlowRunCheckBox = disFRBox,
                 StartDate = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1),
                 Limit = limit,
                 ActionName = actionName,
             };
+        }
+        public static bool IsFlowJob(Dashboard.Jenkins.JobId currJobId)
+        {
+            var currJobPath = SharedConstants.DotnetJenkinsUri + JenkinsUtil.GetJobIdPath(currJobId) + "/api/xml";
+            XmlDocument jobXml = new XmlDocument();
+
+            try
+            {
+                jobXml.Load(currJobPath);
+                XmlElement jobXMLRoot = jobXml.DocumentElement;
+
+                if (jobXMLRoot.Name.Equals("buildFlow"))
+                    return true;
+                else
+                    return false;
+            }
+            catch //Job url can't be opened successfully.
+            {
+                return false;
+            }
         }
     }
 }
