@@ -13,11 +13,6 @@ namespace Dashboard.Jenkins
     public enum JobKind
     {
         /// <summary>
-        /// Job that has no children.
-        /// </summary>
-        Empty,
-
-        /// <summary>
         /// Job that runs builds.
         /// </summary>
         Build,
@@ -28,9 +23,9 @@ namespace Dashboard.Jenkins
         Folder,
 
         /// <summary>
-        /// Job that contains other jobs and runs builds.
+        /// Job which is just a composition of other jobs.
         /// </summary>
-        Both
+        Flow
     }
 
     public struct JobInfo
@@ -40,7 +35,7 @@ namespace Dashboard.Jenkins
         public List<BuildId> Builds { get; }
         public List<JobId> Jobs { get; }
 
-        public JobInfo(JobId id, List<BuildId> builds = null, List<JobId> jobs = null)
+        public JobInfo(JobId id, JobKind kind, List<BuildId> builds = null, List<JobId> jobs = null)
         {
             Debug.Assert(jobs.All(x => x.Parent.Name == id.Name));
             builds = builds ?? new List<BuildId>(capacity: 0);
@@ -49,22 +44,7 @@ namespace Dashboard.Jenkins
             Id = id;
             Builds = builds;
             Jobs = jobs;
-            if (Builds.Count > 0 && jobs.Count > 0)
-            {
-                Kind = JobKind.Both;
-            }
-            else if (Builds.Count > 0)
-            {
-                Kind = JobKind.Build;
-            }
-            else if (Jobs.Count > 0)
-            {
-                Kind = JobKind.Folder;
-            }
-            else
-            {
-                Kind = JobKind.Empty;
-            }
+            Kind = kind;
         }
 
         public override string ToString() => $"{Id} {Kind}";

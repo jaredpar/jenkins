@@ -119,13 +119,23 @@ namespace Dashboard.Jenkins
         public JobInfo GetJobInfo(JobId id)
         {
             var json = GetJson(JenkinsUtil.GetJobIdPath(id));
-            return JsonUtil.ParseJobInfo(id, json);
+            var xml = GetXml(JenkinsUtil.GetJobIdPath(id));
+            return GetJobInfoCore(id, json, xml);
         }
 
         public async Task<JobInfo> GetJobInfoAsync(JobId id)
         {
             var json = await GetJsonAsync(JenkinsUtil.GetJobIdPath(id));
-            return JsonUtil.ParseJobInfo(id, json);
+            var xml = await GetXmlAsync(JenkinsUtil.GetJobIdPath(id));
+            return GetJobInfoCore(id, json, xml);
+        }
+
+        private static JobInfo GetJobInfoCore(JobId id, JObject json, XElement xml)
+        {
+            var builds = JsonUtil.ParseBuilds(id, (json["builds"] as JArray) ?? new JArray()) ?? new List<BuildId>(capacity: 0);
+            var jobs = JsonUtil.ParseJobs(id, (json["jobs"] as JArray) ?? new JArray()) ?? new List<JobId>(capacity: 0);
+            var kind = XmlUtil.ParseJobKind(xml);
+            return new JobInfo(id, kind, builds, jobs);
         }
 
         public BuildResult GetBuildResult(BuildInfo buildInfo)

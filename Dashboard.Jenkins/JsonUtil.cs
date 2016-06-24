@@ -15,16 +15,6 @@ namespace Dashboard.Jenkins
         internal const string BuildInfoTreeFilter = "result,id,duration,timestamp,builtOn";
         internal const string BuildInfoListTreeFilter = "builds[result,id,duration,timestamp,builtOn]";
 
-        /// <summary>
-        /// Parse out a <see cref="JobInfo"/> from the JSON data from the "builds" and "jobs" arrays.
-        /// </summary>
-        internal static JobInfo ParseJobInfo(JobId id, JObject data)
-        {
-            var builds = ParseBuilds(id, (data["builds"] as JArray) ?? new JArray());
-            var jobs = ParseJobs(id, (data["jobs"] as JArray) ?? new JArray());
-            return new JobInfo(id, builds, jobs);
-        } 
-
         internal static List<BuildId> ParseBuilds(JobId id, JArray builds)
         {
             Debug.Assert(builds != null);
