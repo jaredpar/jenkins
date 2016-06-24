@@ -11,6 +11,8 @@ namespace Dashboard.Models
     public sealed class BuildFilterModel
     {
         public bool IncludePullRequests { get; set; }
+        public bool IncludeFlowRunResults { get; set; }
+        public bool DisplayFlowRunCheckBox { get; set; }
         public DateTimeOffset StartDate { get; set; }
         public int? Limit { get; set; }
         public string Name { get; set; }
@@ -160,6 +162,7 @@ namespace Dashboard.Models
         public JobId JobId { get; set; }
         public string JobName { get; set; }
         public int ElapsedTime { get; set; }
+        public Dashboard.Azure.ClassificationKind ClassificationKind { get; set; }
     }
 
     /// <summary>
@@ -205,6 +208,13 @@ namespace Dashboard.Models
     public class ProjectElapsedTimeSummaryModel
     {
         public BuildFilterModel Filter { get; set; }
+
+        /// <summary>
+        /// Whether to include results from flow jobs/runs
+        /// The elapsed time of a flow job/run is the sum of elapsed time of all its sub jobs/runs.
+        /// They should be excluded from elapsed time calcuation, as they do NOT consume additional machine resources.
+        /// </summary>
+        public bool IncludeFlowRunResults { get; set; }
 
         /// <summary>
         /// Total number of builds.  Includes the count of succeeded builds even if <see cref="IncludeSucceeded"/>
