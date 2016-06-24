@@ -5,11 +5,13 @@
     ViewBag.Title = "Job Elapsed Time per build";
     var showForPrStyle = Model.Filter.IncludePullRequests ? "" : "display: none";
     var aveET = Model.TotalETOfCurrJob / (double)Model.TotalBuildCount;
+    var currView = Model.Filter.ViewName;
+    Model.Filter.ViewName = null;
 }
 
 <div>
     <h2>Job Elapsed Time per build</h2>
-    <div>Job builds of repo (@Model.Filter.ViewName)</div>
+    <div>Job builds of repo (@currView)</div>
     <div>Build/run count of current job: @Model.TotalBuildCount.ToString("n0")</div>
     <div>Total elapsed time (in secs) @Model.TotalETOfCurrJob.ToString("n0")</div>
     <div>Average elapsed time per build/run (in secs) @aveET.ToString("n2")</div>
