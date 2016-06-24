@@ -63,7 +63,7 @@ namespace Dashboard.Tests
         [Fact]
         public async Task IsPopulated()
         {
-            var buildId = new BuildId(42, JobId.ParseName("house"));
+            var buildId = new BuildId(42, JobId.ParseName(Guid.NewGuid().ToString()));
             Assert.False(await _populator.IsPopulated(buildId));
 
             var key = BuildResultEntity.GetExactEntityKey(buildId);
