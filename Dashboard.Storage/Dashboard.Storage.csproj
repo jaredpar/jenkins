@@ -91,10 +91,6 @@
     <Compile Include="Azure\CounterUtil.cs" />
     <Compile Include="Azure\DashboardStorage.cs" />
     <Compile Include="Azure\DateKey.cs" />
-    <Compile Include="Azure\DemandBuildEntity.cs" />
-    <Compile Include="Azure\DemandBuildBuilder.cs" />
-    <Compile Include="Azure\DemandRunEntity.cs" />
-    <Compile Include="Azure\DemandRunUtil.cs" />
     <Compile Include="Azure\EntityKey.cs" />
     <Compile Include="Azure\Extensions.cs" />
     <Compile Include="Azure\FilterBuilder.cs" />

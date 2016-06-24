@@ -352,30 +352,6 @@ namespace Dashboard.Controllers
             return View(viewName: "Unprocessed", model: list);
         }
 
-        public ActionResult Demand(string userName, string commit)
-        {
-            var runStatus = new DemandRunStatusModel()
-            {
-                UserName = userName,
-                Commit = commit,
-            };
-
-            var query = new TableQuery<DemandBuildEntity>()
-                .Where(DashboardStorage.GenerateDemandBuildFilter(userName, commit));
-            foreach (var entity in _storage.DemandBuildTable.ExecuteQuery(query))
-            {
-                var status = new DemandBuildStatusModel()
-                {
-                    BuildNumber = entity.BuildNumber,
-                    JobName = entity.JobName,
-                    QueueNumber = entity.QueueItemNumber
-                };
-                runStatus.StatusList.Add(status);
-            }
-
-            return View(viewName: "DemandStatus", model: runStatus);
-        }
-
         private BuildResultSummaryModel GetBuildResultSummaryModel(BuildFilterModel filter)
         {
             var model = new BuildResultSummaryModel()

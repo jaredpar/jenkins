@@ -115,23 +115,5 @@ namespace Dashboard.Controllers
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             return _buildUtil.GetViewNames(startDateValue);
         }
-
-        // DEMAND: should return the URI they can use for getting updates
-        [Route("api/builds/demand")]
-        public async Task<string> CreateDemandBuild(DemandRunRequestModel model)
-        {
-            var util = new DemandRunUtil(_storage);
-            await util.CreateDemandRun(
-                SharedConstants.DotnetJenkinsUri,
-                model.UserName,
-                model.Token,
-                new Uri(model.RepoUrl),
-                model.BranchOrCommit,
-                model.JobNames.Select(x => JobId.ParseName(x)).ToList());
-
-            var path = $"builds/demand?userName={model.UserName}&commit={model.BranchOrCommit}";
-            var uri = new Uri(SharedConstants.DashboardUri, path);
-            return uri.ToString();
-        }
     }
 }
