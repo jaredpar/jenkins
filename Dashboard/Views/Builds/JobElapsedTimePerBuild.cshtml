@@ -4,7 +4,8 @@
 @{
     ViewBag.Title = "Job Elapsed Time per build";
     var showForPrStyle = Model.Filter.IncludePullRequests ? "" : "display: none";
-    var aveET = Model.TotalETOfCurrJob / (double)Model.TotalBuildCount;
+    var totalETInMins = (double)Model.TotalETOfCurrJob / 60;
+    var aveET = (double)totalETInMins / Model.TotalBuildCount;
     var currView = Model.Filter.ViewName;
     Model.Filter.ViewName = null;
 }
@@ -13,8 +14,8 @@
     <h2>Job Elapsed Time per build</h2>
     <div>Job builds of repo (@currView)</div>
     <div>Build/run count of current job: @Model.TotalBuildCount.ToString("n0")</div>
-    <div>Total elapsed time (in secs) @Model.TotalETOfCurrJob.ToString("n0")</div>
-    <div>Average elapsed time per build/run (in secs) @aveET.ToString("n2")</div>
+    <div>Total elapsed time (in minutes) @totalETInMins.ToString("n2")</div>
+    <div>Average elapsed time per build/run (in minutes) @aveET.ToString("n2")</div>
 </div>
 
 <table class="table sortable">
@@ -35,10 +36,11 @@
             var id = entity.BuildId;
             var uri = JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, JenkinsUtil.GetBuildPath(id));
             var prUri = entity.PullRequestUrl ?? "";
+            var ETInMins = (double)entity.DurationSeconds / 60;
             <tr>
                 <td>@id.JobName</td>
                 <td><a href="@uri">@id.Number</a></td>
-                <td>@entity.DurationSeconds</td>
+                <td>@ETInMins.ToString("n2")</td>
                 <td>@entity.MachineName</td>
                 <td>@entity.BuildDateTime.ToLocalTime().ToString("MM/dd hh:mm tt")</td>
                 <td style="@showForPrStyle">@entity.PullRequestAuthor</td>
