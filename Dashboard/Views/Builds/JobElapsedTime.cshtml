@@ -6,22 +6,23 @@
     var showForPrStyle = Model.Filter.IncludePullRequests ? "" : "display: none";
     var prValue = Model.Filter.IncludePullRequests ? @"checked=""checked""" : "";
     var startDateValue = Model.Filter.StartDate.ToString("yyyy-MM-dd");
-    var aveET = Model.TotalETOfCurrRepo / (double)Model.TotalJobCount;
+    var totalETInMin = (double)Model.TotalETOfCurrRepo / 60;
+    var aveET = (double)totalETInMin / Model.TotalJobCount;
 }
 
 <div>
     <h2>Job Elapsed Time List</h2>
     <div>Jenkins Jobs (@Model.Filter.ViewName)</div>
     <div>Job count: @Model.TotalJobCount.ToString("n0")</div>
-    <div>Total elapsed time (in secs) @Model.TotalETOfCurrRepo.ToString("n0")</div>
-    <div>Average elapsed time per job (in secs) @aveET.ToString("n2")</div>
+    <div>Total elapsed time (in minutes) @totalETInMin.ToString("n2")</div>
+    <div>Average elapsed time per job (in minutes) @aveET.ToString("n2")</div>
 </div>
 
 <table class="table sortable">
     <thead>
         <tr>
             <th>Job Name</th>
-            <th>Aggregated Elapsed Time (in secs)</th>
+            <th>Aggregated Elapsed Time (in minutes)</th>
             <th>Number of runs of current job</th>
         </tr>
     </thead>
@@ -34,9 +35,10 @@
                 startDate = startDateValue,
                 jobName = currJobElapsedTime.Key
             });
+            var ETSumInMin = (double)currJobElapsedTime.Value.ETSum / 60;
             <tr>
                 <td>@currJobElapsedTime.Key</td>
-                <td>@currJobElapsedTime.Value.ETSum</td>
+                <td>@ETSumInMin.ToString("n2")</td>
                 <td><a href="@uri">@currJobElapsedTime.Value.NumOfBuilds</a></td>
             </tr>
         }
