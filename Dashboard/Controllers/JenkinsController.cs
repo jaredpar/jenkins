@@ -24,7 +24,7 @@ namespace Dashboard.Controllers
             {
                 var jobId = JobId.ParseName(name);
                 var jobInfo = client.GetJobInfo(jobId);
-                if (jobInfo.Kind == JobKind.Folder)
+                if (jobInfo.JobKind == JobKind.Folder)
                 {
                     return GetJobList(name, JobListContainerKind.Job, jobInfo.Jobs);
                 }

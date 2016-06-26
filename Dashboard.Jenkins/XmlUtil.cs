@@ -9,14 +9,9 @@ namespace Dashboard.Jenkins
 {
     internal static class XmlUtil
     {
-        internal static JobKind ParseJobKind(XElement element)
+        internal static string ParseJobKind(XElement element)
         {
-            switch (element.Name.LocalName)
-            {
-                case "buildFlow": return JobKind.Flow;
-                case "folder": return JobKind.Folder;
-                default: return JobKind.Build;
-            }
+            return element.Name.LocalName;
         }
     }
 }

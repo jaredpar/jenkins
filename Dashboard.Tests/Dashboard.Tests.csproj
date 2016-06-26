@@ -112,6 +112,7 @@
     <Compile Include="EqualityUtil`1.cs" />
     <Compile Include="JenkinsUtilTests.cs" />
     <Compile Include="JobIdTests.cs" />
+    <Compile Include="JobKindTests.cs" />
     <Compile Include="JsonUtilTests.cs" />
     <Compile Include="MockRestClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

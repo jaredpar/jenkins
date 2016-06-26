@@ -7,35 +7,41 @@ using System.Threading.Tasks;
 
 namespace Dashboard.Jenkins
 {
-    /// <summary>
-    /// What type of job is this?
-    /// </summary>
-    public enum JobKind
+    public static class JobKind
     {
-        /// <summary>
-        /// Job that runs builds.
-        /// </summary>
-        Build,
+        public const string Normal = "freeStyleProject";
+        public const string Folder = "folder";
+        public const string Flow = "buildFlow";
 
-        /// <summary>
-        /// Job that just contains other jobs.
-        /// </summary>
-        Folder,
+        public static string[] All => new []
+        {
+            Normal,
+            Folder,
+            Flow
+        };
 
-        /// <summary>
-        /// Job which is just a composition of other jobs.
-        /// </summary>
-        Flow
+        public static bool IsWellKnown(string kind)
+        {
+            switch (kind)
+            {
+                case Normal:
+                case Folder:
+                case Flow:
+                    return true;
+                default:
+                    return false;
+            }
+        }
     }
 
     public struct JobInfo
     {
         public JobId Id { get; }
-        public JobKind Kind { get; }
+        public string JobKind { get; }
         public List<BuildId> Builds { get; }
         public List<JobId> Jobs { get; }
 
-        public JobInfo(JobId id, JobKind kind, List<BuildId> builds = null, List<JobId> jobs = null)
+        public JobInfo(JobId id, string jobKind, List<BuildId> builds = null, List<JobId> jobs = null)
         {
             Debug.Assert(jobs.All(x => x.Parent.Name == id.Name));
             builds = builds ?? new List<BuildId>(capacity: 0);
@@ -44,9 +50,9 @@ namespace Dashboard.Jenkins
             Id = id;
             Builds = builds;
             Jobs = jobs;
-            Kind = kind;
+            JobKind = jobKind;
         }
 
-        public override string ToString() => $"{Id} {Kind}";
+        public override string ToString() => $"{Id} {JobKind}";
     }
 }

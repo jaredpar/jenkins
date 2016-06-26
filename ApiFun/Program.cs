@@ -365,25 +365,6 @@ namespace Dashboard.ApiFun
             }
         }
 
-        private static void PrintJobs()
-        {
-            var client = CreateClient(auth: false);
-            PrintJobs(client, JobId.Root, "");
-        }
-
-        private static void PrintJobs(JenkinsClient client, JobId parent, string indent)
-        {
-            foreach (var id in client.GetJobIds(parent))
-            {
-                Console.WriteLine($"{indent}{id.Name}");
-                var info = client.GetJobInfo(id);
-                if (info.Kind == JobKind.Folder)
-                {
-                    PrintJobs(client, id, indent + "  ");
-                }
-            }
-        }
-
         private static void PrintFailure()
         {
             var client = CreateClient(auth: false);
