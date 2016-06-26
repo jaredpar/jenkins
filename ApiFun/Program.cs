@@ -36,7 +36,7 @@ namespace Dashboard.ApiFun
             //DrainPoisonQueue().Wait();
             // CheckUnknown().Wait();
             // Random().Wait();
-            ViewNameMigration().Wait();
+            // ViewNameMigration().Wait();
             // TestPopulator().Wait();
             // MigrateCounter().Wait();
             // FindRetest();
@@ -194,6 +194,12 @@ namespace Dashboard.ApiFun
             }
         }
 
+        private static JenkinsClient CreateClient(JobId id)
+        {
+            var auth = JobUtil.IsAuthNeededHeuristic(id);
+            return CreateClient(auth: auth);
+        }
+
         private static void Authorize(RestRequest request)
         {
             var text = ConfigurationManager.AppSettings[SharedConstants.GithubConnectionStringName];
@@ -283,10 +289,35 @@ namespace Dashboard.ApiFun
 
         private static async Task Test()
         {
-            var client = CreateClient(auth: false);
-            var element = await client.GetXmlAsync("job/dotnet_coreclr/job/master/job/checked_ubuntu_flow_prtest");
-            var isFlow = element.Name == "buildFlow";
-            Console.WriteLine(isFlow);
+            var account = GetStorageAccount();
+            var tableClient = account.CreateCloudTableClient();
+            var table = tableClient.GetTableReference(AzureConstants.TableNames.BuildResultDate);
+            var query = new TableQuery<DynamicTableEntity>()
+                .Where(FilterUtil.SinceDate(ColumnNames.PartitionKey, DateTimeOffset.UtcNow - TimeSpan.FromDays(2)))
+                .Select(new[] { "JobName" });
+            var nameSet = new HashSet<string>();
+            var kindSet = new HashSet<string>();
+            foreach (var entity in table.ExecuteQuery(query))
+            {
+                var name = entity["JobName"].StringValue;
+                if (nameSet.Add(name))
+                {
+                    var id = JobId.ParseName(name);
+                    try
+                    {
+                        var client = CreateClient(id);
+                        var kind = await client.GetJobKindAsync(id);
+                        if (kindSet.Add(kind))
+                        {
+                            Console.WriteLine(kind);
+                        }
+                    }
+                    catch
+                    {
+                        // Ignore
+                    }
+                }
+            }
         }
 
         private static async Task ViewNameMigration()

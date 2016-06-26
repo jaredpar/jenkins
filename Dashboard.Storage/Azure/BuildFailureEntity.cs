@@ -25,6 +25,7 @@ namespace Dashboard.Azure
         public string BuildFailureKindRaw { get; set; }
         public DateTime BuildDateTime { get; set; }
         public string JobName { get; set; }
+        public string JobKind { get; set; }
         public string ViewName { get; set; }
         public int BuildNumber { get; set; }
         public string Identifier { get; set; }
@@ -60,15 +61,17 @@ namespace Dashboard.Azure
             identifier: other.Identifier,
             buildDate: other.BuildDateTime,
             kind: other.BuildFailureKind,
+            jobKind: other.JobKind,
             machineName: other.MachineName,
             prInfo: other.PullRequestInfo)
         {
 
         }
 
-        public BuildFailureEntity(BuildId buildId, string identifier, DateTimeOffset buildDate, BuildFailureKind kind, string machineName, PullRequestInfo prInfo)
+        public BuildFailureEntity(BuildId buildId, string identifier, DateTimeOffset buildDate, BuildFailureKind kind, string jobKind, string machineName, PullRequestInfo prInfo)
         {
             JobName = buildId.JobName;
+            JobKind = jobKind;
             ViewName = AzureUtil.GetViewName(buildId.JobId);
             BuildNumber = buildId.Number;
             Identifier = identifier;
@@ -117,13 +120,14 @@ namespace Dashboard.Azure
                 new BuildKey(buildId).Key);
         }
 
-        public static BuildFailureEntity CreateTestCaseFailure(DateTimeOffset buildDateTime, BuildId buildId, string testCaseName, string machineName, PullRequestInfo prInfo)
+        public static BuildFailureEntity CreateTestCaseFailure(DateTimeOffset buildDateTime, BuildId buildId, string testCaseName, string jobKind, string machineName, PullRequestInfo prInfo)
         {
             return new BuildFailureEntity(
                 buildId,
                 testCaseName,
                 buildDateTime,
                 BuildFailureKind.TestCase,
+                jobKind: jobKind,
                 machineName: machineName,
                 prInfo: prInfo);
         }

@@ -138,6 +138,20 @@ namespace Dashboard.Jenkins
             return new JobInfo(id, kind, builds, jobs);
         }
 
+        public string GetJobKind(JobId id)
+        {
+            var json = GetJson(JenkinsUtil.GetJobIdPath(id));
+            var xml = GetXml(JenkinsUtil.GetJobIdPath(id));
+            return XmlUtil.ParseJobKind(xml);
+        }
+
+        public async Task<string> GetJobKindAsync(JobId id)
+        {
+            var json = await GetJsonAsync(JenkinsUtil.GetJobIdPath(id));
+            var xml = GetXml(JenkinsUtil.GetJobIdPath(id));
+            return XmlUtil.ParseJobKind(xml);
+        }
+
         public BuildResult GetBuildResult(BuildInfo buildInfo)
         {
             var failureInfo = buildInfo.State == BuildState.Failed

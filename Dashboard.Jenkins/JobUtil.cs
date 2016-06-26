@@ -27,5 +27,20 @@ namespace Dashboard.Jenkins
         {
             return jobId.Name.Contains("_gcstress");
         }
+
+        public static bool IsAuthNeededHeuristic(JobId jobId)
+        {
+            // TODO: Bit of a hack.  Avoiding API rate limit issues by using a hueristic of 
+            // when to do authentication.
+            var name = jobId.Name;
+            if (name.Contains("Private") ||
+                name.Contains("perf_win10") ||
+                name.Contains("dotnet_citest"))
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }

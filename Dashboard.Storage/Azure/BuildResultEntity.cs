@@ -16,6 +16,7 @@ namespace Dashboard.Azure
     public sealed class BuildResultEntity : TableEntity
     {
         public string JobName { get; set; }
+        public string JobKind { get; set; }
         public string ViewName { get; set; }
         public int BuildNumber { get; set; }
         public string ClassificationKindRaw { get; set; }
@@ -56,11 +57,13 @@ namespace Dashboard.Azure
             BuildId buildId,
             DateTimeOffset buildDateTime,
             TimeSpan duration,
+            string jobKind,
             string machineName,
             BuildResultClassification classification,
             PullRequestInfo prInfo)
         {
             JobName = buildId.JobId.Name;
+            JobKind = jobKind;
             ViewName = AzureUtil.GetViewName(BuildId.JobId);
             BuildNumber = buildId.Number;
             ClassificationKindRaw = classification.Kind.ToString();
@@ -88,6 +91,7 @@ namespace Dashboard.Azure
             buildId: other.BuildId,
             buildDateTime: other.BuildDateTimeOffset,
             duration: other.Duration,
+            jobKind: other.JobKind,
             machineName: other.MachineName,
             classification: other.Classification,
             prInfo: other.PullRequestInfo)

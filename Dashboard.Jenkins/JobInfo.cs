@@ -12,12 +12,14 @@ namespace Dashboard.Jenkins
         public const string Normal = "freeStyleProject";
         public const string Folder = "folder";
         public const string Flow = "buildFlow";
+        public const string Html = "html";
 
         public static string[] All => new []
         {
             Normal,
             Folder,
-            Flow
+            Flow,
+            Html
         };
 
         public static bool IsWellKnown(string kind)

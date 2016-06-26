@@ -20,6 +20,7 @@ namespace Dashboard.Tests
                 buildId,
                 buildDate,
                 TimeSpan.FromSeconds(1),
+                "kind",
                 "test",
                 BuildResultClassification.Succeeded,
                 prInfo: null);
@@ -44,6 +45,7 @@ namespace Dashboard.Tests
                 buildId,
                 buildDate,
                 TimeSpan.FromSeconds(1),
+                "kind",
                 "test",
                 BuildResultClassification.Succeeded,
                 prInfo: prInfo);
@@ -69,7 +71,7 @@ namespace Dashboard.Tests
         public void ViewNameAll()
         {
             var buildId = new BuildId(42, JobId.ParseName("test"));
-            var entity = new BuildResultEntity(buildId, DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1), "test", BuildResultClassification.Succeeded, null);
+            var entity = new BuildResultEntity(buildId, DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1), "kind", "test", BuildResultClassification.Succeeded, null);
             Assert.Equal(AzureUtil.ViewNameRoot, entity.ViewName);
         }
 
@@ -77,7 +79,7 @@ namespace Dashboard.Tests
         public void ViewNameOther()
         {
             var buildId = new BuildId(42, JobId.ParseName("house/test"));
-            var entity = new BuildResultEntity(buildId, DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1), "test", BuildResultClassification.Succeeded, null);
+            var entity = new BuildResultEntity(buildId, DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1), "kind", "test", BuildResultClassification.Succeeded, null);
             Assert.Equal("house", entity.ViewName);
         }
     }

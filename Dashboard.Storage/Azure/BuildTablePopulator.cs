@@ -119,7 +119,8 @@ namespace Dashboard.Azure
         /// </summary>
         private async Task<BuildResultEntity> GetBuildFailureEntity(BuildId id)
         {
-            var buildInfo = _client.GetBuildInfo(id);
+            var buildInfo = await _client.GetBuildInfoAsync(id);
+            var jobKind = await _client.GetJobKindAsync(id.JobId);
 
             PullRequestInfo prInfo = null;
             if (JobUtil.IsPullRequestJobName(id.JobId.Name))
@@ -147,7 +148,7 @@ namespace Dashboard.Azure
                     classification = BuildResultClassification.Aborted;
                     break;
                 case BuildState.Failed:
-                    classification = await PopulateFailedBuildResult(buildInfo, prInfo);
+                    classification = await PopulateFailedBuildResult(buildInfo, jobKind, prInfo);
                     break;
                 case BuildState.Running:
                     classification = BuildResultClassification.Unknown;
@@ -156,10 +157,17 @@ namespace Dashboard.Azure
                     throw new Exception($"Invalid enum: {buildInfo.State} for {id.JobName} - {id.Number}");
             }
 
-            return new BuildResultEntity(buildInfo.Id, buildInfo.Date, buildInfo.Duration, buildInfo.MachineName, classification, prInfo);
+            return new BuildResultEntity(
+                buildInfo.Id,
+                buildInfo.Date,
+                buildInfo.Duration,
+                jobKind: jobKind,
+                machineName: buildInfo.MachineName,
+                classification: classification, 
+                prInfo: prInfo);
         }
 
-        private async Task<BuildResultClassification> PopulateFailedBuildResult(BuildInfo buildInfo, PullRequestInfo prInfo)
+        private async Task<BuildResultClassification> PopulateFailedBuildResult(BuildInfo buildInfo, string jobKind, PullRequestInfo prInfo)
         {
             var buildId = buildInfo.Id;
             BuildResult buildResult;
@@ -190,7 +198,7 @@ namespace Dashboard.Azure
 
             if (classification.Kind == ClassificationKind.TestFailure)
             {
-                await PopulateUnitTestFailure(buildInfo, prInfo);
+                await PopulateUnitTestFailure(buildInfo, jobKind, prInfo);
             }
 
             return classification;
@@ -222,7 +230,7 @@ namespace Dashboard.Azure
             }
         }
 
-        private async Task PopulateUnitTestFailure(BuildInfo buildInfo, PullRequestInfo prInfo)
+        private async Task PopulateUnitTestFailure(BuildInfo buildInfo, string jobKind, PullRequestInfo prInfo)
         {
             // TODO: Resolve this with CoreCLR.  They are producing way too many failures at the moment though
             // and we need to stop uploading 50,000 rows a day until we can resolve this.
@@ -234,7 +242,7 @@ namespace Dashboard.Azure
             var buildId = buildInfo.Id;
             var testCaseNames = _client.GetFailedTestCases(buildId);
             var entityList = testCaseNames
-                .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildInfo.Date, buildId, x, buildInfo.MachineName, prInfo))
+                .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildInfo.Date, buildId, x, jobKind: jobKind, machineName: buildInfo.MachineName, prInfo: prInfo))
                 .ToList();
             EnsureTestCaseNamesUnique(entityList);
             await AzureUtil.InsertBatchUnordered(_buildFailureExactTable, entityList.Select(x => x.CopyExact()));
