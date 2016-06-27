@@ -35,10 +35,10 @@
                 startDate = startDateValue,
                 jobName = currJobElapsedTime.Key
             });
-            var ETSumInMin = (double)currJobElapsedTime.Value.ETSum / 60;
+            var ETSumInMin = Math.Round((double)currJobElapsedTime.Value.ETSum / 60, 2);
             <tr>
                 <td>@currJobElapsedTime.Key</td>
-                <td>@ETSumInMin.ToString("n2")</td>
+                <td>@ETSumInMin</td>
                 <td><a href="@uri">@currJobElapsedTime.Value.NumOfBuilds</a></td>
             </tr>
         }
