@@ -11,7 +11,12 @@ namespace Dashboard.Models
     public sealed class BuildFilterModel
     {
         public bool IncludePullRequests { get; set; }
-        public bool IncludeFlowRunResults { get; set; }
+        /// <summary>
+        /// Whether to include results from flow jobs/runs
+        /// The elapsed time of a flow job/run is the sum of elapsed time of all its sub jobs/runs.
+        /// They should be excluded from elapsed time calcuation, as they do NOT consume additional machine resources.
+        /// </summary>
+        public bool ExcludeFlowRunResults { get; set; }
         public bool DisplayFlowRunCheckBox { get; set; }
         public DateTimeOffset StartDate { get; set; }
         public int? Limit { get; set; }
@@ -210,17 +215,15 @@ namespace Dashboard.Models
         public BuildFilterModel Filter { get; set; }
 
         /// <summary>
-        /// Whether to include results from flow jobs/runs
-        /// The elapsed time of a flow job/run is the sum of elapsed time of all its sub jobs/runs.
-        /// They should be excluded from elapsed time calcuation, as they do NOT consume additional machine resources.
-        /// </summary>
-        public bool IncludeFlowRunResults { get; set; }
-
-        /// <summary>
         /// Total number of builds.  Includes the count of succeeded builds even if <see cref="IncludeSucceeded"/>
         /// is false.
         /// </summary>
         public int TotalBuildCount { get; set; }
+
+        /// <summary>
+        /// Total number of flow jobs.
+        /// </summary>
+        public int FlowJobCount { get; set; }
 
         /// <summary>
         /// Total number of builds that succeeded.
@@ -257,6 +260,11 @@ namespace Dashboard.Models
         /// Note even though each job can have multiple builds, its job count is still 1.
         /// </summary>
         public int TotalJobCount { get; set; }
+
+        /// <summary>
+        /// Total number of flow jobs.
+        /// </summary>
+        public int FlowJobCount { get; set; }
 
         /// <summary>
         /// Total elapsed time of current repo

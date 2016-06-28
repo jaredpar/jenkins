@@ -150,7 +150,7 @@ namespace Dashboard.Controllers
         /// A view of the total elapsed time per team/project repo, ranked from most elapsed time to least.
         /// </summary>
         /// <returns></returns>
-        public ActionResult ProjectElapsedTime(bool pr = false, bool fr = true, DateTimeOffset? startDate = null)
+        public ActionResult ProjectElapsedTime(bool pr = false, bool fr = false, DateTimeOffset? startDate = null)
         {
             var filter = CreateBuildFilter(actionName: nameof(ProjectElapsedTime), startDate: startDate, pr: pr, fr: fr, disFRBox: true);
 
@@ -158,7 +158,7 @@ namespace Dashboard.Controllers
             List<ProjectElapsedTimeModel> ETListOfProjects = new List<ProjectElapsedTimeModel>();
             var totalCount = 0;
             var totalSucceeded = 0;
-            var flowJobCount = 0;
+            var totalFlowJobCount = 0;
 
             foreach (var repoName in repoNameList)
             {
@@ -178,11 +178,12 @@ namespace Dashboard.Controllers
                 foreach (var runElapsedTime in runCounts)
                 {
                     //If users choose to exclude flow run results
-                    if (!filter.IncludeFlowRunResults)
+                    if (filter.ExcludeFlowRunResults)
                     {
                         if (IsFlowJob(runElapsedTime.JobId))
                         {
-                            flowJobCount++;
+                            totalCount++;
+                            totalFlowJobCount++;
                             continue;
                         }
                     }
@@ -208,6 +209,7 @@ namespace Dashboard.Controllers
             {
                 Filter = filter,
                 TotalBuildCount = totalCount,
+                FlowJobCount = totalFlowJobCount,
                 TotalSucceededCount = totalSucceeded,
                 ProjectElapsedTimeList = ETListOfProjects
             };
@@ -254,19 +256,20 @@ namespace Dashboard.Controllers
             return View(viewName: "KindByViewName", model: model);
         }
 
-        public ActionResult JobListByRepoName(string name = null, bool pr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameAll)
+        public ActionResult JobListByRepoName(string name = null, bool pr = false, bool fr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameAll)
         {
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             BuildFilterModel filter;
             List<BuildResultEntity> results;
             var totalJobCount = 0;
             var totalETOfCurrRepo = 0;
+            var totalFlowJobCount = 0;
 
             //When navigating from "ProjectElapsedTime" view to "JobElapsedTime" view, var "name" is set to the repo name being selected.
             //When refreshing "JobElapsedTime" view via repo name dropdown list, var "viewName" is set to the repo name, var "name" == null
             if (name != null)
             {
-                filter = CreateBuildFilter(actionName: nameof(JobListByRepoName), viewName: name, startDate: startDate, pr: pr);
+                filter = CreateBuildFilter(actionName: nameof(JobListByRepoName), viewName: name, startDate: startDate, pr: pr, fr: fr, disFRBox: true);
                 results = _buildUtil
                     .GetBuildResults(startDateValue, name)
                     .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
@@ -274,7 +277,7 @@ namespace Dashboard.Controllers
             }
             else
             {
-                filter = CreateBuildFilter(actionName: nameof(JobListByRepoName), viewName: viewName, startDate: startDate, pr: pr);
+                filter = CreateBuildFilter(actionName: nameof(JobListByRepoName), viewName: viewName, startDate: startDate, pr: pr, fr: fr, disFRBox: true);
                 results = _buildUtil
                     .GetBuildResults(startDateValue, viewName)
                     .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
@@ -284,6 +287,17 @@ namespace Dashboard.Controllers
             SortedDictionary<string, AgJobElapsedTime> aggregatedJobElapsedTimeDic = new SortedDictionary<string, AgJobElapsedTime>();
             foreach (var entry in results)
             {
+                //If users choose to exclude flow run results
+                if (filter.ExcludeFlowRunResults)
+                {
+                    if (IsFlowJob(entry.JobId))
+                    {
+                        totalJobCount++;
+                        totalFlowJobCount++;
+                        continue;
+                    }
+                }
+
                 string currJobName = entry.BuildId.JobName;
                 totalETOfCurrRepo += entry.DurationSeconds;
 
@@ -301,12 +315,13 @@ namespace Dashboard.Controllers
                 }
             }
 
-            totalJobCount = aggregatedJobElapsedTimeDic.Count;
+            totalJobCount += aggregatedJobElapsedTimeDic.Count;
 
             var model = new JobElapsedTimeModel()
             {
                 Filter = filter,
                 TotalJobCount = totalJobCount,
+                FlowJobCount = totalFlowJobCount,
                 TotalETOfCurrRepo = totalETOfCurrRepo,
                 AgJobElapsedTimeDict = aggregatedJobElapsedTimeDic
             };
@@ -496,14 +511,14 @@ namespace Dashboard.Controllers
             return model;
         }
 
-        private BuildFilterModel CreateBuildFilter(string actionName, string name = null, string viewName = null, bool pr = false, DateTimeOffset? startDate = null, int? limit = null, bool fr = true, bool disFRBox = false)
+        private BuildFilterModel CreateBuildFilter(string actionName, string name = null, string viewName = null, bool pr = false, DateTimeOffset? startDate = null, int? limit = null, bool fr = false, bool disFRBox = false)
         {
             return new BuildFilterModel()
             {
                 Name = name,
                 ViewName = viewName,
                 IncludePullRequests = pr,
-                IncludeFlowRunResults = fr,
+                ExcludeFlowRunResults = fr,
                 DisplayFlowRunCheckBox = disFRBox,
                 StartDate = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1),
                 Limit = limit,
