@@ -2,7 +2,7 @@
 
 @{
     var prValue = Model.IncludePullRequests ? @"checked=""checked""" : "";
-    var frValue = Model.IncludeFlowRunResults ? @"checked=""checked""" : "";
+    var frValue = Model.ExcludeFlowRunResults ? @"checked=""checked""" : "";
     var showFRBox = Model.DisplayFlowRunCheckBox;
     var startDateValue = Model.StartDate.ToString("yyyy-MM-dd");
 }
@@ -24,7 +24,7 @@
         <div>Include Pull Requests <input name="pr" type="checkbox" @prValue value="true" /></div>
         @if (showFRBox)
         {
-            <div>Include Flow Run/Job Results <input name="fr" type="checkbox" @frValue value="true" /></div>
+            <div>Exclude Flow Run/Job Results <input name="fr" type="checkbox" @frValue value="true" /></div>
         }
         <div>Start Date <input name="startDate" type="date" value="@startDateValue"/></div>
         @if (Model.ViewName != null)

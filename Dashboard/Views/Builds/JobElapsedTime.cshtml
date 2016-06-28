@@ -5,6 +5,7 @@
     ViewBag.Title = "Job Elapsed Time List";
     var showForPrStyle = Model.Filter.IncludePullRequests ? "" : "display: none";
     var prValue = Model.Filter.IncludePullRequests ? @"checked=""checked""" : "";
+    var frValue = Model.Filter.ExcludeFlowRunResults ? @"checked=""checked""" : "";
     var startDateValue = Model.Filter.StartDate.ToString("yyyy-MM-dd");
     var totalETInMin = (double)Model.TotalETOfCurrRepo / 60;
     var aveET = (double)totalETInMin / Model.TotalJobCount;
@@ -14,6 +15,10 @@
     <h2>Job Elapsed Time List</h2>
     <div>Jenkins Jobs (@Model.Filter.ViewName)</div>
     <div>Job count: @Model.TotalJobCount.ToString("n0")</div>
+    @if (@Model.Filter.ExcludeFlowRunResults)
+    {
+        <div>Flow job count: @Model.FlowJobCount.ToString("n0")</div>
+    }
     <div>Total elapsed time (in minutes) @totalETInMin.ToString("n2")</div>
     <div>Average elapsed time per job (in minutes) @aveET.ToString("n2")</div>
 </div>
@@ -56,6 +61,7 @@
 {
     <input id="category_form_kind" name="name" value="" hidden="hidden" />
     <input name="pr" type="checkbox" @prValue value="true" hidden="hidden" />
+    <input name="fr" type="checkbox" @frValue value="true" hidden="hidden" />
     <input name="startDate" type="date" value="@startDateValue" hidden="hidden" />
     <input name="viewName" value="@Model.Filter.ViewName" hidden="hidden" />
 }

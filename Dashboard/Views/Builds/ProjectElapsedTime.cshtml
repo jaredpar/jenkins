@@ -6,7 +6,7 @@
     var ETList = Model.ProjectElapsedTimeList.OrderByDescending(x => x.ETSum);
     var rankedETList = string.Join(";", ETList.Select(x => $"{x.RepoName},{x.ETSum}"));
     var prValue = Model.Filter.IncludePullRequests ? @"checked=""checked""" : "";
-    var frValue = Model.Filter.IncludeFlowRunResults ? @"checked=""checked""" : "";
+    var frValue = Model.Filter.ExcludeFlowRunResults ? @"checked=""checked""" : "";
     var startDateValue = Model.Filter.StartDate.ToString("yyyy-MM-dd");
     var successRate = Model.TotalSucceededCount / (double)Model.TotalBuildCount;
     var isSingleViewName = false;
@@ -16,6 +16,10 @@
     <h2>Total Elapsed Time List of all Projects</h2>
     <div>@Model.Filter.ViewName</div>
     <div>Ran @Model.TotalBuildCount.ToString("n0")</div>
+    @if (@Model.Filter.ExcludeFlowRunResults)
+    {
+        <div>Flow job count: @Model.FlowJobCount.ToString("n0")</div>
+    }
     <div>Succeded @Model.TotalSucceededCount.ToString("n0")</div>
     <div>Success rate @successRate.ToString("n2")</div>
 </div>
