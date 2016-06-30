@@ -180,7 +180,7 @@ namespace Dashboard.Controllers
                     //If users choose to exclude flow run results
                     if (filter.ExcludeFlowRunResults)
                     {
-                        if (runElapsedTime.JobKind.Equals("buildFlow"))
+                        if (runElapsedTime.JobKind != null && runElapsedTime.JobKind.Equals("buildFlow"))
                         {
                             //To avoid double count on total # of flow jobs.
                             if (repoName == AzureUtil.ViewNameAll)
@@ -294,7 +294,7 @@ namespace Dashboard.Controllers
                 //If users choose to exclude flow run results
                 if (filter.ExcludeFlowRunResults)
                 {
-                    if (entry.JobKind.Equals("buildFlow"))
+                    if (entry.JobKind != null && entry.JobKind.Equals("buildFlow"))
                     {
                         totalFlowRunCount++;
                         continue;
