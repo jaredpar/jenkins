@@ -15,9 +15,10 @@
     <h2>Job Elapsed Time List</h2>
     <div>Jenkins Jobs (@Model.Filter.ViewName)</div>
     <div>Job count: @Model.TotalJobCount.ToString("n0")</div>
+    <div>Run count: @Model.TotalRunCount.ToString("n0")</div>
     @if (@Model.Filter.ExcludeFlowRunResults)
     {
-        <div>Flow job count: @Model.FlowJobCount.ToString("n0")</div>
+        <div>Flow run count: @Model.FlowRunCount.ToString("n0")</div>
     }
     <div>Total elapsed time (in minutes) @totalETInMin.ToString("n2")</div>
     <div>Average elapsed time per job (in minutes) @aveET.ToString("n2")</div>

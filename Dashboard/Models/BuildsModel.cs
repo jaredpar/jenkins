@@ -166,6 +166,7 @@ namespace Dashboard.Models
     {
         public JobId JobId { get; set; }
         public string JobName { get; set; }
+        public string JobKind { get; set; }
         public int ElapsedTime { get; set; }
         public Dashboard.Azure.ClassificationKind ClassificationKind { get; set; }
     }
@@ -262,9 +263,16 @@ namespace Dashboard.Models
         public int TotalJobCount { get; set; }
 
         /// <summary>
-        /// Total number of flow jobs.
+        /// Total number of runs
+        /// Note even though each job can have multiple runs/builds
+        /// If "Exclude Flow Run/Job Results" are checked, the # of flow runs will NOT be counted.
         /// </summary>
-        public int FlowJobCount { get; set; }
+        public int TotalRunCount { get; set; }
+
+        /// <summary>
+        /// Total number of flow runs.
+        /// </summary>
+        public int FlowRunCount { get; set; }
 
         /// <summary>
         /// Total elapsed time of current repo

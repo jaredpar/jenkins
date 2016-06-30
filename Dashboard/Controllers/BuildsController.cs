@@ -172,7 +172,7 @@ namespace Dashboard.Controllers
                     .ToList();
 
                 var runCounts = results
-                    .Select(x => new ElapsedTimeModel() { JobId = x.JobId, JobName = x.JobName, ElapsedTime = x.DurationSeconds, ClassificationKind = x.ClassificationKind })
+                    .Select(x => new ElapsedTimeModel() { JobId = x.JobId, JobName = x.JobName, ElapsedTime = x.DurationSeconds, ClassificationKind = x.ClassificationKind, JobKind = x.JobKind })
                     .ToList();
 
                 foreach (var runElapsedTime in runCounts)
@@ -180,10 +180,13 @@ namespace Dashboard.Controllers
                     //If users choose to exclude flow run results
                     if (filter.ExcludeFlowRunResults)
                     {
-                        if (IsFlowJob(runElapsedTime.JobId))
+                        if (runElapsedTime.JobKind.Equals("buildFlow"))
                         {
-                            totalCount++;
-                            totalFlowJobCount++;
+                            //To avoid double count on total # of flow jobs.
+                            if (repoName == AzureUtil.ViewNameAll)
+                            {
+                                totalFlowJobCount++;
+                            }
                             continue;
                         }
                     }
@@ -262,8 +265,9 @@ namespace Dashboard.Controllers
             BuildFilterModel filter;
             List<BuildResultEntity> results;
             var totalJobCount = 0;
+            var totalRunCount = 0;
             var totalETOfCurrRepo = 0;
-            var totalFlowJobCount = 0;
+            var totalFlowRunCount = 0;
 
             //When navigating from "ProjectElapsedTime" view to "JobElapsedTime" view, var "name" is set to the repo name being selected.
             //When refreshing "JobElapsedTime" view via repo name dropdown list, var "viewName" is set to the repo name, var "name" == null
@@ -290,10 +294,9 @@ namespace Dashboard.Controllers
                 //If users choose to exclude flow run results
                 if (filter.ExcludeFlowRunResults)
                 {
-                    if (IsFlowJob(entry.JobId))
+                    if (entry.JobKind.Equals("buildFlow"))
                     {
-                        totalJobCount++;
-                        totalFlowJobCount++;
+                        totalFlowRunCount++;
                         continue;
                     }
                 }
@@ -315,13 +318,15 @@ namespace Dashboard.Controllers
                 }
             }
 
+            totalRunCount = results.Count - totalFlowRunCount;
             totalJobCount += aggregatedJobElapsedTimeDic.Count;
 
             var model = new JobElapsedTimeModel()
             {
                 Filter = filter,
                 TotalJobCount = totalJobCount,
-                FlowJobCount = totalFlowJobCount,
+                TotalRunCount = totalRunCount,
+                FlowRunCount = totalFlowRunCount,
                 TotalETOfCurrRepo = totalETOfCurrRepo,
                 AgJobElapsedTimeDict = aggregatedJobElapsedTimeDic
             };
@@ -500,26 +505,6 @@ namespace Dashboard.Controllers
                 Limit = limit,
                 ActionName = actionName,
             };
-        }
-        public static bool IsFlowJob(Dashboard.Jenkins.JobId currJobId)
-        {
-            var currJobPath = SharedConstants.DotnetJenkinsUri + JenkinsUtil.GetJobIdPath(currJobId) + "/api/xml";
-            XmlDocument jobXml = new XmlDocument();
-
-            try
-            {
-                jobXml.Load(currJobPath);
-                XmlElement jobXMLRoot = jobXml.DocumentElement;
-
-                if (jobXMLRoot.Name.Equals("buildFlow"))
-                    return true;
-                else
-                    return false;
-            }
-            catch //Job url can't be opened successfully.
-            {
-                return false;
-            }
         }
     }
 }
