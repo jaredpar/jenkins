@@ -95,7 +95,7 @@ namespace Dashboard.ApiFun
 
         private static async Task TestJob()
         {
-            var jobUrlStr = "http://dotnet-ci.cloudapp.net/job/Private/job/dotnet_roslyn-internal/job/microupdate/job/windows_vsi_p2/2/";
+            var jobUrlStr = "http://dotnet-ci.cloudapp.net/job/Private/job/dotnet_roslyn-internal/job/microupdate/job/windows_vsi_p2/8/";
             var uri = new Uri(jobUrlStr);
             var parts = uri.PathAndQuery.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             var jobPath = string.Join("/", parts.Take(parts.Length - 1));
@@ -354,7 +354,7 @@ namespace Dashboard.ApiFun
             var client = CreateClient(auth: false);
             var populator = new BuildTablePopulator(account.CreateCloudTableClient(), client, Console.Out);
 
-            var boundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_corefx/job/master/job/fedora23_debug_tst/134/");
+            var boundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_coreclr/job/master/job/jitstress/job/x64_checked_osx_jitstress1_flow/7/");
             try
             {
                 await populator.PopulateBuild(boundBuildId.BuildId);
