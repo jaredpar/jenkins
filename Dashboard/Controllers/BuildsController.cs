@@ -150,7 +150,7 @@ namespace Dashboard.Controllers
         /// A view of the total elapsed time per team/project repo, ranked from most elapsed time to least.
         /// </summary>
         /// <returns></returns>
-        public ActionResult ProjectElapsedTime(bool pr = false, bool fr = true, DateTimeOffset? startDate = null)
+        public ActionResult ProjectElapsedTime(bool pr = false, bool fr = false, DateTimeOffset? startDate = null)
         {
             var filter = CreateBuildFilter(actionName: nameof(ProjectElapsedTime), startDate: startDate, pr: pr, fr: fr, disFRBox: true);
 
@@ -178,7 +178,7 @@ namespace Dashboard.Controllers
                 foreach (var runElapsedTime in runCounts)
                 {
                     //If users choose to exclude flow run results
-                    if (filter.ExcludeFlowRunResults)
+                    if (!filter.IncludeFlowRunResults)
                     {
                         if (runElapsedTime.JobKind != null && runElapsedTime.JobKind.Equals("buildFlow"))
                         {
@@ -259,7 +259,7 @@ namespace Dashboard.Controllers
             return View(viewName: "KindByViewName", model: model);
         }
 
-        public ActionResult JobListByRepoName(string name = null, bool pr = false, bool fr = true, DateTime? startDate = null, string viewName = AzureUtil.ViewNameAll)
+        public ActionResult JobListByRepoName(string name = null, bool pr = false, bool fr = false, DateTime? startDate = null, string viewName = AzureUtil.ViewNameAll)
         {
             var startDateValue = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
             BuildFilterModel filter;
@@ -292,7 +292,7 @@ namespace Dashboard.Controllers
             foreach (var entry in results)
             {
                 //If users choose to exclude flow run results
-                if (filter.ExcludeFlowRunResults)
+                if (!filter.IncludeFlowRunResults)
                 {
                     if (entry.JobKind != null && entry.JobKind.Equals("buildFlow"))
                     {
@@ -492,14 +492,14 @@ namespace Dashboard.Controllers
             return model;
         }
 
-        private BuildFilterModel CreateBuildFilter(string actionName, string name = null, string viewName = null, bool pr = false, DateTimeOffset? startDate = null, int? limit = null, bool fr = true, bool disFRBox = false)
+        private BuildFilterModel CreateBuildFilter(string actionName, string name = null, string viewName = null, bool pr = false, DateTimeOffset? startDate = null, int? limit = null, bool fr = false, bool disFRBox = false)
         {
             return new BuildFilterModel()
             {
                 Name = name,
                 ViewName = viewName,
                 IncludePullRequests = pr,
-                ExcludeFlowRunResults = fr,
+                IncludeFlowRunResults = fr,
                 DisplayFlowRunCheckBox = disFRBox,
                 StartDate = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1),
                 Limit = limit,
