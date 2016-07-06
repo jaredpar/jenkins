@@ -152,7 +152,7 @@ namespace Dashboard.Controllers
         /// <returns></returns>
         public ActionResult ProjectElapsedTime(bool pr = false, bool fr = false, DateTimeOffset? startDate = null)
         {
-            var filter = CreateBuildFilter(actionName: nameof(ProjectElapsedTime), startDate: startDate, pr: pr, fr: fr, disFRBox: true);
+            var filter = CreateBuildFilter(actionName: nameof(ProjectElapsedTime), startDate: startDate, pr: pr, fr: fr, displayFRCheckBox: true);
 
             List<string> repoNameList = _buildUtil.GetViewNames(filter.StartDate);
             List<ProjectElapsedTimeModel> ETListOfProjects = new List<ProjectElapsedTimeModel>();
@@ -180,7 +180,7 @@ namespace Dashboard.Controllers
                     //If users choose to exclude flow run results
                     if (!filter.IncludeFlowRunResults)
                     {
-                        if (runElapsedTime.JobKind != null && runElapsedTime.JobKind.Equals("buildFlow"))
+                        if (runElapsedTime.JobKind != null && runElapsedTime.JobKind.Equals(JobKind.Flow))
                         {
                             //To avoid double count on total # of flow jobs.
                             if (repoName == AzureUtil.ViewNameAll)
@@ -273,7 +273,7 @@ namespace Dashboard.Controllers
             //When refreshing "JobElapsedTime" view via repo name dropdown list, var "viewName" is set to the repo name, var "name" == null
             if (name != null)
             {
-                filter = CreateBuildFilter(actionName: nameof(JobListByRepoName), viewName: name, startDate: startDate, pr: pr, fr: fr, disFRBox: true);
+                filter = CreateBuildFilter(actionName: nameof(JobListByRepoName), viewName: name, startDate: startDate, pr: pr, fr: fr, displayFRCheckBox: true);
                 results = _buildUtil
                     .GetBuildResults(startDateValue, name)
                     .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
@@ -281,7 +281,7 @@ namespace Dashboard.Controllers
             }
             else
             {
-                filter = CreateBuildFilter(actionName: nameof(JobListByRepoName), viewName: viewName, startDate: startDate, pr: pr, fr: fr, disFRBox: true);
+                filter = CreateBuildFilter(actionName: nameof(JobListByRepoName), viewName: viewName, startDate: startDate, pr: pr, fr: fr, displayFRCheckBox: true);
                 results = _buildUtil
                     .GetBuildResults(startDateValue, viewName)
                     .Where(x => pr || !JobUtil.IsPullRequestJobName(x.JobId))
@@ -294,7 +294,7 @@ namespace Dashboard.Controllers
                 //If users choose to exclude flow run results
                 if (!filter.IncludeFlowRunResults)
                 {
-                    if (entry.JobKind != null && entry.JobKind.Equals("buildFlow"))
+                    if (entry.JobKind != null && entry.JobKind.Equals(JobKind.Flow))
                     {
                         totalFlowRunCount++;
                         continue;
@@ -492,7 +492,7 @@ namespace Dashboard.Controllers
             return model;
         }
 
-        private BuildFilterModel CreateBuildFilter(string actionName, string name = null, string viewName = null, bool pr = false, DateTimeOffset? startDate = null, int? limit = null, bool fr = false, bool disFRBox = false)
+        private BuildFilterModel CreateBuildFilter(string actionName, string name = null, string viewName = null, bool pr = false, DateTimeOffset? startDate = null, int? limit = null, bool fr = false, bool displayFRCheckBox = false)
         {
             return new BuildFilterModel()
             {
@@ -500,7 +500,7 @@ namespace Dashboard.Controllers
                 ViewName = viewName,
                 IncludePullRequests = pr,
                 IncludeFlowRunResults = fr,
-                DisplayFlowRunCheckBox = disFRBox,
+                DisplayFlowRunCheckBox = displayFRCheckBox,
                 StartDate = startDate ?? DateTimeOffset.UtcNow - TimeSpan.FromDays(1),
                 Limit = limit,
                 ActionName = actionName,
