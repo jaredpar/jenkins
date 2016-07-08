@@ -11,6 +11,13 @@ namespace Dashboard.Models
     public sealed class BuildFilterModel
     {
         public bool IncludePullRequests { get; set; }
+        /// <summary>
+        /// Whether to include results from flow jobs/runs
+        /// The elapsed time of a flow job/run is the sum of elapsed time of all its sub jobs/runs.
+        /// They should be excluded from elapsed time calcuation, as they do NOT consume additional machine resources.
+        /// </summary>
+        public bool IncludeFlowRunResults { get; set; }
+        public bool DisplayFlowRunCheckBox { get; set; }
         public DateTimeOffset StartDate { get; set; }
         public int? Limit { get; set; }
         public string Name { get; set; }
@@ -159,7 +166,9 @@ namespace Dashboard.Models
     {
         public JobId JobId { get; set; }
         public string JobName { get; set; }
+        public string JobKind { get; set; }
         public int ElapsedTime { get; set; }
+        public Dashboard.Azure.ClassificationKind ClassificationKind { get; set; }
     }
 
     /// <summary>
@@ -213,6 +222,11 @@ namespace Dashboard.Models
         public int TotalBuildCount { get; set; }
 
         /// <summary>
+        /// Total number of flow jobs.
+        /// </summary>
+        public int FlowJobCount { get; set; }
+
+        /// <summary>
         /// Total number of builds that succeeded.
         /// </summary>
         public int TotalSucceededCount { get; set; }
@@ -247,6 +261,18 @@ namespace Dashboard.Models
         /// Note even though each job can have multiple builds, its job count is still 1.
         /// </summary>
         public int TotalJobCount { get; set; }
+
+        /// <summary>
+        /// Total number of runs
+        /// Note even though each job can have multiple runs/builds
+        /// If "Include Flow Run/Job Results" are not checked, the # of flow runs will NOT be counted.
+        /// </summary>
+        public int TotalRunCount { get; set; }
+
+        /// <summary>
+        /// Total number of flow runs.
+        /// </summary>
+        public int FlowRunCount { get; set; }
 
         /// <summary>
         /// Total elapsed time of current repo
