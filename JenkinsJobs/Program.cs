@@ -24,6 +24,10 @@ namespace Dashboard.StorageBuilder
             config.StorageConnectionString = connectionString;
             config.UseTimers();
 
+#if DEBUG
+            config.Tracing.ConsoleLevel = System.Diagnostics.TraceLevel.Verbose;
+#endif
+
             var host = new JobHost(config);
             host.RunAndBlock();
         }

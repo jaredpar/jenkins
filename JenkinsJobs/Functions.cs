@@ -150,27 +150,5 @@ namespace Dashboard.StorageBuilder
             }
             logger.WriteLine($"Completed deleting");
         }
-
-        /*
-        private static async Task SendEmail(string text)
-        {
-        }
-
-        private static string BuildMessage(List<BuildAnalyzeError> buildAnalyzeErrors)
-        {
-            var builder = new StringBuilder();
-            builder.AppendLine($"Total Errors: {buildAnalyzeErrors.Count}");
-            foreach (var error in buildAnalyzeErrors)
-            {
-                builder.AppendLine($"Build: {error.BuildId.JobName} - {error.BuildId.Number}");
-                builder.AppendLine($"Url: {JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, error.BuildId)}");
-                builder.AppendLine($"Message: {error.Exception.Message}");
-                builder.AppendLine($"Stack: {error.Exception.StackTrace}");
-                builder.AppendLine("");
-            }
-
-            return builder.ToString();
-        }
-        */
     }
 }

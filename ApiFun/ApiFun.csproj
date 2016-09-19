@@ -75,6 +75,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\JenkinsJobs\MessageJson.cs">
+      <Link>MessageJson.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\SharedConstants.cs">
       <Link>SharedConstants.cs</Link>
     </Compile>

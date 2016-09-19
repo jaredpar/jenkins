@@ -138,6 +138,8 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="Properties\PublishProfiles\jdash %282%29.pubxml" />
+    <None Include="Properties\PublishProfiles\jdash other.pubxml" />
     <None Include="Properties\PublishProfiles\jdash.pubxml" />
     <None Include="Properties\webjob-publish-settings.json" />
   </ItemGroup>

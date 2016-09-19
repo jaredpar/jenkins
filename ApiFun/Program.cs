@@ -16,6 +16,10 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using System.Globalization;
 using Newtonsoft.Json;
+using static Dashboard.Azure.AzureConstants;
+using System.Threading;
+using Microsoft.WindowsAzure.Storage.Queue;
+using Dashboard.StorageBuilder;
 
 namespace Dashboard.ApiFun
 {
@@ -31,7 +35,8 @@ namespace Dashboard.ApiFun
             // GetMacQueueTimes();
             // TestJob().Wait();
             //WriteJobList().Wait();
-            Test().Wait();
+            // Test().Wait();
+            DrainQueue().Wait();
             //DrainPoisonQueue().Wait();
             // CheckUnknown().Wait();
             // Random().Wait();
@@ -96,7 +101,7 @@ namespace Dashboard.ApiFun
 
         }
 
-        private static async Task DrainPoisonQueue()
+        private static async Task DrainPoisonBuildQueue()
         {
             var account = GetStorageAccount();
             var client = account.CreateCloudQueueClient();
@@ -118,6 +123,12 @@ namespace Dashboard.ApiFun
                 await populator.PopulateBuild(buildId);
                 await queue.DeleteMessageAsync(message);
             } while (true);
+        }
+
+        private static async Task DrainQueue()
+        {
+            var item = new BuildDrainer();
+            await item.Go();
         }
 
         /*
@@ -153,7 +164,7 @@ namespace Dashboard.ApiFun
         }
         */
 
-        private static JenkinsClient CreateClient(Uri uri = null, bool auth = true)
+        internal static JenkinsClient CreateClient(Uri uri = null, bool auth = true)
         {
             uri = uri ?? SharedConstants.DotnetJenkinsUri;
             if (!string.IsNullOrEmpty(uri?.PathAndQuery))
@@ -194,7 +205,7 @@ namespace Dashboard.ApiFun
             SharedUtil.AddAuthorization(request, values[0], values[1]);
         }
 
-        private static CloudStorageAccount GetStorageAccount()
+        internal static CloudStorageAccount GetStorageAccount()
         {
             var tableConnectionString = ConfigurationManager.AppSettings[SharedConstants.StorageConnectionStringName];
             var storageAccount = CloudStorageAccount.Parse(tableConnectionString);
@@ -869,6 +880,124 @@ namespace Dashboard.ApiFun
                 .ToList();
         }
     }
+
+    internal sealed class BuildDrainer
+    {
+        private enum State
+        {
+            Succeeded,
+            Failed,
+            Skipped
+        }
+        private struct Result
+        {
+            internal BuildId BuildId { get; }
+            internal CloudQueueMessage Message { get; }
+            internal State State { get; set; }
+            internal TimeSpan Time { get; set; }
+            internal string Error { get; set; }
+
+            internal Result(BuildId id, CloudQueueMessage message, State state)
+            {
+                this = default(Result);
+                BuildId = id;
+                Message = message;
+                State = state;
+            }
+        }
+
+        internal async Task Go()
+        {
+            var succeeded = 0;
+            var failed = 0;
+            var skipped = 0;
+            var maxCount = 100;
+            var list = new List<Task<Result>>(capacity: maxCount);
+            var account = Program.GetStorageAccount();
+            var client = account.CreateCloudQueueClient();
+            var queue = client.GetQueueReference(AzureConstants.QueueNames.ProcessBuild);
+            var queueDone = false;
+
+            do
+            {
+                while (list.Count < maxCount && !queueDone)
+                {
+                    var message = await queue.GetMessageAsync();
+                    if (message == null)
+                    {
+                        queueDone = true;
+                        break;
+                    }
+
+                    var buildIdJson = JsonConvert.DeserializeObject<BuildIdJson>(message.AsString);
+                    var buildId = buildIdJson.BuildId;
+                    var task = new Task<Result>(() => Go(buildId, message).Result, TaskCreationOptions.LongRunning);
+                    task.Start();
+                    list.Add(task);
+                    Console.WriteLine("Queued {buildId}");
+                }
+
+                Console.WriteLine($"Succeeded {succeeded} Failed {failed} Skipped {skipped}");
+                Task.WaitAny(list.ToArray());
+
+                var index = 0;
+                while (index < list.Count)
+                {
+                    var task = list[index];
+                    if (!task.IsCompleted)
+                    {
+                        index++;
+                        continue;
+                    }
+
+                    list.RemoveAt(index);
+                    var result = await task;
+                    switch (result.State)
+                    {
+                        case State.Succeeded:
+                            Console.WriteLine($"{result.BuildId} succeeded in {result.Time}");
+                            succeeded++;
+                            break;
+                        case State.Skipped:
+                            Console.WriteLine($"{result.BuildId} skipped");
+                            skipped++;
+                            break;
+                        case State.Failed:
+                            Console.WriteLine($"{result.BuildId} failed");
+                            Console.WriteLine(result.Error);
+                            break;
+                    }
+                }
+            } while (true);
+        }
+
+
+        private async Task<Result> Go(BuildId buildId, CloudQueueMessage message)
+        {
+            var account = Program.GetStorageAccount();
+            var client = account.CreateCloudQueueClient();
+            var queue = client.GetQueueReference(AzureConstants.QueueNames.ProcessBuild);
+            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), Program.CreateClient(), TextWriter.Null);
+
+            if (await populator.IsPopulated(buildId))
+            {
+                return new Result(buildId, message, State.Skipped);
+            }
+
+            try
+            {
+                var start = DateTimeOffset.Now;
+                await populator.PopulateBuild(buildId);
+                var span = DateTimeOffset.Now - start;
+                return new Result(buildId, message, State.Succeeded) { Time = span };
+            }
+            catch (Exception ex)
+            {
+                return new Result(buildId, message, State.Failed) { Error = ex.ToString() };
+            }
+        }
+    }
+
 }
 
 

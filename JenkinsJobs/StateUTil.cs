@@ -40,19 +40,28 @@ namespace Dashboard.StorageBuilder
         internal async Task Populate(BuildId buildId, BuildTablePopulator populator, bool force, CancellationToken cancellationToken)
         {
             var key = UnprocessedBuildEntity.GetEntityKey(buildId);
+
+            // If we are not forcing the update then check for the existence of a completed run before
+            // requerying Jenkins.
+            if (!force && await populator.IsPopulated(buildId))
+            {
+                _logger.WriteLine($"Build {buildId.JobId} is already populated");
+                return;
+            }
+
             try
             {
-                // If we are not forcing the update then check for the existence of a completed run before
-                // requerying Jenkins.
-                if (force || !(await populator.IsPopulated(buildId)))
-                {
-                    await populator.PopulateBuild(buildId);
-                }
 
+                _logger.Write($"Populating {buildId.JobId} ... ");
+                await populator.PopulateBuild(buildId);
                 await AzureUtil.MaybeDeleteAsync(_unprocessedBuildTable, key, cancellationToken);
+                _logger.WriteLine($"Completed");
             }
             catch (Exception e)
             {
+                _logger.WriteLine($"Failed");
+                _logger.WriteLine(e);
+
                 // Update the error state for the row.
                 var entity = await AzureUtil.QueryAsync<UnprocessedBuildEntity>(_unprocessedBuildTable, key, cancellationToken);
                 if (entity != null)
