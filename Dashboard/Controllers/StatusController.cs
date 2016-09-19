@@ -12,7 +12,6 @@ using Microsoft.WindowsAzure;
 using Dashboard.Azure;
 using System.Diagnostics;
 using Microsoft.WindowsAzure.Storage.Table;
-using Dashboard.Sql;
 
 namespace Dashboard.Controllers
 {
@@ -64,7 +63,7 @@ namespace Dashboard.Controllers
 
         public ActionResult Errors()
         {
-            return View(StorageLogger.Instance.EntryList);
+            return View("");
         }
 
         public ActionResult TestRuns([FromUri] string startDate = null, [FromUri] string endDate = null)

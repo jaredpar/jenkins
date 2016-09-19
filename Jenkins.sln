@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiFun", "ApiFun\ApiFun.csproj", "{5FE8A917-8F76-48F3-A3A6-8235F97FF0C7}"
 EndProject
@@ -20,8 +20,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configurations", "Configura
 	ProjectSection(SolutionItems) = preProject
 		PublishScripts\Configurations\Dashboard-WAWS-dev.json = PublishScripts\Configurations\Dashboard-WAWS-dev.json
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DashboardCleaner", "DashboardCleaner\DashboardCleaner.csproj", "{C1A23ABF-1043-40F5-812B-CA8BE15BACCA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JenkinsJobs", "JenkinsJobs\JenkinsJobs.csproj", "{AAECC7FC-2A8D-40DC-A74D-BC35D89B1479}"
 EndProject
@@ -50,10 +48,6 @@ Global
 		{33DB7715-7742-44BE-AE4B-34CE54A40AF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33DB7715-7742-44BE-AE4B-34CE54A40AF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33DB7715-7742-44BE-AE4B-34CE54A40AF5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C1A23ABF-1043-40F5-812B-CA8BE15BACCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C1A23ABF-1043-40F5-812B-CA8BE15BACCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C1A23ABF-1043-40F5-812B-CA8BE15BACCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C1A23ABF-1043-40F5-812B-CA8BE15BACCA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AAECC7FC-2A8D-40DC-A74D-BC35D89B1479}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AAECC7FC-2A8D-40DC-A74D-BC35D89B1479}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAECC7FC-2A8D-40DC-A74D-BC35D89B1479}.Release|Any CPU.ActiveCfg = Release|Any CPU

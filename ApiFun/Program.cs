@@ -11,7 +11,6 @@ using System.Diagnostics;
 using System.IO;
 using RestSharp.Authenticators;
 using System.Configuration;
-using Dashboard.Sql;
 using Dashboard.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -65,18 +64,6 @@ namespace Dashboard.ApiFun
 
         }
         */
-
-        private static async Task Migrate()
-        {
-            var sqlConnectionString = ConfigurationManager.AppSettings[SharedConstants.SqlConnectionStringName];
-            var tableConnectionString = ConfigurationManager.AppSettings[SharedConstants.StorageConnectionStringName];
-            var tool = new DataMigrater(sqlConnectionString, tableConnectionString);
-            // await tool.MigrateTestRun();
-            // await tool.MigrateTestCacheCounter1();
-            // await tool.MigrateTestCacheCounter2();
-            // await tool.MigrateTestRunCounter();
-            await tool.MigrateUnitTestData();
-        }
 
         private static async Task FillData()
         {

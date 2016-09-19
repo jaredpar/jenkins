@@ -100,23 +100,13 @@
     <Compile Include="Azure\UnitTestCounterEntity.cs" />
     <Compile Include="Azure\ViewNameEntity.cs" />
     <Compile Include="EnumUtil.cs" />
-    <Compile Include="Sql\ConsoleLogger.cs" />
-    <Compile Include="Sql\DataMigrater.cs" />
-    <Compile Include="Sql\ILogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Sql\SqlUtil.cs" />
-    <Compile Include="Sql\StorageLogger.cs" />
     <Compile Include="Azure\TestCacheStats.cs" />
     <Compile Include="Azure\TestQueryStats.cs" />
     <Compile Include="Azure\TestResult.cs" />
     <Compile Include="Azure\TestResultStorage.cs" />
-    <Compile Include="Sql\TestResultSummary.cs" />
-    <Compile Include="Sql\TestRunLegacy.cs" />
     <Compile Include="Azure\TestStatsData.cs" />
-    <Compile Include="Sql\ZipUtil.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Sql\Scripts\Database.sql" />
+    <Compile Include="ZipUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dashboard.Sql
+namespace Dashboard
 {
     internal static class ZipUtil
     {
