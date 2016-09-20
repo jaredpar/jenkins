@@ -44,7 +44,8 @@ namespace Dashboard.Tests
                 buildResultJson: TestResources.Tao1BuildResult,
                 buildInfoJson: TestResources.Tao1BuildInfo,
                 failureInfoJson: TestResources.Tao1FailureInfo,
-                testReportJson: TestResources.Tao1TestResult);
+                testReportJson: TestResources.Tao1TestResult,
+                jobXml: @"<freeStyleProject></freeStyleProject>");
 
             var entity = await _populator.PopulateBuild(buildId);
 

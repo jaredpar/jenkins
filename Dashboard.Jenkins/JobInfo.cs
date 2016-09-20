@@ -29,6 +29,7 @@ namespace Dashboard.Jenkins
                 case Normal:
                 case Folder:
                 case Flow:
+                case Html:
                     return true;
                 default:
                     return false;

@@ -33,7 +33,8 @@ namespace Dashboard.Tests
             string buildInfoJson = null,
             string buildResultJson = null,
             string failureInfoJson = null,
-            string testReportJson = null)
+            string testReportJson = null,
+            string jobXml = null)
         {
             var buildPath = $"{JenkinsUtil.GetBuildPath(buildId)}api/json";
             if (buildInfoJson != null)
@@ -56,12 +57,23 @@ namespace Dashboard.Tests
                 var testReportPath = $"{JenkinsUtil.GetBuildPath(buildId)}testReport/api/json";
                 AddJsonCore(testReportJson, testReportPath);
             }
+
+            if (jobXml != null)
+            {
+                AddXmlCore(JenkinsUtil.GetJobIdPath(buildId.JobId), jobXml);
+            }
         }
 
         private void AddJsonCore(string json, string urlPath, bool pretty = false, string tree = null, int depth = 1)
         {
             var key = GetKey(urlPath, pretty.ToString(), tree, depth.ToString());
             _map.Add(key, json);
+        }
+
+        private void AddXmlCore(string urlPath, string data)
+        {
+            var key = $"{urlPath.TrimEnd('/')}/api/xml";
+            _map.Add(key, data);
         }
 
         private string GetApiPath(BuildId buildId)
@@ -77,6 +89,11 @@ namespace Dashboard.Tests
         private string GetKey(IRestRequest request)
         {
             var urlPath = request.Resource;
+            if (urlPath.EndsWith("xml"))
+            {
+                return urlPath;
+            }
+
             var pretty = GetParameter(request, "pretty", false);
             var tree = GetParameter(request, "tree", (string)null);
             var depth = GetParameter(request, "depth", 1);

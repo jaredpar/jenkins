@@ -140,15 +140,13 @@ namespace Dashboard.Jenkins
 
         public string GetJobKind(JobId id)
         {
-            var json = GetJson(JenkinsUtil.GetJobIdPath(id));
             var xml = GetXml(JenkinsUtil.GetJobIdPath(id));
             return XmlUtil.ParseJobKind(xml);
         }
 
         public async Task<string> GetJobKindAsync(JobId id)
         {
-            var json = await GetJsonAsync(JenkinsUtil.GetJobIdPath(id));
-            var xml = GetXml(JenkinsUtil.GetJobIdPath(id));
+            var xml = await GetXmlAsync(JenkinsUtil.GetJobIdPath(id));
             return XmlUtil.ParseJobKind(xml);
         }
 

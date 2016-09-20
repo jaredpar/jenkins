@@ -36,7 +36,8 @@ namespace Dashboard.ApiFun
             // TestJob().Wait();
             //WriteJobList().Wait();
             // Test().Wait();
-            DrainQueue().Wait();
+            // DrainQueue().Wait();
+            OomTest();
             //DrainPoisonQueue().Wait();
             // CheckUnknown().Wait();
             // Random().Wait();
@@ -253,6 +254,32 @@ namespace Dashboard.ApiFun
 
         }
 
+        private static void OomTest()
+        {
+            /*
+            var buildId = new BuildId(352, JobId.ParseName("dotnet_corefx/master/windows_nt_release_prtest"));
+            var client = CreateClient();
+            var ret = client.GetFailedTestCases(buildId);
+            */
+
+            using (var stream = File.Open(@"c:\users\jaredpar\temp\test.json", FileMode.Open))
+            using (var reader = new StreamReader(stream))
+            using (var jsonReader = new JsonTextReader(reader))
+            {
+                while (true)
+                {
+                    for (var i = 0; i < 10; i++)
+                    {
+                        Console.WriteLine($"{jsonReader.TokenType} - {jsonReader.Value}");
+                        jsonReader.Read();
+                    }
+
+                    Console.ReadLine();
+                }
+
+            }
+        }
+
         private static async Task Random()
         {
             /*
@@ -264,6 +291,7 @@ namespace Dashboard.ApiFun
             var test = await client.GetFailedTestCasesAsync(buildId);
             var prInfo = await client.GetPullRequestInfoAsync(buildId);
             */
+
             var testboundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_coreclr/job/release_1.0.0/job/x64_release_rhel7.2_pri1_flow/30/");
             var testbuildId = testboundBuildId.BuildId;
             var client = CreateClient(uri: testboundBuildId.HostUri, auth: true);
@@ -911,7 +939,7 @@ namespace Dashboard.ApiFun
             var succeeded = 0;
             var failed = 0;
             var skipped = 0;
-            var maxCount = 100;
+            var maxCount = 1;
             var list = new List<Task<Result>>(capacity: maxCount);
             var account = Program.GetStorageAccount();
             var client = account.CreateCloudQueueClient();
@@ -931,10 +959,9 @@ namespace Dashboard.ApiFun
 
                     var buildIdJson = JsonConvert.DeserializeObject<BuildIdJson>(message.AsString);
                     var buildId = buildIdJson.BuildId;
-                    var task = new Task<Result>(() => Go(buildId, message).Result, TaskCreationOptions.LongRunning);
-                    task.Start();
+                    var task = Task.Run(() => Go(buildId, message));
                     list.Add(task);
-                    Console.WriteLine("Queued {buildId}");
+                    Console.WriteLine($"Queued {buildId}");
                 }
 
                 Console.WriteLine($"Succeeded {succeeded} Failed {failed} Skipped {skipped}");
@@ -965,8 +992,11 @@ namespace Dashboard.ApiFun
                         case State.Failed:
                             Console.WriteLine($"{result.BuildId} failed");
                             Console.WriteLine(result.Error);
+                            failed++;
                             break;
                     }
+
+                    task.Dispose();
                 }
             } while (true);
         }
