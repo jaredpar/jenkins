@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -141,38 +142,161 @@ namespace Dashboard.Jenkins
             return false;
         }
 
-        /// <summary>
-        /// Parse out the testReport data for a given job.
-        /// </summary>
-        public static bool TryGetTestCaseFailureList(JObject data, out List<string> testCaseList)
+        internal static List<string> GetTestCaseFailureList(JsonReader reader)
         {
-            var failCount = data.Value<int?>("failCount");
-            if (failCount == null || failCount.Value == 0)
-            {
-                testCaseList = null;
-                return false;
-            }
+            return GetTestCaseNames(reader, (name, status) => status == "FAILED");
+        }
 
-            testCaseList = new List<string>();
-            var suites = (JArray)data["suites"];
-            foreach (var suite in suites)
+        /// <summary>
+        /// Get all of the test case names from the given stream.  A predicate can be supplied which takes the name and the 
+        /// status of the test to filter out the results.
+        /// </summary>
+        /// <remarks>
+        /// {
+        ///   "testActions" : [
+        ///   ],
+        ///   "duration" : 1371.9198,
+        ///   "empty" : false,
+        ///   "failCount" : 0,
+        ///   "passCount" : 175830,
+        ///   "skipCount" : 178,
+        ///   "suites" : [
+        ///     {
+        ///       "cases" : [
+        /// </remarks>
+        internal static List<string> GetTestCaseNames(JsonReader reader, Func<string, string, bool> statusFilter = null)
+        {
+            statusFilter = statusFilter ?? ((name, status) => true);
+
+            var foundSuites = false;
+            while (reader.Read())
             {
-                var cases = (JArray)suite["cases"];
-                foreach (var cur in cases)
+                if (reader.TokenType == JsonToken.PropertyName && (string)reader.Value == "suites")
                 {
-                    var status = cur.Value<string>("status");
-                    if (status == "PASSED" || status == "SKIPPED" || status == "FIXED")
-                    {
-                        continue;
-                    }
-
-                    var className = cur.Value<string>("className");
-                    var name = cur.Value<string>("name");
-                    testCaseList.Add($"{className}.{name}");
+                    foundSuites = true;
+                    break;
                 }
             }
 
-            return true;
+            var list = new List<string>();
+            if (!foundSuites || !reader.Read() || reader.TokenType != JsonToken.StartArray)
+            {
+                return list;
+            }
+
+            ProcessSuite(reader, list, statusFilter);
+            return list;
+        }
+
+        /// <summary>
+        /// Parse out the objects in the case array.  The structure is 
+        ///   {
+        ///      "cases" : [
+        ///        {
+        ///          "testActions" : [ ]
+        ///          "age" : 0,
+        ///          "className" : "System.IO.Tests.FileInfo_Open_fm",
+        ///          "duration" : 0.0014904,
+        ///          "errorDetails" : null,
+        ///          "errorStackTrace" : null,
+        ///          "failedSince" : 0,
+        ///          "name" : "FileModeAppendExisting",
+        ///          "skipped" : false,
+        ///          "skippedMessage" : null,
+        ///          "status" : "PASSED",
+        ///          "stderr" : null,
+        ///          "stdout" : null
+        ///        },
+        /// </summary>
+        private static void ProcessSuite(JsonReader reader, List<string> list, Func<string, string, bool> statusFilter)
+        {
+            Debug.Assert(reader.TokenType == JsonToken.StartArray);
+
+            var foundCases = false;
+            while (reader.Read())
+            {
+                if (reader.IsProperty("cases"))
+                {
+                    foundCases = true;
+                    break;
+                }
+            }
+
+            if (!foundCases || !reader.Read(JsonToken.StartArray))
+            {
+                return;
+            }
+
+            ProcessCasesArray(reader, list, statusFilter);
+        }
+
+        private static void ProcessCasesArray(JsonReader reader, List<string> list, Func<string, string, bool> statusFilter)
+        {
+            Debug.Assert(reader.TokenType == JsonToken.StartArray);
+
+            reader.Read();
+            while (reader.TokenType == JsonToken.StartObject)
+            {
+                ProcessCase(reader, list, statusFilter);
+            }
+
+            if (reader.TokenType == JsonToken.EndArray)
+            {
+                reader.Read();
+            }
+        }
+
+        private static void ProcessCase(JsonReader reader, List<string> list, Func<string, string, bool> statusFilter)
+        {
+            Debug.Assert(reader.TokenType == JsonToken.StartObject);
+
+            reader.Read();
+
+            string className = null;
+            string name = null;
+            string status = null;
+            do
+            {
+                if (reader.TokenType == JsonToken.PropertyName)
+                {
+                    var propertyName = (string)reader.Value;
+                    switch (propertyName)
+                    {
+                        case "name":
+                            name = reader.ReadAsString(); ;
+                            break;
+                        case "className":
+                            className = reader.ReadAsString();
+                            break;
+                        case "status":
+                            status = reader.ReadAsString();
+                            break;
+                        default:
+                            reader.ReadProperty();
+                            break;
+                    }
+                }
+                else
+                {
+                    reader.Read();
+                }
+
+            } while (reader.TokenType != JsonToken.EndObject && reader.TokenType != JsonToken.None);
+
+            if (className != null && name != null && status != null)
+            {
+                var fullName = $"{className}.{name}";
+                if (statusFilter(fullName, status))
+                {
+                    list.Add(fullName);
+                }
+            }
+
+            // Read the closing } for the case
+            if (reader.TokenType == JsonToken.EndObject)
+            {
+                reader.Read();
+            }
         }
     }
 }

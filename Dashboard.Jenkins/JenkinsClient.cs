@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -180,14 +181,16 @@ namespace Dashboard.Jenkins
 
         public List<string> GetFailedTestCases(BuildId id)
         {
-            var data = GetJson(JenkinsUtil.GetTestReportPath(id));
-            return JsonUtil.ParseTestCaseListFailed(data);
+            List<string> list = null;
+            GetJsonReader(JenkinsUtil.GetTestReportPath(id), r => list = JsonUtil.ParseTestCaseListFailed(r));
+            return list;
         }
 
         public async Task<List<string>> GetFailedTestCasesAsync(BuildId id)
         {
-            var data = await GetJsonAsync(JenkinsUtil.GetTestReportPath(id));
-            return JsonUtil.ParseTestCaseListFailed(data);
+            List<string> list = null;
+            await GetJsonReaderAsync(JenkinsUtil.GetTestReportPath(id), r => list = JsonUtil.ParseTestCaseListFailed(r));
+            return list;
         }
 
         public QueuedItemInfo GetQueuedItemInfo(int number)
@@ -328,6 +331,30 @@ namespace Dashboard.Jenkins
             var request = GetJsonRestRequest(urlPath, pretty, tree, depth);
             var response = await _restClient.ExecuteTaskAsync(request);
             return ParseJsonCore(response);
+        }
+
+        public IRestResponse GetJsonReader(string urlPath, Action<JsonReader> reader, bool pretty = false, string tree = null, int? depth = null)
+        {
+            var request = GetJsonRestRequest(urlPath, pretty, tree, depth);
+            request.ResponseWriter = GetJsonReaderAction(reader);
+            return _restClient.Execute(request);
+        }
+
+        public async Task<IRestResponse> GetJsonReaderAsync(string urlPath, Action<JsonReader> reader, bool pretty = false, string tree = null, int? depth = null)
+        {
+            var request = GetJsonRestRequest(urlPath, pretty, tree, depth);
+            request.ResponseWriter = GetJsonReaderAction(reader);
+            return await _restClient.ExecuteTaskAsync(request);
+        }
+
+        private static Action<Stream> GetJsonReaderAction(Action<JsonReader> action)
+        {
+            return stream =>
+            {
+                var streamReader = new StreamReader(stream);
+                var jsonReader = new JsonTextReader(streamReader);
+                action(jsonReader);
+            };
         }
 
         private static JObject ParseJsonCore(IRestResponse response)

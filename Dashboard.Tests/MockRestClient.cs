@@ -3,6 +3,7 @@ using Moq;
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -115,6 +116,16 @@ namespace Dashboard.Tests
         {
             var key = GetKey(request);
             var content = _map[key];
+            if (request.ResponseWriter != null)
+            {
+                var bytes = Encoding.UTF8.GetBytes(content);
+                using (var stream = new MemoryStream())
+                {
+                    stream.Write(bytes, 0, bytes.Length);
+                    stream.Position = 0;
+                    request.ResponseWriter(stream);
+                }
+            }
             var mock = new Mock<IRestResponse>();
             mock.SetupGet(x => x.Content).Returns(content);
             return mock.Object;

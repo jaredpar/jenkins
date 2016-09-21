@@ -241,6 +241,15 @@ namespace Dashboard.Azure
 
             var buildId = buildInfo.Id;
             var testCaseNames = _client.GetFailedTestCases(buildId);
+
+            // Ignore obnoxious long test names.  This is a temporary work around due to CoreFX generating giantic test
+            // names and log files.
+            // https://github.com/dotnet/corefx/pull/11905
+            if (testCaseNames.Any(x => x.Length > 10000))
+            {
+                return;
+            }
+
             var entityList = testCaseNames
                 .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildInfo.Date, buildId, x, jobKind: jobKind, machineName: buildInfo.MachineName, prInfo: prInfo))
                 .ToList();

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -150,16 +151,24 @@ namespace Dashboard.Jenkins
             return new ComputerInfo(name, os);
         }
 
-        // TODO: Should add a filter predicate here.
-        internal static List<string> ParseTestCaseListFailed(JObject data)
+        /// <summary>
+        /// Get all of the failed test case names from the testReport
+        /// </summary>
+        /// <remarks>
+        /// It's possible for the testReport to be quite large.  In some cases it can be hundreds of megabytes in length.  Hence
+        /// we use a reader here vs. a full DOM to save on the allocations. 
+        /// </remarks>
+        internal static List<string> ParseTestCaseListFailed(JsonReader reader)
         {
-            List<string> testCaseList;
-            if (!BuildFailureUtil.TryGetTestCaseFailureList(data, out testCaseList))
+            try
             {
-                testCaseList = new List<string>();
+                return BuildFailureUtil.GetTestCaseFailureList(reader);
             }
-
-            return testCaseList;
+            catch
+            {
+                // Bad JSON data can cause parsing to fail.
+                return new List<string>(capacity: 0);
+            }
         }
 
         /// <summary>

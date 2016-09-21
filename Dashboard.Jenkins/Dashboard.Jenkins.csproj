@@ -54,6 +54,7 @@
     </Compile>
     <Compile Include="BuildFailureUtil.cs" />
     <Compile Include="DataTypes.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="JenkinsClient.cs" />
     <Compile Include="JobId.cs" />
     <Compile Include="JobInfo.cs" />

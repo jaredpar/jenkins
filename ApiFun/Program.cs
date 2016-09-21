@@ -2,6 +2,7 @@
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -36,8 +37,8 @@ namespace Dashboard.ApiFun
             // TestJob().Wait();
             //WriteJobList().Wait();
             // Test().Wait();
-            // DrainQueue().Wait();
-            OomTest();
+            DrainQueue().Wait();
+            // OomTest();
             //DrainPoisonQueue().Wait();
             // CheckUnknown().Wait();
             // Random().Wait();
@@ -256,28 +257,10 @@ namespace Dashboard.ApiFun
 
         private static void OomTest()
         {
-            /*
             var buildId = new BuildId(352, JobId.ParseName("dotnet_corefx/master/windows_nt_release_prtest"));
             var client = CreateClient();
-            var ret = client.GetFailedTestCases(buildId);
-            */
-
-            using (var stream = File.Open(@"c:\users\jaredpar\temp\test.json", FileMode.Open))
-            using (var reader = new StreamReader(stream))
-            using (var jsonReader = new JsonTextReader(reader))
-            {
-                while (true)
-                {
-                    for (var i = 0; i < 10; i++)
-                    {
-                        Console.WriteLine($"{jsonReader.TokenType} - {jsonReader.Value}");
-                        jsonReader.Read();
-                    }
-
-                    Console.ReadLine();
-                }
-
-            }
+            var list = client.GetFailedTestCases(buildId);
+            Console.WriteLine(list.Count);
         }
 
         private static async Task Random()
@@ -939,12 +922,13 @@ namespace Dashboard.ApiFun
             var succeeded = 0;
             var failed = 0;
             var skipped = 0;
-            var maxCount = 1;
+            var maxCount = 10;
             var list = new List<Task<Result>>(capacity: maxCount);
             var account = Program.GetStorageAccount();
             var client = account.CreateCloudQueueClient();
             var queue = client.GetQueueReference(AzureConstants.QueueNames.ProcessBuild);
             var queueDone = false;
+            var set = new HashSet<BuildId>();
 
             do
             {
@@ -959,6 +943,12 @@ namespace Dashboard.ApiFun
 
                     var buildIdJson = JsonConvert.DeserializeObject<BuildIdJson>(message.AsString);
                     var buildId = buildIdJson.BuildId;
+                    if (!set.Add(buildId))
+                    {
+                        await queue.DeleteMessageAsync(message);
+                        continue;
+                    }
+
                     var task = Task.Run(() => Go(buildId, message));
                     list.Add(task);
                     Console.WriteLine($"Queued {buildId}");
@@ -996,6 +986,8 @@ namespace Dashboard.ApiFun
                             break;
                     }
 
+                    await queue.DeleteMessageAsync(result.Message);
+
                     task.Dispose();
                 }
             } while (true);
@@ -1005,9 +997,30 @@ namespace Dashboard.ApiFun
         private async Task<Result> Go(BuildId buildId, CloudQueueMessage message)
         {
             var account = Program.GetStorageAccount();
-            var client = account.CreateCloudQueueClient();
-            var queue = client.GetQueueReference(AzureConstants.QueueNames.ProcessBuild);
-            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), Program.CreateClient(), TextWriter.Null);
+            var client = Program.CreateClient(auth: JobUtil.IsAuthNeededHeuristic(buildId.JobId));
+            var queueClient = account.CreateCloudQueueClient();
+            var queue = queueClient.GetQueueReference(QueueNames.ProcessBuild);
+            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), client, TextWriter.Null);
+
+            /*
+            // There is too much of a back log to every fully process the corefx logs that are 200MB+ in size.  Skip them
+            // until we hit the recent ones. 
+            if (buildId.JobName.Contains("corefx"))
+            {
+                try
+                {
+                    var info = await client.GetBuildInfoAsync(buildId);
+                    if (info.Date < DateTimeOffset.UtcNow.AddHours(-1))
+                    {
+                        return new Result(buildId, message, State.Succeeded);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return new Result(buildId, message, State.Failed) { Error = ex.ToString() };
+                }
+            }
+            */
 
             if (await populator.IsPopulated(buildId))
             {
