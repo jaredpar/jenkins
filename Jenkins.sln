@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiFun", "ApiFun\ApiFun.csproj", "{5FE8A917-8F76-48F3-A3A6-8235F97FF0C7}"
 EndProject
@@ -31,8 +31,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Tests", "Dashboar
 	ProjectSection(ProjectDependencies) = postProject
 		{33DB7715-7742-44BE-AE4B-34CE54A40AF5} = {33DB7715-7742-44BE-AE4B-34CE54A40AF5}
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JenkinsThis", "JenkinsThis\JenkinsThis.csproj", "{1FCDD236-70A8-42C3-B3FC-631A4CF32351}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -64,10 +62,6 @@ Global
 		{37C8575D-8E4E-45EB-861B-3720E883A663}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37C8575D-8E4E-45EB-861B-3720E883A663}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37C8575D-8E4E-45EB-861B-3720E883A663}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1FCDD236-70A8-42C3-B3FC-631A4CF32351}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1FCDD236-70A8-42C3-B3FC-631A4CF32351}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1FCDD236-70A8-42C3-B3FC-631A4CF32351}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1FCDD236-70A8-42C3-B3FC-631A4CF32351}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

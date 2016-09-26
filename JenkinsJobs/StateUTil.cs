@@ -51,7 +51,6 @@ namespace Dashboard.StorageBuilder
 
             try
             {
-
                 _logger.Write($"Populating {buildId.JobId} ... ");
                 await populator.PopulateBuild(buildId);
                 await AzureUtil.MaybeDeleteAsync(_unprocessedBuildTable, key, cancellationToken);

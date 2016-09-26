@@ -294,7 +294,7 @@ namespace Dashboard.ApiFun
         /// <returns></returns>
         private static async Task TestFailure()
         {
-            var failureUrl = @"https://dotnet-ci2.cloudapp.net/job/dotnet_citest/job/perf/job/master/job/stability_testing/job/windows_native_stability_test/25/";
+            var failureUrl = @"https://dotnet-ci.cloudapp.net/job/dotnet_coreclr/job/master/job/jitstress/job/x64_checked_ubuntu_minopts_flow/13/";
             var boundBuildId = BoundBuildId.Parse(failureUrl);
             var buildId = boundBuildId.BuildId;
             var account = GetStorageAccount();
