@@ -148,7 +148,7 @@ namespace Dashboard.StorageBuilder
         {
             var jenkinsUri = entity.BoundBuildId.HostUri;
             var buildId = entity.BuildId;
-            var client = CreateJenkinsClient(jenkinsUri, entity.JobId);
+            var client = CreateJenkinsClient(jenkinsUri.Host, entity.JobId);
             try
             {
                 var buildInfo = await client.GetBuildInfoAsync(buildId);
@@ -190,17 +190,21 @@ namespace Dashboard.StorageBuilder
             return entity != null;
         }
 
-        internal static JenkinsClient CreateJenkinsClient(Uri jenkinsUrl, JobId jobId)
+        internal static JenkinsClient CreateJenkinsClient(string jenkinsHostName, JobId jobId)
         {
-            // TODO: don't authenticate when it's not https
+            var builder = new UriBuilder();
+            builder.Host = jenkinsHostName;
+
             if (JobUtil.IsAuthNeededHeuristic(jobId))
             {
                 var githubConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.GithubConnectionStringName);
-                return new JenkinsClient(jenkinsUrl, githubConnectionString);
+                builder.Scheme = Uri.UriSchemeHttps;
+                return new JenkinsClient(builder.Uri, githubConnectionString);
             }
             else
             {
-                return new JenkinsClient(jenkinsUrl);
+                builder.Scheme = Uri.UriSchemeHttp;
+                return new JenkinsClient(builder.Uri);
             }
         }
 

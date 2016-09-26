@@ -34,8 +34,7 @@ namespace Dashboard.Jenkins
             // when to do authentication.
             var name = jobId.Name;
             if (name.Contains("Private") ||
-                name.Contains("perf_win10") ||
-                name.Contains("dotnet_citest"))
+                name.Contains("perf_win10"))
             {
                 return true;
             }
