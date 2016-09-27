@@ -105,6 +105,7 @@
     <Compile Include="BuildTablePopulatorTests.cs" />
     <Compile Include="CounterEntityTests.cs" />
     <Compile Include="CounterUtilTests.cs" />
+    <Compile Include="DateTimeKeyTests.cs" />
     <Compile Include="DateKeyTests.cs" />
     <Compile Include="EqualityUnit.cs" />
     <Compile Include="EqualityUnit`1.cs" />
