@@ -189,7 +189,7 @@ namespace Dashboard.ApiFun
 
         private static JenkinsClient CreateClient(BoundBuildId buildId, bool? auth = null)
         {
-            return CreateClient(buildId.HostUri.Host, buildId.JobId, auth);
+            return CreateClient(buildId.HostName, buildId.JobId, auth);
         }
 
         private static void Authorize(RestRequest request)
@@ -284,7 +284,7 @@ namespace Dashboard.ApiFun
             foreach (var entity in all)
             {
                 var boundBuildId = new BoundBuildId(SharedConstants.DotnetJenkinsUri.Host, entity.BuildId);
-                Console.WriteLine(boundBuildId.Uri);
+                Console.WriteLine(boundBuildId.GetBuildUri(useHttps: false));
             }
         }
 

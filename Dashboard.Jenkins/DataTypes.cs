@@ -56,7 +56,6 @@ namespace Dashboard.Jenkins
     /// </summary>
     public struct BoundBuildId : IEquatable<BoundBuildId>
     {
-        public string UriScheme { get; }
         public string HostName { get; }
         public BuildId BuildId { get; }
 
@@ -64,32 +63,27 @@ namespace Dashboard.Jenkins
         public JobId JobId => BuildId.JobId;
         public string JobName => BuildId.JobName;
 
-        public Uri HostUri
-        {
-            get
-            {
-                var builder = new UriBuilder();
-                builder.Scheme = UriScheme;
-                builder.Host = HostName;
-                return builder.Uri;
-            }
-        }
-
-        public Uri Uri
-        {
-            get
-            {
-                var builder = new UriBuilder(HostUri);
-                builder.Path = JenkinsUtil.GetBuildPath(BuildId);
-                return builder.Uri;
-            }
-        }
-
-        public BoundBuildId(string hostName, BuildId buildId, string uriScheme = null)
+        public BoundBuildId(string hostName, BuildId buildId)
         {
             HostName = hostName;
             BuildId = buildId;
-            UriScheme = uriScheme ?? Uri.UriSchemeHttps;
+        }
+
+        public Uri GetHostUri(bool useHttps = true) => GetUriCore(useHttps, path: false);
+
+        public Uri GetBuildUri(bool useHttps = true) => GetUriCore(useHttps, path: true);
+
+        private Uri GetUriCore(bool useHttps, bool path)
+        {
+            var builder = new UriBuilder();
+            builder.Scheme = useHttps ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
+            builder.Host = HostName;
+            if (path)
+            {
+                builder.Path = JenkinsUtil.GetBuildPath(BuildId);
+            }
+
+            return builder.Uri;
         }
 
         public static bool TryParse(Uri uri, out BoundBuildId boundBuildId)
@@ -102,7 +96,7 @@ namespace Dashboard.Jenkins
                 return false;
             }
 
-            boundBuildId = new BoundBuildId(hostName, buildId, uri.Scheme);
+            boundBuildId = new BoundBuildId(hostName, buildId);
             return true;
         }
 
@@ -119,14 +113,13 @@ namespace Dashboard.Jenkins
         }
 
         public static bool operator==(BoundBuildId left, BoundBuildId right) => 
-            left.UriScheme == right.UriScheme &&
             left.HostName == right.HostName &&
             left.BuildId == right.BuildId;
         public static bool operator!=(BoundBuildId left, BoundBuildId right) => !(left == right);
         public bool Equals(BoundBuildId other) => this == other;
         public override bool Equals(object obj) => obj is BoundBuildId && Equals((BoundBuildId)obj);
         public override int GetHashCode() => BuildId.GetHashCode();
-        public override string ToString() => Uri.ToString();
+        public override string ToString() => GetBuildUri(useHttps: false).ToString();
     }
 
     public sealed class ViewInfo

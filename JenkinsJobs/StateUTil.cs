@@ -113,13 +113,13 @@ namespace Dashboard.StorageBuilder
                     }
                 }
 
-                _logger.WriteLine($"Deleting stale data {boundBuildId.Uri}");
+                _logger.WriteLine($"Deleting stale data {boundBuildId.GetBuildUri(useHttps: false)}");
 
-                textBuilder.Append($"Deleting stale data: {boundBuildId.Uri}");
+                textBuilder.Append($"Deleting stale data: {boundBuildId.GetBuildUri(useHttps: false)}");
                 textBuilder.Append($"Eror: {entity.StatusText}");
 
                 htmlBuilder.Append($@"<div>");
-                htmlBuilder.Append($@"<div>Build <a href=""{boundBuildId.Uri}"">{buildId.JobName} {buildId.Number}</a></div>");
+                htmlBuilder.Append($@"<div>Build <a href=""{boundBuildId.GetBuildUri(useHttps: false)}"">{buildId.JobName} {buildId.Number}</a></div>");
                 htmlBuilder.Append($@"<div>Error: {WebUtility.HtmlEncode(entity.StatusText)}</div>");
                 htmlBuilder.Append($@"</div>");
             }
@@ -145,9 +145,9 @@ namespace Dashboard.StorageBuilder
 
         private async Task UpdateEntity(UnprocessedBuildEntity entity, CloudQueue processBuildQueue, CancellationToken cancellationToken)
         {
-            var jenkinsUri = entity.BoundBuildId.HostUri;
+            var host = entity.BoundBuildId.HostName;
             var buildId = entity.BuildId;
-            var client = CreateJenkinsClient(jenkinsUri.Host, entity.JobId);
+            var client = CreateJenkinsClient(host, entity.JobId);
             try
             {
                 var buildInfo = await client.GetBuildInfoAsync(buildId);
@@ -170,7 +170,7 @@ namespace Dashboard.StorageBuilder
                 else
                 {
                     _logger.WriteLine($"Build {buildId}: sending for processing as it's completed");
-                    await EnqueueProcessBuild(processBuildQueue, jenkinsUri.Host, buildId);
+                    await EnqueueProcessBuild(processBuildQueue, host, buildId);
                 }
             }
             catch (Exception e)

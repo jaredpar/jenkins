@@ -22,7 +22,7 @@ namespace Dashboard.Azure
 
         public JobId JobId => JobId.ParseName(JobName);
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
-        public BoundBuildId BoundBuildId => new BoundBuildId(HostName ?? "dotnet-ci.cloudapp.net", BuildId, UriScheme ?? Uri.UriSchemeHttps);
+        public BoundBuildId BoundBuildId => new BoundBuildId(HostName ?? "dotnet-ci.cloudapp.net", BuildId);
 
         public UnprocessedBuildEntity()
         {
@@ -39,7 +39,6 @@ namespace Dashboard.Azure
             BuildNumber = buildId.Number;
             LastUpdate = DateTime.UtcNow;
             HostName = boundBuildId.HostName;
-            UriScheme = boundBuildId.UriScheme;
         }
 
         public static EntityKey GetEntityKey(BuildId buildId)

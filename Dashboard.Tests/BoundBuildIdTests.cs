@@ -25,18 +25,8 @@ namespace Dashboard.Tests
                 var buildId = new BuildId(42, JobId.ParseName("cat"));
                 RunAll(EqualityUnit
                     .Create(new BoundBuildId("test", buildId))
-                    .WithEqualValues(new BoundBuildId("test", buildId), new BoundBuildId("test", buildId, Uri.UriSchemeHttps))
+                    .WithEqualValues(new BoundBuildId("test", buildId), new BoundBuildId("test", buildId))
                     .WithNotEqualValues(new BoundBuildId("other", buildId)));
-            }
-
-            [Fact]
-            public void Scheme()
-            {
-                var buildId = new BuildId(42, JobId.ParseName("cat"));
-                RunAll(EqualityUnit
-                    .Create(new BoundBuildId("test", buildId, Uri.UriSchemeFtp))
-                    .WithEqualValues(new BoundBuildId("test", buildId, Uri.UriSchemeFtp))
-                    .WithNotEqualValues(new BoundBuildId("other", buildId, Uri.UriSchemeHttps)));
             }
         }
     }

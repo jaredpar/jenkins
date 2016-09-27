@@ -12,9 +12,11 @@ namespace Dashboard.Azure
     {
         Default = Date,
         DateTime = Date | Time,
+        Time = Minutes | Hours,
 
         Date = 0x001,
-        Time = 0x002,
+        Hours = 0x002,
+        Minutes = 0x004,
     }
 
     /// <summary>
@@ -42,11 +44,13 @@ namespace Dashboard.Azure
                 builder.Append(dateTime.Day.ToString("00"));
             }
 
-            if (DateTimeKeyFlags.Time == (flags & DateTimeKeyFlags.Time))
+            var hours = DateTimeKeyFlags.Hours == (flags & DateTimeKeyFlags.Hours);
+            var minutes = DateTimeKeyFlags.Minutes == (flags & DateTimeKeyFlags.Minutes);
+            if (hours || minutes)
             {
                 builder.Append("T");
-                builder.Append(dateTime.Hour.ToString("00"));
-                builder.Append(dateTime.Minute.ToString("00"));
+                builder.Append(hours ? dateTime.Hour.ToString("00") : "00");
+                builder.Append(minutes ? dateTime.Minute.ToString("00") : "00");
             }
 
             return builder.ToString();
