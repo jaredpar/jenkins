@@ -83,11 +83,23 @@ namespace Dashboard.Tests
             }
 
             [Fact]
-            public void DateComparison()
+            public void DateComparisonYears()
             {
                 var date = DateTimeOffset.Parse("2016/09/15 1:00PM");
                 var key = new DateTimeKey(date, DateTimeKeyFlags.Date);
-                for (var i = 1; i < 100; i++)
+                for (var i = 1; i < 1000; i++)
+                {
+                    var newKey = new DateTimeKey(date.AddYears(i), key.Flags);
+                    Assert.True(string.CompareOrdinal(newKey.Key, key.Key) > 0);
+                }
+            }
+
+            [Fact]
+            public void DateComparisonDays()
+            {
+                var date = DateTimeOffset.Parse("2016/09/15 1:00PM");
+                var key = new DateTimeKey(date, DateTimeKeyFlags.Date);
+                for (var i = 1; i < 1000; i++)
                 {
                     var newKey = new DateTimeKey(date.AddDays(i), key.Flags);
                     Assert.True(string.CompareOrdinal(newKey.Key, key.Key) > 0);
