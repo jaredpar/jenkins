@@ -19,6 +19,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Newtonsoft.Json.Linq;
 using static Dashboard.Azure.AzureConstants;
+using System.Net;
 
 namespace Dashboard.StorageBuilder
 {
@@ -27,6 +28,7 @@ namespace Dashboard.StorageBuilder
         public static async Task BuildEvent(
             [QueueTrigger(QueueNames.BuildEvent)] string message,
             [Queue(QueueNames.ProcessBuild)] CloudQueue processBuildQueue,
+            [Queue(QueueNames.EmailBuild)] CloudQueue emailBuildQueue,
             [Table(TableNames.BuildState)] CloudTable buildStateTable,
             [Table(TableNames.BuildStateKey)] CloudTable buildStateKeyTable,
             TextWriter logger,
@@ -37,6 +39,7 @@ namespace Dashboard.StorageBuilder
                 buildStateTable,
                 buildStateKeyTable,
                 processBuildQueue,
+                emailBuildQueue,
                 logger);
             await stateUtil.ProcessBuildEvent(messageJson, cancellationToken);
         }
@@ -56,6 +59,7 @@ namespace Dashboard.StorageBuilder
             [Table(TableNames.BuildFailureExact)] CloudTable buildFailureExactTable,
             [Table(TableNames.ViewNameDate)] CloudTable viewNameDateTable,
             [Queue(QueueNames.ProcessBuild)] CloudQueue processBuildQueue,
+            [Queue(QueueNames.EmailBuild)] CloudQueue emailBuildQueue,
             TextWriter logger,
             CancellationToken cancellationToken)
         {
@@ -74,57 +78,53 @@ namespace Dashboard.StorageBuilder
                 buildStateKeyTable: buildStateKeyTable,
                 buildStateTable: buildStateTable,
                 processBuildQueue: processBuildQueue,
+                emailBuildQueue: emailBuildQueue,
                 logger: logger);
             await stateUtil.Populate(buildIdJson, populator, force: false, cancellationToken: cancellationToken);
         }
 
-        /*
-        /// <summary>
-        /// Update the jobs in the unprocessed table.
-        /// </summary>
-        public static async Task UpdateUnprocessedTable(
-            [TimerTrigger("0 0/30 * * * *", RunOnStartup = true)] TimerInfo timerInfo,
-            [Queue(AzureConstants.QueueNames.ProcessBuild)] CloudQueue processBuildQueue,
-            [Table(AzureConstants.TableNames.UnprocessedBuild)] CloudTable unprocessedBuildTable,
-            [Table(AzureConstants.TableNames.BuildResultExact)] CloudTable buildResultExactTable,
+        private static async Task EmailFailedBuild(
+            [Queue(QueueNames.EmailBuild)] string messageJson,
+            [Table(TableNames.BuildState)] CloudTable buildStateTable,
             TextWriter logger,
             CancellationToken cancellationToken)
         {
-            var util = new StateUtil(
-                unprocessedBuildTable: unprocessedBuildTable,
-                buildResultExact: buildResultExactTable,
-                logger: logger);
-            await util.Update(processBuildQueue, cancellationToken);
-        }
+            var buildMessage = JsonConvert.DeserializeObject<ProcessBuildMessage>(messageJson);
+            var entityKey = BuildStateEntity.GetEntityKey(buildMessage.BuildStateKey, buildMessage.BoundBuildId);
+            var entity = await AzureUtil.QueryAsync<BuildStateEntity>(buildStateTable, entityKey, cancellationToken);
+            var textBuilder = new StringBuilder();
+            var htmlBuilder = new StringBuilder();
+            AppendEmailText(entity, textBuilder, htmlBuilder);
 
-        /// <summary>
-        /// Clean out the old entries in the unprocessed table.
-        /// </summary>
-        public static async Task CleanUnprocessedTable(
-            [TimerTrigger("0 0 * * * *", RunOnStartup = true)] TimerInfo timerInfo,
-            [Table(AzureConstants.TableNames.UnprocessedBuild)] CloudTable unprocessedBuildTable,
-            [Table(AzureConstants.TableNames.BuildResultExact)] CloudTable buildResultExactTable,
-            TextWriter logger,
-            CancellationToken cancellationToken)
-        {
-            var util = new StateUtil(
-                unprocessedBuildTable: unprocessedBuildTable,
-                buildResultExact: buildResultExactTable,
-                logger: logger);
-            var message = await util.Clean(cancellationToken);
-            if (message != null)
+            var message = new SendGridMessage()
             {
-                message.AddTo("jaredpparsons@gmail.com");
-                message.AddTo("jaredpar@microsoft.com");
-                message.From = new MailAddress("jaredpar@jdash.azurewebsites.net");
-                message.Subject = "Jenkins Build Populate Errors";
+                Html = htmlBuilder.ToString(),
+                Text = textBuilder.ToString(),
+            };
 
-                var key = CloudConfigurationManager.GetSetting(SharedConstants.SendGridApiKeySettingName);
-                var web = new Web(apiKey: key);
-                await web.DeliverAsync(message).ConfigureAwait(false);
-            }
+            message.AddTo("jaredpparsons@gmail.com");
+            message.AddTo("jaredpar@microsoft.com");
+            message.From = new MailAddress("jaredpar@jdash.azurewebsites.net");
+            message.Subject = $"Build process error {entity.JobName}";
+
+            var key = CloudConfigurationManager.GetSetting(SharedConstants.SendGridApiKeySettingName);
+            var web = new Web(apiKey: key);
+            await web.DeliverAsync(message);
         }
-        */
+
+        private static void AppendEmailText(BuildStateEntity entity, StringBuilder textBuilder, StringBuilder htmlBuilder)
+        {
+            var boundBuildId = entity.BoundBuildID;
+            var buildId = boundBuildId.BuildId;
+
+            textBuilder.Append($"Failed to process build: {boundBuildId.GetBuildUri(useHttps: false)}");
+            textBuilder.Append($"Error: {entity.Error}");
+
+            htmlBuilder.Append($@"<div>");
+            htmlBuilder.Append($@"<div>Build <a href=""{boundBuildId.GetBuildUri(useHttps: false)}"">{buildId.JobName} {buildId.Number}</a></div>");
+            htmlBuilder.Append($@"<div>Error: {WebUtility.HtmlEncode(entity.Error)}</div>");
+            htmlBuilder.Append($@"</div>");
+        }
 
         public static async Task CleanTestCache(
             [TimerTrigger("0 0 * * * *", RunOnStartup = true)] TimerInfo timerInfo,

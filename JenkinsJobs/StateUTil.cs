@@ -30,20 +30,24 @@ namespace Dashboard.StorageBuilder
         private readonly CloudTable _buildStateTable;
         private readonly CloudTable _buildStateKeyTable;
         private readonly CloudQueue _processBuildQueue;
+        private readonly CloudQueue _emailBuildQueue;
         private readonly TextWriter _logger;
 
         internal StateUtil(
             CloudTable buildStateTable,
             CloudTable buildStateKeyTable,
             CloudQueue processBuildQueue,
+            CloudQueue emailBuildQueue,
             TextWriter logger)
         {
             Debug.Assert(buildStateTable.Name == TableNames.BuildState);
             Debug.Assert(buildStateKeyTable.Name == TableNames.BuildStateKey);
             Debug.Assert(processBuildQueue.Name == QueueNames.ProcessBuild);
+            Debug.Assert(emailBuildQueue.Name == QueueNames.EmailBuild);
             _buildStateTable = buildStateTable;
             _buildStateKeyTable = buildStateKeyTable;
             _processBuildQueue = processBuildQueue;
+            _emailBuildQueue = emailBuildQueue;
             _logger = logger;
         }
 
@@ -51,13 +55,13 @@ namespace Dashboard.StorageBuilder
         {
             var isBuildFinished = message.Phase == "FINALIZED";
             var key = await GetOrCreateBuildStateKey(message.BoundBuildId);
-            var entityKey = BuildStateEnity.GetEntityKey(key, message.BoundBuildId);
+            var entityKey = BuildStateEntity.GetEntityKey(key, message.BoundBuildId);
 
             // Ensure there is an entry in the build state table for this build.
-            var entity = await AzureUtil.QueryAsync<BuildStateEnity>(_buildStateTable, entityKey, cancellationToken);
+            var entity = await AzureUtil.QueryAsync<BuildStateEntity>(_buildStateTable, entityKey, cancellationToken);
             if (entity == null || entity.IsBuildFinished != isBuildFinished)
             {
-                entity = new BuildStateEnity(key, message.BoundBuildId, isBuildFinished);
+                entity = new BuildStateEntity(key, message.BoundBuildId, isBuildFinished);
                 await _buildStateTable.ExecuteAsync(TableOperation.InsertOrReplace(entity), cancellationToken);
             }
 
@@ -79,6 +83,7 @@ namespace Dashboard.StorageBuilder
             // TODO: do this correctly
             var key = new DateTimeKey(DateTimeOffset.UtcNow, DateTimeKeyFlags.Date);
             var task = new Task<DateTimeKey>(() => key);
+            task.Start();
             return await task;
         }
 
@@ -91,8 +96,8 @@ namespace Dashboard.StorageBuilder
         {
             var buildId = message.BuildId;
             var key = message.BuildStateKey;
-            var entityKey = BuildStateEnity.GetEntityKey(key, message.BoundBuildId);
-            var entity = await AzureUtil.QueryAsync<BuildStateEnity>(_buildStateTable, entityKey, cancellationToken);
+            var entityKey = BuildStateEntity.GetEntityKey(key, message.BoundBuildId);
+            var entity = await AzureUtil.QueryAsync<BuildStateEntity>(_buildStateTable, entityKey, cancellationToken);
 
             await CheckFinished(entity, cancellationToken);
 
@@ -134,7 +139,7 @@ namespace Dashboard.StorageBuilder
                 var isDone = (DateTimeOffset.UtcNow - key.DateTime).TotalDays > DayWindow;
                 if (isDone)
                 {
-                    // TODO: Need to send an email here.  Or at least put a messsage in the queue to send one.
+                    await EnqueueEmailBuild(message.BuildStateKey, message.BoundBuildId, cancellationToken);
                 }
                 else
                 { 
@@ -144,7 +149,7 @@ namespace Dashboard.StorageBuilder
             }
         }
 
-        private async Task CheckFinished(BuildStateEnity entity, CancellationToken cancellationToken)
+        private async Task CheckFinished(BuildStateEntity entity, CancellationToken cancellationToken)
         {
             if (entity.IsBuildFinished)
             {
@@ -168,53 +173,6 @@ namespace Dashboard.StorageBuilder
             }
         }
 
-        /*
-        internal async Task<SendGridMessage> Clean(int window = DayWindow, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var key = BuildStateEnity.GetPartitionKey(DateTimeOffset.UtcNow.AddDays(-window));
-            var filter =
-                FilterUtil.Combine(
-                    FilterUtil.PartitionKey(key),
-                    CombineOperator.And,
-                    FilterUtil.Column(nameof(BuildStateEnity.IsTracked), true));
-            var query = new TableQuery<BuildStateEnity>().Where(filter);
-            var list = await AzureUtil.QueryAsync<BuildStateEnity>(_buildStateTable, query, cancellationToken);
-            if (list.Count == 0)
-            {
-                return null;
-            }
-
-            var textBuilder = new StringBuilder();
-            var htmlBuilder = new StringBuilder();
-
-            foreach (var entity in list)
-            {
-                var boundBuildId = entity.BoundBuildID;
-                var buildId = boundBuildId.BuildId;
-
-                _logger.WriteLine($"Deleting stale data {boundBuildId.GetBuildUri(useHttps: false)}");
-
-                textBuilder.Append($"Deleting stale data: {boundBuildId.GetBuildUri(useHttps: false)}");
-                textBuilder.Append($"Eror: {entity.Error}");
-
-                htmlBuilder.Append($@"<div>");
-                htmlBuilder.Append($@"<div>Build <a href=""{boundBuildId.GetBuildUri(useHttps: false)}"">{buildId.JobName} {buildId.Number}</a></div>");
-                htmlBuilder.Append($@"<div>Error: {WebUtility.HtmlEncode(entity.Error)}</div>");
-                htmlBuilder.Append($@"</div>");
-
-                entity.IsTracked = false;
-            }
-
-            await AzureUtil.InsertBatch(_unprocessedBuildTable, list);
-
-            return new SendGridMessage()
-            {
-                Text = textBuilder.ToString(),
-                Html = htmlBuilder.ToString()
-            };
-        }
-        */
-
         internal static JenkinsClient CreateJenkinsClient(string jenkinsHostName, JobId jobId)
         {
             var builder = new UriBuilder();
@@ -233,7 +191,17 @@ namespace Dashboard.StorageBuilder
             }
         }
 
-        internal async Task EnqueueProcessBuild(DateTimeKey buildStateKey, BoundBuildId buildId, TimeSpan? delay, CancellationToken cancellationToken)
+        private async Task EnqueueEmailBuild(DateTimeKey buildStateKey, BoundBuildId buildId, CancellationToken cancellationToken)
+        {
+            await EnqueueCore(_emailBuildQueue, buildStateKey, buildId, null, cancellationToken);
+        }
+
+        private async Task EnqueueProcessBuild(DateTimeKey buildStateKey, BoundBuildId buildId, TimeSpan? delay, CancellationToken cancellationToken)
+        {
+            await EnqueueCore(_processBuildQueue, buildStateKey, buildId, delay, cancellationToken);
+        }
+
+        private static async Task EnqueueCore(CloudQueue queue, DateTimeKey buildStateKey, BoundBuildId buildId, TimeSpan? delay, CancellationToken cancellationToken)
         {
             // Enqueue a message to process the build.  Insert a delay if the build isn't finished yet so that 
             // we don't unnecessarily ask Jenkins for information.
@@ -246,7 +214,7 @@ namespace Dashboard.StorageBuilder
             };
 
             var queueMessage = new CloudQueueMessage(JsonConvert.SerializeObject(buildMessage));
-            await _processBuildQueue.AddMessageAsync(
+            await queue.AddMessageAsync(
                 queueMessage, 
                 timeToLive: null, 
                 initialVisibilityDelay: delay, 

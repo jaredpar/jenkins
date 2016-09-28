@@ -77,7 +77,7 @@
     </Compile>
     <Compile Include="Azure\AzureConstants.cs" />
     <Compile Include="Azure\AzureUtil.cs" />
-    <Compile Include="Azure\BuildStateEnity.cs" />
+    <Compile Include="Azure\BuildStateEntity.cs" />
     <Compile Include="Azure\DateTimeKey.cs" />
     <Compile Include="Azure\BuildFailureEntity.cs" />
     <Compile Include="Azure\BuildResultClassification.cs" />

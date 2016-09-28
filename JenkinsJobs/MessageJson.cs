@@ -30,7 +30,7 @@ namespace Dashboard.StorageBuilder
         public string JobName { get; set; }
         public int BuildNumber { get; set; }
 
-        public DateTimeKey BuildStateKey => DateTimeKey.ParseDateTimeKey(BuildStateKeyRaw, BuildStateEnity.Flags);
+        public DateTimeKey BuildStateKey => DateTimeKey.ParseDateTimeKey(BuildStateKeyRaw, BuildStateEntity.Flags);
         public JobId JobId => JobId.ParseName(JobName);
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
         public BoundBuildId BoundBuildId => new BoundBuildId(HostName, BuildId);

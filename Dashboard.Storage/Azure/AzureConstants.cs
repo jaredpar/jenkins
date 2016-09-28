@@ -56,11 +56,13 @@ namespace Dashboard.Azure
         {
             public const string BuildEvent = "build-event";
             public const string ProcessBuild = "process-build";
+            public const string EmailBuild = "email-build";
 
             public static IEnumerable<string> All()
             {
                 yield return BuildEvent;
                 yield return ProcessBuild;
+                yield return EmailBuild;
             }
         }
     }

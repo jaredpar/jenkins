@@ -12,7 +12,7 @@ namespace Dashboard.Azure
     /// Represents the state of data for a build that is tracked.  The key is a <see cref="DateTimeKey"/> based
     /// on date to make for easy querying.
     /// </summary>
-    public sealed class BuildStateEnity : TableEntity
+    public sealed class BuildStateEntity : TableEntity
     {
         public static DateTimeKeyFlags Flags => DateTimeKeyFlags.Date;
 
@@ -39,7 +39,7 @@ namespace Dashboard.Azure
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
         public BoundBuildId BoundBuildID => new BoundBuildId(HostName, BuildId);
 
-        public BuildStateEnity(DateTimeKey key, BoundBuildId buildId, bool isBuildFinished)
+        public BuildStateEntity(DateTimeKey key, BoundBuildId buildId, bool isBuildFinished)
         {
             PartitionKey = key.Key;
             RowKey = GetRowKey(buildId);
@@ -49,7 +49,7 @@ namespace Dashboard.Azure
             IsBuildFinished = isBuildFinished;
         }
 
-        public BuildStateEnity()
+        public BuildStateEntity()
         {
 
         }
