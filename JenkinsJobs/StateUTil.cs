@@ -1,35 +1,85 @@
 ﻿using Dashboard.Azure;
 using Dashboard.Jenkins;
 using Microsoft.WindowsAzure;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
 using SendGrid;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static Dashboard.Azure.AzureConstants;
 
 namespace Dashboard.StorageBuilder
 {
     internal sealed class StateUtil
     {
-        private readonly CloudTable _unprocessedBuildTable;
-        private readonly CloudTable _buildResultExact;
+        /// <summary>
+        /// The number of days in which the tool will track an individual job.  After that if the job cannot be contacted
+        /// anymore or processed completely it will be considered in error and no longer tracked.
+        /// </summary>
+        internal const int DayWindow = 3;
+
+        private readonly CloudTable _buildStateTable;
+        private readonly CloudTable _buildStateKeyTable;
+        private readonly CloudQueue _processBuildQueue;
         private readonly TextWriter _logger;
 
         internal StateUtil(
-            CloudTable unprocessedBuildTable, 
-            CloudTable buildResultExact,
+            CloudTable buildStateTable,
+            CloudTable buildStateKeyTable,
+            CloudQueue processBuildQueue,
             TextWriter logger)
         {
-            _unprocessedBuildTable = unprocessedBuildTable;
-            _buildResultExact = buildResultExact;
+            Debug.Assert(buildStateTable.Name == TableNames.BuildState);
+            Debug.Assert(buildStateKeyTable.Name == TableNames.BuildStateKey);
+            Debug.Assert(processBuildQueue.Name == QueueNames.ProcessBuild);
+            _buildStateTable = buildStateTable;
+            _buildStateKeyTable = buildStateKeyTable;
+            _processBuildQueue = processBuildQueue;
             _logger = logger;
+        }
+
+        internal async Task ProcessBuildEvent(BuildEventMessageJson message, CancellationToken cancellationToken)
+        {
+            var isBuildFinished = message.Phase == "FINALIZED";
+            var key = await GetOrCreateBuildStateKey(message.BoundBuildId);
+            var entityKey = BuildStateEnity.GetEntityKey(key, message.BoundBuildId);
+
+            // Ensure there is an entry in the build state table for this build.
+            var entity = await AzureUtil.QueryAsync<BuildStateEnity>(_buildStateTable, entityKey, cancellationToken);
+            if (entity == null || entity.IsBuildFinished != isBuildFinished)
+            {
+                entity = new BuildStateEnity(key, message.BoundBuildId, isBuildFinished);
+                await _buildStateTable.ExecuteAsync(TableOperation.InsertOrReplace(entity), cancellationToken);
+            }
+
+            // Enqueue a message to process the build.  Insert a delay if the build isn't finished yet so that 
+            // we don't unnecessarily ask Jenkins for information.
+            var delay = isBuildFinished ? (TimeSpan?)null : TimeSpan.FromMinutes(30);
+            await EnqueueProcessBuild(key, message.BoundBuildId, delay, cancellationToken);
+        }
+
+        /// <summary>
+        /// Get or create the build state partition key for the build id.
+        /// </summary>
+        /// <remarks>
+        /// This has to take into account that builds take place across days.  Which day wins doesn't matter
+        /// so long as we don't duplicate the data.
+        /// </remarks>
+        internal async Task<DateTimeKey> GetOrCreateBuildStateKey(BoundBuildId buildId)
+        {
+            // TODO: do this correctly
+            var key = new DateTimeKey(DateTimeOffset.UtcNow, DateTimeKeyFlags.Date);
+            var task = new Task<DateTimeKey>(() => key);
+            return await task;
         }
 
         /// <summary>
@@ -37,13 +87,18 @@ namespace Dashboard.StorageBuilder
         /// existing entity in the unprocessed table, this won't add one.  It will only update existing
         /// ones.
         /// </summary>
-        internal async Task Populate(BuildId buildId, BuildTablePopulator populator, bool force, CancellationToken cancellationToken)
+        internal async Task Populate(ProcessBuildMessage message, BuildTablePopulator populator, bool force, CancellationToken cancellationToken)
         {
-            var key = UnprocessedBuildEntity.GetEntityKey(buildId);
+            var buildId = message.BuildId;
+            var key = message.BuildStateKey;
+            var entityKey = BuildStateEnity.GetEntityKey(key, message.BoundBuildId);
+            var entity = await AzureUtil.QueryAsync<BuildStateEnity>(_buildStateTable, entityKey, cancellationToken);
+
+            await CheckFinished(entity, cancellationToken);
 
             // If we are not forcing the update then check for the existence of a completed run before
             // requerying Jenkins.
-            if (!force && await populator.IsPopulated(buildId))
+            if (!force && entity.IsDataComplete)
             {
                 _logger.WriteLine($"Build {buildId.JobId} is already populated");
                 return;
@@ -53,7 +108,11 @@ namespace Dashboard.StorageBuilder
             {
                 _logger.Write($"Populating {buildId.JobId} ... ");
                 await populator.PopulateBuild(buildId);
-                await AzureUtil.MaybeDeleteAsync(_unprocessedBuildTable, key, cancellationToken);
+
+                _logger.Write($"Updating the build data state ..");
+                entity.IsDataComplete = true;
+                await _buildStateTable.ExecuteAsync(TableOperation.Replace(entity), cancellationToken);
+
                 _logger.WriteLine($"Completed");
             }
             catch (Exception e)
@@ -61,34 +120,65 @@ namespace Dashboard.StorageBuilder
                 _logger.WriteLine($"Failed");
                 _logger.WriteLine(e);
 
-                // Update the error state for the row.
-                var entity = await AzureUtil.QueryAsync<UnprocessedBuildEntity>(_unprocessedBuildTable, key, cancellationToken);
-                if (entity != null)
+                try
                 {
-                    entity.StatusText = $"{e.Message} - {e.StackTrace.Take(1000)}";
-                    var operation = TableOperation.Replace(entity);
-                    try
-                    {
-                        await _unprocessedBuildTable.ExecuteAsync(operation);
-                    }
-                    catch
-                    {
-                        // It's possible the enity was deleted / updated in parallel.  That's okay.  This table
-                        // is meant as an approximation of the build state and always moving towards complete.
-                    }
+                    entity.Error = $"{e.Message} - {e.StackTrace.Take(1000)}";
+                    await _buildStateTable.ExecuteAsync(TableOperation.Replace(entity));
+                }
+                catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == 409)
+                {
+                    // It's possible the enity was updated in parallel.  That's okay.  This table
+                    // is meant as an approximation of the build state and always moving towards complete.
+                }
+
+                var isDone = (DateTimeOffset.UtcNow - key.DateTime).TotalDays > DayWindow;
+                if (isDone)
+                {
+                    // TODO: Need to send an email here.  Or at least put a messsage in the queue to send one.
+                }
+                else
+                { 
+                    // Wait an hour to retry.  Hope that a bug fix is uploaded or jenkins gets back into a good state.
+                    await EnqueueProcessBuild(message.BuildStateKey, message.BoundBuildId, TimeSpan.FromHours(1), cancellationToken);
                 }
             }
         }
 
-        internal async Task<SendGridMessage> Clean(CancellationToken cancellationToken)
+        private async Task CheckFinished(BuildStateEnity entity, CancellationToken cancellationToken)
         {
-            var limit = DateTimeOffset.UtcNow - TimeSpan.FromHours(12);
-            var filter = FilterUtil.Column(
-                nameof(UnprocessedBuildEntity.LastUpdate),
-                limit,
-                ColumnOperator.LessThanOrEqual);
-            var query = new TableQuery<UnprocessedBuildEntity>().Where(filter);
-            var list = await AzureUtil.QueryAsync(_unprocessedBuildTable, query, cancellationToken);
+            if (entity.IsBuildFinished)
+            {
+                return;
+            }
+
+            try
+            {
+                _logger.WriteLine($"Checking to see if {entity.BuildId} has completed");
+                var client = CreateJenkinsClient(entity.HostName, entity.JobId);
+                var buildInfo = await client.GetBuildInfoAsync(entity.BuildId);
+                if (buildInfo.State != BuildState.Running)
+                {
+                    entity.IsBuildFinished = true;
+                    await _buildStateTable.ExecuteAsync(TableOperation.Replace(entity), cancellationToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.WriteLine($"Unable to query job state {ex.Message}");
+            }
+        }
+
+        /*
+        internal async Task<SendGridMessage> Clean(int window = DayWindow, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var key = BuildStateEnity.GetPartitionKey(DateTimeOffset.UtcNow.AddDays(-window));
+            var filter =
+                FilterUtil.Combine(
+                    FilterUtil.PartitionKey(key),
+                    CombineOperator.And,
+                    FilterUtil.Column(nameof(BuildStateEnity.IsTracked), true));
+            var query = new TableQuery<BuildStateEnity>().Where(filter);
+            var list = await AzureUtil.QueryAsync<BuildStateEnity>(_buildStateTable, query, cancellationToken);
             if (list.Count == 0)
             {
                 return null;
@@ -99,32 +189,23 @@ namespace Dashboard.StorageBuilder
 
             foreach (var entity in list)
             {
-                var boundBuildId = entity.BoundBuildId;
+                var boundBuildId = entity.BoundBuildID;
                 var buildId = boundBuildId.BuildId;
-
-                // GC Stress jobs can correctly execute for up to 3 days.  This is a bit of an outlier but one we 
-                // need to handle;
-                if (JobUtil.IsGCStressJob(buildId.JobId))
-                {
-                    var stressLimit = DateTimeOffset.UtcNow - TimeSpan.FromDays(3);
-                    if (entity.LastUpdate >= stressLimit)
-                    {
-                        continue;
-                    }
-                }
 
                 _logger.WriteLine($"Deleting stale data {boundBuildId.GetBuildUri(useHttps: false)}");
 
                 textBuilder.Append($"Deleting stale data: {boundBuildId.GetBuildUri(useHttps: false)}");
-                textBuilder.Append($"Eror: {entity.StatusText}");
+                textBuilder.Append($"Eror: {entity.Error}");
 
                 htmlBuilder.Append($@"<div>");
                 htmlBuilder.Append($@"<div>Build <a href=""{boundBuildId.GetBuildUri(useHttps: false)}"">{buildId.JobName} {buildId.Number}</a></div>");
-                htmlBuilder.Append($@"<div>Error: {WebUtility.HtmlEncode(entity.StatusText)}</div>");
+                htmlBuilder.Append($@"<div>Error: {WebUtility.HtmlEncode(entity.Error)}</div>");
                 htmlBuilder.Append($@"</div>");
+
+                entity.IsTracked = false;
             }
 
-            await AzureUtil.DeleteBatchUnordered(_unprocessedBuildTable, list);
+            await AzureUtil.InsertBatch(_unprocessedBuildTable, list);
 
             return new SendGridMessage()
             {
@@ -132,62 +213,7 @@ namespace Dashboard.StorageBuilder
                 Html = htmlBuilder.ToString()
             };
         }
-
-        internal async Task Update(CloudQueue processBuildQueue, CancellationToken cancellationToken)
-        {
-            var query = new TableQuery<UnprocessedBuildEntity>();
-            await AzureUtil.QueryAsync(
-                _unprocessedBuildTable, 
-                query, 
-                e => UpdateEntity(e, processBuildQueue, cancellationToken),
-                cancellationToken);
-        }
-
-        private async Task UpdateEntity(UnprocessedBuildEntity entity, CloudQueue processBuildQueue, CancellationToken cancellationToken)
-        {
-            var host = entity.BoundBuildId.HostName;
-            var buildId = entity.BuildId;
-            var client = CreateJenkinsClient(host, entity.JobId);
-            try
-            {
-                var buildInfo = await client.GetBuildInfoAsync(buildId);
-                if (buildInfo.State == BuildState.Running)
-                {
-                    _logger.WriteLine($"Build {buildId}: stil running");
-                    if (string.IsNullOrEmpty(entity.StatusText))
-                    {
-                        entity.StatusText = "Still running";
-                        try
-                        {
-                            await _unprocessedBuildTable.ExecuteAsync(TableOperation.Replace(entity));
-                        }
-                        catch
-                        {
-                            // Can be deleted in parallel.  That's okay and should be ignored.
-                        }
-                    }
-                }
-                else
-                {
-                    _logger.WriteLine($"Build {buildId}: sending for processing as it's completed");
-                    await EnqueueProcessBuild(processBuildQueue, host, buildId);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.WriteLine($"Build {buildId}: error querying Jenkins: {e}");
-            }
-        }
-
-        /// <summary>
-        /// Has this entity been completely processed at this point. 
-        /// </summary>
-        private async Task<bool> HasPopulatedData(BuildId buildId, CancellationToken cancellationToken)
-        {
-            var key = BuildResultEntity.GetExactEntityKey(buildId);
-            var entity = await AzureUtil.QueryAsync<BuildResultEntity>(_buildResultExact, key, cancellationToken);
-            return entity != null;
-        }
+        */
 
         internal static JenkinsClient CreateJenkinsClient(string jenkinsHostName, JobId jobId)
         {
@@ -207,17 +233,26 @@ namespace Dashboard.StorageBuilder
             }
         }
 
-        internal static async Task EnqueueProcessBuild(CloudQueue processBuildQueue, string jenkinsHostName, BuildId buildId)
+        internal async Task EnqueueProcessBuild(DateTimeKey buildStateKey, BoundBuildId buildId, TimeSpan? delay, CancellationToken cancellationToken)
         {
-            var buildIdJson = new BuildIdJson()
+            // Enqueue a message to process the build.  Insert a delay if the build isn't finished yet so that 
+            // we don't unnecessarily ask Jenkins for information.
+            var buildMessage = new ProcessBuildMessage()
             {
-                JenkinsHostName = jenkinsHostName,
+                BuildStateKeyRaw = buildStateKey.Key,
                 BuildNumber = buildId.Number,
+                HostName = buildId.HostName,
                 JobName = buildId.JobName
             };
 
-            var queueMessage = new CloudQueueMessage(JsonConvert.SerializeObject(buildIdJson));
-            await processBuildQueue.AddMessageAsync(queueMessage);
+            var queueMessage = new CloudQueueMessage(JsonConvert.SerializeObject(buildMessage));
+            await _processBuildQueue.AddMessageAsync(
+                queueMessage, 
+                timeToLive: null, 
+                initialVisibilityDelay: delay, 
+                options: null, 
+                operationContext: null, 
+                cancellationToken: cancellationToken);
         }
     }
 }

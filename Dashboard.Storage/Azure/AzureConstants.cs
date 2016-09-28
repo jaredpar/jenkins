@@ -14,13 +14,14 @@ namespace Dashboard.Azure
             public const string BuildFailureDate = "BuildFailureDate";
             public const string BuildFailureExact = "BuildFailureExact";
             public const string BuildProcessed = "BuildProcessed";
+            public const string BuildStateKey = "BuildStateKey";
+            public const string BuildState = "BuildState";
             public const string BuildResultDate = "BuildResultDate";
             public const string BuildResultExact = "BuildResultExact";
             public const string TestCacheCounter = "TestCacheCounter";
             public const string TestRunCounter = "TestRunCounter";
             public const string TestRunData = "TestRunData";
             public const string UnitTestQueryCounter = "UnitTestQueryCounter";
-            public const string UnprocessedBuild = "UnprocessedBuild";
             public const string ViewNameDate = "ViewNameDate";
 
             public static IEnumerable<string> All()
@@ -28,6 +29,8 @@ namespace Dashboard.Azure
                 yield return BuildEvent;
                 yield return BuildFailureDate;
                 yield return BuildFailureExact;
+                yield return BuildState;
+                yield return BuildStateKey;
                 yield return BuildResultDate;
                 yield return BuildResultExact;
                 yield return BuildProcessed;
@@ -35,7 +38,6 @@ namespace Dashboard.Azure
                 yield return TestRunCounter;
                 yield return TestRunData;
                 yield return UnitTestQueryCounter;
-                yield return UnprocessedBuild;
                 yield return ViewNameDate;
             }
         }

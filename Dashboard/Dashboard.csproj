@@ -311,7 +311,6 @@
     <Content Include="Views\Builds\BuildResult.cshtml" />
     <Content Include="Views\Builds\Kind.cshtml" />
     <Content Include="Views\Builds\View.cshtml" />
-    <Content Include="Views\Builds\Unprocessed.cshtml" />
     <Content Include="Views\Builds\BuildFilter.cshtml" />
     <Content Include="Views\Builds\KindByViewName.cshtml" />
     <Content Include="Views\Builds\ElapsedTime.cshtml" />

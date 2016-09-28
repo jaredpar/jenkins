@@ -379,9 +379,11 @@ namespace Dashboard.Controllers
 
         public ActionResult Unprocessed()
         {
-            var table = _storage.GetTable(AzureConstants.TableNames.UnprocessedBuild);
-            var list = table.ExecuteQuery(new TableQuery<UnprocessedBuildEntity>()).ToList();
-            return View(viewName: "Unprocessed", model: list);
+            // TODO: Need a simple display for current builds
+            //var table = _storage.GetTable(AzureConstants.TableNames.UnprocessedBuild);
+            //var list = table.ExecuteQuery(new TableQuery<UnprocessedBuildEntity>()).ToList();
+            //return View(viewName: "Unprocessed", model: list);
+            throw new Exception();
         }
 
         private BuildResultSummaryModel GetBuildResultSummaryModel(BuildFilterModel filter)

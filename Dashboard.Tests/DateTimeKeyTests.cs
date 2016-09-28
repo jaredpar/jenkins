@@ -130,5 +130,22 @@ namespace Dashboard.Tests
                 }
             }
         }
+
+        public sealed class ParseTests
+        {
+            [Fact]
+            public void Date()
+            {
+                var dateTime = DateTimeKey.ParseDateTime("20160102", DateTimeKeyFlags.Date);
+                Assert.Equal(DateTimeOffset.Parse("2016/01/02"), dateTime);
+            }
+
+            [Fact]
+            public void Time()
+            {
+                var dateTime = DateTimeKey.ParseDateTime("20160102T0102", DateTimeKeyFlags.DateTime);
+                Assert.Equal(DateTimeOffset.Parse("2016/01/02 1:02AM"), dateTime);
+            }
+        }
     }
 }

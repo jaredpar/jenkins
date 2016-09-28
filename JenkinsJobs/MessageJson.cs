@@ -1,4 +1,5 @@
-﻿using Dashboard.Jenkins;
+﻿using Dashboard.Azure;
+using Dashboard.Jenkins;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,14 +23,16 @@ namespace Dashboard.StorageBuilder
         public BoundBuildId BoundBuildId => new BoundBuildId(JenkinsHostName, BuildId);
     }
 
-    internal sealed class BuildIdJson
+    internal sealed class ProcessBuildMessage
     {
-        public string JenkinsHostName { get; set; }
+        public string BuildStateKeyRaw { get; set; }
+        public string HostName { get; set; }
         public string JobName { get; set; }
         public int BuildNumber { get; set; }
 
-        public Uri JenkinsUrl => new Uri($"https://{JenkinsHostName}");
+        public DateTimeKey BuildStateKey => DateTimeKey.ParseDateTimeKey(BuildStateKeyRaw, BuildStateEnity.Flags);
         public JobId JobId => JobId.ParseName(JobName);
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
+        public BoundBuildId BoundBuildId => new BoundBuildId(HostName, BuildId);
     }
 }

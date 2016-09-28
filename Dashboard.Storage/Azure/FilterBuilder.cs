@@ -30,6 +30,7 @@ namespace Dashboard.Azure
         RowKey
     }
 
+    // TODO: Get rid of struct and make it simpler to use.
     public struct FilterUtil
     {
         private readonly string _filter;

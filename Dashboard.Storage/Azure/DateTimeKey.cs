@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,13 +29,15 @@ namespace Dashboard.Azure
         public string Key { get; }
         public DateTimeKeyFlags Flags { get; }
 
+        public DateTimeOffset DateTime => ParseDateTime(Key, Flags);
+
         public DateTimeKey(DateTimeOffset dateTime, DateTimeKeyFlags flags)
         {
-            Key = CreateKey(dateTime, flags);
+            Key = GetKey(dateTime, flags);
             Flags = flags;
         }
 
-        public static string CreateKey(DateTimeOffset dateTime, DateTimeKeyFlags flags)
+        public static string GetKey(DateTimeOffset dateTime, DateTimeKeyFlags flags)
         {
             var builder = new StringBuilder();
             if (DateTimeKeyFlags.Date == (flags & DateTimeKeyFlags.Date))
@@ -56,8 +59,53 @@ namespace Dashboard.Azure
             return builder.ToString();
         }
 
-        public static bool operator==(DateTimeKey left, DateTimeKey right) => left.Key == right.Key;
-        public static bool operator!=(DateTimeKey left, DateTimeKey right) => !(left == right);
+        public static DateTimeKey ParseDateTimeKey(string key, DateTimeKeyFlags flags)
+        {
+            var dateTime = ParseDateTime(key, flags);
+            return new DateTimeKey(dateTime, flags);
+        }
+
+        public static bool TryParseDateTimeKey(string key, DateTimeKeyFlags flags, DateTimeKey dateTimeKey)
+        {
+            DateTimeOffset dateTime;
+            if (!TryParseDateTime(key, flags, out dateTime))
+            {
+                return false;
+            }
+
+            dateTimeKey = new DateTimeKey(dateTime, flags);
+            return true;
+        }
+
+        public static DateTimeOffset ParseDateTime(string key, DateTimeKeyFlags flags)
+        {
+            DateTimeOffset dateTime;
+            if (!TryParseDateTime(key, flags, out dateTime))
+            {
+                throw new Exception($"Unable to parse key: {key}");
+            }
+
+            return dateTime;
+        }
+
+        public static bool TryParseDateTime(string key, DateTimeKeyFlags flags, out DateTimeOffset dateTime)
+        {
+            var hours = DateTimeKeyFlags.Hours == (flags & DateTimeKeyFlags.Hours);
+            var minutes = DateTimeKeyFlags.Minutes == (flags & DateTimeKeyFlags.Minutes);
+
+            var provider = CultureInfo.InvariantCulture;
+            if (flags == DateTimeKeyFlags.Date)
+            {
+                return DateTimeOffset.TryParseExact(key, "yyyyMMdd", provider, DateTimeStyles.AdjustToUniversal, out dateTime);
+            }
+            else
+            {
+                return DateTimeOffset.TryParseExact(key, @"yyyyMMdd\THHmm", provider, DateTimeStyles.AdjustToUniversal, out dateTime);
+            }
+        }
+
+        public static bool operator ==(DateTimeKey left, DateTimeKey right) => left.Key == right.Key;
+        public static bool operator !=(DateTimeKey left, DateTimeKey right) => !(left == right);
         public bool Equals(DateTimeKey other) => this == other;
         public override bool Equals(object obj) => obj is DateTimeKey && Equals((DateTimeKey)obj);
         public override int GetHashCode() => Key.GetHashCode();

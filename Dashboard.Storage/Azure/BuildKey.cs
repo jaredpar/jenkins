@@ -7,15 +7,18 @@ using System.Threading.Tasks;
 
 namespace Dashboard.Azure
 {
+    // TODO: Should use BoundBuildId
     public struct BuildKey
     {
         public BuildId BuildId { get; }
-
-        public string Key => $"{BuildId.Number}-{AzureUtil.NormalizeKey(BuildId.JobName, '_')}";
+        public string Key { get; }
 
         public BuildKey(BuildId buildId)
         {
             BuildId = buildId;
+            Key = GetKey(buildId);
         }
+
+        public static string GetKey(BuildId buildId) => $"{buildId.Number}-{AzureUtil.NormalizeKey(buildId.JobName, '_')}";
     }
 }

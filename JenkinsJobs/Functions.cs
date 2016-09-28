@@ -18,32 +18,27 @@ using Newtonsoft.Json;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Newtonsoft.Json.Linq;
+using static Dashboard.Azure.AzureConstants;
 
 namespace Dashboard.StorageBuilder
 {
     public class Functions
     {
         public static async Task BuildEvent(
-            [QueueTrigger(AzureConstants.QueueNames.BuildEvent)] string message,
-            [Queue(AzureConstants.QueueNames.ProcessBuild)] CloudQueue processBuildQueue,
-            [Table(AzureConstants.TableNames.UnprocessedBuild)] CloudTable unprocessedBuildTable,
+            [QueueTrigger(QueueNames.BuildEvent)] string message,
+            [Queue(QueueNames.ProcessBuild)] CloudQueue processBuildQueue,
+            [Table(TableNames.BuildState)] CloudTable buildStateTable,
+            [Table(TableNames.BuildStateKey)] CloudTable buildStateKeyTable,
             TextWriter logger,
             CancellationToken cancellationToken)
         {
-            var messageJson = (BuildEventMessageJson)JsonConvert.DeserializeObject(message, typeof(BuildEventMessageJson));
-
-            // First make sure that we note this value in the unprocessed table as it has not yet
-            // been processed.
-            var entity = new UnprocessedBuildEntity(messageJson.BoundBuildId);
-            var operation = TableOperation.InsertOrReplace(entity);
-            await unprocessedBuildTable.ExecuteAsync(TableOperation.InsertOrReplace(entity));
-
-            // If this is a finalized event then the build is ready.  Go ahead and process it now.
-            if (messageJson.Phase == "FINALIZED")
-            {
-                logger.WriteLine($"Queue event to process build {messageJson.BuildId}");
-                await StateUtil.EnqueueProcessBuild(processBuildQueue, messageJson.JenkinsHostName, messageJson.BuildId);
-            }
+            var messageJson = JsonConvert.DeserializeObject<BuildEventMessageJson>(message);
+            var stateUtil = new StateUtil(
+                buildStateTable,
+                buildStateKeyTable,
+                processBuildQueue,
+                logger);
+            await stateUtil.ProcessBuildEvent(messageJson, cancellationToken);
         }
 
         /// <summary>
@@ -52,19 +47,21 @@ namespace Dashboard.StorageBuilder
         /// result tables.
         /// </summary>
         public static async Task PopulateBuildData(
-            [QueueTrigger(AzureConstants.QueueNames.ProcessBuild)] string message,
-            [Table(AzureConstants.TableNames.UnprocessedBuild)] CloudTable unprocessedBuildTable,
-            [Table(AzureConstants.TableNames.BuildResultDate)] CloudTable buildResultDateTable,
-            [Table(AzureConstants.TableNames.BuildResultExact)] CloudTable buildResultExactTable,
-            [Table(AzureConstants.TableNames.BuildFailureDate)] CloudTable buildFailureDateTable,
-            [Table(AzureConstants.TableNames.BuildFailureExact)] CloudTable buildFailureExactTable,
-            [Table(AzureConstants.TableNames.ViewNameDate)] CloudTable viewNameDateTable,
+            [QueueTrigger(QueueNames.ProcessBuild)] string message,
+            [Table(TableNames.BuildState)] CloudTable buildStateTable,
+            [Table(TableNames.BuildStateKey)] CloudTable buildStateKeyTable,
+            [Table(TableNames.BuildResultDate)] CloudTable buildResultDateTable,
+            [Table(TableNames.BuildResultExact)] CloudTable buildResultExactTable,
+            [Table(TableNames.BuildFailureDate)] CloudTable buildFailureDateTable,
+            [Table(TableNames.BuildFailureExact)] CloudTable buildFailureExactTable,
+            [Table(TableNames.ViewNameDate)] CloudTable viewNameDateTable,
+            [Queue(QueueNames.ProcessBuild)] CloudQueue processBuildQueue,
             TextWriter logger,
             CancellationToken cancellationToken)
         {
-            var buildIdJson = (BuildIdJson)JsonConvert.DeserializeObject(message, typeof(BuildIdJson));
+            var buildIdJson = (ProcessBuildMessage)JsonConvert.DeserializeObject(message, typeof(ProcessBuildMessage));
 
-            var client = StateUtil.CreateJenkinsClient(buildIdJson.JenkinsHostName, buildIdJson.JobId);
+            var client = StateUtil.CreateJenkinsClient(buildIdJson.HostName, buildIdJson.JobId);
             var populator = new BuildTablePopulator(
                 buildResultDateTable: buildResultDateTable,
                 buildResultExactTable: buildResultExactTable,
@@ -74,12 +71,14 @@ namespace Dashboard.StorageBuilder
                 client: client,
                 textWriter: logger);
             var stateUtil = new StateUtil(
-                unprocessedBuildTable: unprocessedBuildTable,
-                buildResultExact: buildResultExactTable,
+                buildStateKeyTable: buildStateKeyTable,
+                buildStateTable: buildStateTable,
+                processBuildQueue: processBuildQueue,
                 logger: logger);
-            await stateUtil.Populate(buildIdJson.BuildId, populator, force: false, cancellationToken: cancellationToken);
+            await stateUtil.Populate(buildIdJson, populator, force: false, cancellationToken: cancellationToken);
         }
 
+        /*
         /// <summary>
         /// Update the jobs in the unprocessed table.
         /// </summary>
@@ -125,6 +124,7 @@ namespace Dashboard.StorageBuilder
                 await web.DeliverAsync(message).ConfigureAwait(false);
             }
         }
+        */
 
         public static async Task CleanTestCache(
             [TimerTrigger("0 0 * * * *", RunOnStartup = true)] TimerInfo timerInfo,

@@ -956,7 +956,7 @@ namespace Dashboard.ApiFun
                         break;
                     }
 
-                    var buildIdJson = JsonConvert.DeserializeObject<BuildIdJson>(message.AsString);
+                    var buildIdJson = JsonConvert.DeserializeObject<ProcessBuildMessage>(message.AsString);
                     var buildId = buildIdJson.BuildId;
                     if (!set.Add(buildId))
                     {
