@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Dashboard.Jenkins;
+using Dashboard.Azure.Json;
 using System.Diagnostics;
 using System.IO;
 using RestSharp.Authenticators;
@@ -20,7 +21,6 @@ using Newtonsoft.Json;
 using static Dashboard.Azure.AzureConstants;
 using System.Threading;
 using Microsoft.WindowsAzure.Storage.Queue;
-using Dashboard.StorageBuilder;
 
 namespace Dashboard.ApiFun
 {
@@ -294,8 +294,12 @@ namespace Dashboard.ApiFun
         /// <returns></returns>
         private static async Task TestFailure()
         {
-            var failureUrl = @"https://dotnet-ci.cloudapp.net/job/dotnet_coreclr/job/master/job/jitstress/job/x64_checked_ubuntu_minopts_flow/13/";
-            var boundBuildId = BoundBuildId.Parse(failureUrl);
+            var name = "dotnet_coreclr/release_1.1.0/jitstress/x86_ryujit_checked_windows_nt_zapdisable";
+            var number = 11;
+            var host = SharedConstants.DotnetJenkinsHostName;
+
+            var jobId = JobId.ParseName(name);
+            var boundBuildId = new BoundBuildId(host, new BuildId(number, jobId));
             var buildId = boundBuildId.BuildId;
             var account = GetStorageAccount();
             var client = CreateClient(boundBuildId);
@@ -956,7 +960,7 @@ namespace Dashboard.ApiFun
                         break;
                     }
 
-                    var buildIdJson = JsonConvert.DeserializeObject<ProcessBuildMessage>(message.AsString);
+                    var buildIdJson = JsonConvert.DeserializeObject<BuildStateMessage>(message.AsString);
                     var buildId = buildIdJson.BuildId;
                     if (!set.Add(buildId))
                     {

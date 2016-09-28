@@ -95,6 +95,8 @@
     <Compile Include="Azure\EntityKey.cs" />
     <Compile Include="Azure\Extensions.cs" />
     <Compile Include="Azure\FilterBuilder.cs" />
+    <Compile Include="Azure\Json\BuildEventMessage.cs" />
+    <Compile Include="Azure\Json\BuildStateMessage.cs" />
     <Compile Include="Azure\TestCacheCounterEntity.cs" />
     <Compile Include="Azure\TestRunCounterEntity.cs" />
     <Compile Include="Azure\TestRunEntity.cs" />

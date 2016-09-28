@@ -9,6 +9,7 @@ using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
 using Dashboard;
 using Dashboard.Azure;
+using Dashboard.Azure.Json;
 using Dashboard.Jenkins;
 using SendGrid;
 using System.Net.Mail;
@@ -63,7 +64,7 @@ namespace Dashboard.StorageBuilder
             TextWriter logger,
             CancellationToken cancellationToken)
         {
-            var buildIdJson = (ProcessBuildMessage)JsonConvert.DeserializeObject(message, typeof(ProcessBuildMessage));
+            var buildIdJson = (BuildStateMessage)JsonConvert.DeserializeObject(message, typeof(BuildStateMessage));
 
             var client = StateUtil.CreateJenkinsClient(buildIdJson.HostName, buildIdJson.JobId);
             var populator = new BuildTablePopulator(
@@ -89,7 +90,7 @@ namespace Dashboard.StorageBuilder
             TextWriter logger,
             CancellationToken cancellationToken)
         {
-            var buildMessage = JsonConvert.DeserializeObject<ProcessBuildMessage>(messageJson);
+            var buildMessage = JsonConvert.DeserializeObject<BuildStateMessage>(messageJson);
             var entityKey = BuildStateEntity.GetEntityKey(buildMessage.BuildStateKey, buildMessage.BoundBuildId);
             var entity = await AzureUtil.QueryAsync<BuildStateEntity>(buildStateTable, entityKey, cancellationToken);
             var textBuilder = new StringBuilder();
@@ -114,7 +115,7 @@ namespace Dashboard.StorageBuilder
 
         private static void AppendEmailText(BuildStateEntity entity, StringBuilder textBuilder, StringBuilder htmlBuilder)
         {
-            var boundBuildId = entity.BoundBuildID;
+            var boundBuildId = entity.BoundBuildId;
             var buildId = boundBuildId.BuildId;
 
             textBuilder.Append($"Failed to process build: {boundBuildId.GetBuildUri(useHttps: false)}");

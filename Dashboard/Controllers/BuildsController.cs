@@ -2,8 +2,10 @@
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
+using Microsoft.WindowsAzure.Storage.Queue;
 using Dashboard;
 using Dashboard.Azure;
+using Dashboard.Azure.Json;
 using Dashboard.Jenkins;
 using System;
 using System.Collections.Generic;
@@ -15,6 +17,7 @@ using Dashboard.Helpers;
 using System.Text;
 using System.Xml;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Dashboard.Controllers
 {
@@ -72,7 +75,7 @@ namespace Dashboard.Controllers
             }
         }
 
-        public async Task<ActionResult> Status(bool all = false)
+        public async Task<ActionResult> Status(bool all = false, bool refresh = false)
         {
             var key = BuildStateEntity.GetPartitionKey(DateTimeOffset.UtcNow);
             var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildState);
@@ -86,6 +89,19 @@ namespace Dashboard.Controllers
             }
             var query = new TableQuery<BuildStateEntity>().Where(filter.Filter);
             var list = await AzureUtil.QueryAsync(table, query);
+
+            // TODO: make this a separate call.  Hack for now to test things.
+            if (refresh)
+            {
+                var queue = _storage.StorageAccount.CreateCloudQueueClient().GetQueueReference(AzureConstants.QueueNames.ProcessBuild);
+                foreach (var entity in list.Where(x => !x.IsDataComplete))
+                {
+                    var buildMessage = new BuildStateMessage(entity.BuildStateKey, entity.BoundBuildId);
+                    var queueMessage = new CloudQueueMessage(JsonConvert.SerializeObject(buildMessage));
+                    await queue.AddMessageAsync(queueMessage);
+                }
+            }
+
             return View(viewName: "BuildState", model: list);
         }
 

@@ -1,4 +1,5 @@
 ﻿using Dashboard.Azure;
+using Dashboard.Azure.Json;
 using Dashboard.Jenkins;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
@@ -92,7 +93,7 @@ namespace Dashboard.StorageBuilder
         /// existing entity in the unprocessed table, this won't add one.  It will only update existing
         /// ones.
         /// </summary>
-        internal async Task Populate(ProcessBuildMessage message, BuildTablePopulator populator, bool force, CancellationToken cancellationToken)
+        internal async Task Populate(BuildStateMessage message, BuildTablePopulator populator, bool force, CancellationToken cancellationToken)
         {
             var buildId = message.BuildId;
             var key = message.BuildStateKey;
@@ -205,7 +206,7 @@ namespace Dashboard.StorageBuilder
         {
             // Enqueue a message to process the build.  Insert a delay if the build isn't finished yet so that 
             // we don't unnecessarily ask Jenkins for information.
-            var buildMessage = new ProcessBuildMessage()
+            var buildMessage = new BuildStateMessage()
             {
                 BuildStateKeyRaw = buildStateKey.Key,
                 BuildNumber = buildId.Number,

@@ -35,9 +35,10 @@ namespace Dashboard.Azure
         /// </summary>
         public string Error { get; set; }
 
+        public DateTimeKey BuildStateKey => DateTimeKey.ParseDateTimeKey(PartitionKey, Flags);
         public JobId JobId => JobId.ParseName(JobName);
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
-        public BoundBuildId BoundBuildID => new BoundBuildId(HostName, BuildId);
+        public BoundBuildId BoundBuildId => new BoundBuildId(HostName, BuildId);
 
         public BuildStateEntity(DateTimeKey key, BoundBuildId buildId, bool isBuildFinished)
         {
