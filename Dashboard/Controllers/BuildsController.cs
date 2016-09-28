@@ -14,6 +14,7 @@ using System.Web.Mvc;
 using Dashboard.Helpers;
 using System.Text;
 using System.Xml;
+using System.Threading.Tasks;
 
 namespace Dashboard.Controllers
 {
@@ -69,6 +70,23 @@ namespace Dashboard.Controllers
                 var model = GetBuildResultModel(name, filter);
                 return View(viewName: "BuildResult", model: model);
             }
+        }
+
+        public async Task<ActionResult> Status(bool all = false)
+        {
+            var key = BuildStateEntity.GetPartitionKey(DateTimeOffset.UtcNow);
+            var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildState);
+            var filter = FilterUtil.PartitionKey(key);
+            if (!all)
+            {
+                filter = FilterUtil.Combine(
+                    filter,
+                    CombineOperator.And,
+                    FilterUtil.Column(nameof(BuildStateEntity.IsDataComplete), false));
+            }
+            var query = new TableQuery<BuildStateEntity>().Where(filter.Filter);
+            var list = await AzureUtil.QueryAsync(table, query);
+            return View(viewName: "BuildState", model: list);
         }
 
         /// <summary>
