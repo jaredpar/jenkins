@@ -84,7 +84,7 @@ namespace Dashboard.StorageBuilder
             await stateUtil.Populate(buildIdJson, populator, force: false, cancellationToken: cancellationToken);
         }
 
-        private static async Task EmailFailedBuild(
+        public static async Task EmailFailedBuild(
             [Queue(QueueNames.EmailBuild)] string messageJson,
             [Table(TableNames.BuildState)] CloudTable buildStateTable,
             TextWriter logger,
