@@ -85,7 +85,7 @@ namespace Dashboard.StorageBuilder
         }
 
         public static async Task EmailFailedBuild(
-            [Queue(QueueNames.EmailBuild)] string messageJson,
+            [QueueTrigger(QueueNames.EmailBuild)] string messageJson,
             [Table(TableNames.BuildState)] CloudTable buildStateTable,
             TextWriter logger,
             CancellationToken cancellationToken)
