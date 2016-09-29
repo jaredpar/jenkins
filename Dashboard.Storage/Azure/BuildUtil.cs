@@ -27,7 +27,7 @@ namespace Dashboard.Azure
 
         public List<BuildResultEntity> GetBuildResults(DateTimeOffset startDate, string viewName)
         {
-            var filter = FilterUtil.SinceDate(ColumnName.PartitionKey, startDate);
+            var filter = TableQueryUtil.Column(ColumnName.PartitionKey, startDate, ColumnOperator.GreaterThanOrEqual);
             filter = FilterView(filter, viewName);
             var query = new TableQuery<BuildResultEntity>().Where(filter);
             return _buildResultDateTable.ExecuteQuery(query).ToList();
@@ -35,9 +35,9 @@ namespace Dashboard.Azure
 
         public List<BuildResultEntity> GetBuildResults(DateTimeOffset startDate, string jobName, string viewName)
         {
-            var filter = FilterUtil
-                .SinceDate(ColumnName.PartitionKey, startDate)
-                .And(FilterUtil.Column(nameof(BuildResultEntity.JobName), jobName));
+            var filter = TableQueryUtil.And(
+                TableQueryUtil.Column(ColumnName.PartitionKey, startDate, ColumnOperator.GreaterThanOrEqual),
+                TableQueryUtil.Column(nameof(BuildResultEntity.JobName), jobName));
             filter = FilterView(filter, viewName);
             var query = new TableQuery<BuildResultEntity>().Where(filter);
             return _buildResultDateTable.ExecuteQuery(query).ToList();
@@ -45,9 +45,9 @@ namespace Dashboard.Azure
 
         public List<BuildResultEntity> GetBuildResultsByKindName(DateTimeOffset startDate, string kindName, string viewName)
         {
-            var filter = FilterUtil
-                .SinceDate(ColumnName.PartitionKey, startDate)
-                .And(FilterUtil.Column(nameof(BuildResultEntity.ClassificationName), kindName));
+            var filter = TableQueryUtil.And(
+                TableQueryUtil.Column(ColumnName.PartitionKey, startDate, ColumnOperator.GreaterThanOrEqual),
+                TableQueryUtil.Column(nameof(BuildResultEntity.ClassificationName), kindName));
             filter = FilterView(filter, viewName);
             var query = new TableQuery<BuildResultEntity>().Where(filter);
             return _buildResultDateTable.ExecuteQuery(query).ToList();
@@ -55,9 +55,9 @@ namespace Dashboard.Azure
 
         public List<BuildFailureEntity> GetTestCaseFailures(DateTimeOffset startDate, string viewName)
         {
-            var filter = FilterUtil
-                .SinceDate(ColumnName.PartitionKey, startDate)
-                .And(FilterUtil.Column(nameof(BuildFailureEntity.BuildFailureKindRaw), BuildFailureKind.TestCase.ToString()));
+            var filter = TableQueryUtil.And(
+                TableQueryUtil.Column(ColumnName.PartitionKey, startDate, ColumnOperator.GreaterThanOrEqual),
+                TableQueryUtil.Column(nameof(BuildFailureEntity.BuildFailureKindRaw), BuildFailureKind.TestCase.ToString()));
             filter = FilterView(filter, viewName);
             var query = new TableQuery<BuildFailureEntity>().Where(filter);
             return _buildFailureDateTable.ExecuteQuery(query).ToList();
@@ -65,9 +65,9 @@ namespace Dashboard.Azure
 
         public List<BuildFailureEntity> GetTestCaseFailures(DateTimeOffset startDate, string name, string viewName)
         {
-            var filter = FilterUtil
-                .SinceDate(ColumnName.PartitionKey, startDate)
-                .And(FilterUtil.Column(nameof(BuildFailureEntity.Identifier), name));
+            var filter = TableQueryUtil.And(
+                TableQueryUtil.Column(ColumnName.PartitionKey, startDate, ColumnOperator.GreaterThanOrEqual),
+                TableQueryUtil.Column(nameof(BuildFailureEntity.Identifier), name));
             filter = FilterView(filter, viewName);
             var query = new TableQuery<BuildFailureEntity>().Where(filter);
             return _buildFailureDateTable.ExecuteQuery(query).ToList();
@@ -75,7 +75,9 @@ namespace Dashboard.Azure
 
         public List<string> GetViewNames(DateTimeOffset startDate)
         {
-            var query = new TableQuery<ViewNameEntity>().Where(FilterUtil.SinceDate(ColumnName.PartitionKey, startDate));
+            var key = new DateKey(startDate);
+            var filter = TableQueryUtil.PartitionKey(key.Key, ColumnOperator.GreaterThanOrEqual);
+            var query = new TableQuery<ViewNameEntity>().Where(filter);
             var viewNameList = _viewNameDateTable.ExecuteQuery(query);
 
             var list = new List<string>();
@@ -84,17 +86,18 @@ namespace Dashboard.Azure
             return list;
         }
 
-        private static FilterUtil FilterView(FilterUtil util, string viewName)
+        private static string FilterView(string query, string viewName)
         {
             Debug.Assert(nameof(BuildResultEntity.ViewName) == nameof(BuildFailureEntity.ViewName));
 
             if (viewName == AzureUtil.ViewNameAll)
             {
-                return util;
+                return query;
             }
 
-            var other = FilterUtil.Column(nameof(BuildResultEntity.ViewName), viewName, ColumnOperator.Equal);
-            return util.And(other);
+            return TableQueryUtil.And(
+                query, 
+                TableQueryUtil.Column(nameof(BuildResultEntity.ViewName), viewName, ColumnOperator.Equal));
         }
     }
 }

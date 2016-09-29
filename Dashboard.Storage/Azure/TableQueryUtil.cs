@@ -35,6 +35,8 @@ namespace Dashboard.Azure
 
         public static string RowKey(string value, ColumnOperator op = ColumnOperator.Equal) => Column(ColumnName.RowKey, value, op);
 
+        public static string Key(EntityKey key) => And(PartitionKey(key.PartitionKey), RowKey(key.RowKey));
+
         public static string Combine(string left, CombineOperator op, string right) => TableQuery.CombineFilters(left, ToTableOperator(op), right);
 
         public static string And(string left, string right) => Combine(left, CombineOperator.And, right);

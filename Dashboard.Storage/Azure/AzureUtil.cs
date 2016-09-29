@@ -242,8 +242,7 @@ namespace Dashboard.Azure
             CancellationToken cancellationToken = default(CancellationToken))
             where T : ITableEntity, new()
         {
-            var filter = FilterUtil.Key(key);
-            var query = new TableQuery<T>().Where(filter);
+            var query = new TableQuery<T>().Where(TableQueryUtil.Key(key));
             var segment = await table.ExecuteQuerySegmentedAsync(query, null, cancellationToken);
             if (segment.Results.Count == 0)
             {
@@ -274,6 +273,16 @@ namespace Dashboard.Azure
                 }
 
             } while (token != null);
+        }
+
+        public static async Task<List<T>> QueryAsync<T>(
+            CloudTable table,
+            string query,
+            CancellationToken cancellationToken = default(CancellationToken))
+            where T : ITableEntity, new()
+        {
+            var tableQuery = new TableQuery<T>().Where(query);
+            return await QueryAsync(table, tableQuery, cancellationToken);
         }
 
         public static async Task<List<T>> QueryAsync<T>(

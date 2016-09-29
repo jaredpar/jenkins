@@ -19,10 +19,5 @@ namespace Dashboard.Azure
             table.PartitionKey = key.PartitionKey;
             table.RowKey = key.RowKey;
         }
-
-        public static TableQuery<T> Where<T>(this TableQuery<T> query, FilterUtil filter)
-        {
-            return query.Where(filter.Filter);
-        }
     }
 }

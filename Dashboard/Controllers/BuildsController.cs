@@ -80,19 +80,17 @@ namespace Dashboard.Controllers
             var startDateValue = startDate ?? DateTimeOffset.UtcNow;
             var key = BuildStateEntity.GetPartitionKey(startDateValue);
             var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildState);
-            var filter = FilterUtil.Column(
+            var filter = TableQueryUtil.Column(
                 nameof(TableEntity.PartitionKey),
                 key,
                 ColumnOperator.GreaterThanOrEqual);
             if (!all)
             {
-                filter = FilterUtil.Combine(
+                filter = TableQueryUtil.And(
                     filter,
-                    CombineOperator.And,
-                    FilterUtil.Column(nameof(BuildStateEntity.IsDataComplete), false));
+                    TableQueryUtil.Column(nameof(BuildStateEntity.IsDataComplete), false));
             }
-            var query = new TableQuery<BuildStateEntity>().Where(filter.Filter);
-            var list = await AzureUtil.QueryAsync(table, query);
+            var list = await AzureUtil.QueryAsync<BuildStateEntity>(table, filter);
             var model = new BuildStatusModel(all, startDateValue, list);
 
             return View(viewName: "Status", model: model);
@@ -103,9 +101,8 @@ namespace Dashboard.Controllers
         {
             var key = BuildStateEntity.GetPartitionKey(DateTimeOffset.UtcNow);
             var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildState);
-            var filter = FilterUtil.PartitionKey(key);
-            var query = new TableQuery<BuildStateEntity>().Where(filter.Filter);
-            var list = await AzureUtil.QueryAsync(table, query);
+            var query = TableQueryUtil.PartitionKey(key);
+            var list = await AzureUtil.QueryAsync<BuildStateEntity>(table, query);
             var queue = _storage.StorageAccount.CreateCloudQueueClient().GetQueueReference(AzureConstants.QueueNames.ProcessBuild);
 
             foreach (var entity in list.Where(x => !x.IsDataComplete))

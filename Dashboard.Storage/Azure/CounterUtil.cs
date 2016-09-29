@@ -70,15 +70,15 @@ namespace Dashboard.Azure
         {
             var startDateKey = new DateKey(startDate);
             var endDateKey = new DateKey(endDate);
-            var filter = FilterUtil
-                .Combine(
-                    FilterUtil.BetweenDateKeys(ColumnName.PartitionKey, startDateKey, endDateKey),
-                    CombineOperator.And,
-                    FilterUtil.Combine(
-                        FilterUtil.Column(nameof(CounterEntity.DateTimeUtcTicks), startDate.UtcTicks, ColumnOperator.GreaterThanOrEqual),
-                        CombineOperator.And,
-                        FilterUtil.Column(nameof(CounterEntity.DateTimeUtcTicks), endDate.UtcTicks, ColumnOperator.LessThanOrEqual)));
-            return new TableQuery<T>().Where(filter.Filter);
+            var filter = TableQueryUtil.And(
+                TableQueryUtil.And(
+                    TableQueryUtil.PartitionKey(startDateKey.Key, ColumnOperator.GreaterThanOrEqual),
+                    TableQueryUtil.PartitionKey(endDateKey.Key, ColumnOperator.LessThanOrEqual)),
+                TableQueryUtil.And(
+                    TableQueryUtil.Column(nameof(CounterEntity.DateTimeUtcTicks), startDate.UtcTicks, ColumnOperator.GreaterThanOrEqual),
+                    TableQueryUtil.Column(nameof(CounterEntity.DateTimeUtcTicks), endDate.UtcTicks, ColumnOperator.LessThanOrEqual)));
+
+            return new TableQuery<T>().Where(filter);
         }
 
         /// <summary>

@@ -49,9 +49,7 @@ namespace Dashboard.Tests
 
             var entity = await _populator.PopulateBuild(buildId);
 
-            var filter = FilterUtil
-                .Column(nameof(BuildFailureEntity.JobName), buildId.JobName)
-                .Filter;
+            var filter = TableQueryUtil.Column(nameof(BuildFailureEntity.JobName), buildId.JobName);
             var list = AzureUtil.Query<BuildFailureEntity>(_buildFailureExactTable, filter).ToList();
             Assert.Equal(2, list.Count);
             foreach (var item in list)

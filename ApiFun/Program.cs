@@ -276,11 +276,10 @@ namespace Dashboard.ApiFun
             var account = GetStorageAccount();
             var dateKey = new DateKey(DateTimeOffset.UtcNow - TimeSpan.FromDays(1));
             var table = account.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildResultDate);
-            var query = new TableQuery<BuildResultEntity>()
-                .Where(FilterUtil
-                    .Column(ColumnName.PartitionKey, dateKey, ColumnOperator.GreaterThanOrEqual)
-                    .And(FilterUtil.Column("MachineName", "Azure0602081822")));
-            var all = await AzureUtil.QueryAsync(table, query);
+            var query = TableQueryUtil.And(
+               TableQueryUtil.Column(ColumnName.PartitionKey, dateKey.Key, ColumnOperator.GreaterThanOrEqual),
+               TableQueryUtil.Column("MachineName", "Azure0602081822"));
+            var all = await AzureUtil.QueryAsync<BuildResultEntity>(table, query);
             foreach (var entity in all)
             {
                 var boundBuildId = new BoundBuildId(SharedConstants.DotnetJenkinsUri.Host, entity.BuildId);
@@ -321,7 +320,7 @@ namespace Dashboard.ApiFun
             var tableClient = account.CreateCloudTableClient();
             var table = tableClient.GetTableReference(AzureConstants.TableNames.BuildResultDate);
             var query = new TableQuery<DynamicTableEntity>()
-                .Where(FilterUtil.SinceDate(ColumnName.PartitionKey, DateTimeOffset.UtcNow - TimeSpan.FromDays(2)))
+                .Where(TableQueryUtil.PartitionKey((new DateKey(DateTimeOffset.UtcNow - TimeSpan.FromDays(2))).Key, ColumnOperator.GreaterThanOrEqual))
                 .Select(new[] { "JobName" });
             var nameSet = new HashSet<string>();
             var kindSet = new HashSet<string>();
@@ -357,7 +356,7 @@ namespace Dashboard.ApiFun
             var startDate = DateTimeOffset.UtcNow - TimeSpan.FromDays(14);
 
             var query = new TableQuery<DynamicTableEntity>()
-                .Where(FilterUtil.SinceDate(ColumnName.PartitionKey, startDate))
+                .Where(TableQueryUtil.PartitionKey((new DateKey(startDate)).Key, ColumnOperator.GreaterThanOrEqual))
                 .Select(new[] { "PartitionKey", nameof(BuildResultEntity.ViewName) });
             var all = await AzureUtil.QueryAsync(buildResultTable, query);
             var set = new HashSet<Tuple<DateKey, string>>();

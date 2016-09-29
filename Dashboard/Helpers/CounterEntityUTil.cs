@@ -54,7 +54,7 @@ namespace Dashboard.Helpers
         private T GetOrCreateEntity(CounterData counterData)
         {
             var key = CounterUtil.GetEntityKey(counterData);
-            var filter = FilterUtil.Key(key).Filter;
+            var filter = TableQueryUtil.Key(key);
             var query = new TableQuery<T>().Where(filter);
             var entity = _table.ExecuteQuery(query).FirstOrDefault();
             if (entity != null)

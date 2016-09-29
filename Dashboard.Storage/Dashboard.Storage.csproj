@@ -94,7 +94,6 @@
     <Compile Include="Azure\DateKey.cs" />
     <Compile Include="Azure\EntityKey.cs" />
     <Compile Include="Azure\Extensions.cs" />
-    <Compile Include="Azure\FilterBuilder.cs" />
     <Compile Include="Azure\Json\BuildEventMessage.cs" />
     <Compile Include="Azure\Json\BuildStateMessage.cs" />
     <Compile Include="Azure\TableQueryUtil.cs" />
