@@ -303,4 +303,26 @@ namespace Dashboard.Models
 
         public List<BuildResultEntity> Entries { get; set; } = new List<BuildResultEntity>();
     }
+
+    public sealed class BuildStatusModel
+    {
+        public bool All { get; set; }
+        public DateTimeOffset StartDate { get; set; }
+        public List<BuildStateEntity> List { get; } = new List<BuildStateEntity>();
+
+        public BuildStatusModel()
+        {
+
+        }
+
+        public BuildStatusModel(
+            bool all,
+            DateTimeOffset startDate,
+            List<BuildStateEntity> list)
+        {
+            All = all;
+            StartDate = startDate;
+            List = list;
+        }
+    }
 }

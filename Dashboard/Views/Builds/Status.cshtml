@@ -1,0 +1,39 @@
+﻿@using Dashboard.Models
+@model BuildStatusModel
+
+@{
+    ViewBag.Title = "Build Status";
+    var startDate = Model.StartDate.ToString("yyyy-MM-dd");
+}
+
+<h2>Build State</h2>
+<div>Count: @Model.List.Count</div>
+<table class="table">
+    <thead><tr>
+        <th>Job Name</th>
+        <th>Build Number</th>
+        <th>Data Complete</th>
+        <th>Build Complete</th>
+        <th>Error Text</th>
+    </tr></thead>
+<tbody>
+@foreach (var entity in Model.List)
+{
+    <tr>
+        <td><a href=@entity.BoundBuildId.GetBuildUri()>@entity.JobName</a></td>
+        <td>@entity.BuildNumber</td>
+        <td>@entity.IsDataComplete</td>
+        <td>@entity.IsBuildFinished</td>
+        <td>@entity.Error</td>
+    </tr>
+}
+</tbody>
+</table>
+
+@using (Html.BeginForm(controllerName: "Builds", actionName: "Status", method: FormMethod.Get))
+{
+    <div>All <input name="all" type="checkbox" checked="@Model.All" value="true"></div>
+    <div>Start Date <input name="startDate" type="date" value=@startDate></div>
+    <div><input type="submit" value="Refresh"></div>
+}
+

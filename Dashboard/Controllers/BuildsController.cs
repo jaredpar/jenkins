@@ -75,11 +75,15 @@ namespace Dashboard.Controllers
             }
         }
 
-        public async Task<ActionResult> Status(bool all = false, bool refresh = false)
+        public async Task<ActionResult> Status(bool all = false, DateTimeOffset? startDate = null)
         {
-            var key = BuildStateEntity.GetPartitionKey(DateTimeOffset.UtcNow);
+            var startDateValue = startDate ?? DateTimeOffset.UtcNow;
+            var key = BuildStateEntity.GetPartitionKey(startDateValue);
             var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildState);
-            var filter = FilterUtil.PartitionKey(key);
+            var filter = FilterUtil.Column(
+                nameof(TableEntity.PartitionKey),
+                key,
+                ColumnOperator.GreaterThanOrEqual);
             if (!all)
             {
                 filter = FilterUtil.Combine(
@@ -89,20 +93,27 @@ namespace Dashboard.Controllers
             }
             var query = new TableQuery<BuildStateEntity>().Where(filter.Filter);
             var list = await AzureUtil.QueryAsync(table, query);
+            var model = new BuildStatusModel(all, startDateValue, list);
 
-            // TODO: make this a separate call.  Hack for now to test things.
-            if (refresh)
+            return View(viewName: "Status", model: model);
+        }
+
+        [AcceptVerbs(HttpVerbs.Post)]
+        public async Task StatusRefresh()
+        {
+            var key = BuildStateEntity.GetPartitionKey(DateTimeOffset.UtcNow);
+            var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildState);
+            var filter = FilterUtil.PartitionKey(key);
+            var query = new TableQuery<BuildStateEntity>().Where(filter.Filter);
+            var list = await AzureUtil.QueryAsync(table, query);
+            var queue = _storage.StorageAccount.CreateCloudQueueClient().GetQueueReference(AzureConstants.QueueNames.ProcessBuild);
+
+            foreach (var entity in list.Where(x => !x.IsDataComplete))
             {
-                var queue = _storage.StorageAccount.CreateCloudQueueClient().GetQueueReference(AzureConstants.QueueNames.ProcessBuild);
-                foreach (var entity in list.Where(x => !x.IsDataComplete))
-                {
-                    var buildMessage = new BuildStateMessage(entity.BuildStateKey, entity.BoundBuildId);
-                    var queueMessage = new CloudQueueMessage(JsonConvert.SerializeObject(buildMessage));
-                    await queue.AddMessageAsync(queueMessage);
-                }
+                var buildMessage = new BuildStateMessage(entity.BuildStateKey, entity.BoundBuildId);
+                var queueMessage = new CloudQueueMessage(JsonConvert.SerializeObject(buildMessage));
+                await queue.AddMessageAsync(queueMessage);
             }
-
-            return View(viewName: "BuildState", model: list);
         }
 
         /// <summary>
@@ -393,7 +404,7 @@ namespace Dashboard.Controllers
 
             return View(viewName: "JobElapsedTimePerBuild", model: model);
         }
-        
+
         public string Csv(string viewName = AzureUtil.ViewNameRoslyn, bool pr = false, DateTime? startDate = null)
         {
             var filter = CreateBuildFilter(nameof(Csv), viewName: viewName, pr: pr, startDate: startDate);
@@ -468,11 +479,11 @@ namespace Dashboard.Controllers
                 .Where(x => filter.IncludePullRequests || !JobUtil.IsPullRequestJobName(x.JobId.Name))
                 .Where(x => x.ClassificationKind != ClassificationKind.Succeeded)
                 .OrderBy(x => x.BuildNumber);
-            
+
             model.Entries.AddRange(queryResult);
             return model;
         }
-    
+
         private TestFailureSummaryModel GetTestFailureSummaryModel(BuildFilterModel filter)
         {
             var failureQuery = _buildUtil
