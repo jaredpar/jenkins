@@ -43,7 +43,29 @@ namespace Dashboard.Azure
 
         public static string And(string left, string right) => Combine(left, CombineOperator.And, right);
 
+        public static string And(string left, string right, params string[] rest)
+        {
+            var filter = And(left, right);
+            foreach (var item in rest)
+            {
+                filter = And(filter, item);
+            }
+
+            return filter;
+        }
+
         public static string Or(string left, string right) => Combine(left, CombineOperator.Or, right);
+
+        public static string Or(string left, string right, params string[] rest)
+        {
+            var filter = Or(left, right);
+            foreach (var item in rest)
+            {
+                filter = Or(filter, item);
+            }
+
+            return filter;
+        }
 
         public static string ToQueryComparison(ColumnOperator op)
         {

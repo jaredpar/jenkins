@@ -75,23 +75,26 @@ namespace Dashboard.Controllers
             }
         }
 
-        public async Task<ActionResult> Status(bool all = false, DateTimeOffset? startDate = null)
+        public async Task<ActionResult> Status(bool all = false, bool error = false, DateTimeOffset? startDate = null)
         {
             var startDateValue = startDate ?? DateTimeOffset.UtcNow;
             var key = BuildStateEntity.GetPartitionKey(startDateValue);
             var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildState);
-            var filter = TableQueryUtil.Column(
-                nameof(TableEntity.PartitionKey),
-                key,
-                ColumnOperator.GreaterThanOrEqual);
-            if (!all)
+            var filter = TableQueryUtil.Column(nameof(TableEntity.PartitionKey), key, ColumnOperator.GreaterThanOrEqual);
+            if (error)
+            {
+                filter = TableQueryUtil.And(
+                    filter,
+                    TableQueryUtil.Column(nameof(BuildStateEntity.Error), (string)null, ColumnOperator.NotEqual));
+            }
+            else if (!all)
             {
                 filter = TableQueryUtil.And(
                     filter,
                     TableQueryUtil.Column(nameof(BuildStateEntity.IsDataComplete), false));
             }
             var list = await AzureUtil.QueryAsync<BuildStateEntity>(table, filter);
-            var model = new BuildStatusModel(all, startDateValue, list);
+            var model = new BuildStatusModel(all, error, startDateValue, list);
 
             return View(viewName: "Status", model: model);
         }

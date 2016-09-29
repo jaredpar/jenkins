@@ -307,6 +307,7 @@ namespace Dashboard.Models
     public sealed class BuildStatusModel
     {
         public bool All { get; set; }
+        public bool Error { get; set; }
         public DateTimeOffset StartDate { get; set; }
         public List<BuildStateEntity> List { get; } = new List<BuildStateEntity>();
 
@@ -317,10 +318,12 @@ namespace Dashboard.Models
 
         public BuildStatusModel(
             bool all,
+            bool error,
             DateTimeOffset startDate,
             List<BuildStateEntity> list)
         {
             All = all;
+            Error = error;
             StartDate = startDate;
             List = list;
         }

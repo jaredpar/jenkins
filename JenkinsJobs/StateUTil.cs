@@ -117,6 +117,7 @@ namespace Dashboard.StorageBuilder
 
                 _logger.Write($"Updating the build data state ..");
                 entity.IsDataComplete = true;
+                entity.Error = null;
                 await _buildStateTable.ExecuteAsync(TableOperation.Replace(entity), cancellationToken);
 
                 _logger.WriteLine($"Completed");
