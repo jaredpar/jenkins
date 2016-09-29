@@ -97,6 +97,8 @@
     <Compile Include="Azure\FilterBuilder.cs" />
     <Compile Include="Azure\Json\BuildEventMessage.cs" />
     <Compile Include="Azure\Json\BuildStateMessage.cs" />
+    <Compile Include="Azure\TableQueryUtil.cs" />
+    <Compile Include="Azure\TableQueryUtil.Generated.cs" />
     <Compile Include="Azure\TestCacheCounterEntity.cs" />
     <Compile Include="Azure\TestRunCounterEntity.cs" />
     <Compile Include="Azure\TestRunEntity.cs" />

@@ -278,7 +278,7 @@ namespace Dashboard.ApiFun
             var table = account.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildResultDate);
             var query = new TableQuery<BuildResultEntity>()
                 .Where(FilterUtil
-                    .Column(ColumnNames.PartitionKey, dateKey, ColumnOperator.GreaterThanOrEqual)
+                    .Column(ColumnName.PartitionKey, dateKey, ColumnOperator.GreaterThanOrEqual)
                     .And(FilterUtil.Column("MachineName", "Azure0602081822")));
             var all = await AzureUtil.QueryAsync(table, query);
             foreach (var entity in all)
@@ -321,7 +321,7 @@ namespace Dashboard.ApiFun
             var tableClient = account.CreateCloudTableClient();
             var table = tableClient.GetTableReference(AzureConstants.TableNames.BuildResultDate);
             var query = new TableQuery<DynamicTableEntity>()
-                .Where(FilterUtil.SinceDate(ColumnNames.PartitionKey, DateTimeOffset.UtcNow - TimeSpan.FromDays(2)))
+                .Where(FilterUtil.SinceDate(ColumnName.PartitionKey, DateTimeOffset.UtcNow - TimeSpan.FromDays(2)))
                 .Select(new[] { "JobName" });
             var nameSet = new HashSet<string>();
             var kindSet = new HashSet<string>();
@@ -357,7 +357,7 @@ namespace Dashboard.ApiFun
             var startDate = DateTimeOffset.UtcNow - TimeSpan.FromDays(14);
 
             var query = new TableQuery<DynamicTableEntity>()
-                .Where(FilterUtil.SinceDate(ColumnNames.PartitionKey, startDate))
+                .Where(FilterUtil.SinceDate(ColumnName.PartitionKey, startDate))
                 .Select(new[] { "PartitionKey", nameof(BuildResultEntity.ViewName) });
             var all = await AzureUtil.QueryAsync(buildResultTable, query);
             var set = new HashSet<Tuple<DateKey, string>>();

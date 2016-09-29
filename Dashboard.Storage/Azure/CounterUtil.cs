@@ -72,7 +72,7 @@ namespace Dashboard.Azure
             var endDateKey = new DateKey(endDate);
             var filter = FilterUtil
                 .Combine(
-                    FilterUtil.BetweenDateKeys(ColumnNames.PartitionKey, startDateKey, endDateKey),
+                    FilterUtil.BetweenDateKeys(ColumnName.PartitionKey, startDateKey, endDateKey),
                     CombineOperator.And,
                     FilterUtil.Combine(
                         FilterUtil.Column(nameof(CounterEntity.DateTimeUtcTicks), startDate.UtcTicks, ColumnOperator.GreaterThanOrEqual),

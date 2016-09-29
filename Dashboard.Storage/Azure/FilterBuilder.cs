@@ -8,28 +8,6 @@ using System.Threading.Tasks;
 
 namespace Dashboard.Azure
 {
-    public enum ColumnOperator
-    {
-        LessThan,
-        LessThanOrEqual,
-        Equal,
-        NotEqual,
-        GreaterThan,
-        GreaterThanOrEqual,
-    }
-
-    public enum CombineOperator
-    {
-        And,
-        Or
-    }
-
-    public enum ColumnNames
-    {
-        PartitionKey,
-        RowKey
-    }
-
     // TODO: Get rid of struct and make it simpler to use.
     public struct FilterUtil
     {
@@ -85,7 +63,7 @@ namespace Dashboard.Azure
                 .And(FilterUtil.RowKey(key.RowKey));
         }
 
-        public static FilterUtil SinceDate(ColumnNames name, DateKey startDate)
+        public static FilterUtil SinceDate(ColumnName name, DateKey startDate)
         {
             return SinceDate(ToColumnName(name), startDate);
         }
@@ -99,7 +77,7 @@ namespace Dashboard.Azure
             return new FilterUtil(filter);
         }
 
-        public static FilterUtil BetweenDateKeys(ColumnNames name, DateKey startDate, DateKey endDate)
+        public static FilterUtil BetweenDateKeys(ColumnName name, DateKey startDate, DateKey endDate)
         {
             return BetweenDateKeys(ToColumnName(name), startDate, endDate);
         }
@@ -121,7 +99,7 @@ namespace Dashboard.Azure
             return new FilterUtil(filter);
         }
 
-        public static FilterUtil Column(ColumnNames name, DateKey dateKey, ColumnOperator op = ColumnOperator.Equal)
+        public static FilterUtil Column(ColumnName name, DateKey dateKey, ColumnOperator op = ColumnOperator.Equal)
         {
             return Column(ToColumnName(name), dateKey, op);
         }
@@ -190,13 +168,13 @@ namespace Dashboard.Azure
             }
         }
 
-        public static string ToColumnName(ColumnNames name)
+        public static string ToColumnName(ColumnName name)
         {
             switch (name)
             {
-                case ColumnNames.PartitionKey: return nameof(TableEntity.PartitionKey);
-                case ColumnNames.RowKey: return nameof(TableEntity.RowKey);
-                default: throw new Exception($"Invalid {nameof(ColumnNames)} value: {name}");
+                case ColumnName.PartitionKey: return nameof(TableEntity.PartitionKey);
+                case ColumnName.RowKey: return nameof(TableEntity.RowKey);
+                default: throw new Exception($"Invalid {nameof(ColumnName)} value: {name}");
             }
         }
 
