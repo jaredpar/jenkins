@@ -5223,4 +5223,7 @@
   ]
 }</value>
   </data>
+  <data name="TestReport1" xml:space="preserve">
+    <value>this is definitely not JSON</value>
+  </data>
 </root>

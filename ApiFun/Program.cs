@@ -293,8 +293,8 @@ namespace Dashboard.ApiFun
         /// <returns></returns>
         private static async Task TestFailure()
         {
-            var name = "dotnet_coreclr/release_1.1.0/jitstress/x86_ryujit_checked_windows_nt_zapdisable";
-            var number = 11;
+            var name = "Private/Microsoft_vstest/master/Microsoft_vstest_Release_prtest";
+            var number = 119;
             var host = SharedConstants.DotnetJenkinsHostName;
 
             var jobId = JobId.ParseName(name);

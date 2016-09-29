@@ -256,5 +256,14 @@ namespace Dashboard.Tests {
                 return ResourceManager.GetString("Tao1TestResult", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to this is definitely not JSON.
+        /// </summary>
+        internal static string TestReport1 {
+            get {
+                return ResourceManager.GetString("TestReport1", resourceCulture);
+            }
+        }
     }
 }

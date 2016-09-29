@@ -337,14 +337,24 @@ namespace Dashboard.Jenkins
         {
             var request = GetJsonRestRequest(urlPath, pretty, tree, depth);
             request.ResponseWriter = GetJsonReaderAction(reader);
-            return _restClient.Execute(request);
+            return GetJsonReaderCore(_restClient.Execute(request));
         }
 
         public async Task<IRestResponse> GetJsonReaderAsync(string urlPath, Action<JsonReader> reader, bool pretty = false, string tree = null, int? depth = null)
         {
             var request = GetJsonRestRequest(urlPath, pretty, tree, depth);
             request.ResponseWriter = GetJsonReaderAction(reader);
-            return await _restClient.ExecuteTaskAsync(request);
+            return GetJsonReaderCore(await _restClient.ExecuteTaskAsync(request));
+        }
+
+        private IRestResponse GetJsonReaderCore(IRestResponse response)
+        {
+            if (response.ErrorException != null)
+            {
+                throw response.ErrorException;
+            }
+
+            return response;
         }
 
         private static Action<Stream> GetJsonReaderAction(Action<JsonReader> action)

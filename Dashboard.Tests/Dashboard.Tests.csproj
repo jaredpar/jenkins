@@ -111,6 +111,7 @@
     <Compile Include="EqualityUnit`1.cs" />
     <Compile Include="EqualityUtil.cs" />
     <Compile Include="EqualityUtil`1.cs" />
+    <Compile Include="JenkinsClientTests.cs" />
     <Compile Include="JenkinsUtilTests.cs" />
     <Compile Include="JobIdTests.cs" />
     <Compile Include="JobKindTests.cs" />
