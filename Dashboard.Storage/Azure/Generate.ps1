@@ -41,11 +41,6 @@ namespace Dashboard.Azure
                 ToQueryComparison(op),
                 value);
         }
-
-        public static string Column(ColumnName columnName, $type value, ColumnOperator op = ColumnOperator.Equal)
-        {
-            return Column(ToColumnName(columnName), value, op);
-        }
 "@;
         write-output $item
     }

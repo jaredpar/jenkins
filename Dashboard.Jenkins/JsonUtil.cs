@@ -160,15 +160,7 @@ namespace Dashboard.Jenkins
         /// </remarks>
         internal static List<string> ParseTestCaseListFailed(JsonReader reader)
         {
-            try
-            {
-                return BuildFailureUtil.GetTestCaseFailureList(reader);
-            }
-            catch
-            {
-                // Bad JSON data can cause parsing to fail.
-                return new List<string>(capacity: 0);
-            }
+            return BuildFailureUtil.GetTestCaseFailureList(reader);
         }
 
         /// <summary>

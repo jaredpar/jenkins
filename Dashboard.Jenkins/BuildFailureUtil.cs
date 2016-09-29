@@ -144,7 +144,21 @@ namespace Dashboard.Jenkins
 
         internal static List<string> GetTestCaseFailureList(JsonReader reader)
         {
-            return GetTestCaseNames(reader, (name, status) => status == "FAILED");
+            return GetTestCaseNames(reader, (name, status) =>
+            {
+                switch (status)
+                {
+                    case "PASSED":
+                    case "SKIPPED":
+                    case "FIXED":
+                        return false;
+                    case "FAILED":
+                    case "REGRESSION":
+                        return true;
+                    default:
+                        throw new Exception($"Unrecognized test case status {status}");
+                }
+            });
         }
 
         /// <summary>

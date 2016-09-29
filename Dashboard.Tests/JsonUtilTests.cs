@@ -1,8 +1,10 @@
 ﻿using Dashboard.Jenkins;
 using Dashboard.Tests;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,5 +42,16 @@ namespace Dashboard.Tests
                 Assert.Equal(1, result.CauseList.Count);
             }
         }
+
+        public sealed class ParseTestCaseLog
+        {
+            [Fact]
+            public void TaoReport()
+            {
+                var list = JsonUtil.ParseTestCaseListFailed(new JsonTextReader(new StringReader(TestResources.Tao1TestResult)));
+                Assert.Equal(2, list.Count);
+            }
+        }
+       
     }
 }

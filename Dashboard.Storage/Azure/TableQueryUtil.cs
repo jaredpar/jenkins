@@ -39,6 +39,8 @@ namespace Dashboard.Azure
 
         public static string Combine(string left, CombineOperator op, string right) => TableQuery.CombineFilters(left, ToTableOperator(op), right);
 
+        public static string Column(ColumnName columnName, string value, ColumnOperator op = ColumnOperator.Equal) => Column(ToColumnName(columnName), value, op);
+
         public static string And(string left, string right) => Combine(left, CombineOperator.And, right);
 
         public static string Or(string left, string right) => Combine(left, CombineOperator.Or, right);

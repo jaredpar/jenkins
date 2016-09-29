@@ -27,7 +27,7 @@ namespace Dashboard.Azure
 
         public List<BuildResultEntity> GetBuildResults(DateTimeOffset startDate, string viewName)
         {
-            var filter = TableQueryUtil.Column(ColumnName.PartitionKey, startDate, ColumnOperator.GreaterThanOrEqual);
+            var filter = FilterSinceDate(startDate);
             filter = FilterView(filter, viewName);
             var query = new TableQuery<BuildResultEntity>().Where(filter);
             return _buildResultDateTable.ExecuteQuery(query).ToList();
@@ -36,7 +36,7 @@ namespace Dashboard.Azure
         public List<BuildResultEntity> GetBuildResults(DateTimeOffset startDate, string jobName, string viewName)
         {
             var filter = TableQueryUtil.And(
-                TableQueryUtil.Column(ColumnName.PartitionKey, startDate, ColumnOperator.GreaterThanOrEqual),
+                FilterSinceDate(startDate),
                 TableQueryUtil.Column(nameof(BuildResultEntity.JobName), jobName));
             filter = FilterView(filter, viewName);
             var query = new TableQuery<BuildResultEntity>().Where(filter);
@@ -46,7 +46,7 @@ namespace Dashboard.Azure
         public List<BuildResultEntity> GetBuildResultsByKindName(DateTimeOffset startDate, string kindName, string viewName)
         {
             var filter = TableQueryUtil.And(
-                TableQueryUtil.Column(ColumnName.PartitionKey, startDate, ColumnOperator.GreaterThanOrEqual),
+                FilterSinceDate(startDate),
                 TableQueryUtil.Column(nameof(BuildResultEntity.ClassificationName), kindName));
             filter = FilterView(filter, viewName);
             var query = new TableQuery<BuildResultEntity>().Where(filter);
@@ -56,7 +56,7 @@ namespace Dashboard.Azure
         public List<BuildFailureEntity> GetTestCaseFailures(DateTimeOffset startDate, string viewName)
         {
             var filter = TableQueryUtil.And(
-                TableQueryUtil.Column(ColumnName.PartitionKey, startDate, ColumnOperator.GreaterThanOrEqual),
+                FilterSinceDate(startDate),
                 TableQueryUtil.Column(nameof(BuildFailureEntity.BuildFailureKindRaw), BuildFailureKind.TestCase.ToString()));
             filter = FilterView(filter, viewName);
             var query = new TableQuery<BuildFailureEntity>().Where(filter);
@@ -66,7 +66,7 @@ namespace Dashboard.Azure
         public List<BuildFailureEntity> GetTestCaseFailures(DateTimeOffset startDate, string name, string viewName)
         {
             var filter = TableQueryUtil.And(
-                TableQueryUtil.Column(ColumnName.PartitionKey, startDate, ColumnOperator.GreaterThanOrEqual),
+                FilterSinceDate(startDate),
                 TableQueryUtil.Column(nameof(BuildFailureEntity.Identifier), name));
             filter = FilterView(filter, viewName);
             var query = new TableQuery<BuildFailureEntity>().Where(filter);
@@ -84,6 +84,12 @@ namespace Dashboard.Azure
             list.Add(AzureUtil.ViewNameAll);
             list.AddRange(viewNameList.Select(x => x.ViewName).Distinct());
             return list;
+        }
+
+        private static string FilterSinceDate(DateTimeOffset startDate)
+        {
+            var key = new DateKey(startDate);
+            return TableQueryUtil.Column(ColumnName.PartitionKey, key.Key, ColumnOperator.GreaterThanOrEqual);
         }
 
         private static string FilterView(string query, string viewName)
