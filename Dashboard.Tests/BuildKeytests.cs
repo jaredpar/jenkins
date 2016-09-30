@@ -1,11 +1,6 @@
 ﻿using Dashboard.Azure;
 using Dashboard.Azure.Builds;
 using Dashboard.Jenkins;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Dashboard.Tests

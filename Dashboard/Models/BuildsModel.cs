@@ -1,12 +1,8 @@
-﻿using Dashboard.Azure;
-using Dashboard.Azure.Builds;
-using Dashboard.Azure.TestResults;
+﻿using Dashboard.Azure.Builds;
 using Dashboard.Jenkins;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace Dashboard.Models
 {

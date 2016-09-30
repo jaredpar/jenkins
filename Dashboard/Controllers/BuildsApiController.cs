@@ -1,18 +1,11 @@
 ﻿using Dashboard.Models;
 using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Table;
-using Dashboard;
 using Dashboard.Azure;
 using Dashboard.Jenkins;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Web;
 using System.Web.Http;
-using System.Threading.Tasks;
-using Dashboard.Json;
 using Dashboard.Azure.Builds;
 
 namespace Dashboard.Controllers

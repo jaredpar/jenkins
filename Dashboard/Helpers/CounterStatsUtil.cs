@@ -1,12 +1,6 @@
 ﻿using Dashboard.Azure;
 using Dashboard.Azure.TestResults;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Table;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Web;
 
 namespace Dashboard.Helpers
 {

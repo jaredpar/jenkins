@@ -1,14 +1,10 @@
 ﻿using Dashboard.Azure;
 using Dashboard.Azure.Builds;
 using Dashboard.Jenkins;
-using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 

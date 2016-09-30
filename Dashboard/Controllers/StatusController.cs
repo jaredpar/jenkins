@@ -1,14 +1,10 @@
 ﻿using Dashboard.Helpers;
 using Dashboard.Models;
-using Dashboard;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
-using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
-using Microsoft.WindowsAzure;
 using Dashboard.Azure;
 using System.Diagnostics;
 using Microsoft.WindowsAzure.Storage.Table;

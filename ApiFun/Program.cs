@@ -2,16 +2,12 @@
 using RestSharp;
 using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Dashboard.Jenkins;
 using Dashboard.Azure.Builds;
-using System.Diagnostics;
 using System.IO;
-using RestSharp.Authenticators;
 using System.Configuration;
 using Dashboard.Azure;
 using Microsoft.WindowsAzure.Storage;
@@ -19,7 +15,6 @@ using Microsoft.WindowsAzure.Storage.Table;
 using System.Globalization;
 using Newtonsoft.Json;
 using static Dashboard.Azure.AzureConstants;
-using System.Threading;
 using Microsoft.WindowsAzure.Storage.Queue;
 
 namespace Dashboard.ApiFun

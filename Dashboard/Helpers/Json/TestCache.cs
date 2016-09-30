@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace Dashboard.Helpers.Json
+﻿namespace Dashboard.Helpers.Json
 {
     public sealed class TestCacheData
     {

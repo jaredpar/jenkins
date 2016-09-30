@@ -2,11 +2,7 @@
 using Dashboard.Jenkins;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
-using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Web;
 
 namespace Dashboard.Helpers
 {
