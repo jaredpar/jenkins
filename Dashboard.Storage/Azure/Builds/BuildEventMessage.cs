@@ -5,8 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Dashboard.Jenkins;
 
-namespace Dashboard.Azure.Json
+namespace Dashboard.Azure.Builds
 {
+    /// <summary>
+    /// JSON serializable type that represent build event information from Jenkins.
+    /// </summary>
     public sealed class BuildEventMessageJson
     {
         public string JobName { get; set; }

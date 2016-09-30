@@ -77,16 +77,16 @@
     </Compile>
     <Compile Include="Azure\AzureConstants.cs" />
     <Compile Include="Azure\AzureUtil.cs" />
-    <Compile Include="Azure\BuildStateEntity.cs" />
+    <Compile Include="Azure\Builds\BuildStateEntity.cs" />
     <Compile Include="Azure\DateTimeKey.cs" />
-    <Compile Include="Azure\BuildFailureEntity.cs" />
-    <Compile Include="Azure\BuildResultClassification.cs" />
-    <Compile Include="Azure\BuildResultEntity.cs" />
-    <Compile Include="Azure\BuildEventEntity.cs" />
-    <Compile Include="Azure\BuildKey.cs" />
-    <Compile Include="Azure\BuildSource.cs" />
-    <Compile Include="Azure\BuildTablePopulator.cs" />
-    <Compile Include="Azure\BuildUtil.cs" />
+    <Compile Include="Azure\Builds\BuildFailureEntity.cs" />
+    <Compile Include="Azure\Builds\BuildResultClassification.cs" />
+    <Compile Include="Azure\Builds\BuildResultEntity.cs" />
+    <Compile Include="Azure\Builds\BuildEventEntity.cs" />
+    <Compile Include="Azure\Builds\BuildKey.cs" />
+    <Compile Include="Azure\TestResults\BuildSource.cs" />
+    <Compile Include="Azure\Builds\BuildTablePopulator.cs" />
+    <Compile Include="Azure\Builds\BuildUtil.cs" />
     <Compile Include="Azure\CounterData.cs" />
     <Compile Include="Azure\CounterEntity.cs" />
     <Compile Include="Azure\CounterUtil.cs" />
@@ -94,22 +94,22 @@
     <Compile Include="Azure\DateKey.cs" />
     <Compile Include="Azure\EntityKey.cs" />
     <Compile Include="Azure\Extensions.cs" />
-    <Compile Include="Azure\Json\BuildEventMessage.cs" />
-    <Compile Include="Azure\Json\BuildStateMessage.cs" />
+    <Compile Include="Azure\Builds\BuildEventMessage.cs" />
+    <Compile Include="Azure\Builds\BuildStateMessage.cs" />
     <Compile Include="Azure\TableQueryUtil.cs" />
     <Compile Include="Azure\TableQueryUtil.Generated.cs" />
-    <Compile Include="Azure\TestCacheCounterEntity.cs" />
-    <Compile Include="Azure\TestRunCounterEntity.cs" />
-    <Compile Include="Azure\TestRunEntity.cs" />
-    <Compile Include="Azure\UnitTestCounterEntity.cs" />
-    <Compile Include="Azure\ViewNameEntity.cs" />
+    <Compile Include="Azure\TestResults\TestCacheCounterEntity.cs" />
+    <Compile Include="Azure\TestResults\TestRunCounterEntity.cs" />
+    <Compile Include="Azure\TestResults\TestRunEntity.cs" />
+    <Compile Include="Azure\TestResults\UnitTestCounterEntity.cs" />
+    <Compile Include="Azure\Builds\ViewNameEntity.cs" />
     <Compile Include="EnumUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Azure\TestCacheStats.cs" />
-    <Compile Include="Azure\TestQueryStats.cs" />
-    <Compile Include="Azure\TestResult.cs" />
-    <Compile Include="Azure\TestResultStorage.cs" />
-    <Compile Include="Azure\TestStatsData.cs" />
+    <Compile Include="Azure\TestResults\TestCacheStats.cs" />
+    <Compile Include="Azure\TestResults\TestQueryStats.cs" />
+    <Compile Include="Azure\TestResults\TestResult.cs" />
+    <Compile Include="Azure\TestResults\TestResultStorage.cs" />
+    <Compile Include="Azure\TestResults\TestStatsData.cs" />
     <Compile Include="ZipUtil.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +121,9 @@
       <Project>{93ed4b41-cbc6-4423-bddc-612c9bb607ba}</Project>
       <Name>Dashboard.Jenkins</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Azure\Builds\Json\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

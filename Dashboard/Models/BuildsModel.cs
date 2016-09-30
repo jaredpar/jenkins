@@ -1,4 +1,6 @@
 ﻿using Dashboard.Azure;
+using Dashboard.Azure.Builds;
+using Dashboard.Azure.TestResults;
 using Dashboard.Jenkins;
 using Newtonsoft.Json;
 using System;
@@ -168,7 +170,7 @@ namespace Dashboard.Models
         public string JobName { get; set; }
         public string JobKind { get; set; }
         public int ElapsedTime { get; set; }
-        public Dashboard.Azure.ClassificationKind ClassificationKind { get; set; }
+        public ClassificationKind ClassificationKind { get; set; }
     }
 
     /// <summary>

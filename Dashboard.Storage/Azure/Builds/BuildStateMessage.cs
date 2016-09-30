@@ -5,8 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Dashboard.Jenkins;
 
-namespace Dashboard.Azure.Json
+namespace Dashboard.Azure.Builds
 {
+    /// <summary>
+    /// JSON serializable type that represents a build in progress or for which data collection hasn't
+    /// completed.
+    /// </summary>
     public sealed class BuildStateMessage
     {
         public string BuildStateKeyRaw { get; set; }

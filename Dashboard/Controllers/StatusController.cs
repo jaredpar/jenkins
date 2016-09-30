@@ -12,6 +12,7 @@ using Microsoft.WindowsAzure;
 using Dashboard.Azure;
 using System.Diagnostics;
 using Microsoft.WindowsAzure.Storage.Table;
+using Dashboard.Azure.TestResults;
 
 namespace Dashboard.Controllers
 {
@@ -44,7 +45,7 @@ namespace Dashboard.Controllers
 
         public ActionResult Result(string id)
         {
-            Azure.TestResult testResult;
+            TestResult testResult;
             if (!_testResultStorage.TryGetValue(id, out testResult))
             {
                 throw new Exception("Invalid key");

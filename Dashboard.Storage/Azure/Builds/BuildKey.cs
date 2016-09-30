@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dashboard.Azure
+namespace Dashboard.Azure.Builds
 {
     // TODO: Should use BoundBuildId
     public struct BuildKey

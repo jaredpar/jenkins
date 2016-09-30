@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Dashboard.Jenkins;
-using Dashboard.Azure.Json;
+using Dashboard.Azure.Builds;
 using System.Diagnostics;
 using System.IO;
 using RestSharp.Authenticators;

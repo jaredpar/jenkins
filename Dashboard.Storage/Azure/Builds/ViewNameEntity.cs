@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dashboard.Azure
+namespace Dashboard.Azure.Builds
 {
     /// <summary>
     /// Used to store the set of available view name values for a given date.  It has the same data as 

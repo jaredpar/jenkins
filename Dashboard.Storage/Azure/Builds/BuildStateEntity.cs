@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace Dashboard.Azure
+namespace Dashboard.Azure.Builds
 {
     /// <summary>
     /// Represents the state of data for a build that is tracked.  The key is a <see cref="DateTimeKey"/> based

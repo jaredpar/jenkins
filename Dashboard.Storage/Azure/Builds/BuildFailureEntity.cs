@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
-namespace Dashboard.Azure
+namespace Dashboard.Azure.Builds
 {
     public enum BuildFailureKind
     {

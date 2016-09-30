@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace Dashboard.Azure
 {
+    // TODO: delete? 
     public sealed class DashboardStorage
     {
         private readonly CloudStorageAccount _storageAccount;

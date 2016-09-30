@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dashboard.Azure
+namespace Dashboard.Azure.Builds
 {
     /// <summary>
     /// Tracks the status of a build as it comes through our build event queue.  It's a back up in the case 

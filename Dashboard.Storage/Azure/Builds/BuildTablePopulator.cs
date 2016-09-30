@@ -11,7 +11,7 @@ using System.Diagnostics;
 using Microsoft.WindowsAzure.Storage;
 using System.Threading;
 
-namespace Dashboard.Azure
+namespace Dashboard.Azure.Builds
 {
     public sealed class BuildTablePopulator
     {

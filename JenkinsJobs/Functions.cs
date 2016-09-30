@@ -9,7 +9,7 @@ using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
 using Dashboard;
 using Dashboard.Azure;
-using Dashboard.Azure.Json;
+using Dashboard.Azure.Builds;
 using Dashboard.Jenkins;
 using SendGrid;
 using System.Net.Mail;

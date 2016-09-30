@@ -13,6 +13,7 @@ using System.Web;
 using System.Web.Http;
 using System.Threading.Tasks;
 using Dashboard.Json;
+using Dashboard.Azure.Builds;
 
 namespace Dashboard.Controllers
 {

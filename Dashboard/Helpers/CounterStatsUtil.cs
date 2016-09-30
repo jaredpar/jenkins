@@ -1,4 +1,5 @@
 ﻿using Dashboard.Azure;
+using Dashboard.Azure.TestResults;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using System;

@@ -1,4 +1,5 @@
 ﻿using Dashboard.Azure;
+using Dashboard.Azure.Builds;
 using Dashboard.Jenkins;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
