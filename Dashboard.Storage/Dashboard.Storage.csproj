@@ -84,11 +84,9 @@
     <Compile Include="Azure\Builds\BuildResultEntity.cs" />
     <Compile Include="Azure\Builds\BuildEventEntity.cs" />
     <Compile Include="Azure\Builds\BuildKey.cs" />
-    <Compile Include="Azure\TestResults\BuildSource.cs" />
+    <Compile Include="Azure\TestRuns\BuildSource.cs" />
     <Compile Include="Azure\Builds\BuildTablePopulator.cs" />
     <Compile Include="Azure\Builds\BuildUtil.cs" />
-    <Compile Include="Azure\CounterData.cs" />
-    <Compile Include="Azure\CounterEntity.cs" />
     <Compile Include="Azure\CounterUtil.cs" />
     <Compile Include="Azure\DashboardStorage.cs" />
     <Compile Include="Azure\DateKey.cs" />
@@ -98,18 +96,18 @@
     <Compile Include="Azure\Builds\BuildStateMessage.cs" />
     <Compile Include="Azure\TableQueryUtil.cs" />
     <Compile Include="Azure\TableQueryUtil.Generated.cs" />
-    <Compile Include="Azure\TestResults\TestCacheCounterEntity.cs" />
-    <Compile Include="Azure\TestResults\TestRunCounterEntity.cs" />
-    <Compile Include="Azure\TestResults\TestRunEntity.cs" />
-    <Compile Include="Azure\TestResults\UnitTestCounterEntity.cs" />
+    <Compile Include="Azure\TestRuns\TestCacheCounterEntity.cs" />
+    <Compile Include="Azure\TestRuns\TestRunCounterEntity.cs" />
+    <Compile Include="Azure\TestRuns\TestRunEntity.cs" />
+    <Compile Include="Azure\TestRuns\UnitTestCounterEntity.cs" />
     <Compile Include="Azure\Builds\ViewNameEntity.cs" />
     <Compile Include="EnumUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Azure\TestResults\TestCacheStats.cs" />
-    <Compile Include="Azure\TestResults\TestQueryStats.cs" />
-    <Compile Include="Azure\TestResults\TestResult.cs" />
-    <Compile Include="Azure\TestResults\TestResultStorage.cs" />
-    <Compile Include="Azure\TestResults\TestStatsData.cs" />
+    <Compile Include="Azure\TestRuns\TestCacheStats.cs" />
+    <Compile Include="Azure\TestRuns\TestQueryStats.cs" />
+    <Compile Include="Azure\TestRuns\TestResult.cs" />
+    <Compile Include="Azure\TestRuns\TestResultStorage.cs" />
+    <Compile Include="Azure\TestRuns\TestStatsData.cs" />
     <Compile Include="ZipUtil.cs" />
   </ItemGroup>
   <ItemGroup>

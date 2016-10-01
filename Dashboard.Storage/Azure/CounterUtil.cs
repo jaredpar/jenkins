@@ -3,90 +3,112 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Dashboard.Azure
 {
-    public static class CounterUtil
+    /// <summary>
+    /// This type is used to implement counter functionality on the granularity of a day.
+    /// 
+    /// The approach is to let the date be the partition key.  The row key is a GUID.  This 
+    /// allows all writers to be unique.  Each writer stores a separate copy of the counter
+    /// that can be aggregated at query time.
+    ///
+    /// It is safe to use this type for getting / writing <see cref="ITableEntity"/> values from
+    /// multiple threads.  Each thread will get a different GUID to avoid write contention.
+    ///
+    /// The provided <see cref="CloudTable"/> is restricted to only hold an entity of a single
+    /// type.
+    /// </summary>
+    public sealed class CounterUtil<T>
+        where T : ITableEntity, new()
     {
-        public const char RowKeySeparatorChar = '!';
-        public const int MinuteInternal = 15;
-
-        private static readonly char[] s_rowKeySeparatorCharArray = new[] { RowKeySeparatorChar };
-
-        public static EntityKey GetEntityKey(CounterData counterData)
-        {
-            return new EntityKey(
-                GetPartitionKey(counterData.DateTime).Key,
-                GetRowKey(counterData));
-        }
-
-        public static DateKey GetPartitionKey(DateTimeOffset dateTime)
-        {
-            return new DateKey(dateTime);
-        }
-
-        public static string GetRowKey(CounterData counterData)
-        {
-            Debug.Assert(!counterData.EntityWriterId.Contains(RowKeySeparatorChar));
-            return $"{counterData.EntityWriterId}{RowKeySeparatorChar}{GetTimeOfDayTicks(counterData.DateTime)}{RowKeySeparatorChar}{counterData.IsJenkins}";
-        }
-
-        public static string GetEntityWriterId(string rowKey)
-        {
-            string entityWriterId;
-            long timeOfDayTicks;
-            bool isJenkins;
-            ParseRowKey(rowKey, out entityWriterId, out timeOfDayTicks, out isJenkins);
-            return entityWriterId;
-        }
-
-        public static void ParseRowKey(string rowKey, out string entityWriterId, out long timeOfDayTicks, out bool isJenkins)
-        {
-            var array = rowKey.Split(s_rowKeySeparatorCharArray, count: 3);
-            entityWriterId = array[0];
-            timeOfDayTicks = long.Parse(array[1]);
-            isJenkins = bool.Parse(array[2]);
-        }
+        private readonly object _guard = new object();
+        private readonly CloudTable _table;
 
         /// <summary>
-        /// Split a UTC <see cref="DateTime"/> into the components used by this Entity.  The time component
-        /// will be adjusted for the interval stored by this table.
+        /// Map to allow for efficient lookup of counter entities.  Don't have to query storage every time 
+        /// we need to grab it. 
         /// </summary>
-        public static long GetTimeOfDayTicks(DateTimeOffset dateTime)
+        private readonly Dictionary<int, T> _entityMap = new Dictionary<int, T>();
+
+        public CounterUtil(CloudTable table)
         {
-            var minute = dateTime.ToUniversalTime().TimeOfDay.Minutes;
-            minute = (minute / MinuteInternal) * MinuteInternal;
-            var timeOfDay = new TimeSpan(hours: dateTime.TimeOfDay.Hours, minutes: minute, seconds: 0);
-            return timeOfDay.Ticks;
+            _table = table;
         }
 
-        /// <summary>
-        /// Query counter entities between the specified dates (inclusive)
-        /// </summary>
-        public static TableQuery<T> CreateTableQuery<T>(DateTimeOffset startDate, DateTimeOffset endDate)
-            where T : CounterEntity, new()
+        public T GetEntity()
         {
-            var startDateKey = new DateKey(startDate);
-            var endDateKey = new DateKey(endDate);
-            var filter = TableQueryUtil.And(
-                TableQueryUtil.And(
-                    TableQueryUtil.PartitionKey(startDateKey.Key, ColumnOperator.GreaterThanOrEqual),
-                    TableQueryUtil.PartitionKey(endDateKey.Key, ColumnOperator.LessThanOrEqual)),
-                TableQueryUtil.And(
-                    TableQueryUtil.Column(nameof(CounterEntity.DateTimeUtcTicks), startDate.UtcTicks, ColumnOperator.GreaterThanOrEqual),
-                    TableQueryUtil.Column(nameof(CounterEntity.DateTimeUtcTicks), endDate.UtcTicks, ColumnOperator.LessThanOrEqual)));
+            var id = Thread.CurrentThread.ManagedThreadId;
+            lock (_guard)
+            {
+                var partitionKey = GetCurrentParitionKey();
+                T entity;
+                if (!_entityMap.TryGetValue(id, out entity) || entity.PartitionKey != partitionKey.Key)
+                {
+                    var rowKey = Guid.NewGuid().ToString("N");
+                    entity = new T();
+                    entity.PartitionKey = partitionKey.Key;
+                    entity.RowKey = Guid.NewGuid().ToString("N");
+                    _entityMap[id] = entity;
+                }
 
-            return new TableQuery<T>().Where(filter);
+                return entity;
+            }
         }
 
-        /// <summary>
-        /// Query counter entities between the specified dates (inclusive)
-        /// </summary>
-        public static IEnumerable<T> Query<T>(CloudTable table, DateTimeOffset startDate, DateTimeOffset endDate)
-            where T : CounterEntity, new()
+        public void Update(T entity)
         {
-            var query = CreateTableQuery<T>(startDate, endDate);
-            return table.ExecuteQuery(query);
+            var operation = TableOperation.InsertOrReplace(entity);
+            _table.Execute(operation);
+        }
+
+        public async Task UpdateAsync(T entity)
+        {
+            var operation = TableOperation.InsertOrReplace(entity);
+            await _table.ExecuteAsync(operation);
+        }
+
+        public IEnumerable<T> Query(DateTimeOffset startDate, DateTimeOffset endDate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var query = GetQueryString(startDate, endDate);
+            return AzureUtil.Query<T>(_table, query);
+        }
+
+        public IEnumerable<T> Query(DateTimeOffset date, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var key = DateTimeKey.GetKey(date, DateTimeKeyFlags.Date);
+            return AzureUtil.Query<T>(_table, TableQueryUtil.PartitionKey(key));
+        }
+
+        public async Task<List<T>> QueryAsync(DateTimeOffset startDate, DateTimeOffset endDate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var query = GetQueryString(startDate, endDate);
+            return await AzureUtil.QueryAsync<T>(_table, query, cancellationToken);
+        }
+
+        public async Task<List<T>> QueryAsync(DateTimeOffset date, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var key = DateTimeKey.GetKey(date, DateTimeKeyFlags.Date);
+            var query = TableQueryUtil.PartitionKey(key);
+            return await AzureUtil.QueryAsync<T>(_table, query, cancellationToken);
+        }
+
+        private static DateTimeKey GetCurrentParitionKey() => new DateTimeKey(DateTimeOffset.UtcNow, DateTimeKeyFlags.Date);
+
+        private static string GetQueryString(DateTimeOffset startDate, DateTimeOffset endDate)
+        {
+            var startKey = DateTimeKey.GetKey(startDate, DateTimeKeyFlags.Date);
+            var endKey = DateTimeKey.GetKey(endDate, DateTimeKeyFlags.Date);
+            if (startKey == endKey)
+            {
+                return TableQueryUtil.PartitionKey(startKey);
+            }
+
+            return TableQueryUtil.And(
+                TableQueryUtil.PartitionKey(startKey, ColumnOperator.GreaterThanOrEqual),
+                TableQueryUtil.PartitionKey(endKey, ColumnOperator.LessThanOrEqual));
         }
     }
 }

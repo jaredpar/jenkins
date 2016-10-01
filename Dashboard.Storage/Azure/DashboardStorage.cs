@@ -25,7 +25,7 @@ namespace Dashboard.Azure
             _storageAccount = storageAccount;
 
             var tableClient = _storageAccount.CreateCloudTableClient();
-            _testCacheCounterTable = tableClient.GetTableReference(AzureConstants.TableNames.TestCacheCounter);
+            _testCacheCounterTable = tableClient.GetTableReference(AzureConstants.TableNames.CounterTestCache);
 
             var blobClient = _storageAccount.CreateCloudBlobClient();
             _testResultsContainer = blobClient.GetContainerReference(AzureConstants.ContainerNames.TestResults);

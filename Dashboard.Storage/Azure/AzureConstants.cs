@@ -14,10 +14,14 @@ namespace Dashboard.Azure
             public const string BuildState = "BuildState";
             public const string BuildResultDate = "BuildResultDate";
             public const string BuildResultExact = "BuildResultExact";
-            public const string TestCacheCounter = "TestCacheCounter";
+            public const string CounterTestCache = "CounterTestCache";
+            public const string CounterTestCacheJenkins = "CounterTestCacheJenkins";
+            public const string CounterUnitTestQuery = "CounterUnitTestQuery";
+            public const string CounterUnitTestQueryJenkins = "CounterUnitTestQueryJenkins";
+            public const string CounterTestRun = "CounterTestRun";
+            public const string CounterTestRunJenkins = "CounterTestRunJenkins";
             public const string TestRunCounter = "TestRunCounter";
             public const string TestRunData = "TestRunData";
-            public const string UnitTestQueryCounter = "UnitTestQueryCounter";
             public const string ViewNameDate = "ViewNameDate";
 
             public static IEnumerable<string> All()
@@ -30,10 +34,14 @@ namespace Dashboard.Azure
                 yield return BuildResultDate;
                 yield return BuildResultExact;
                 yield return BuildProcessed;
-                yield return TestCacheCounter;
+                yield return CounterTestCache;
+                yield return CounterTestCacheJenkins;
+                yield return CounterUnitTestQuery;
+                yield return CounterUnitTestQueryJenkins;
+                yield return CounterTestRun;
+                yield return CounterTestRunJenkins;
                 yield return TestRunCounter;
                 yield return TestRunData;
-                yield return UnitTestQueryCounter;
                 yield return ViewNameDate;
             }
         }

@@ -40,7 +40,6 @@ namespace Dashboard.ApiFun
             // Random().Wait();
             // ViewNameMigration().Wait();
             // TestPopulator().Wait();
-            // MigrateCounter().Wait();
             // FindRetest();
             // PrintRetestInfo();
             // InspectReason(5567);
@@ -209,37 +208,6 @@ namespace Dashboard.ApiFun
             var encoded = Convert.ToBase64String(bytes);
             var header = $"Basic {encoded}";
             request.AddHeader("Authorization", header);
-        }
-
-        private static async Task MigrateCounter()
-        {
-            var account = GetStorageAccount();
-            var tableClient = account.CreateCloudTableClient();
-            var tableNames = new[]
-            {
-                AzureConstants.TableNames.TestCacheCounter,
-                AzureConstants.TableNames.TestRunCounter,
-                AzureConstants.TableNames.UnitTestQueryCounter
-            };
-            foreach (var tableName in tableNames)
-            {
-                var table = tableClient.GetTableReference(tableName);
-                var query = new TableQuery<DynamicTableEntity>().Select(new[] { "PartitionKey", "RowKey" });
-                var list = new List<DynamicTableEntity>();
-                foreach (var entity in table.ExecuteQuery(query))
-                {
-                    DateTime dateTime;
-                    if (!DateTime.TryParseExact(entity.PartitionKey, "yyyy-MM-dd", CultureInfo.CurrentCulture, DateTimeStyles.None, out dateTime))
-                    {
-                        continue;
-                    }
-
-                    list.Add(entity);
-                }
-
-                await AzureUtil.DeleteBatchUnordered(table, list);
-            }
-
         }
 
         private static void OomTest()
