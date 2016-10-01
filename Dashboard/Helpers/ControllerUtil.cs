@@ -14,12 +14,6 @@ namespace Dashboard.Helpers
             return CloudStorageAccount.Parse(connectionString);
         }
 
-        internal static DashboardStorage CreateDashboardStorage()
-        {
-            var storage = CreateStorageAccount();
-            return new DashboardStorage(storage);
-        }
-
         internal static JenkinsClient CreateJenkinsClient()
         {
             var connectionString = ConfigurationManager.AppSettings[SharedConstants.GithubConnectionStringName];

@@ -1,4 +1,5 @@
 ﻿using Dashboard.Azure;
+using Dashboard.Helpers;
 using Microsoft.Owin;
 using Microsoft.WindowsAzure;
 using Owin;
@@ -12,9 +13,7 @@ namespace Dashboard
         {
             ConfigureAuth(app);
 
-            var connectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
-            var storage = new DashboardStorage(connectionString);
-            AzureUtil.EnsureAzureResources(storage.StorageAccount);
+            AzureUtil.EnsureAzureResources(ControllerUtil.CreateStorageAccount());
         }
     }
 }

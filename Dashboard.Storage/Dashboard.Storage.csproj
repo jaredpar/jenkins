@@ -88,7 +88,6 @@
     <Compile Include="Azure\Builds\BuildTablePopulator.cs" />
     <Compile Include="Azure\Builds\BuildUtil.cs" />
     <Compile Include="Azure\CounterUtil.cs" />
-    <Compile Include="Azure\DashboardStorage.cs" />
     <Compile Include="Azure\DateKey.cs" />
     <Compile Include="Azure\EntityKey.cs" />
     <Compile Include="Azure\Extensions.cs" />

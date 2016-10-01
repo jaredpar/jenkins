@@ -12,20 +12,21 @@ using System.Web.Mvc;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Microsoft.WindowsAzure.Storage;
+using Dashboard.Helpers;
 
 namespace Dashboard.Controllers
 {
     public class BuildsController : Controller
     {
-        private readonly DashboardStorage _storage;
+        private readonly CloudStorageAccount _storageAccount;
         private readonly BuildUtil _buildUtil;
         private const int _ETRangeCount = 6;
 
         public BuildsController()
         {
-            var connectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
-            _storage = new DashboardStorage(connectionString);
-            _buildUtil = new BuildUtil(_storage.StorageAccount);
+            _storageAccount = ControllerUtil.CreateStorageAccount();
+            _buildUtil = new BuildUtil(_storageAccount);
         }
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace Dashboard.Controllers
         {
             var startDateValue = startDate ?? DateTimeOffset.UtcNow;
             var key = BuildStateEntity.GetPartitionKey(startDateValue);
-            var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildState);
+            var table = _storageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildState);
             var filter = TableQueryUtil.Column(nameof(TableEntity.PartitionKey), key, ColumnOperator.GreaterThanOrEqual);
             if (error)
             {
@@ -97,10 +98,10 @@ namespace Dashboard.Controllers
         public async Task StatusRefresh()
         {
             var key = BuildStateEntity.GetPartitionKey(DateTimeOffset.UtcNow);
-            var table = _storage.StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildState);
+            var table = _storageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildState);
             var query = TableQueryUtil.PartitionKey(key);
             var list = await AzureUtil.QueryAsync<BuildStateEntity>(table, query);
-            var queue = _storage.StorageAccount.CreateCloudQueueClient().GetQueueReference(AzureConstants.QueueNames.ProcessBuild);
+            var queue = _storageAccount.CreateCloudQueueClient().GetQueueReference(AzureConstants.QueueNames.ProcessBuild);
 
             foreach (var entity in list.Where(x => !x.IsDataComplete))
             {

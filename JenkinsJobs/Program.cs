@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Dashboard.Azure;
 using Microsoft.WindowsAzure;
+using Microsoft.WindowsAzure.Storage;
 
 namespace Dashboard.StorageBuilder
 {
@@ -11,8 +12,8 @@ namespace Dashboard.StorageBuilder
         public static void Main()
         {
             var connectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
-            var storage = new DashboardStorage(connectionString);
-            AzureUtil.EnsureAzureResources(storage.StorageAccount);
+            var storage = CloudStorageAccount.Parse(connectionString);
+            AzureUtil.EnsureAzureResources(storage);
 
             // Manually set the values vs. reading from connectionStrings.  Developing with connectionString
             // values is dangerous because you have to keep the password in the developer directory.  Can't use

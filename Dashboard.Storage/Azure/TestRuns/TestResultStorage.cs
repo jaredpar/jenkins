@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Microsoft.WindowsAzure.Storage.Blob;
+using System.Diagnostics;
+using Microsoft.WindowsAzure.Storage;
 
 namespace Dashboard.Azure.TestResults
 {
@@ -26,15 +28,21 @@ namespace Dashboard.Azure.TestResults
         }
 
         private const int SizeLimit = 10000000;
-        private readonly DashboardStorage _storage;
 
-        public DashboardStorage DashboardStorage => _storage;
-        public List<string> Keys => _storage.TestResultsContainer.ListBlobs().OfType<CloudBlockBlob>().Select(x => x.Name).ToList();
+        public CloudBlobContainer TestResultsContainer { get; }
+        public List<string> Keys => TestResultsContainer.ListBlobs().OfType<CloudBlockBlob>().Select(x => x.Name).ToList();
         public int Count => Keys.Count;
 
-        public TestResultStorage(DashboardStorage storage)
+        public TestResultStorage(CloudStorageAccount account)
         {
-            _storage = storage;
+            TestResultsContainer = account.CreateCloudBlobClient().GetContainerReference(AzureConstants.ContainerNames.TestResults);
+        }
+
+        public TestResultStorage(CloudBlobContainer testResultsContainer)
+        {
+            Debug.Assert(testResultsContainer.Name == AzureConstants.ContainerNames.TestResults);
+
+            TestResultsContainer = testResultsContainer;
         }
 
         public void Add(string key, TestResult value)
@@ -44,8 +52,7 @@ namespace Dashboard.Azure.TestResults
                 throw new Exception("Data too big");
             }
 
-            var container = _storage.TestResultsContainer;
-            var blob = container.GetBlockBlobReference(key);
+            var blob = TestResultsContainer.GetBlockBlobReference(key);
 
             var obj = new TestResultJson()
             {
@@ -66,7 +73,7 @@ namespace Dashboard.Azure.TestResults
 
         public bool TryGetValue(string key, out TestResult testResult)
         {
-            var blob = _storage.TestResultsContainer.GetBlockBlobReference(key);
+            var blob = TestResultsContainer.GetBlockBlobReference(key);
             if (!blob.Exists())
             {
                 testResult = default(TestResult);
@@ -92,7 +99,7 @@ namespace Dashboard.Azure.TestResults
         public int GetCount(DateTimeOffset? startDate)
         {
             var count = 0;
-            foreach (var blob in _storage.TestResultsContainer.ListBlobs().OfType<CloudBlockBlob>())
+            foreach (var blob in TestResultsContainer.ListBlobs().OfType<CloudBlockBlob>())
             {
                 var lastModified = blob.Properties.LastModified.Value.UtcDateTime;
                 if (!startDate.HasValue || lastModified >= startDate.Value)

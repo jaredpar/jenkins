@@ -20,10 +20,10 @@ namespace Dashboard.Controllers
 
         public StatusController()
         {
-            var storage = ControllerUtil.CreateDashboardStorage();
+            var storage = ControllerUtil.CreateStorageAccount();
             _testResultStorage = new TestResultStorage(storage);
-            _testCacheStats = new TestCacheStats(_testResultStorage);
-            _testRunTable = storage.StorageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.TestRunData);
+            _testCacheStats = new TestCacheStats(_testResultStorage, storage.CreateCloudTableClient());
+            _testRunTable = storage.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.TestRunData);
         }
 
         public ActionResult Index()

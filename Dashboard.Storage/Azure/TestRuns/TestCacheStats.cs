@@ -5,18 +5,14 @@ namespace Dashboard.Azure.TestResults
 {
     public sealed class TestCacheStats
     {
-        private readonly DashboardStorage _storage;
         private readonly TestResultStorage _testResultStorage;
         private readonly CounterUtil<UnitTestCounterEntity> _unitTestCounterUtil;
         private readonly CounterUtil<TestCacheCounterEntity> _testCacheCounterUtil;
         private readonly CounterUtil<TestRunCounterEntity> _testRunCounterUtil;
 
-        public TestCacheStats(TestResultStorage testResultStorage)
+        public TestCacheStats(TestResultStorage testResultStorage, CloudTableClient tableClient)
         {
             _testResultStorage = testResultStorage;
-            _storage = _testResultStorage.DashboardStorage;
-
-            var tableClient = _storage.StorageAccount.CreateCloudTableClient();
             _unitTestCounterUtil = new CounterUtil<UnitTestCounterEntity>(tableClient.GetTableReference(AzureConstants.TableNames.CounterUnitTestQuery));
             _testCacheCounterUtil = new CounterUtil<TestCacheCounterEntity>(tableClient.GetTableReference(AzureConstants.TableNames.CounterTestCache));
             _testRunCounterUtil = new CounterUtil<TestRunCounterEntity>(tableClient.GetTableReference(AzureConstants.TableNames.CounterTestRun));

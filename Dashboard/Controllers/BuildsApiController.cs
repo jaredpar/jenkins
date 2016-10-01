@@ -7,19 +7,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using Dashboard.Azure.Builds;
+using Dashboard.Helpers;
 
 namespace Dashboard.Controllers
 {
     public class BuildsApiController : ApiController
     {
-        private readonly DashboardStorage _storage;
         private readonly BuildUtil _buildUtil;
 
         public BuildsApiController()
         {
-            var connectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
-            _storage = new DashboardStorage(connectionString);
-            _buildUtil = new BuildUtil(_storage.StorageAccount);
+            var storageAccount = ControllerUtil.CreateStorageAccount();
+            _buildUtil = new BuildUtil(storageAccount);
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using Dashboard.Azure;
 using Dashboard.Azure.TestResults;
+using Microsoft.WindowsAzure.Storage.Table;
 using System;
 using static Dashboard.Azure.AzureConstants;
 
@@ -14,9 +15,8 @@ namespace Dashboard.Helpers
         private readonly CounterUtil<TestRunCounterEntity> _testRunEntityUtil;
         private readonly CounterUtil<TestRunCounterEntity> _testRunEntityUtilJenkins;
 
-        public CounterStatsUtil(DashboardStorage storage)
+        public CounterStatsUtil(CloudTableClient client)
         {
-            var client = storage.StorageAccount.CreateCloudTableClient();
             _testCacheEntityUtil = new CounterUtil<TestCacheCounterEntity>(client.GetTableReference(TableNames.CounterTestCache));
             _testCacheEntityUtilJenkins = new CounterUtil<TestCacheCounterEntity>(client.GetTableReference(TableNames.CounterTestCacheJenkins));
             _unitTestEntityUtil = new CounterUtil<UnitTestCounterEntity>(client.GetTableReference(TableNames.CounterUnitTestQuery));

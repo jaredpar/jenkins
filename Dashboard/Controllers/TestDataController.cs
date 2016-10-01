@@ -21,10 +21,9 @@ namespace Dashboard.Controllers
         public TestDataController()
         {
             _storageAccount = ControllerUtil.CreateStorageAccount();
-            var dashboardStorage = new DashboardStorage(_storageAccount);
-            _storage = new TestResultStorage(dashboardStorage);
-            _stats = new TestCacheStats(_storage);
-            _statsUtil = new CounterStatsUtil(dashboardStorage);
+            _storage = new TestResultStorage(_storageAccount);
+            _stats = new TestCacheStats(_storage, _storageAccount.CreateCloudTableClient());
+            _statsUtil = new CounterStatsUtil(_storageAccount.CreateCloudTableClient());
         }
 
         [Route("cache/{id}")]
