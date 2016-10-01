@@ -1,4 +1,4 @@
-﻿namespace Dashboard.Azure.TestResults
+﻿namespace Dashboard.Azure.TestRuns
 {
     /// <summary>
     /// TODO: Does this belong here?

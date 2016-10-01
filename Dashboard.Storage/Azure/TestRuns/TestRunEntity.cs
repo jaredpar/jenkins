@@ -2,7 +2,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Dashboard.Azure.TestResults
+namespace Dashboard.Azure.TestRuns
 {
     /// <summary>
     /// Information about a test run.

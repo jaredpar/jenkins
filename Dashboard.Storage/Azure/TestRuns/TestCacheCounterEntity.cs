@@ -1,6 +1,6 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
 
-namespace Dashboard.Azure.TestResults
+namespace Dashboard.Azure.TestRuns
 {
     /// <summary>
     /// Entity keeping track of hit / miss counts for <see cref="TestResult"/> instances in the cache.  The rows

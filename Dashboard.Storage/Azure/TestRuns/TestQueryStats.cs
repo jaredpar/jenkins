@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dashboard.Azure.TestResults
+namespace Dashboard.Azure.TestRuns
 {
     /// <summary>
     /// Information about successful test queries returned to clients.

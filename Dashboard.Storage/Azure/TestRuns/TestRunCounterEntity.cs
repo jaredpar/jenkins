@@ -1,6 +1,6 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
 
-namespace Dashboard.Azure.TestResults
+namespace Dashboard.Azure.TestRuns
 {
     public sealed class TestRunCounterEntity : TableEntity
     {

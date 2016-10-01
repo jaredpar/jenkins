@@ -1,5 +1,5 @@
 ﻿using Dashboard.Azure;
-using Dashboard.Azure.TestResults;
+using Dashboard.Azure.TestRuns;
 using Dashboard.Helpers;
 using Dashboard.Helpers.Json;
 using Microsoft.WindowsAzure.Storage;

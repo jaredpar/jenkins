@@ -6,7 +6,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using System.Diagnostics;
 using Microsoft.WindowsAzure.Storage;
 
-namespace Dashboard.Azure.TestResults
+namespace Dashboard.Azure.TestRuns
 {
     /// <summary>
     /// This is a proof of concept implementation only.  I realize that its implementation is pretty terrible

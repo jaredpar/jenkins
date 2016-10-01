@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dashboard.Azure.TestResults
+namespace Dashboard.Azure.TestRuns
 {
     public struct BuildSource
     {

@@ -8,7 +8,7 @@ using System.Web.Mvc;
 using Dashboard.Azure;
 using System.Diagnostics;
 using Microsoft.WindowsAzure.Storage.Table;
-using Dashboard.Azure.TestResults;
+using Dashboard.Azure.TestRuns;
 
 namespace Dashboard.Controllers
 {
