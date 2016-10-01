@@ -20,7 +20,6 @@ namespace Dashboard.Azure
             public const string CounterUnitTestQueryJenkins = "CounterUnitTestQueryJenkins";
             public const string CounterTestRun = "CounterTestRun";
             public const string CounterTestRunJenkins = "CounterTestRunJenkins";
-            public const string TestRunCounter = "TestRunCounter";
             public const string TestRunData = "TestRunData";
             public const string ViewNameDate = "ViewNameDate";
 
@@ -40,7 +39,6 @@ namespace Dashboard.Azure
                 yield return CounterUnitTestQueryJenkins;
                 yield return CounterTestRun;
                 yield return CounterTestRunJenkins;
-                yield return TestRunCounter;
                 yield return TestRunData;
                 yield return ViewNameDate;
             }
