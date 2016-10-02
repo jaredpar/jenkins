@@ -119,7 +119,7 @@ namespace Dashboard.Azure.Builds
         public static EntityKey GetDateEntityKey(DateTimeOffset buildDate, BuildId buildId)
         {
             return new EntityKey(
-                new DateKey(buildDate).Key,
+                DateTimeKey.GetDateKey(buildDate),
                 new BuildKey(buildId).Key);
         }
     }

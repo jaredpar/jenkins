@@ -105,7 +105,7 @@ namespace Dashboard.Azure.Builds
         {
             identifier = AzureUtil.NormalizeKey(identifier, '_');
             return new EntityKey(
-                new DateKey(buildDate).Key,
+                DateTimeKey.GetDateKey(buildDate),
                 $"{new BuildKey(buildId).Key}-{identifier}");
         }
 

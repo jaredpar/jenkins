@@ -146,6 +146,14 @@ namespace Dashboard.Azure
             }
         }
 
+        /// <summary>
+        /// Delete the set of entities described by the provided keys.  The <see cref="ITableEntity.ETag"/> will be set 
+        /// to '*' so the deletes are unconditional.
+        /// </summary>
+        public static async Task DeleteBatchUnordered(CloudTable table, IEnumerable<EntityKey> entityList)
+        {
+            await DeleteBatchUnordered(table, GetDynamicList(entityList, etag: "*"));
+        }
 
         /// <summary>
         /// Delete a raw list that is not grouped by partition keys. 
@@ -157,6 +165,15 @@ namespace Dashboard.Azure
             {
                 await DeleteBatch(table, group.ToList());
             }
+        }
+
+        /// <summary>
+        /// Delete the set of entities described by the provided keys.  The <see cref="ITableEntity.ETag"/> will be set 
+        /// to '*' so the deletes are unconditional.
+        /// </summary>
+        public static async Task DeleteBatch(CloudTable table, IEnumerable<EntityKey> entityList)
+        {
+            await DeleteBatch(table, GetDynamicList(entityList, etag: "*"));
         }
 
         /// <summary>
@@ -187,6 +204,20 @@ namespace Dashboard.Azure
             {
                 await table.ExecuteBatchAsync(operation);
             }
+        }
+
+        public static List<DynamicTableEntity> GetDynamicList(IEnumerable<EntityKey> keys, string etag = null)
+        {
+            var list = new List<DynamicTableEntity>();
+            foreach (var key in keys)
+            {
+                var entity = new DynamicTableEntity();
+                entity.SetEntityKey(key);
+                entity.ETag = etag;
+                list.Add(entity);
+            }
+
+            return list;
         }
 
         // TODO: Delete

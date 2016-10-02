@@ -72,8 +72,8 @@ namespace Dashboard.Azure.Builds
 
         public List<string> GetViewNames(DateTimeOffset startDate)
         {
-            var key = new DateKey(startDate);
-            var filter = TableQueryUtil.PartitionKey(key.Key, ColumnOperator.GreaterThanOrEqual);
+            var key = DateTimeKey.GetDateKey(startDate);
+            var filter = TableQueryUtil.PartitionKey(key, ColumnOperator.GreaterThanOrEqual);
             var query = new TableQuery<ViewNameEntity>().Where(filter);
             var viewNameList = _viewNameDateTable.ExecuteQuery(query);
 
@@ -85,8 +85,8 @@ namespace Dashboard.Azure.Builds
 
         private static string FilterSinceDate(DateTimeOffset startDate)
         {
-            var key = new DateKey(startDate);
-            return TableQueryUtil.Column(ColumnName.PartitionKey, key.Key, ColumnOperator.GreaterThanOrEqual);
+            var key = DateTimeKey.GetDateKey(startDate);
+            return TableQueryUtil.Column(ColumnName.PartitionKey, key, ColumnOperator.GreaterThanOrEqual);
         }
 
         private static string FilterView(string query, string viewName)

@@ -1,4 +1,5 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
+using System;
 
 namespace Dashboard.Azure.Builds
 {
@@ -8,7 +9,7 @@ namespace Dashboard.Azure.Builds
     /// </summary>
     public sealed class ViewNameEntity : TableEntity
     {
-        public DateKey DateKey => DateKey.Parse(PartitionKey);
+        public DateTimeKey DateTimeKey => DateTimeKey.ParseDateTimeKey(PartitionKey, DateTimeKeyFlags.Date);
         public string ViewName => RowKey;
 
         public ViewNameEntity()
@@ -16,9 +17,9 @@ namespace Dashboard.Azure.Builds
 
         }
 
-        public ViewNameEntity(DateKey dateKey, string viewName)
+        public ViewNameEntity(DateTimeOffset date, string viewName)
         {
-            PartitionKey = dateKey.Key;
+            PartitionKey = DateTimeKey.GetDateKey(date);
             RowKey = viewName;
         }
     }

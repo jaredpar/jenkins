@@ -95,8 +95,27 @@ namespace Dashboard.ApiFun
             var account = GetStorageAccount();
             var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(SharedConstants.DotnetJenkinsHostName), Console.Out);
             await populator.PopulateBuild(buildId);
+        }
+
+        /// <summary>
+        /// Used to migrate a table which is indexed by <see cref="DateKey"/> to <see cref="DateTimeKey"/>.  The latter is preferred as
+        /// it has a predictable partition key.  Makes it easier to access items in tools like storage explorer.
+        /// </summary>
+        private static async Task MigrateDateKey()
+        {
 
         }
+
+        private static async Task MigrateDateKeyCore<T>(string tableName)
+            where T : ITableEntity, new()
+        {
+            var account = GetStorageAccount();
+            var table = account.CreateCloudTableClient().GetTableReference(tableName);
+
+
+
+        }
+
 
         private static async Task DrainPoisonBuildQueue()
         {

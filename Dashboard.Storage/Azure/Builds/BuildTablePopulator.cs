@@ -100,8 +100,7 @@ namespace Dashboard.Azure.Builds
         {
             try
             {
-                var dateKey = new DateKey(buildDate);
-                var entity = new ViewNameEntity(dateKey, AzureUtil.GetViewName(jobId));
+                var entity = new ViewNameEntity(buildDate, AzureUtil.GetViewName(jobId));
                 var op = TableOperation.Insert(entity);
                 await _viewNameDateTable.ExecuteAsync(op);
             }
