@@ -103,6 +103,7 @@
     <Compile Include="BuildKeyTests.cs" />
     <Compile Include="BuildResultEntityTests.cs" />
     <Compile Include="BuildTablePopulatorTests.cs" />
+    <Compile Include="CounterUtilTests.cs" />
     <Compile Include="DateTimeKeyTests.cs" />
     <Compile Include="DateKeyTests.cs" />
     <Compile Include="EqualityUnit.cs" />

@@ -33,6 +33,8 @@ namespace Dashboard.Azure
             Flags = flags;
         }
 
+        public static string GetDateKey(DateTimeOffset dateTime) => GetKey(dateTime, DateTimeKeyFlags.Date);
+
         public static string GetKey(DateTimeOffset dateTime, DateTimeKeyFlags flags)
         {
             var builder = new StringBuilder();

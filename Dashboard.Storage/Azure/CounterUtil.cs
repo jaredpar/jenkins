@@ -25,7 +25,6 @@ namespace Dashboard.Azure
         where T : ITableEntity, new()
     {
         private readonly object _guard = new object();
-        private readonly CloudTable _table;
 
         /// <summary>
         /// Map to allow for efficient lookup of counter entities.  Don't have to query storage every time 
@@ -33,9 +32,11 @@ namespace Dashboard.Azure
         /// </summary>
         private readonly Dictionary<int, T> _entityMap = new Dictionary<int, T>();
 
+        public CloudTable Table { get; }
+
         public CounterUtil(CloudTable table)
         {
-            _table = table;
+            Table = table;
         }
 
         public T GetEntity()
@@ -61,46 +62,46 @@ namespace Dashboard.Azure
         public void Update(T entity)
         {
             var operation = TableOperation.InsertOrReplace(entity);
-            _table.Execute(operation);
+            Table.Execute(operation);
         }
 
         public async Task UpdateAsync(T entity)
         {
             var operation = TableOperation.InsertOrReplace(entity);
-            await _table.ExecuteAsync(operation);
+            await Table.ExecuteAsync(operation);
         }
 
         public IEnumerable<T> Query(DateTimeOffset startDate, DateTimeOffset endDate, CancellationToken cancellationToken = default(CancellationToken))
         {
             var query = GetQueryString(startDate, endDate);
-            return AzureUtil.Query<T>(_table, query);
+            return AzureUtil.Query<T>(Table, query);
         }
 
         public IEnumerable<T> Query(DateTimeOffset date, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var key = DateTimeKey.GetKey(date, DateTimeKeyFlags.Date);
-            return AzureUtil.Query<T>(_table, TableQueryUtil.PartitionKey(key));
+            var key = DateTimeKey.GetDateKey(date);
+            return AzureUtil.Query<T>(Table, TableQueryUtil.PartitionKey(key));
         }
 
         public async Task<List<T>> QueryAsync(DateTimeOffset startDate, DateTimeOffset endDate, CancellationToken cancellationToken = default(CancellationToken))
         {
             var query = GetQueryString(startDate, endDate);
-            return await AzureUtil.QueryAsync<T>(_table, query, cancellationToken);
+            return await AzureUtil.QueryAsync<T>(Table, query, cancellationToken);
         }
 
         public async Task<List<T>> QueryAsync(DateTimeOffset date, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var key = DateTimeKey.GetKey(date, DateTimeKeyFlags.Date);
+            var key = DateTimeKey.GetDateKey(date);
             var query = TableQueryUtil.PartitionKey(key);
-            return await AzureUtil.QueryAsync<T>(_table, query, cancellationToken);
+            return await AzureUtil.QueryAsync<T>(Table, query, cancellationToken);
         }
 
         private static DateTimeKey GetCurrentParitionKey() => new DateTimeKey(DateTimeOffset.UtcNow, DateTimeKeyFlags.Date);
 
         private static string GetQueryString(DateTimeOffset startDate, DateTimeOffset endDate)
         {
-            var startKey = DateTimeKey.GetKey(startDate, DateTimeKeyFlags.Date);
-            var endKey = DateTimeKey.GetKey(endDate, DateTimeKeyFlags.Date);
+            var startKey = DateTimeKey.GetDateKey(startDate);
+            var endKey = DateTimeKey.GetDateKey(endDate);
             if (startKey == endKey)
             {
                 return TableQueryUtil.PartitionKey(startKey);
