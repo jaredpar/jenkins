@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace Dashboard.Jenkins
 {
-    public sealed class JenkinsClient
+    public sealed partial class JenkinsClient
     {
         private readonly Uri _baseUrl;
         private readonly IRestClient _restClient;
@@ -178,16 +178,36 @@ namespace Dashboard.Jenkins
 
         public List<string> GetFailedTestCases(BuildId id)
         {
-            List<string> list = null;
-            GetJsonReader(JenkinsUtil.GetTestReportPath(id), r => list = JsonUtil.ParseTestCaseListFailed(r));
-            return list;
+            var util = GetJsonReaderCore(JenkinsUtil.GetTestReportPath(id), JsonUtil.ParseTestCaseListFailed);
+            return GetFailedTestCasesCore(util);
         }
 
         public async Task<List<string>> GetFailedTestCasesAsync(BuildId id)
         {
-            List<string> list = null;
-            await GetJsonReaderAsync(JenkinsUtil.GetTestReportPath(id), r => list = JsonUtil.ParseTestCaseListFailed(r));
-            return list;
+            var util = await GetJsonReaderCoreAsync(JenkinsUtil.GetTestReportPath(id), JsonUtil.ParseTestCaseListFailed);
+            return GetFailedTestCasesCore(util);
+        }
+
+        private List<string> GetFailedTestCasesCore(JsonReaderUtil<List<string>> util)
+        {
+            if (util.Succeeded)
+            {
+                return util.Value;
+            }
+
+            // In the case there is no test file then simply return an empty list.  This is common in jobs that 
+            // don't produce proper files.
+            if (util.Response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return new List<string>();
+            }
+
+            if (util.Exception != null)
+            {
+                throw util.Exception;
+            }
+
+            throw new Exception($"Unexpected error parsing test results: {util.Response.StatusCode}");
         }
 
         public QueuedItemInfo GetQueuedItemInfo(int number)
@@ -330,38 +350,22 @@ namespace Dashboard.Jenkins
             return ParseJsonCore(response);
         }
 
-        public IRestResponse GetJsonReader(string urlPath, Action<JsonReader> reader, bool pretty = false, string tree = null, int? depth = null)
+        private JsonReaderUtil<T> GetJsonReaderCore<T>(string urlPath, Func<JsonReader, T> func, bool pretty = false, string tree = null, int? depth = null)
         {
+            var util = new JsonReaderUtil<T>(func);
             var request = GetJsonRestRequest(urlPath, pretty, tree, depth);
-            request.ResponseWriter = GetJsonReaderAction(reader);
-            return GetJsonReaderCore(_restClient.Execute(request));
+            request.ResponseWriter = util.Run;
+            util.Response = _restClient.Execute(request);
+            return util;
         }
 
-        public async Task<IRestResponse> GetJsonReaderAsync(string urlPath, Action<JsonReader> reader, bool pretty = false, string tree = null, int? depth = null)
+        private async Task<JsonReaderUtil<T>> GetJsonReaderCoreAsync<T>(string urlPath, Func<JsonReader, T> func, bool pretty = false, string tree = null, int? depth = null)
         {
+            var util = new JsonReaderUtil<T>(func);
             var request = GetJsonRestRequest(urlPath, pretty, tree, depth);
-            request.ResponseWriter = GetJsonReaderAction(reader);
-            return GetJsonReaderCore(await _restClient.ExecuteTaskAsync(request));
-        }
-
-        private IRestResponse GetJsonReaderCore(IRestResponse response)
-        {
-            if (response.ErrorException != null)
-            {
-                throw response.ErrorException;
-            }
-
-            return response;
-        }
-
-        private static Action<Stream> GetJsonReaderAction(Action<JsonReader> action)
-        {
-            return stream =>
-            {
-                var streamReader = new StreamReader(stream);
-                var jsonReader = new JsonTextReader(streamReader);
-                action(jsonReader);
-            };
+            request.ResponseWriter = util.Run;
+            util.Response = await _restClient.ExecuteTaskAsync(request);
+            return util;
         }
 
         private static JObject ParseJsonCore(IRestResponse response)

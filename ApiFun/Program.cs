@@ -23,14 +23,9 @@ namespace Dashboard.ApiFun
     {
         internal static void Main(string[] args)
         {
-            // JenkinsDataUtil.Go();
-            // FillData().Wait();
-            // PrintMacTimes();
-            // var util = new MachineCountInvestigation(CreateClient());
-            // util.Go();
-            // GetMacQueueTimes();
-            // TestJob().Wait();
             TestFailure().Wait();
+            // MigrateDateKey().Wait();
+
             //WriteJobList().Wait();
             // Test().Wait();
             // DrainQueue().Wait();
@@ -103,19 +98,42 @@ namespace Dashboard.ApiFun
         /// </summary>
         private static async Task MigrateDateKey()
         {
-
+            // await MigrateDateKeyCore<ViewNameEntity>(TableNames.ViewNameDate);
+            await MigrateDateKeyCore<BuildResultEntity>(TableNames.BuildResultDate);
+            await MigrateDateKeyCore<BuildFailureEntity>(TableNames.BuildFailureDate);
         }
 
         private static async Task MigrateDateKeyCore<T>(string tableName)
             where T : ITableEntity, new()
         {
+            Console.WriteLine($"Processing {tableName}");
+
             var account = GetStorageAccount();
             var table = account.CreateCloudTableClient().GetTableReference(tableName);
 
+            var startKey = new DateKey(DateKey.StartDate);
+            var endKey = new DateKey(DateTimeOffset.UtcNow);
+            var query = TableQueryUtil.And(
+                TableQueryUtil.PartitionKey(startKey.Key, ColumnOperator.GreaterThanOrEqual),
+                TableQueryUtil.PartitionKey(endKey.Key, ColumnOperator.LessThanOrEqual));
+            var list = await AzureUtil.QueryAsync<T>(table, query);
+            Console.WriteLine($"Processing {list.Count} entities");
+            var deleteList = new List<EntityKey>();
+            foreach (var entity in list)
+            {
+                deleteList.Add(entity.GetEntityKey());
 
+                var dateKey = DateKey.Parse(entity.PartitionKey);
+                var dateTimeKey = new DateTimeKey(dateKey.Date, DateTimeKeyFlags.Date);
+                entity.PartitionKey = dateTimeKey.Key;
+            }
 
+            Console.WriteLine("Writing new values");
+            await AzureUtil.InsertBatchUnordered(table, list);
+
+            Console.WriteLine("Deleting old values");
+            await AzureUtil.DeleteBatchUnordered(table, deleteList);
         }
-
 
         private static async Task DrainPoisonBuildQueue()
         {
@@ -275,12 +293,17 @@ namespace Dashboard.ApiFun
         /// <returns></returns>
         private static async Task TestFailure()
         {
+            /*
             var name = "Private/Microsoft_vstest/master/Microsoft_vstest_Release_prtest";
             var number = 119;
             var host = SharedConstants.DotnetJenkinsHostName;
-
             var jobId = JobId.ParseName(name);
             var boundBuildId = new BoundBuildId(host, new BuildId(number, jobId));
+            */
+
+            var url = "http://dotnet-ci.cloudapp.net/job/dotnet_roslyn-project-system/job/master/job/vsi/168";
+            var boundBuildId = BoundBuildId.Parse(url);
+
             var buildId = boundBuildId.BuildId;
             var account = GetStorageAccount();
             var client = CreateClient(boundBuildId);
@@ -327,34 +350,6 @@ namespace Dashboard.ApiFun
                     }
                 }
             }
-        }
-
-        private static async Task ViewNameMigration()
-        {
-            var account = GetStorageAccount();
-            var client = account.CreateCloudTableClient();
-            var viewNameTable = client.GetTableReference(AzureConstants.TableNames.ViewNameDate);
-            var buildResultTable = client.GetTableReference(AzureConstants.TableNames.BuildResultDate);
-            var startDate = DateTimeOffset.UtcNow - TimeSpan.FromDays(14);
-
-            var query = new TableQuery<DynamicTableEntity>()
-                .Where(TableQueryUtil.PartitionKey((new DateKey(startDate)).Key, ColumnOperator.GreaterThanOrEqual))
-                .Select(new[] { "PartitionKey", nameof(BuildResultEntity.ViewName) });
-            var all = await AzureUtil.QueryAsync(buildResultTable, query);
-            var set = new HashSet<Tuple<DateKey, string>>();
-            var list = new List<ViewNameEntity>();
-            foreach (var entity in all)
-            {
-                var dateKey = DateKey.Parse(entity.PartitionKey);
-                var viewName = entity.Properties[nameof(BuildResultEntity.ViewName)].StringValue;
-                var tuple = Tuple.Create(dateKey, viewName);
-                if (set.Add(tuple))
-                {
-                    list.Add(new ViewNameEntity(dateKey, viewName));
-                }
-            }
-
-            await AzureUtil.InsertBatchUnordered(viewNameTable, list);
         }
 
         private static async Task TestPopulator()

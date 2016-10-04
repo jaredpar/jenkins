@@ -66,6 +66,7 @@
     <Compile Include="XmlUtil.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="JenkinsClient.JsonReaderUtil.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

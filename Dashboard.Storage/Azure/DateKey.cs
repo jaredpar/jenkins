@@ -19,14 +19,14 @@ namespace Dashboard.Azure
         public DateKey(DateTime date)
         {
             Debug.Assert(date.Kind == DateTimeKind.Utc);
-            Debug.Assert(date > StartDate);
+            Debug.Assert(date >= StartDate);
             Date = date.Date;
             Debug.Assert(0 == Date.Offset.Ticks);
         }
 
         public DateKey(DateTimeOffset date)
         {
-            Debug.Assert(date > StartDate);
+            Debug.Assert(date >= StartDate);
             Date = date.ToUniversalTime();
         }
 
