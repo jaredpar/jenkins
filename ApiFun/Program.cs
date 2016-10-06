@@ -16,6 +16,7 @@ using System.Globalization;
 using Newtonsoft.Json;
 using static Dashboard.Azure.AzureConstants;
 using Microsoft.WindowsAzure.Storage.Queue;
+using Dashboard.Azure.TestRuns;
 
 namespace Dashboard.ApiFun
 {
@@ -23,8 +24,10 @@ namespace Dashboard.ApiFun
     {
         internal static void Main(string[] args)
         {
-            TestFailure().Wait();
+            // TestFailure().Wait();
+            // TestFailureYesterday(-3).Wait();
             // MigrateDateKey().Wait();
+            CollapseCounters().Wait();
 
             //WriteJobList().Wait();
             // Test().Wait();
@@ -163,6 +166,75 @@ namespace Dashboard.ApiFun
         {
             var item = new BuildDrainer();
             await item.Go();
+        }
+
+        private static async Task CollapseCounters()
+        {
+            await CollapseCountersCore<TestCacheCounterEntity>(
+                (x, y) => new TestCacheCounterEntity()
+                {
+                    HitCount = x.HitCount + y.HitCount,
+                    MissCount = x.MissCount + y.MissCount,
+                    StoreCount = x.StoreCount + y.StoreCount
+                },
+                TableNames.CounterTestCache,
+                TableNames.CounterTestCacheJenkins);
+
+            await CollapseCountersCore<UnitTestCounterEntity>(
+                (x, y) => new UnitTestCounterEntity()
+                {
+                    AssemblyCount = x.AssemblyCount + y.AssemblyCount,
+                    ElapsedSeconds = x.ElapsedSeconds + y.ElapsedSeconds,
+                    TestsFailed = x.TestsFailed + y.TestsFailed,
+                    TestsPassed = x.TestsPassed + y.TestsPassed,
+                    TestsSkipped = x.TestsSkipped + y.TestsSkipped,
+                },
+                TableNames.CounterUnitTestQuery,
+                TableNames.CounterUnitTestQueryJenkins);
+
+            await CollapseCountersCore<TestRunCounterEntity>(
+                (x, y) => new TestRunCounterEntity()
+                {
+                    RunCount = x.RunCount + y.RunCount,
+                    SucceededCount = x.SucceededCount + y.SucceededCount
+                },
+                TableNames.CounterTestRun,
+                TableNames.CounterTestRunJenkins);
+        }
+
+        private static async Task CollapseCountersCore<T>(Func<T, T, T> aggregate, params string[] tableNames)
+            where T : class, ITableEntity, new()
+        {
+            var account = GetStorageAccount();
+            var client = account.CreateCloudTableClient();
+            foreach (var tableName in tableNames)
+            {
+                Console.WriteLine($"Processing {tableName}");
+                var table = client.GetTableReference(tableName);
+
+                var currentList = await AzureUtil.QueryAsync(table, new TableQuery<T>());
+                var list = new List<T>();
+                foreach (var group in currentList.GroupBy(x => x.PartitionKey))
+                {
+                    T final = null;
+                    foreach (var item in group)
+                    {
+                        final = final == null
+                            ? item
+                            : aggregate(final, item);
+                    }
+
+                    if (final != null)
+                    {
+                        final.PartitionKey = group.Key;
+                        final.RowKey = Guid.NewGuid().ToString("N");
+                        list.Add(final);
+                    }
+                }
+
+                await AzureUtil.InsertBatchUnordered(table, list);
+                await AzureUtil.DeleteBatchUnordered(table, currentList);
+            }
         }
 
         /*
@@ -316,6 +388,35 @@ namespace Dashboard.ApiFun
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+            }
+        }
+
+        private static async Task TestFailureYesterday(int days = -1)
+        {
+            var account = GetStorageAccount();
+            var tableClient = account.CreateCloudTableClient();
+            var table = tableClient.GetTableReference(TableNames.BuildState);
+            var date = DateTimeOffset.UtcNow.AddDays(days);
+            var query = TableQueryUtil.And(
+                TableQueryUtil.PartitionKey(DateTimeKey.GetDateKey(date)),
+                TableQueryUtil.Column(nameof(BuildStateEntity.IsBuildFinished), true),
+                TableQueryUtil.Column(nameof(BuildStateEntity.IsDataComplete), false));
+            var list = await AzureUtil.QueryAsync<BuildStateEntity>(table, query);
+
+            foreach (var entity in list)
+            {
+                var populator = new BuildTablePopulator(tableClient, CreateClient(entity.BoundBuildId), TextWriter.Null);
+                try
+                {
+                    Console.Write($"{entity.BuildId} ... ");
+                    await populator.PopulateBuild(entity.BuildId);
+                    Console.WriteLine("good");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("ERRROR");
+                    Console.WriteLine(ex);
+                }
             }
         }
 

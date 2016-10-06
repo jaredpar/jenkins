@@ -6,6 +6,11 @@ using static Dashboard.Azure.AzureConstants;
 
 namespace Dashboard.Helpers
 {
+    /// <summary>
+    /// This type is used to implement counter functionality for tests caching.
+    ///
+    /// It is safe to invoke methods on this type in parallel.
+    /// </summary>
     public sealed class CounterStatsUtil
     {
         private readonly CounterUtil<TestCacheCounterEntity> _testCacheEntityUtil;
@@ -36,9 +41,7 @@ namespace Dashboard.Helpers
 
         private static void AddHit(CounterUtil<TestCacheCounterEntity> util)
         {
-            var entity = util.GetEntity();
-            entity.HitCount++;
-            util.Update(entity);
+            util.Update(entity => entity.HitCount++);
         }
 
         public void AddMiss(bool isJenkins)
@@ -51,10 +54,8 @@ namespace Dashboard.Helpers
         }
 
         private static void AddMiss(CounterUtil<TestCacheCounterEntity> util)
-        { 
-            var entity = util.GetEntity();
-            entity.MissCount++;
-            util.Update(entity);
+        {
+            util.Update(entity => entity.MissCount++);
         }
 
         public void AddStore(bool isJenkins)
@@ -67,10 +68,8 @@ namespace Dashboard.Helpers
         }
 
         private static void AddStore(CounterUtil<TestCacheCounterEntity> util)
-        { 
-            var entity = util.GetEntity();
-            entity.StoreCount++;
-            util.Update(entity);
+        {
+            util.Update(entity => entity.StoreCount++);
         }
 
         public void AddUnitTestQuery(UnitTestData unitTestData, TimeSpan elapsed, bool isJenkins)
@@ -83,14 +82,15 @@ namespace Dashboard.Helpers
         }
 
         private static void AddUnitTestQuery(CounterUtil<UnitTestCounterEntity> util, UnitTestData unitTestData, TimeSpan elapsed)
-        { 
-            var entity = util.GetEntity();
-            entity.AssemblyCount++;
-            entity.TestsPassed += unitTestData.Passed;
-            entity.TestsFailed += unitTestData.Failed;
-            entity.TestsSkipped += unitTestData.Skipped;
-            entity.ElapsedSeconds += (long)elapsed.TotalSeconds;
-            util.Update(entity);
+        {
+            util.Update(entity =>
+            {
+                entity.AssemblyCount++;
+                entity.TestsPassed += unitTestData.Passed;
+                entity.TestsFailed += unitTestData.Failed;
+                entity.TestsSkipped += unitTestData.Skipped;
+                entity.ElapsedSeconds += (long)elapsed.TotalSeconds;
+            });
         }
 
         public void AddTestRun(bool succeeded, bool isJenkins)
@@ -103,14 +103,15 @@ namespace Dashboard.Helpers
         }
 
         private static void AddTestRun(CounterUtil<TestRunCounterEntity> util, bool succeeded)
-        { 
-            var entity = util.GetEntity();
-            entity.RunCount++;
-            if (succeeded)
+        {
+            util.Update(entity =>
             {
-                entity.SucceededCount++;
-            }
-            util.Update(entity);
+                entity.RunCount++;
+                if (succeeded)
+                {
+                    entity.SucceededCount++;
+                }
+            });
         }
     }
 }

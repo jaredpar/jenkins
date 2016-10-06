@@ -38,12 +38,14 @@ namespace Dashboard.Tests
         [Fact]
         public async Task Basic()
         {
-            var entity = CounterUtil.GetEntity();
-            Assert.Equal(0, entity.Count);
-            entity.Count++;
-            await CounterUtil.UpdateAsync(entity);
+            var date = DateTimeOffset.UtcNow;
+            await CounterUtil.UpdateAsync(entity =>
+            {
+                Assert.Equal(0, entity.Count);
+                entity.Count++;
+            });
 
-            var foundEntity = await AzureUtil.QueryAsync<TestEntity>(Table, entity.GetEntityKey());
+            var foundEntity = await CounterUtil.QueryAsync(date);
             Assert.Equal(1, foundEntity.Count);
         }
 
@@ -65,9 +67,7 @@ namespace Dashboard.Tests
 
                     try
                     {
-                        var entity = CounterUtil.GetEntity();
-                        entity.Count = 1;
-                        CounterUtil.Update(entity);
+                        CounterUtil.Update(e => e.Count = 1);
                     }
                     catch (Exception ex)
                     {
@@ -97,6 +97,7 @@ namespace Dashboard.Tests
             var all = await CounterUtil.QueryAsync(date);
             Assert.Equal(threadCount, all.Count);
             Assert.Equal(threadCount, all.Sum(x => x.Count));
+            Assert.Equal(threadCount, CounterUtil.ApproximateCacheCount);
         }
 
         [Fact]

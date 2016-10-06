@@ -23,7 +23,7 @@ namespace Dashboard.Controllers
             _storageAccount = ControllerUtil.CreateStorageAccount();
             _storage = new TestResultStorage(_storageAccount);
             _stats = new TestCacheStats(_storage, _storageAccount.CreateCloudTableClient());
-            _statsUtil = new CounterStatsUtil(_storageAccount.CreateCloudTableClient());
+            _statsUtil = ControllerUtil.GetOrCreateCounterStatsUtil(_storageAccount);
         }
 
         [Route("cache/{id}")]

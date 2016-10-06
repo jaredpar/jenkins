@@ -8,6 +8,8 @@ namespace Dashboard.Helpers
 {
     internal static class ControllerUtil
     {
+        private static CounterStatsUtil _counterStatsUtil;
+
         internal static CloudStorageAccount CreateStorageAccount()
         {
             var connectionString = CloudConfigurationManager.GetSetting(SharedConstants.StorageConnectionStringName);
@@ -18,6 +20,18 @@ namespace Dashboard.Helpers
         {
             var connectionString = ConfigurationManager.AppSettings[SharedConstants.GithubConnectionStringName];
             return new JenkinsClient(SharedConstants.DotnetJenkinsUri, connectionString);
+        }
+
+        internal static CounterStatsUtil GetOrCreateCounterStatsUtil(CloudStorageAccount account)
+        {
+            var util = _counterStatsUtil;
+            if (util == null)
+            {
+                _counterStatsUtil = new CounterStatsUtil(account.CreateCloudTableClient());
+                util = _counterStatsUtil;
+            }
+
+            return util;
         }
     }
 }

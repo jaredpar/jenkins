@@ -1,5 +1,6 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -22,53 +23,68 @@ namespace Dashboard.Azure
     /// type.
     /// </summary>
     public sealed class CounterUtil<T>
-        where T : ITableEntity, new()
+        where T : class, ITableEntity, new()
     {
-        private readonly object _guard = new object();
-
         /// <summary>
-        /// Map to allow for efficient lookup of counter entities.  Don't have to query storage every time 
-        /// we need to grab it. 
+        /// The cached entity to be updated.  There is one cached value that is oppurtunisitically 
+        /// reused between threads.  A thread can only update it when they have a local copy and
+        /// have assigned this value to null.
         /// </summary>
-        private readonly Dictionary<int, T> _entityMap = new Dictionary<int, T>();
+        private ConcurrentStack<T> _stack = new ConcurrentStack<T>();
 
         public CloudTable Table { get; }
+        public int ApproximateCacheCount => _stack.Count;
 
         public CounterUtil(CloudTable table)
         {
             Table = table;
         }
 
-        public T GetEntity()
+        /// <summary>
+        /// Get the <see cref="ITableEntity"/> to be updated.
+        /// </summary>
+        /// <remarks>
+        /// This function must be called with a lock held
+        /// </remarks>
+        private T AcquireEntity()
         {
-            var id = Thread.CurrentThread.ManagedThreadId;
-            lock (_guard)
-            {
-                var partitionKey = GetCurrentParitionKey();
-                T entity;
-                if (!_entityMap.TryGetValue(id, out entity) || entity.PartitionKey != partitionKey.Key)
-                {
-                    var rowKey = Guid.NewGuid().ToString("N");
-                    entity = new T();
-                    entity.PartitionKey = partitionKey.Key;
-                    entity.RowKey = Guid.NewGuid().ToString("N");
-                    _entityMap[id] = entity;
-                }
+            var partitionKey = GetCurrentParitionKey();
 
-                return entity;
+            T entity;
+            do
+            {
+                if (!_stack.TryPop(out entity))
+                {
+                    break;
+                }
+            } while (entity.PartitionKey != partitionKey.Key);
+
+            if (entity == null)
+            {
+                entity = new T();
+                entity.PartitionKey = partitionKey.Key;
+                entity.RowKey = Guid.NewGuid().ToString("N");
             }
+
+            return entity;
         }
 
-        public void Update(T entity)
+        public void Update(Action<T> action)
         {
+            var entity = AcquireEntity();
+            action(entity);
             var operation = TableOperation.InsertOrReplace(entity);
             Table.Execute(operation);
+            _stack.Push(entity);
         }
 
-        public async Task UpdateAsync(T entity)
+        public async Task UpdateAsync(Action<T> action)
         {
+            var entity = AcquireEntity();
+            action(entity);
             var operation = TableOperation.InsertOrReplace(entity);
             await Table.ExecuteAsync(operation);
+            _stack.Push(entity);
         }
 
         public IEnumerable<T> Query(DateTimeOffset startDate, DateTimeOffset endDate, CancellationToken cancellationToken = default(CancellationToken))
@@ -96,7 +112,7 @@ namespace Dashboard.Azure
             return await AzureUtil.QueryAsync<T>(Table, query, cancellationToken);
         }
 
-        private static DateTimeKey GetCurrentParitionKey() => new DateTimeKey(DateTimeOffset.UtcNow, DateTimeKeyFlags.Date);
+        public static DateTimeKey GetCurrentParitionKey() => new DateTimeKey(DateTimeOffset.UtcNow, DateTimeKeyFlags.Date);
 
         private static string GetQueryString(DateTimeOffset startDate, DateTimeOffset endDate)
         {
