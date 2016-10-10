@@ -24,10 +24,10 @@ namespace Dashboard.ApiFun
     {
         internal static void Main(string[] args)
         {
-            // TestFailure().Wait();
+            TestFailure().Wait();
             // TestFailureYesterday(-3).Wait();
             // MigrateDateKey().Wait();
-            CollapseCounters().Wait();
+            // CollapseCounters().Wait();
 
             //WriteJobList().Wait();
             // Test().Wait();
@@ -373,7 +373,7 @@ namespace Dashboard.ApiFun
             var boundBuildId = new BoundBuildId(host, new BuildId(number, jobId));
             */
 
-            var url = "http://dotnet-ci.cloudapp.net/job/dotnet_roslyn-project-system/job/master/job/vsi/168";
+            var url = "http://dotnet-ci.cloudapp.net/job/dotnet_coreclr/job/master/job/debug_windows_nt_bld/198";
             var boundBuildId = BoundBuildId.Parse(url);
 
             var buildId = boundBuildId.BuildId;

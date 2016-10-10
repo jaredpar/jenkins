@@ -13,6 +13,18 @@ namespace Dashboard.Azure.Builds
 {
     public sealed class BuildTablePopulator
     {
+        private struct PopulateData
+        {
+            internal BuildResultEntity Result {get;}
+            internal List<BuildFailureEntity> Failures { get; }
+
+            internal PopulateData(BuildResultEntity result, List<BuildFailureEntity> failures)
+            {
+                Result = result;
+                Failures = failures;
+            }
+        }
+
         private readonly CloudTable _buildResultDateTable;
         private readonly CloudTable _buildResultExactTable;
         private readonly CloudTable _buildFailureDateTable;
@@ -63,28 +75,30 @@ namespace Dashboard.Azure.Builds
         /// Populate the <see cref="BuildResultEntity"/> structures for a build overwriting any data 
         /// that existed before.  Returns the entity if enough information was there to process the value.
         /// </summary>
-        public async Task<BuildResultEntity> PopulateBuild(BuildId buildId)
+        public async Task PopulateBuild(BuildId buildId)
         {
-            var entity = await PopulateBuildIdCore(buildId);
-            if (entity == null)
+            var data = await GetPopulateData(buildId);
+
+            var result = data.Result;
+            await PopulateViewName(buildId.JobId, result.BuildDateTimeOffset);
+            await _buildResultDateTable.ExecuteAsync(TableOperation.InsertOrReplace(result.CopyDate()));
+            await _buildResultExactTable.ExecuteAsync(TableOperation.InsertOrReplace(result.CopyExact()));
+
+            var failures = data.Failures;
+            if (failures.Count > 0)
             {
-                return null;
+                await AzureUtil.InsertBatchUnordered(_buildFailureExactTable, failures.Select(x => x.CopyExact()));
+                await AzureUtil.InsertBatchUnordered(_buildFailureDateTable, failures.Select(x => x.CopyDate()));
             }
-
-            await PopulateViewName(buildId.JobId, entity.BuildDateTimeOffset);
-
-            await _buildResultDateTable.ExecuteAsync(TableOperation.InsertOrReplace(entity.CopyDate()));
-            await _buildResultExactTable.ExecuteAsync(TableOperation.InsertOrReplace(entity.CopyExact()));
-            return entity;
         }
 
-        private async Task<BuildResultEntity> PopulateBuildIdCore(BuildId buildId)
+        private async Task<PopulateData> GetPopulateData(BuildId buildId)
         {
             try
             {
-                var entity = await GetBuildFailureEntity(buildId);
-                WriteLine(buildId, $"adding reason {entity.ClassificationKind}");
-                return entity;
+                var data = await GetPopulateDataCore(buildId);
+                WriteLine(buildId, $"adding reason {data.Result.ClassificationKind}");
+                return data;
             }
             catch (Exception ex)
             {
@@ -114,7 +128,7 @@ namespace Dashboard.Azure.Builds
         /// <summary>
         /// Update the table storage to contain the result of the specified build.
         /// </summary>
-        private async Task<BuildResultEntity> GetBuildFailureEntity(BuildId id)
+        private async Task<PopulateData> GetPopulateDataCore(BuildId id)
         {
             var buildInfo = await _client.GetBuildInfoAsync(id);
             var jobKind = await _client.GetJobKindAsync(id.JobId);
@@ -154,7 +168,7 @@ namespace Dashboard.Azure.Builds
                     throw new Exception($"Invalid enum: {buildInfo.State} for {id.JobName} - {id.Number}");
             }
 
-            return new BuildResultEntity(
+            var resultEntity = new BuildResultEntity(
                 buildInfo.Id,
                 buildInfo.Date,
                 buildInfo.Duration,
@@ -162,6 +176,12 @@ namespace Dashboard.Azure.Builds
                 machineName: buildInfo.MachineName,
                 classification: classification, 
                 prInfo: prInfo);
+
+            var failures = classification.Kind == ClassificationKind.TestFailure
+                ? await GetUnitTestFailures(buildInfo, jobKind, prInfo)
+                : new List<BuildFailureEntity>();
+
+            return new PopulateData(resultEntity, failures);
         }
 
         private async Task<BuildResultClassification> PopulateFailedBuildResult(BuildInfo buildInfo, string jobKind, PullRequestInfo prInfo)
@@ -193,11 +213,6 @@ namespace Dashboard.Azure.Builds
                 }
             }
 
-            if (classification.Kind == ClassificationKind.TestFailure)
-            {
-                await PopulateUnitTestFailure(buildInfo, jobKind, prInfo);
-            }
-
             return classification;
         }
 
@@ -227,32 +242,31 @@ namespace Dashboard.Azure.Builds
             }
         }
 
-        private async Task PopulateUnitTestFailure(BuildInfo buildInfo, string jobKind, PullRequestInfo prInfo)
+        private async Task<List<BuildFailureEntity>> GetUnitTestFailures(BuildInfo buildInfo, string jobKind, PullRequestInfo prInfo)
         {
             // TODO: Resolve this with CoreCLR.  They are producing way too many failures at the moment though
             // and we need to stop uploading 50,000 rows a day until we can resolve this.
             if (buildInfo.Id.JobName.Contains("dotnet_coreclr"))
             {
-                return;
+                return new List<BuildFailureEntity>(capacity: 0);
             }
 
             var buildId = buildInfo.Id;
-            var testCaseNames = _client.GetFailedTestCases(buildId);
+            var testCaseNames = await _client.GetFailedTestCasesAsync(buildId);
 
             // Ignore obnoxious long test names.  This is a temporary work around due to CoreFX generating giantic test
             // names and log files.
             // https://github.com/dotnet/corefx/pull/11905
             if (testCaseNames.Any(x => x.Length > 10000))
             {
-                return;
+                return new List<BuildFailureEntity>(capacity: 0);
             }
 
             var entityList = testCaseNames
                 .Select(x => BuildFailureEntity.CreateTestCaseFailure(buildInfo.Date, buildId, x, jobKind: jobKind, machineName: buildInfo.MachineName, prInfo: prInfo))
                 .ToList();
             EnsureTestCaseNamesUnique(entityList);
-            await AzureUtil.InsertBatchUnordered(_buildFailureExactTable, entityList.Select(x => x.CopyExact()));
-            await AzureUtil.InsertBatchUnordered(_buildFailureDateTable, entityList.Select(x => x.CopyDate()));
+            return entityList;
         }
 
         private void WriteLine(BuildId buildId, string message)
