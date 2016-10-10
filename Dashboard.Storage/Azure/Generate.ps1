@@ -54,4 +54,4 @@ namespace Dashboard.Azure
     write-output $footer
 }
 
-Generate-File | out-file "TableQueryUtil.Generated.cs"
+Generate-File | out-file "TableQueryUtil.Generated.cs" -encoding utf8
