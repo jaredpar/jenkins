@@ -108,10 +108,10 @@ namespace Dashboard.StorageBuilder
 
             try
             {
-                _logger.Write($"Populating {buildId.JobId} ... ");
+                _logger.WriteLine($"Populating {buildId.JobId} ... ");
                 await populator.PopulateBuild(message.BoundBuildId);
 
-                _logger.Write($"Updating the build data state ..");
+                _logger.WriteLine($"Updating the build data state ..");
                 entity.IsDataComplete = true;
                 entity.Error = null;
                 entity.ETag = "*";

@@ -90,8 +90,11 @@ namespace Dashboard.Azure.Builds
             var failures = data.Failures;
             if (failures.Count > 0)
             {
-                await AzureUtil.InsertBatchUnordered(_buildFailureExactTable, failures.Select(x => x.CopyExact()));
-                await AzureUtil.InsertBatchUnordered(_buildFailureDateTable, failures.Select(x => x.CopyDate()));
+                // Important to use InsertOrReplace here.  It's possible for a populate job to be cut off in the 
+                // middle when the BuildFailure table is updated but not yet the BuildProcessed table.  Hence 
+                // we'll up here again doing a batch insert.
+                await AzureUtil.ExecuteBatchUnordered(_buildFailureExactTable, TableOperationType.InsertOrReplace, failures.Select(x => x.CopyExact()));
+                await AzureUtil.ExecuteBatchUnordered(_buildFailureDateTable, TableOperationType.InsertOrReplace, failures.Select(x => x.CopyDate()));
             }
         }
 

@@ -1,5 +1,10 @@
 ﻿using Dashboard.Azure;
 using Dashboard.Jenkins;
+using Microsoft.WindowsAzure.Storage.Table;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
 using Xunit;
 
 namespace Dashboard.Tests
@@ -50,6 +55,95 @@ namespace Dashboard.Tests
             {
                 var jobId = JenkinsUtil.ConvertPathToJobId("job/Private/job/dotnet_roslyn-internal/job/master/job/windows_debug_eta/");
                 Assert.Equal("dotnet_roslyn", AzureUtil.GetViewName(jobId));
+            }
+        }
+
+        public sealed class BatchInsertTests : AzureUtilTests, IDisposable
+        {
+            private readonly CloudTable _table;
+
+            public BatchInsertTests()
+            {
+                var account = Util.GetStorageAccount();
+                var client = account.CreateCloudTableClient();
+                _table = client.GetTableReference("BatchOperationTests");
+                _table.CreateIfNotExists();
+            }
+
+            public void Dispose()
+            {
+                _table.Delete();
+            }
+
+            private static List<DynamicTableEntity> GetSamePartitionList(int count, string partitionKey)
+            {
+                var list = new List<DynamicTableEntity>();
+                for (var i = 0; i < count; i++)
+                {
+                    var rowKey = i.ToString("0000");
+                    var entity = new DynamicTableEntity()
+                    {
+                        PartitionKey = partitionKey,
+                        RowKey = rowKey
+                    };
+                    list.Add(entity);
+                }
+
+                return list;
+            }
+
+            private static List<DynamicTableEntity> GetSameRowList(int count, string rowKey)
+            {
+                var list = new List<DynamicTableEntity>();
+                for (var i = 0; i < count; i++)
+                {
+                    var partitionKey = i.ToString("0000");
+                    var entity = new DynamicTableEntity()
+                    {
+                        PartitionKey = partitionKey,
+                        RowKey = rowKey
+                    };
+                    list.Add(entity);
+                }
+
+                return list;
+            }
+
+            [Fact]
+            public async Task InsertSamePartitionKey()
+            {
+                var key = "test";
+                var count = AzureUtil.MaxBatchCount * 2;
+                var list = GetSamePartitionList(count, key);
+                await AzureUtil.InsertBatch(_table, list);
+
+                var found = await AzureUtil.QueryAsync<DynamicTableEntity>(_table, TableQueryUtil.PartitionKey(key));
+                Assert.Equal(count, found.Count);
+            }
+
+            [Fact]
+            public async Task InsertSameRowKey()
+            {
+                var key = "test";
+                var count = AzureUtil.MaxBatchCount * 2;
+                var list = GetSameRowList(count, key);
+                await AzureUtil.InsertBatchUnordered(_table, list);
+
+                var found = await AzureUtil.QueryAsync<DynamicTableEntity>(_table, TableQueryUtil.RowKey(key));
+                Assert.Equal(count, found.Count);
+            }
+
+            [Fact]
+            public async Task DeleteBatchSamePartitionKey()
+            {
+                var key = "test";
+                var count = AzureUtil.MaxBatchCount * 2;
+                var list = GetSamePartitionList(count, key);
+                await AzureUtil.InsertBatchUnordered(_table, list);
+                await AzureUtil.DeleteBatch(_table, list.Select(x => x.GetEntityKey()));
+
+                var found = await AzureUtil.QueryAsync<DynamicTableEntity>(_table, TableQueryUtil.RowKey(key));
+                Assert.Equal(0, found.Count);
             }
         }
 
