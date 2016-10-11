@@ -114,6 +114,7 @@ namespace Dashboard.StorageBuilder
                 _logger.Write($"Updating the build data state ..");
                 entity.IsDataComplete = true;
                 entity.Error = null;
+                entity.ETag = "*";
                 await _buildStateTable.ExecuteAsync(TableOperation.Replace(entity), cancellationToken);
 
                 _logger.WriteLine($"Completed");
@@ -128,7 +129,7 @@ namespace Dashboard.StorageBuilder
                     entity.Error = $"{e.Message} - {e.StackTrace.Take(1000)}";
                     await _buildStateTable.ExecuteAsync(TableOperation.Replace(entity));
                 }
-                catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == 409)
+                catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == 412)
                 {
                     // It's possible the enity was updated in parallel.  That's okay.  This table
                     // is meant as an approximation of the build state and always moving towards complete.
