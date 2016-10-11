@@ -77,12 +77,24 @@ namespace Dashboard.Jenkins
 
         }
 
+        public Uri GetHostUri(bool? useHttps = null)
+        {
+            if (useHttps == null)
+            {
+                return Host;
+            }
+
+            var builder = new UriBuilder(Host);
+            builder.Scheme = useHttps.Value ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
+            return builder.Uri;
+        }
+
         public Uri GetBuildUri(bool? useHttps = null)
         {
             var builder = new UriBuilder(Host);
-            if (useHttps == true)
+            if (useHttps != null)
             {
-                builder.Scheme = Uri.UriSchemeHttps;
+                builder.Scheme = useHttps.Value ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
             }
 
             builder.Path = JenkinsUtil.GetBuildPath(BuildId);

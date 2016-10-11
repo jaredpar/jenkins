@@ -157,7 +157,7 @@ namespace Dashboard.StorageBuilder
             try
             {
                 _logger.WriteLine($"Checking to see if {entity.BuildId} has completed");
-                var client = CreateJenkinsClient(entity.HostName, entity.JobId);
+                var client = CreateJenkinsClient(entity.BoundBuildId);
                 var buildInfo = await client.GetBuildInfoAsync(entity.BuildId);
                 if (buildInfo.State != BuildState.Running)
                 {
@@ -171,21 +171,17 @@ namespace Dashboard.StorageBuilder
             }
         }
 
-        internal static JenkinsClient CreateJenkinsClient(string jenkinsHostName, JobId jobId)
+        internal static JenkinsClient CreateJenkinsClient(BoundBuildId buildId)
         {
-            var builder = new UriBuilder();
-            builder.Host = jenkinsHostName;
-
-            if (JobUtil.IsAuthNeededHeuristic(jobId))
+            if (JobUtil.IsAuthNeededHeuristic(buildId.JobId))
             {
                 var githubConnectionString = CloudConfigurationManager.GetSetting(SharedConstants.GithubConnectionStringName);
-                builder.Scheme = Uri.UriSchemeHttps;
-                return new JenkinsClient(builder.Uri, githubConnectionString);
+                var host = buildId.GetHostUri(useHttps: true);
+                return new JenkinsClient(host, githubConnectionString);
             }
             else
             {
-                builder.Scheme = Uri.UriSchemeHttp;
-                return new JenkinsClient(builder.Uri);
+                return new JenkinsClient(buildId.Host);
             }
         }
 

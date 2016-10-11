@@ -62,7 +62,7 @@ namespace Dashboard.StorageBuilder
         {
             var buildIdJson = (BuildStateMessage)JsonConvert.DeserializeObject(message, typeof(BuildStateMessage));
 
-            var client = StateUtil.CreateJenkinsClient(buildIdJson.HostName, buildIdJson.JobId);
+            var client = StateUtil.CreateJenkinsClient(buildIdJson.BoundBuildId);
             var populator = new BuildTablePopulator(
                 buildResultDateTable: buildResultDateTable,
                 buildResultExactTable: buildResultExactTable,
