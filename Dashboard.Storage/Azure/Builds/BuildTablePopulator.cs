@@ -30,6 +30,9 @@ namespace Dashboard.Azure.Builds
         private readonly CloudTable _buildFailureDateTable;
         private readonly CloudTable _buildFailureExactTable;
         private readonly CloudTable _viewNameDateTable;
+
+        // TODO: This should not be a field.  A single populator can server several BoundBuildId that have different
+        // hostname values.
         private readonly JenkinsClient _client;
         private readonly TextWriter _textWriter;
 
@@ -75,7 +78,7 @@ namespace Dashboard.Azure.Builds
         /// Populate the <see cref="BuildResultEntity"/> structures for a build overwriting any data 
         /// that existed before.  Returns the entity if enough information was there to process the value.
         /// </summary>
-        public async Task PopulateBuild(BuildId buildId)
+        public async Task PopulateBuild(BoundBuildId buildId)
         {
             var data = await GetPopulateData(buildId);
 
@@ -92,7 +95,7 @@ namespace Dashboard.Azure.Builds
             }
         }
 
-        private async Task<PopulateData> GetPopulateData(BuildId buildId)
+        private async Task<PopulateData> GetPopulateData(BoundBuildId buildId)
         {
             try
             {
@@ -128,9 +131,9 @@ namespace Dashboard.Azure.Builds
         /// <summary>
         /// Update the table storage to contain the result of the specified build.
         /// </summary>
-        private async Task<PopulateData> GetPopulateDataCore(BuildId id)
+        private async Task<PopulateData> GetPopulateDataCore(BoundBuildId id)
         {
-            var buildInfo = await _client.GetBuildInfoAsync(id);
+            var buildInfo = await _client.GetBuildInfoAsync(id.BuildId);
             var jobKind = await _client.GetJobKindAsync(id.JobId);
 
             PullRequestInfo prInfo = null;
@@ -138,7 +141,7 @@ namespace Dashboard.Azure.Builds
             {
                 try
                 {
-                    prInfo = await _client.GetPullRequestInfoAsync(id);
+                    prInfo = await _client.GetPullRequestInfoAsync(id.BuildId);
                 }
                 catch (Exception ex)
                 {
@@ -169,7 +172,7 @@ namespace Dashboard.Azure.Builds
             }
 
             var resultEntity = new BuildResultEntity(
-                buildInfo.Id,
+                id,
                 buildInfo.Date,
                 buildInfo.Duration,
                 jobKind: jobKind,
@@ -252,7 +255,7 @@ namespace Dashboard.Azure.Builds
             }
 
             var buildId = buildInfo.Id;
-            var testCaseNames = await _client.GetFailedTestCasesAsync(buildId);
+            var testCaseNames = await _client.GetFailedTestCasesAsync(buildInfo.BuildId);
 
             // Ignore obnoxious long test names.  This is a temporary work around due to CoreFX generating giantic test
             // names and log files.
@@ -267,6 +270,11 @@ namespace Dashboard.Azure.Builds
                 .ToList();
             EnsureTestCaseNamesUnique(entityList);
             return entityList;
+        }
+
+        private void WriteLine(BoundBuildId buildId, string message)
+        {
+            _textWriter.WriteLine($"{buildId.JobName} - {buildId.Number}: {message}");
         }
 
         private void WriteLine(BuildId buildId, string message)

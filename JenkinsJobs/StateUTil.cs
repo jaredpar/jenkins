@@ -109,7 +109,7 @@ namespace Dashboard.StorageBuilder
             try
             {
                 _logger.Write($"Populating {buildId.JobId} ... ");
-                await populator.PopulateBuild(buildId);
+                await populator.PopulateBuild(message.BoundBuildId);
 
                 _logger.Write($"Updating the build data state ..");
                 entity.IsDataComplete = true;

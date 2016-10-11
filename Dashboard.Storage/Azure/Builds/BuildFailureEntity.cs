@@ -24,6 +24,7 @@ namespace Dashboard.Azure.Builds
         public string JobKind { get; set; }
         public string ViewName { get; set; }
         public int BuildNumber { get; set; }
+        public string HostName { get; set; }
         public string Identifier { get; set; }
         public string MachineName { get; set; }
         public bool IsPullRequest { get; set; }
@@ -35,6 +36,7 @@ namespace Dashboard.Azure.Builds
 
         public JobId JobId => JobId.ParseName(JobName);
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
+        public BoundBuildId BoundBuildId => new BoundBuildId(HostName ?? "", BuildId);
         public BuildFailureKind BuildFailureKind => (BuildFailureKind)Enum.Parse(typeof(BuildFailureKind), BuildFailureKindRaw);
         public DateTimeOffset BuildDateTimeOffset => BuildDateTime;
         public bool HasPullRequestInfo =>
@@ -53,7 +55,7 @@ namespace Dashboard.Azure.Builds
         }
 
         public BuildFailureEntity(BuildFailureEntity other) : this(
-            buildId: other.BuildId,
+            buildId: other.BoundBuildId,
             identifier: other.Identifier,
             buildDate: other.BuildDateTime,
             kind: other.BuildFailureKind,
@@ -64,12 +66,13 @@ namespace Dashboard.Azure.Builds
 
         }
 
-        public BuildFailureEntity(BuildId buildId, string identifier, DateTimeOffset buildDate, BuildFailureKind kind, string jobKind, string machineName, PullRequestInfo prInfo)
+        public BuildFailureEntity(BoundBuildId buildId, string identifier, DateTimeOffset buildDate, BuildFailureKind kind, string jobKind, string machineName, PullRequestInfo prInfo)
         {
             JobName = buildId.JobName;
             JobKind = jobKind;
             ViewName = AzureUtil.GetViewName(buildId.JobId);
             BuildNumber = buildId.Number;
+            HostName = buildId.HostName;
             Identifier = identifier;
             BuildFailureKindRaw = kind.ToString();
             BuildDateTime = buildDate.UtcDateTime;
@@ -116,7 +119,7 @@ namespace Dashboard.Azure.Builds
                 new BuildKey(buildId).Key);
         }
 
-        public static BuildFailureEntity CreateTestCaseFailure(DateTimeOffset buildDateTime, BuildId buildId, string testCaseName, string jobKind, string machineName, PullRequestInfo prInfo)
+        public static BuildFailureEntity CreateTestCaseFailure(DateTimeOffset buildDateTime, BoundBuildId buildId, string testCaseName, string jobKind, string machineName, PullRequestInfo prInfo)
         {
             return new BuildFailureEntity(
                 buildId,

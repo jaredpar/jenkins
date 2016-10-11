@@ -15,6 +15,7 @@ namespace Dashboard.Azure.Builds
         public string JobKind { get; set; }
         public string ViewName { get; set; }
         public int BuildNumber { get; set; }
+        public string HostName { get; set; }
         public string ClassificationKindRaw { get; set; }
         public string ClassificationName { get; set; }
         public string ClassificationDetailedName { get; set; }
@@ -31,6 +32,7 @@ namespace Dashboard.Azure.Builds
         public DateTimeOffset BuildDateTimeOffset => new DateTimeOffset(BuildDateTime);
         public JobId JobId => JobId.ParseName(JobName);
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
+        public BoundBuildId BoundBuildId => new BoundBuildId(HostName ?? "", BuildId);
         public ClassificationKind ClassificationKind => (ClassificationKind)Enum.Parse(typeof(ClassificationKind), ClassificationKindRaw ?? ClassificationKind.Unknown.ToString());
         public BuildResultClassification Classification => new BuildResultClassification(ClassificationKind, ClassificationName, ClassificationDetailedName);
         public bool HasPullRequestInfo =>
@@ -50,7 +52,7 @@ namespace Dashboard.Azure.Builds
         }
 
         public BuildResultEntity(
-            BuildId buildId,
+            BoundBuildId buildId,
             DateTimeOffset buildDateTime,
             TimeSpan duration,
             string jobKind,
@@ -62,6 +64,7 @@ namespace Dashboard.Azure.Builds
             JobKind = jobKind;
             ViewName = AzureUtil.GetViewName(BuildId.JobId);
             BuildNumber = buildId.Number;
+            HostName = buildId.HostName;
             ClassificationKindRaw = classification.Kind.ToString();
             ClassificationName = classification.Name;
             BuildDateTime = buildDateTime.UtcDateTime;
@@ -84,7 +87,7 @@ namespace Dashboard.Azure.Builds
         }
 
         public BuildResultEntity(BuildResultEntity other) : this(
-            buildId: other.BuildId,
+            buildId: other.BoundBuildId,
             buildDateTime: other.BuildDateTimeOffset,
             duration: other.Duration,
             jobKind: other.JobKind,
@@ -109,6 +112,9 @@ namespace Dashboard.Azure.Builds
             return entity;
         }
 
+        // TODO: Consider using the host name here as part of the key.  Need to understand what happens when 
+        // jenkins sends multiple events with same BuildId from different hosts (because it picks one of the
+        // several host names we have for the server).
         public static EntityKey GetExactEntityKey(BuildId buildId)
         {
             var partitionKey = AzureUtil.NormalizeKey(buildId.JobId.Name, '_');

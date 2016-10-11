@@ -36,5 +36,24 @@ namespace Dashboard.Tests
             Assert.False(AzureUtil.IsIllegalKey(entityKey.PartitionKey));
             Assert.False(AzureUtil.IsIllegalKey(entityKey.RowKey));
         }
+
+        /// <summary>
+        /// Need to account for older entities that don't have a <see cref="BuildResultEntity.HostName"/> value.
+        /// </summary>
+        [Fact]
+        public void MissingHostName()
+        {
+            var jobId = JobId.ParseName("test");
+            var entity = new BuildFailureEntity()
+            {
+                BuildNumber = 42,
+                JobName = jobId.Name
+            };
+
+            var buildId = entity.BoundBuildId;
+            Assert.Equal("", buildId.HostName);
+            Assert.Equal(jobId, buildId.JobId);
+            Assert.Equal(42, buildId.Number);
+        }
     }
 }

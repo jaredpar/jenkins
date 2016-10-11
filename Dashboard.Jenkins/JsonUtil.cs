@@ -43,24 +43,24 @@ namespace Dashboard.Jenkins
             return list;
         }
 
-        internal static BuildInfo ParseBuildInfo(JobId jobId, JObject build)
+        internal static BuildInfo ParseBuildInfo(string hostName, JobId jobId, JObject build)
         {
             var id = build.Value<int>("id");
             var duration = TimeSpan.FromMilliseconds(build.Value<int>("duration"));
             var state = ParseBuildInfoState(build);
             var date = JenkinsUtil.ConvertTimestampToDateTimeOffset(build.Value<long>("timestamp"));
-            var buildId = new BuildId(id, jobId);
+            var buildId = new BoundBuildId(hostName, id, jobId);
             var machineName = build.Value<string>("builtOn");
             return new BuildInfo(buildId, state, date, duration, machineName);
         }
 
-        internal static List<BuildInfo> ParseBuildInfoList(JobId jobId, JObject data)
+        internal static List<BuildInfo> ParseBuildInfoList(string hostName, JobId jobId, JObject data)
         {
             var list = new List<BuildInfo>();
             var builds = (JArray)data["builds"];
             foreach (JObject build in builds)
             {
-                list.Add(ParseBuildInfo(jobId, build));
+                list.Add(ParseBuildInfo(hostName, jobId, build));
             }
 
             return list;

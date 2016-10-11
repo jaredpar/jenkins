@@ -92,7 +92,7 @@ namespace Dashboard.ApiFun
 
             var account = GetStorageAccount();
             var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(SharedConstants.DotnetJenkinsHostName), Console.Out);
-            await populator.PopulateBuild(buildId);
+            await populator.PopulateBuild(new BoundBuildId(uri.Host, buildId));
         }
 
         /// <summary>
@@ -157,15 +157,9 @@ namespace Dashboard.ApiFun
                     continue;
                 }
 
-                await populator.PopulateBuild(buildId);
+                await populator.PopulateBuild(new BoundBuildId(SharedConstants.DotnetJenkinsHostName, buildId));
                 await queue.DeleteMessageAsync(message);
             } while (true);
-        }
-
-        private static async Task DrainQueue()
-        {
-            var item = new BuildDrainer();
-            await item.Go();
         }
 
         private static async Task CollapseCounters()
@@ -383,7 +377,7 @@ namespace Dashboard.ApiFun
 
             try
             {
-                await populator.PopulateBuild(buildId);
+                await populator.PopulateBuild(boundBuildId);
             }
             catch (Exception ex)
             {
@@ -409,7 +403,7 @@ namespace Dashboard.ApiFun
                 try
                 {
                     Console.Write($"{entity.BuildId} ... ");
-                    await populator.PopulateBuild(entity.BuildId);
+                    await populator.PopulateBuild(entity.BoundBuildId);
                     Console.WriteLine("good");
                 }
                 catch (Exception ex)
@@ -462,7 +456,7 @@ namespace Dashboard.ApiFun
             var boundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_coreclr/job/master/job/jitstress/job/x64_checked_osx_jitstress1_flow/7/");
             try
             {
-                await populator.PopulateBuild(boundBuildId.BuildId);
+                await populator.PopulateBuild(boundBuildId);
             }
             catch (Exception ex)
             {
@@ -987,156 +981,6 @@ namespace Dashboard.ApiFun
                 .ToList();
         }
     }
-
-    internal sealed class BuildDrainer
-    {
-        private enum State
-        {
-            Succeeded,
-            Failed,
-            Skipped
-        }
-        private struct Result
-        {
-            internal BuildId BuildId { get; }
-            internal CloudQueueMessage Message { get; }
-            internal State State { get; set; }
-            internal TimeSpan Time { get; set; }
-            internal string Error { get; set; }
-
-            internal Result(BuildId id, CloudQueueMessage message, State state)
-            {
-                this = default(Result);
-                BuildId = id;
-                Message = message;
-                State = state;
-            }
-        }
-
-        internal async Task Go()
-        {
-            var succeeded = 0;
-            var failed = 0;
-            var skipped = 0;
-            var maxCount = 10;
-            var list = new List<Task<Result>>(capacity: maxCount);
-            var account = Program.GetStorageAccount();
-            var client = account.CreateCloudQueueClient();
-            var queue = client.GetQueueReference(AzureConstants.QueueNames.ProcessBuild);
-            var queueDone = false;
-            var set = new HashSet<BuildId>();
-
-            do
-            {
-                while (list.Count < maxCount && !queueDone)
-                {
-                    var message = await queue.GetMessageAsync();
-                    if (message == null)
-                    {
-                        queueDone = true;
-                        break;
-                    }
-
-                    var buildIdJson = JsonConvert.DeserializeObject<BuildStateMessage>(message.AsString);
-                    var buildId = buildIdJson.BuildId;
-                    if (!set.Add(buildId))
-                    {
-                        await queue.DeleteMessageAsync(message);
-                        continue;
-                    }
-
-                    var task = Task.Run(() => Go(buildId, message));
-                    list.Add(task);
-                    Console.WriteLine($"Queued {buildId}");
-                }
-
-                Console.WriteLine($"Succeeded {succeeded} Failed {failed} Skipped {skipped}");
-                Task.WaitAny(list.ToArray());
-
-                var index = 0;
-                while (index < list.Count)
-                {
-                    var task = list[index];
-                    if (!task.IsCompleted)
-                    {
-                        index++;
-                        continue;
-                    }
-
-                    list.RemoveAt(index);
-                    var result = await task;
-                    switch (result.State)
-                    {
-                        case State.Succeeded:
-                            Console.WriteLine($"{result.BuildId} succeeded in {result.Time}");
-                            succeeded++;
-                            break;
-                        case State.Skipped:
-                            Console.WriteLine($"{result.BuildId} skipped");
-                            skipped++;
-                            break;
-                        case State.Failed:
-                            Console.WriteLine($"{result.BuildId} failed");
-                            Console.WriteLine(result.Error);
-                            failed++;
-                            break;
-                    }
-
-                    await queue.DeleteMessageAsync(result.Message);
-
-                    task.Dispose();
-                }
-            } while (true);
-        }
-
-
-        private async Task<Result> Go(BuildId buildId, CloudQueueMessage message)
-        {
-            var account = Program.GetStorageAccount();
-            var client = Program.CreateClient(SharedConstants.DotnetJenkinsHostName, buildId.JobId);
-            var queueClient = account.CreateCloudQueueClient();
-            var queue = queueClient.GetQueueReference(QueueNames.ProcessBuild);
-            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), client, TextWriter.Null);
-
-            /*
-            // There is too much of a back log to every fully process the corefx logs that are 200MB+ in size.  Skip them
-            // until we hit the recent ones. 
-            if (buildId.JobName.Contains("corefx"))
-            {
-                try
-                {
-                    var info = await client.GetBuildInfoAsync(buildId);
-                    if (info.Date < DateTimeOffset.UtcNow.AddHours(-1))
-                    {
-                        return new Result(buildId, message, State.Succeeded);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return new Result(buildId, message, State.Failed) { Error = ex.ToString() };
-                }
-            }
-            */
-
-            if (await populator.IsPopulated(buildId))
-            {
-                return new Result(buildId, message, State.Skipped);
-            }
-
-            try
-            {
-                var start = DateTimeOffset.Now;
-                await populator.PopulateBuild(buildId);
-                var span = DateTimeOffset.Now - start;
-                return new Result(buildId, message, State.Succeeded) { Time = span };
-            }
-            catch (Exception ex)
-            {
-                return new Result(buildId, message, State.Failed) { Error = ex.ToString() };
-            }
-        }
-    }
-
 }
 
 

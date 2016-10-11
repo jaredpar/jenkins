@@ -11,7 +11,7 @@ namespace Dashboard.Tests
         [Fact]
         public void Properties()
         {
-            var buildId = new BuildId(42, JobId.ParseName("hello"));
+            var buildId = new BoundBuildId("example.com", 42, JobId.ParseName("hello"));
             var buildDate = DateTimeOffset.UtcNow;
             var entity = new BuildResultEntity(
                 buildId,
@@ -23,7 +23,7 @@ namespace Dashboard.Tests
                 prInfo: null);
             Assert.Equal(BuildResultClassification.Succeeded.Kind, entity.Classification.Kind);
             Assert.Equal(BuildResultClassification.Succeeded.Name, entity.Classification.Name);
-            Assert.Equal(buildId, entity.BuildId);
+            Assert.Equal(buildId, entity.BoundBuildId);
             Assert.Equal(buildId.Number, entity.BuildNumber);
             Assert.Equal(buildId.JobId, entity.JobId);
             Assert.Equal(buildDate, entity.BuildDateTimeOffset);
@@ -35,7 +35,7 @@ namespace Dashboard.Tests
         [Fact]
         public void PullRequestInfo()
         {
-            var buildId = new BuildId(42, JobId.ParseName("hello"));
+            var buildId = new BoundBuildId("example.com", 42, JobId.ParseName("hello"));
             var buildDate = DateTimeOffset.UtcNow;
             var prInfo = new PullRequestInfo("bob", "dog", 42, "cat", "tree");
             var entity = new BuildResultEntity(
@@ -67,7 +67,7 @@ namespace Dashboard.Tests
         [Fact]
         public void ViewNameAll()
         {
-            var buildId = new BuildId(42, JobId.ParseName("test"));
+            var buildId = new BoundBuildId("example.com", 42, JobId.ParseName("test"));
             var entity = new BuildResultEntity(buildId, DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1), "kind", "test", BuildResultClassification.Succeeded, null);
             Assert.Equal(AzureUtil.ViewNameRoot, entity.ViewName);
         }
@@ -75,9 +75,28 @@ namespace Dashboard.Tests
         [Fact]
         public void ViewNameOther()
         {
-            var buildId = new BuildId(42, JobId.ParseName("house/test"));
+            var buildId = new BoundBuildId("example.com", 42, JobId.ParseName("house/test"));
             var entity = new BuildResultEntity(buildId, DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1), "kind", "test", BuildResultClassification.Succeeded, null);
             Assert.Equal("house", entity.ViewName);
+        }
+
+        /// <summary>
+        /// Need to account for older entities that don't have a <see cref="BuildResultEntity.HostName"/> value.
+        /// </summary>
+        [Fact]
+        public void MissingHostName()
+        {
+            var jobId = JobId.ParseName("test");
+            var entity = new BuildResultEntity()
+            {
+                BuildNumber = 42,
+                JobName = jobId.Name
+            };
+
+            var buildId = entity.BoundBuildId;
+            Assert.Equal("", buildId.HostName);
+            Assert.Equal(jobId, buildId.JobId);
+            Assert.Equal(42, buildId.Number);
         }
     }
 }

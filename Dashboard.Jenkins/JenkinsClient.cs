@@ -18,6 +18,7 @@ namespace Dashboard.Jenkins
         private readonly string _authorizationHeaderValue;
 
         public IRestClient RestClient => _restClient;
+        public string HostName => _baseUrl.Host;
 
         public JenkinsClient(Uri baseUrl)
         {
@@ -90,13 +91,13 @@ namespace Dashboard.Jenkins
         public BuildInfo GetBuildInfo(BuildId id)
         {
             var data = GetJson(JenkinsUtil.GetBuildPath(id), tree: JsonUtil.BuildInfoTreeFilter);
-            return JsonUtil.ParseBuildInfo(id.JobId, data);
+            return JsonUtil.ParseBuildInfo(HostName, id.JobId, data);
         }
 
         public async Task<BuildInfo> GetBuildInfoAsync(BuildId id)
         {
             var data = await GetJsonAsync(JenkinsUtil.GetBuildPath(id), tree: JsonUtil.BuildInfoTreeFilter);
-            return JsonUtil.ParseBuildInfo(id.JobId, data);
+            return JsonUtil.ParseBuildInfo(HostName, id.JobId, data);
         }
 
         /// <summary>
@@ -105,13 +106,13 @@ namespace Dashboard.Jenkins
         public List<BuildInfo> GetBuildInfoList(JobId id)
         {
             var data = GetJson(JenkinsUtil.GetJobIdPath(id), tree: JsonUtil.BuildInfoListTreeFilter, depth: 2);
-            return JsonUtil.ParseBuildInfoList(id, data);
+            return JsonUtil.ParseBuildInfoList(HostName, id, data);
         }
 
         public async Task<List<BuildInfo>> GetBuildInfoListAsync(JobId id)
         {
             var data = await GetJsonAsync(JenkinsUtil.GetJobIdPath(id), tree: JsonUtil.BuildInfoListTreeFilter, depth: 2);
-            return JsonUtil.ParseBuildInfoList(id, data);
+            return JsonUtil.ParseBuildInfoList(HostName, id, data);
         }
 
         public JobInfo GetJobInfo(JobId id)
@@ -151,7 +152,7 @@ namespace Dashboard.Jenkins
         public BuildResult GetBuildResult(BuildInfo buildInfo)
         {
             var failureInfo = buildInfo.State == BuildState.Failed
-                ? GetBuildFailureInfo(buildInfo.Id)
+                ? GetBuildFailureInfo(buildInfo.BuildId)
                 : null;
             return new BuildResult(buildInfo, failureInfo);
         }
@@ -159,7 +160,7 @@ namespace Dashboard.Jenkins
         public async Task<BuildResult> GetBuildResultAsync(BuildInfo buildInfo)
         {
             var failureInfo = buildInfo.State == BuildState.Failed
-                ? await GetBuildFailureInfoAsync(buildInfo.Id)
+                ? await GetBuildFailureInfoAsync(buildInfo.BuildId)
                 : null;
             return new BuildResult(buildInfo, failureInfo);
         }

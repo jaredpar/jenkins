@@ -6,13 +6,18 @@ namespace Dashboard.Jenkins
 {
     public sealed class BuildInfo
     {
-        public BuildId Id { get; }
+        public BoundBuildId Id { get; }
         public BuildState State { get; }
         public DateTimeOffset Date { get; }
         public TimeSpan Duration { get; }
         public string MachineName { get; }
 
-        public BuildInfo(BuildId id, BuildState state, DateTimeOffset date, TimeSpan duration, string machineName)
+        public string HostName => Id.HostName;
+        public BuildId BuildId => Id.BuildId;
+        public int BuildNumber => Id.Number;
+        public JobId JobId => Id.JobId;
+
+        public BuildInfo(BoundBuildId id, BuildState state, DateTimeOffset date, TimeSpan duration, string machineName)
         {
             Id = id;
             State = state;
@@ -63,6 +68,11 @@ namespace Dashboard.Jenkins
         {
             HostName = hostName;
             BuildId = buildId;
+        }
+
+        public BoundBuildId(string hostName, int number, JobId id) : this(hostName, new BuildId(number, id))
+        {
+
         }
 
         public Uri GetHostUri(bool useHttps = true) => GetUriCore(useHttps, path: false);
@@ -185,7 +195,8 @@ namespace Dashboard.Jenkins
         private readonly BuildFailureInfo _failureInfo;
 
         public int Id => buildInfo.Id.Number;
-        public BuildId BuildId => buildInfo.Id;
+        public BoundBuildId BoundBuildId => buildInfo.Id;
+        public BuildId BuildId => buildInfo.BuildId;
         public BuildInfo BuildInfo => buildInfo;
         public BuildState State => buildInfo.State;
         public bool Succeeded => State == BuildState.Succeeded;
