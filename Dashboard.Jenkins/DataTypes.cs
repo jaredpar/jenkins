@@ -129,8 +129,6 @@ namespace Dashboard.Jenkins
         /// <summary>
         /// The host URI needs only the scheme, authority portions of the URI.  Everything else should be stripped to 
         /// ensure the value is normalized.
-        ///
-        /// TODO: move to JenkinsUtil
         /// </summary>
         public static Uri NormalizeHostUri(Uri uri)
         {
