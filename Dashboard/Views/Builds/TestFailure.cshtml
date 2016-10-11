@@ -19,8 +19,13 @@
 <tbody>
 @foreach (var entity in Model.Builds)
 {
-    var id = entity.BuildId;
-    var uri = JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, JenkinsUtil.GetBuildPath(id));
+    var id = entity.BoundBuildId;
+    if (string.IsNullOrEmpty(id.HostName))
+    {
+        id = new BoundBuildId(SharedConstants.DotnetJenkinsHostName, id.BuildId);
+    }
+
+    var uri = id.GetBuildUri(useHttps: false);
     var prUri = entity.PullRequestUrl ?? "";
     <tr>
         <td><a href="@uri">@id.JobName @id.Number</a></td>

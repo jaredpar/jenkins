@@ -44,7 +44,7 @@ namespace Dashboard.Tests
                 testReportJson: TestResources.Tao1TestResult,
                 jobXml: @"<freeStyleProject></freeStyleProject>");
 
-            await _populator.PopulateBuild(buildId);
+            await _populator.PopulateBuild(new BoundBuildId("example.com", buildId));
 
             var filter = TableQueryUtil.Column(nameof(BuildFailureEntity.JobName), buildId.JobName);
             var list = AzureUtil.Query<BuildFailureEntity>(_buildFailureExactTable, filter).ToList();
