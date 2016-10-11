@@ -92,7 +92,7 @@ namespace Dashboard.ApiFun
 
             var account = GetStorageAccount();
             var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(SharedConstants.DotnetJenkinsHostName), Console.Out);
-            await populator.PopulateBuild(new BoundBuildId(uri.Host, buildId));
+            await populator.PopulateBuild(new BoundBuildId(uri, buildId));
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace Dashboard.ApiFun
                     continue;
                 }
 
-                await populator.PopulateBuild(new BoundBuildId(SharedConstants.DotnetJenkinsHostName, buildId));
+                await populator.PopulateBuild(new BoundBuildId(SharedConstants.DotnetJenkinsUri, buildId));
                 await queue.DeleteMessageAsync(message);
             } while (true);
         }
@@ -266,17 +266,21 @@ namespace Dashboard.ApiFun
 
         internal static JenkinsClient CreateClient(string hostName, JobId jobId = null, bool? auth = null)
         {
+            return CreateClient(new Uri($"http://{hostName}"), jobId, auth);
+
+        }
+
+        internal static JenkinsClient CreateClient(Uri host, JobId jobId = null, bool? auth = null)
+        {
             if (auth == null && jobId != null)
             {
                 auth = JobUtil.IsAuthNeededHeuristic(jobId);
             }
 
-            var builder = new UriBuilder();
-            builder.Host = hostName;
-            builder.Scheme = auth == true ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
-
+            var builder = new UriBuilder(host);
             if (auth == true)
             {
+                builder.Scheme = Uri.UriSchemeHttps;
                 var text = ConfigurationManager.AppSettings[SharedConstants.GithubConnectionStringName];
                 return new JenkinsClient(builder.Uri, text);
             }
@@ -286,7 +290,7 @@ namespace Dashboard.ApiFun
 
         private static JenkinsClient CreateClient(BoundBuildId buildId, bool? auth = null)
         {
-            return CreateClient(buildId.HostName, buildId.JobId, auth);
+            return CreateClient(buildId.Host, buildId.JobId, auth);
         }
 
         private static void Authorize(RestRequest request)
@@ -348,7 +352,7 @@ namespace Dashboard.ApiFun
             var all = await AzureUtil.QueryAsync<BuildResultEntity>(table, query);
             foreach (var entity in all)
             {
-                var boundBuildId = new BoundBuildId(SharedConstants.DotnetJenkinsUri.Host, entity.BuildId);
+                var boundBuildId = new BoundBuildId(SharedConstants.DotnetJenkinsUri, entity.BuildId);
                 Console.WriteLine(boundBuildId.GetBuildUri(useHttps: false));
             }
         }

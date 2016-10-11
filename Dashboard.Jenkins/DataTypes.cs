@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Dashboard.Jenkins
 {
@@ -12,7 +13,7 @@ namespace Dashboard.Jenkins
         public TimeSpan Duration { get; }
         public string MachineName { get; }
 
-        public string HostName => Id.HostName;
+        public Uri Host => Id.Host;
         public BuildId BuildId => Id.BuildId;
         public int BuildNumber => Id.Number;
         public JobId JobId => Id.JobId;
@@ -57,44 +58,39 @@ namespace Dashboard.Jenkins
     /// </summary>
     public struct BoundBuildId : IEquatable<BoundBuildId>
     {
-        public string HostName { get; }
+        public Uri Host { get; }
         public BuildId BuildId { get; }
 
         public int Number => BuildId.Number;
         public JobId JobId => BuildId.JobId;
         public string JobName => BuildId.JobName;
+        public Uri BuildUri => GetBuildUri();
 
-        public BoundBuildId(string hostName, BuildId buildId)
+        public BoundBuildId(Uri host, BuildId buildId)
         {
-            HostName = hostName;
+            Host = NormalizeHostUri(host);
             BuildId = buildId;
         }
 
-        public BoundBuildId(string hostName, int number, JobId id) : this(hostName, new BuildId(number, id))
+        public BoundBuildId(Uri host, int number, JobId id) : this(host, new BuildId(number, id))
         {
 
         }
 
-        public Uri GetHostUri(bool useHttps = true) => GetUriCore(useHttps, path: false);
-
-        public Uri GetBuildUri(bool useHttps = true) => GetUriCore(useHttps, path: true);
-
-        private Uri GetUriCore(bool useHttps, bool path)
+        public Uri GetBuildUri(bool? useHttps = null)
         {
-            var builder = new UriBuilder();
-            builder.Scheme = useHttps ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
-            builder.Host = HostName;
-            if (path)
+            var builder = new UriBuilder(Host);
+            if (useHttps == true)
             {
-                builder.Path = JenkinsUtil.GetBuildPath(BuildId);
+                builder.Scheme = Uri.UriSchemeHttps;
             }
 
+            builder.Path = JenkinsUtil.GetBuildPath(BuildId);
             return builder.Uri;
         }
 
         public static bool TryParse(Uri uri, out BoundBuildId boundBuildId)
         {
-            var hostName = uri.Host;
             BuildId buildId;
             if (!JenkinsUtil.TryConvertPathToBuildId(uri.PathAndQuery, out buildId))
             {
@@ -102,7 +98,7 @@ namespace Dashboard.Jenkins
                 return false;
             }
 
-            boundBuildId = new BoundBuildId(hostName, buildId);
+            boundBuildId = new BoundBuildId(uri, buildId);
             return true;
         }
 
@@ -118,8 +114,28 @@ namespace Dashboard.Jenkins
             return boundBuildId;
         }
 
+        /// <summary>
+        /// The host URI needs only the scheme, authority portions of the URI.  Everything else should be stripped to 
+        /// ensure the value is normalized.
+        ///
+        /// TODO: move to JenkinsUtil
+        /// </summary>
+        public static Uri NormalizeHostUri(Uri uri)
+        {
+            if (string.IsNullOrEmpty(uri.PathAndQuery) && uri.Host.All(Char.IsLower))
+            {
+                return uri;
+            }
+
+            var builder = new UriBuilder();
+            builder.Scheme = uri.Scheme;
+            builder.Host = uri.Host.ToLower();
+            builder.Port = uri.Port;
+            return builder.Uri;
+        }
+
         public static bool operator==(BoundBuildId left, BoundBuildId right) => 
-            left.HostName == right.HostName &&
+            left.Host == right.Host &&
             left.BuildId == right.BuildId;
         public static bool operator!=(BoundBuildId left, BoundBuildId right) => !(left == right);
         public bool Equals(BoundBuildId other) => this == other;

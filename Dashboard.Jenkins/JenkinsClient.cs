@@ -13,34 +13,34 @@ namespace Dashboard.Jenkins
 {
     public sealed partial class JenkinsClient
     {
-        private readonly Uri _baseUrl;
+        private readonly Uri _host;
         private readonly IRestClient _restClient;
         private readonly string _authorizationHeaderValue;
 
         public IRestClient RestClient => _restClient;
-        public string HostName => _baseUrl.Host;
+        public Uri Host => _host;
 
-        public JenkinsClient(Uri baseUrl)
+        public JenkinsClient(Uri host)
         {
-            _baseUrl = baseUrl;
-            _restClient = new RestClient(baseUrl);
+            _host = host;
+            _restClient = new RestClient(host);
         }
 
-        public JenkinsClient(Uri baseUrl, IRestClient restClient)
+        public JenkinsClient(Uri host, IRestClient restClient)
         {
-            _baseUrl = baseUrl;
+            _host = host;
             _restClient = restClient;
         }
 
-        public JenkinsClient(Uri baseUrl, string connectionString)
-            : this(baseUrl)
+        public JenkinsClient(Uri host, string connectionString)
+            : this(host)
         {
             var items = connectionString.Split(new[] { ':' }, count: 2);
             _authorizationHeaderValue = SharedUtil.CreateAuthorizationHeader(items[0], items[1]);
         }
 
-        public JenkinsClient(Uri baseUrl, string username, string password) 
-            : this(baseUrl, $"{username}:{password}")
+        public JenkinsClient(Uri host, string username, string password) 
+            : this(host, $"{username}:{password}")
         {
 
         }
@@ -91,13 +91,13 @@ namespace Dashboard.Jenkins
         public BuildInfo GetBuildInfo(BuildId id)
         {
             var data = GetJson(JenkinsUtil.GetBuildPath(id), tree: JsonUtil.BuildInfoTreeFilter);
-            return JsonUtil.ParseBuildInfo(HostName, id.JobId, data);
+            return JsonUtil.ParseBuildInfo(Host, id.JobId, data);
         }
 
         public async Task<BuildInfo> GetBuildInfoAsync(BuildId id)
         {
             var data = await GetJsonAsync(JenkinsUtil.GetBuildPath(id), tree: JsonUtil.BuildInfoTreeFilter);
-            return JsonUtil.ParseBuildInfo(HostName, id.JobId, data);
+            return JsonUtil.ParseBuildInfo(Host, id.JobId, data);
         }
 
         /// <summary>
@@ -106,13 +106,13 @@ namespace Dashboard.Jenkins
         public List<BuildInfo> GetBuildInfoList(JobId id)
         {
             var data = GetJson(JenkinsUtil.GetJobIdPath(id), tree: JsonUtil.BuildInfoListTreeFilter, depth: 2);
-            return JsonUtil.ParseBuildInfoList(HostName, id, data);
+            return JsonUtil.ParseBuildInfoList(Host, id, data);
         }
 
         public async Task<List<BuildInfo>> GetBuildInfoListAsync(JobId id)
         {
             var data = await GetJsonAsync(JenkinsUtil.GetJobIdPath(id), tree: JsonUtil.BuildInfoListTreeFilter, depth: 2);
-            return JsonUtil.ParseBuildInfoList(HostName, id, data);
+            return JsonUtil.ParseBuildInfoList(Host, id, data);
         }
 
         public JobInfo GetJobInfo(JobId id)
@@ -319,7 +319,7 @@ namespace Dashboard.Jenkins
 
         public string GetConsoleText(BuildId id)
         {
-            var uri = JenkinsUtil.GetUri(_baseUrl, JenkinsUtil.GetConsoleTextPath(id));
+            var uri = JenkinsUtil.GetUri(_host, JenkinsUtil.GetConsoleTextPath(id));
             var request = WebRequest.Create(uri);
             using (var reader = new StreamReader(request.GetResponse().GetResponseStream()))
             {
@@ -329,7 +329,7 @@ namespace Dashboard.Jenkins
 
         public async Task<string> GetConsoleTextAsync(BuildId id)
         {
-            var uri = JenkinsUtil.GetUri(_baseUrl, JenkinsUtil.GetConsoleTextPath(id));
+            var uri = JenkinsUtil.GetUri(_host, JenkinsUtil.GetConsoleTextPath(id));
             var request = WebRequest.Create(uri);
             using (var reader = new StreamReader((await request.GetResponseAsync()).GetResponseStream()))
             {

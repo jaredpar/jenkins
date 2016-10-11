@@ -51,7 +51,7 @@ namespace Dashboard.Tests
             };
 
             var buildId = entity.BoundBuildId;
-            Assert.Equal("", buildId.HostName);
+            Assert.Equal(LegacyUtil.DefaultHost, buildId.Host);
             Assert.Equal(jobId, buildId.JobId);
             Assert.Equal(42, buildId.Number);
         }

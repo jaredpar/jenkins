@@ -207,7 +207,7 @@ namespace Dashboard.StorageBuilder
             {
                 BuildStateKeyRaw = buildStateKey.Key,
                 BuildNumber = buildId.Number,
-                HostName = buildId.HostName,
+                HostRaw = buildId.Host.ToString(),
                 JobName = buildId.JobName
             };
 

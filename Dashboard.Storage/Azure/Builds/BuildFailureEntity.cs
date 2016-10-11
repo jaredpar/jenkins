@@ -24,7 +24,7 @@ namespace Dashboard.Azure.Builds
         public string JobKind { get; set; }
         public string ViewName { get; set; }
         public int BuildNumber { get; set; }
-        public string HostName { get; set; }
+        public string HostRaw { get; set; }
         public string Identifier { get; set; }
         public string MachineName { get; set; }
         public bool IsPullRequest { get; set; }
@@ -36,7 +36,8 @@ namespace Dashboard.Azure.Builds
 
         public JobId JobId => JobId.ParseName(JobName);
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
-        public BoundBuildId BoundBuildId => new BoundBuildId(HostName ?? "", BuildId);
+        public Uri Host => HostRaw != null ? new Uri(HostRaw) : LegacyUtil.DefaultHost;
+        public BoundBuildId BoundBuildId => new BoundBuildId(Host, BuildId);
         public BuildFailureKind BuildFailureKind => (BuildFailureKind)Enum.Parse(typeof(BuildFailureKind), BuildFailureKindRaw);
         public DateTimeOffset BuildDateTimeOffset => BuildDateTime;
         public bool HasPullRequestInfo =>
@@ -72,7 +73,7 @@ namespace Dashboard.Azure.Builds
             JobKind = jobKind;
             ViewName = AzureUtil.GetViewName(buildId.JobId);
             BuildNumber = buildId.Number;
-            HostName = buildId.HostName;
+            HostRaw = buildId.Host.ToString();
             Identifier = identifier;
             BuildFailureKindRaw = kind.ToString();
             BuildDateTime = buildDate.UtcDateTime;

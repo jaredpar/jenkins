@@ -8,10 +8,12 @@ namespace Dashboard.Tests
 {
     public class BuildResultEntityTests
     {
+        private static BoundBuildId Create(string host, int number, JobId id) => new BoundBuildId(new Uri($"http://{host}"), number, id);
+
         [Fact]
         public void Properties()
         {
-            var buildId = new BoundBuildId("example.com", 42, JobId.ParseName("hello"));
+            var buildId = Create("example.com", 42, JobId.ParseName("hello"));
             var buildDate = DateTimeOffset.UtcNow;
             var entity = new BuildResultEntity(
                 buildId,
@@ -35,7 +37,7 @@ namespace Dashboard.Tests
         [Fact]
         public void PullRequestInfo()
         {
-            var buildId = new BoundBuildId("example.com", 42, JobId.ParseName("hello"));
+            var buildId = Create("example.com", 42, JobId.ParseName("hello"));
             var buildDate = DateTimeOffset.UtcNow;
             var prInfo = new PullRequestInfo("bob", "dog", 42, "cat", "tree");
             var entity = new BuildResultEntity(
@@ -67,7 +69,7 @@ namespace Dashboard.Tests
         [Fact]
         public void ViewNameAll()
         {
-            var buildId = new BoundBuildId("example.com", 42, JobId.ParseName("test"));
+            var buildId = Create("example.com", 42, JobId.ParseName("test"));
             var entity = new BuildResultEntity(buildId, DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1), "kind", "test", BuildResultClassification.Succeeded, null);
             Assert.Equal(AzureUtil.ViewNameRoot, entity.ViewName);
         }
@@ -75,7 +77,7 @@ namespace Dashboard.Tests
         [Fact]
         public void ViewNameOther()
         {
-            var buildId = new BoundBuildId("example.com", 42, JobId.ParseName("house/test"));
+            var buildId = Create("example.com", 42, JobId.ParseName("house/test"));
             var entity = new BuildResultEntity(buildId, DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1), "kind", "test", BuildResultClassification.Succeeded, null);
             Assert.Equal("house", entity.ViewName);
         }
@@ -94,7 +96,7 @@ namespace Dashboard.Tests
             };
 
             var buildId = entity.BoundBuildId;
-            Assert.Equal("", buildId.HostName);
+            Assert.Equal(LegacyUtil.DefaultHost, buildId.Host);
             Assert.Equal(jobId, buildId.JobId);
             Assert.Equal(42, buildId.Number);
         }

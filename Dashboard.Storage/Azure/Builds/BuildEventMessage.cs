@@ -15,9 +15,9 @@ namespace Dashboard.Azure.Builds
         public int Number { get; set; }
         public int QueueId { get; set; }
 
-        public BuildId BuildId => new BuildId(Number, JobId);
+        public Uri Host => BoundBuildId.NormalizeHostUri(new Uri(Url));
         public JobId JobId => JenkinsUtil.ConvertPathToJobId(JobName);
-        public string JenkinsHostName => (new Uri(Url)).Host;
-        public BoundBuildId BoundBuildId => new BoundBuildId(JenkinsHostName, BuildId);
+        public BuildId BuildId => new BuildId(Number, JobId);
+        public BoundBuildId BoundBuildId => new BoundBuildId(Host, BuildId);
     }
 }

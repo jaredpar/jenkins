@@ -1,4 +1,5 @@
 ﻿using Dashboard.Jenkins;
+using System;
 
 namespace Dashboard.Azure.Builds
 {
@@ -9,6 +10,7 @@ namespace Dashboard.Azure.Builds
     public sealed class BuildStateMessage
     {
         public string BuildStateKeyRaw { get; set; }
+        public string HostRaw { get; set; }
         public string HostName { get; set; }
         public string JobName { get; set; }
         public int BuildNumber { get; set; }
@@ -21,7 +23,7 @@ namespace Dashboard.Azure.Builds
         public BuildStateMessage(DateTimeKey buildStateKey, BoundBuildId buildId)
         {
             BuildStateKeyRaw = buildStateKey.Key;
-            HostName = buildId.HostName;
+            HostRaw = buildId.Host.ToString();
             JobName = buildId.JobName;
             BuildNumber = buildId.Number;
         }
@@ -29,6 +31,7 @@ namespace Dashboard.Azure.Builds
         public DateTimeKey BuildStateKey => DateTimeKey.ParseDateTimeKey(BuildStateKeyRaw, BuildStateEntity.Flags);
         public JobId JobId => JobId.ParseName(JobName);
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
-        public BoundBuildId BoundBuildId => new BoundBuildId(HostName, BuildId);
+        public Uri Host => HostRaw != null ? new Uri(HostRaw) : new Uri($"http://{HostName}");
+        public BoundBuildId BoundBuildId => new BoundBuildId(Host, BuildId);
     }
 }

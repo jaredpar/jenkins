@@ -78,6 +78,7 @@
     <Compile Include="Azure\AzureConstants.cs" />
     <Compile Include="Azure\AzureUtil.cs" />
     <Compile Include="Azure\Builds\BuildStateEntity.cs" />
+    <Compile Include="Azure\Builds\LegacyUtil.cs" />
     <Compile Include="Azure\DateTimeKey.cs" />
     <Compile Include="Azure\Builds\BuildFailureEntity.cs" />
     <Compile Include="Azure\Builds\BuildResultClassification.cs" />
@@ -119,9 +120,7 @@
       <Name>Dashboard.Jenkins</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Azure\Builds\Json\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

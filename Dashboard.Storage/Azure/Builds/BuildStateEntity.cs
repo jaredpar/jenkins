@@ -13,6 +13,7 @@ namespace Dashboard.Azure.Builds
         public static DateTimeKeyFlags Flags => DateTimeKeyFlags.Date;
 
         public string HostName { get; set; }
+        public string HostRaw { get; set; }
         public int BuildNumber { get; set; }
         public string JobName { get; set; }
 
@@ -33,14 +34,15 @@ namespace Dashboard.Azure.Builds
 
         public DateTimeKey BuildStateKey => DateTimeKey.ParseDateTimeKey(PartitionKey, Flags);
         public JobId JobId => JobId.ParseName(JobName);
+        public Uri Host => HostRaw != null ? new Uri(HostRaw) : new Uri($"http://{HostName}");
         public BuildId BuildId => new BuildId(BuildNumber, JobId);
-        public BoundBuildId BoundBuildId => new BoundBuildId(HostName, BuildId);
+        public BoundBuildId BoundBuildId => new BoundBuildId(Host, BuildId);
 
         public BuildStateEntity(DateTimeKey key, BoundBuildId buildId, bool isBuildFinished)
         {
             PartitionKey = key.Key;
             RowKey = GetRowKey(buildId);
-            HostName = buildId.HostName;
+            HostRaw = buildId.Host.ToString();
             BuildNumber = buildId.Number;
             JobName = buildId.JobName;
             IsBuildFinished = isBuildFinished;

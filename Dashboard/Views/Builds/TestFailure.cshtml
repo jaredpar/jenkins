@@ -20,12 +20,7 @@
 @foreach (var entity in Model.Builds)
 {
     var id = entity.BoundBuildId;
-    if (string.IsNullOrEmpty(id.HostName))
-    {
-        id = new BoundBuildId(SharedConstants.DotnetJenkinsHostName, id.BuildId);
-    }
-
-    var uri = id.GetBuildUri(useHttps: false);
+    var uri = id.BuildUri;
     var prUri = entity.PullRequestUrl ?? "";
     <tr>
         <td><a href="@uri">@id.JobName @id.Number</a></td>

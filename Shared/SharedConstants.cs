@@ -4,7 +4,7 @@ namespace Dashboard
 {
     public static class SharedConstants
     {
-        // TODO: Delete this.  Should no longer be generally available as there are lots of Jenknis servers
+        // TODO: Delete this.  Should no longer be generally available as there are lots of Jenkins servers
         // to consider now.
         public const string DotnetJenkinsUriString = "https://dotnet-ci.cloudapp.net";
         public static readonly Uri DotnetJenkinsUri = new Uri(DotnetJenkinsUriString);
