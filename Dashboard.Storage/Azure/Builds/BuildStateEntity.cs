@@ -32,6 +32,11 @@ namespace Dashboard.Azure.Builds
         /// </summary>
         public string Error { get; set; }
 
+        /// <summary>
+        /// Counts the approximate number of times Jenkins gave a 404 when looking for build information.
+        /// </summary>
+        public int BuildMissingCount { get; set; }
+
         public DateTimeKey BuildStateKey => DateTimeKey.ParseDateTimeKey(PartitionKey, Flags);
         public JobId JobId => JobId.ParseName(JobName);
         public Uri Host => HostRaw != null ? new Uri(HostRaw) : new Uri($"http://{HostName}");

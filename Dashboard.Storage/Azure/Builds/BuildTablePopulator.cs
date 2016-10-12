@@ -15,7 +15,7 @@ namespace Dashboard.Azure.Builds
     {
         private struct PopulateData
         {
-            internal BuildResultEntity Result {get;}
+            internal BuildResultEntity Result { get; }
             internal List<BuildFailureEntity> Failures { get; }
 
             internal PopulateData(BuildResultEntity result, List<BuildFailureEntity> failures)
@@ -36,12 +36,12 @@ namespace Dashboard.Azure.Builds
         private readonly JenkinsClient _client;
         private readonly TextWriter _textWriter;
 
-        public BuildTablePopulator(CloudTableClient tableClient, JenkinsClient client, TextWriter textWriter) :this(
+        public BuildTablePopulator(CloudTableClient tableClient, JenkinsClient client, TextWriter textWriter) : this(
             buildResultDateTable: tableClient.GetTableReference(AzureConstants.TableNames.BuildResultDate),
             buildResultExactTable: tableClient.GetTableReference(AzureConstants.TableNames.BuildResultExact),
             buildFailureDateTable: tableClient.GetTableReference(AzureConstants.TableNames.BuildFailureDate),
             buildFailureExactTable: tableClient.GetTableReference(AzureConstants.TableNames.BuildFailureExact),
-            viewNameDateTable : tableClient.GetTableReference(AzureConstants.TableNames.ViewNameDate),
+            viewNameDateTable: tableClient.GetTableReference(AzureConstants.TableNames.ViewNameDate),
             client: client,
             textWriter: textWriter)
         {
@@ -96,6 +96,24 @@ namespace Dashboard.Azure.Builds
                 await AzureUtil.ExecuteBatchUnordered(_buildFailureExactTable, TableOperationType.InsertOrReplace, failures.Select(x => x.CopyExact()));
                 await AzureUtil.ExecuteBatchUnordered(_buildFailureDateTable, TableOperationType.InsertOrReplace, failures.Select(x => x.CopyDate()));
             }
+        }
+
+        public async Task PopulateBuildMissing(BoundBuildId buildId)
+        {
+            // The bulid is now deemed to be missing.  Finish it off.
+            var result = new BuildResultEntity(
+                buildId,
+                DateTimeOffset.UtcNow,
+                TimeSpan.MinValue,
+                JobKind.Normal,
+                "",
+                BuildResultClassification.Infrastructure,
+                prInfo: null);
+
+            // Deliberately using Insert here vs. InsertOrReplace.  This is the worst possible outcome for this
+            // type so let anyone else win
+            await _buildResultDateTable.ExecuteAsync(TableOperation.Insert(result.CopyDate()));
+            await _buildResultDateTable.ExecuteAsync(TableOperation.Insert(result.CopyExact()));
         }
 
         private async Task<PopulateData> GetPopulateData(BoundBuildId buildId)
@@ -180,7 +198,7 @@ namespace Dashboard.Azure.Builds
                 buildInfo.Duration,
                 jobKind: jobKind,
                 machineName: buildInfo.MachineName,
-                classification: classification, 
+                classification: classification,
                 prInfo: prInfo);
 
             var failures = classification.Kind == ClassificationKind.TestFailure
