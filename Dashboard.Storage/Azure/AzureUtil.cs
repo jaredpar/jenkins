@@ -201,7 +201,6 @@ namespace Dashboard.Azure
             return list;
         }
 
-        // TODO: Delete
         public static IEnumerable<T> Query<T>(CloudTable table, string filter)
             where T : ITableEntity, new()
         {

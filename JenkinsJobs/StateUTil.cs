@@ -89,7 +89,7 @@ namespace Dashboard.StorageBuilder
         /// existing entity in the unprocessed table, this won't add one.  It will only update existing
         /// ones.
         /// </summary>
-        internal async Task Populate(BuildStateMessage message, BuildTablePopulator populator, bool force, CancellationToken cancellationToken)
+        internal async Task Populate(BuildStateMessage message, BuildTablePopulator populator, CancellationToken cancellationToken)
         {
             var buildId = message.BuildId;
             var key = message.BuildStateKey;
@@ -98,9 +98,16 @@ namespace Dashboard.StorageBuilder
 
             await CheckFinished(entity, cancellationToken);
 
-            // If we are not forcing the update then check for the existence of a completed run before
-            // requerying Jenkins.
-            if (!force && entity.IsDataComplete)
+            // Don't process the build unless it's known to have finished.
+            if (!entity.IsBuildFinished)
+            {
+                _logger.WriteLine($"Build {buildId.JobId} isn't finished yet");
+                await EnqueueProcessBuild(message.BuildStateKey, message.BoundBuildId, TimeSpan.FromMinutes(15), cancellationToken);
+                return;
+            }
+
+            // The build was completely populated by a previous message.  No more work needed.
+            if (entity.IsDataComplete)
             {
                 _logger.WriteLine($"Build {buildId.JobId} is already populated");
                 return;

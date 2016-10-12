@@ -77,7 +77,7 @@ namespace Dashboard.StorageBuilder
                 processBuildQueue: processBuildQueue,
                 emailBuildQueue: emailBuildQueue,
                 logger: logger);
-            await stateUtil.Populate(buildIdJson, populator, force: false, cancellationToken: cancellationToken);
+            await stateUtil.Populate(buildIdJson, populator, cancellationToken);
         }
 
         public static async Task EmailFailedBuild(
