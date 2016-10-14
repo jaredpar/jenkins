@@ -23,7 +23,7 @@ namespace Dashboard.Tests
             var tableClient = account.CreateCloudTableClient();
 
             _restClient = new MockRestClient();
-            var client = new JenkinsClient(SharedConstants.DotnetJenkinsUri, _restClient.Client);
+            var client = new JenkinsClient(new Uri("http://test.com"), _restClient.Client);
             _buildFailureExactTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildFailureExact);
             _buildResultExactTable = tableClient.GetTableReference(AzureConstants.TableNames.BuildResultExact);
             _populator = new BuildTablePopulator(

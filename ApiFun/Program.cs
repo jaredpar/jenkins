@@ -91,7 +91,7 @@ namespace Dashboard.ApiFun
             var buildId = new BuildId(number, jobId);
 
             var account = GetStorageAccount();
-            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(SharedConstants.DotnetJenkinsHostName), Console.Out);
+            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(), Console.Out);
             await populator.PopulateBuild(new BoundBuildId(uri, buildId));
         }
 
@@ -136,30 +136,6 @@ namespace Dashboard.ApiFun
 
             Console.WriteLine("Deleting old values");
             await AzureUtil.DeleteBatchUnordered(table, deleteList);
-        }
-
-        private static async Task DrainPoisonBuildQueue()
-        {
-            var account = GetStorageAccount();
-            var client = account.CreateCloudQueueClient();
-            var queue = client.GetQueueReference($"{AzureConstants.QueueNames.BuildEvent}-poison");
-            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(SharedConstants.DotnetJenkinsHostName), Console.Out);
-            var set = new HashSet<BuildId>();
-            do
-            {
-                var message = await queue.GetMessageAsync();
-                var obj = JObject.Parse(message.AsString);
-                var jobPath = obj.Value<string>("jobName");
-                var number = obj.Value<int>("number");
-                var buildId = new BuildId(number, JenkinsUtil.ConvertPathToJobId(jobPath));
-                if (!set.Add(buildId))
-                {
-                    continue;
-                }
-
-                await populator.PopulateBuild(new BoundBuildId(SharedConstants.DotnetJenkinsUri, buildId));
-                await queue.DeleteMessageAsync(message);
-            } while (true);
         }
 
         private static async Task CollapseCounters()
@@ -264,9 +240,12 @@ namespace Dashboard.ApiFun
         }
         */
 
-        internal static JenkinsClient CreateClient(string hostName, JobId jobId = null, bool? auth = null)
+        internal static JenkinsClient CreateClient(string hostName = null, JobId jobId = null, bool? auth = null)
         {
-            return CreateClient(new Uri($"http://{hostName}"), jobId, auth);
+            var uri = hostName != null
+                ? new Uri($"http://{hostName}")
+                : new Uri("https://ci.dot.net");
+            return CreateClient(uri, jobId, auth);
 
         }
 
@@ -320,7 +299,7 @@ namespace Dashboard.ApiFun
         private static void OomTest()
         {
             var buildId = new BuildId(352, JobId.ParseName("dotnet_corefx/master/windows_nt_release_prtest"));
-            var client = CreateClient(SharedConstants.DotnetJenkinsHostName);
+            var client = CreateClient();
             var list = client.GetFailedTestCases(buildId);
             Console.WriteLine(list.Count);
         }
@@ -352,8 +331,7 @@ namespace Dashboard.ApiFun
             var all = await AzureUtil.QueryAsync<BuildResultEntity>(table, query);
             foreach (var entity in all)
             {
-                var boundBuildId = new BoundBuildId(SharedConstants.DotnetJenkinsUri, entity.BuildId);
-                Console.WriteLine(boundBuildId.GetBuildUri(useHttps: false));
+                Console.WriteLine(entity.BoundBuildId.BuildUri);
             }
         }
 
@@ -436,7 +414,7 @@ namespace Dashboard.ApiFun
                     var id = JobId.ParseName(name);
                     try
                     {
-                        var client = CreateClient(SharedConstants.DotnetJenkinsHostName, id);
+                        var client = CreateClient(jobId: id);
                         var kind = await client.GetJobKindAsync(id);
                         if (kindSet.Add(kind))
                         {
@@ -454,7 +432,7 @@ namespace Dashboard.ApiFun
         private static async Task TestPopulator()
         {
             var account = GetStorageAccount();
-            var client = CreateClient(SharedConstants.DotnetJenkinsHostName, auth: false);
+            var client = CreateClient(auth: false);
             var populator = new BuildTablePopulator(account.CreateCloudTableClient(), client, Console.Out);
 
             var boundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_coreclr/job/master/job/jitstress/job/x64_checked_osx_jitstress1_flow/7/");
@@ -473,7 +451,7 @@ namespace Dashboard.ApiFun
             var account = GetStorageAccount();
             var buildUtil = new BuildUtil(account);
             var date = DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
-            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(SharedConstants.DotnetJenkinsHostName), Console.Out);
+            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(), Console.Out);
             var table = account.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildResultDate);
             foreach (var entity in buildUtil.GetBuildResultsByKindName(date, BuildResultClassification.Unknown.Name, AzureUtil.ViewNameAll))
             {
@@ -501,14 +479,14 @@ namespace Dashboard.ApiFun
 
         private static void PrintFailure()
         {
-            var client = CreateClient(SharedConstants.DotnetJenkinsHostName, auth: false);
+            var client = CreateClient(auth: false);
             var info = client.GetBuildFailureInfo(new BuildId(number: 6066, jobId: JobId.ParseName("roslyn_prtest_win_dbg_unit64")));
             // Console.WriteLine(info.Category);
         }
 
         private static void PrintViews()
         {
-            foreach (var viewInfo in CreateClient(SharedConstants.DotnetJenkinsHostName).GetViews())
+            foreach (var viewInfo in CreateClient().GetViews())
             {
                 Console.WriteLine($"{viewInfo.Name} {viewInfo.Url}");
             }
@@ -516,7 +494,7 @@ namespace Dashboard.ApiFun
 
         private static void PrintQueue()
         {
-            var client = CreateClient(SharedConstants.DotnetJenkinsHostName);
+            var client = CreateClient();
             foreach (var cur in client.GetQueuedItemInfoList())
             {
                 Console.WriteLine($"{cur.JobId} {cur.Id} {cur.PullRequestInfo?.PullUrl ?? ""}");
@@ -525,7 +503,7 @@ namespace Dashboard.ApiFun
 
         private static void PrintPullRequestData()
         {
-            var client = CreateClient(SharedConstants.DotnetJenkinsHostName);
+            var client = CreateClient();
             var list = new List<Tuple<DateTime, BuildId>>();
             foreach (var jobId in client.GetJobIdsInView("Roslyn").Where(x => x.Name.Contains("prtest")).Where(x => !x.Name.Contains("internal")))
             {
@@ -555,7 +533,7 @@ namespace Dashboard.ApiFun
         /// </summary>
         private static void PrintMacTimes()
         {
-            var client = CreateClient(SharedConstants.DotnetJenkinsHostName);
+            var client = CreateClient();
             var miniTimes = new List<TimeSpan>();
             var proTimes = new List<TimeSpan>();
 
@@ -588,7 +566,7 @@ namespace Dashboard.ApiFun
         private static void GetMacQueueTimes()
         {
             var list = new List<int>();
-            var client = CreateClient(SharedConstants.DotnetJenkinsHostName);
+            var client = CreateClient();
             foreach (var buildId in client.GetBuildIds(new JobId("roslyn_prtest_mac_dbg_unit32", JobId.Root)))
             {
                 Console.WriteLine($"Processing {buildId.Number}");
@@ -622,7 +600,7 @@ namespace Dashboard.ApiFun
 
         private static void PrintJobInfo()
         {
-            var client = CreateClient(SharedConstants.DotnetJenkinsHostName);
+            var client = CreateClient();
             foreach (var jobId in client.GetJobIds())
             {
                 Console.WriteLine($"{jobId.Name}");

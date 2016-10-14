@@ -116,7 +116,7 @@ namespace Dashboard.ApiFun
 
         private static JenkinsClient CreateClient()
         {
-            return new JenkinsClient(SharedConstants.DotnetJenkinsUri);
+            return new JenkinsClient(new Uri("https://ci.dot.net"));
         }
 
         private static async Task WriteJobList(string jobFile)

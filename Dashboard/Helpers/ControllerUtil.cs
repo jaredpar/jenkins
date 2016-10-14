@@ -2,6 +2,7 @@
 using Dashboard.Jenkins;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
+using System;
 using System.Configuration;
 
 namespace Dashboard.Helpers
@@ -19,7 +20,7 @@ namespace Dashboard.Helpers
         internal static JenkinsClient CreateJenkinsClient()
         {
             var connectionString = ConfigurationManager.AppSettings[SharedConstants.GithubConnectionStringName];
-            return new JenkinsClient(SharedConstants.DotnetJenkinsUri, connectionString);
+            return new JenkinsClient(new Uri("https://ci.dot.net"), connectionString);
         }
 
         internal static CounterStatsUtil GetOrCreateCounterStatsUtil(CloudStorageAccount account)
