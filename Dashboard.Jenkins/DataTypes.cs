@@ -65,6 +65,7 @@ namespace Dashboard.Jenkins
         public JobId JobId => BuildId.JobId;
         public string JobName => BuildId.JobName;
         public Uri BuildUri => GetBuildUri();
+        public Uri JobUri => JenkinsUtil.GetJobUri(Host, JobId);
 
         public BoundBuildId(Uri host, BuildId buildId)
         {

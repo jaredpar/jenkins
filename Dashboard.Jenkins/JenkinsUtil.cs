@@ -13,19 +13,19 @@ namespace Dashboard.Jenkins
             return builder.Uri;
         }
 
-        public static Uri GetUri(Uri baseUrl, BuildId buildId)
+        public static Uri GetBuildUri(Uri baseUrl, BuildId buildId)
         {
             var path = GetBuildPath(buildId);
             return GetUri(baseUrl, path);
         }
 
-        public static Uri GetUri(Uri baseUrl, JobId jobId)
+        public static Uri GetJobUri(Uri baseUrl, JobId jobId)
         {
-            var path = GetJobIdPath(jobId);
+            var path = GetJobPath(jobId);
             return GetUri(baseUrl, path);
         }
 
-        public static string GetJobIdPath(JobId id)
+        public static string GetJobPath(JobId id)
         {
             if (id.IsRoot)
             {
@@ -37,12 +37,12 @@ namespace Dashboard.Jenkins
                 return $"job/{id.ShortName}";
             }
 
-            return $"{GetJobIdPath(id.Parent)}/job/{id.ShortName}";
+            return $"{GetJobPath(id.Parent)}/job/{id.ShortName}";
         }
 
         public static string GetBuildPath(BuildId id)
         {
-            return $"{GetJobIdPath(id.JobId)}/{id.Number}/";
+            return $"{GetJobPath(id.JobId)}/{id.Number}/";
         }
 
         public static Uri GetBuildStatusIconUri(Uri jenkinsUri, BuildId id)
@@ -70,17 +70,17 @@ namespace Dashboard.Jenkins
 
         public static string GetJobDeletePath(JobId jobId)
         {
-            return $"{GetJobIdPath(jobId)}/doDelete";
+            return $"{GetJobPath(jobId)}/doDelete";
         }
 
         public static string GetJobEnablePath(JobId jobId)
         {
-            return $"{GetJobIdPath(jobId)}/enable";
+            return $"{GetJobPath(jobId)}/enable";
         }
 
         public static string GetJobDisablePath(JobId jobId)
         {
-            return $"{GetJobIdPath(jobId)}/disable";
+            return $"{GetJobPath(jobId)}/disable";
         }
 
         /// <summary>

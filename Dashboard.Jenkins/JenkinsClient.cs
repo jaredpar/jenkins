@@ -53,14 +53,14 @@ namespace Dashboard.Jenkins
         public List<JobId> GetJobIds(JobId parent = null)
         {
             parent = parent ?? JobId.Root;
-            var data = GetJson(JenkinsUtil.GetJobIdPath(parent));
+            var data = GetJson(JenkinsUtil.GetJobPath(parent));
             return JsonUtil.ParseJobs(parent, (JArray)data["jobs"]);
         }
 
         public async Task<List<JobId>> GetJobIdsAsync(JobId parent = null)
         {
             parent = parent ?? JobId.Root;
-            var data = await GetJsonAsync(JenkinsUtil.GetJobIdPath(parent));
+            var data = await GetJsonAsync(JenkinsUtil.GetJobPath(parent));
             return JsonUtil.ParseJobs(parent, (JArray)data["jobs"]);
         }
 
@@ -78,13 +78,13 @@ namespace Dashboard.Jenkins
 
         public List<BuildId> GetBuildIds(JobId jobId)
         {
-            var data = GetJson(JenkinsUtil.GetJobIdPath(jobId));
+            var data = GetJson(JenkinsUtil.GetJobPath(jobId));
             return JsonUtil.ParseBuilds(jobId, (JArray)data["builds"] ?? new JArray());
         }
 
         public async Task<List<BuildId>> GetBuildIdsAsync(JobId jobId)
         {
-            var data = await GetJsonAsync(JenkinsUtil.GetJobIdPath(jobId));
+            var data = await GetJsonAsync(JenkinsUtil.GetJobPath(jobId));
             return JsonUtil.ParseBuilds(jobId, (JArray)data["builds"] ?? new JArray());
         }
 
@@ -105,27 +105,27 @@ namespace Dashboard.Jenkins
         /// </summary>
         public List<BuildInfo> GetBuildInfoList(JobId id)
         {
-            var data = GetJson(JenkinsUtil.GetJobIdPath(id), tree: JsonUtil.BuildInfoListTreeFilter, depth: 2);
+            var data = GetJson(JenkinsUtil.GetJobPath(id), tree: JsonUtil.BuildInfoListTreeFilter, depth: 2);
             return JsonUtil.ParseBuildInfoList(Host, id, data);
         }
 
         public async Task<List<BuildInfo>> GetBuildInfoListAsync(JobId id)
         {
-            var data = await GetJsonAsync(JenkinsUtil.GetJobIdPath(id), tree: JsonUtil.BuildInfoListTreeFilter, depth: 2);
+            var data = await GetJsonAsync(JenkinsUtil.GetJobPath(id), tree: JsonUtil.BuildInfoListTreeFilter, depth: 2);
             return JsonUtil.ParseBuildInfoList(Host, id, data);
         }
 
         public JobInfo GetJobInfo(JobId id)
         {
-            var json = GetJson(JenkinsUtil.GetJobIdPath(id));
-            var xml = GetXml(JenkinsUtil.GetJobIdPath(id));
+            var json = GetJson(JenkinsUtil.GetJobPath(id));
+            var xml = GetXml(JenkinsUtil.GetJobPath(id));
             return GetJobInfoCore(id, json, xml);
         }
 
         public async Task<JobInfo> GetJobInfoAsync(JobId id)
         {
-            var json = await GetJsonAsync(JenkinsUtil.GetJobIdPath(id));
-            var xml = await GetXmlAsync(JenkinsUtil.GetJobIdPath(id));
+            var json = await GetJsonAsync(JenkinsUtil.GetJobPath(id));
+            var xml = await GetXmlAsync(JenkinsUtil.GetJobPath(id));
             return GetJobInfoCore(id, json, xml);
         }
 
@@ -139,13 +139,13 @@ namespace Dashboard.Jenkins
 
         public string GetJobKind(JobId id)
         {
-            var xml = GetXml(JenkinsUtil.GetJobIdPath(id));
+            var xml = GetXml(JenkinsUtil.GetJobPath(id));
             return XmlUtil.ParseJobKind(xml);
         }
 
         public async Task<string> GetJobKindAsync(JobId id)
         {
-            var xml = await GetXmlAsync(JenkinsUtil.GetJobIdPath(id));
+            var xml = await GetXmlAsync(JenkinsUtil.GetJobPath(id));
             return XmlUtil.ParseJobKind(xml);
         }
 

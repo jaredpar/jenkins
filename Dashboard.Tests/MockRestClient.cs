@@ -61,7 +61,7 @@ namespace Dashboard.Tests
 
             if (jobXml != null)
             {
-                AddXmlCore(JenkinsUtil.GetJobIdPath(buildId.JobId), jobXml);
+                AddXmlCore(JenkinsUtil.GetJobPath(buildId.JobId), jobXml);
             }
         }
 

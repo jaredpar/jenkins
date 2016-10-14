@@ -58,8 +58,8 @@ namespace Dashboard.Jenkins.Tests
             [Fact]
             public void GetJobPath()
             {
-                Assert.Equal("job/test", JenkinsUtil.GetJobIdPath(JobId.ParseName("test")));
-                Assert.Equal("job/test/job/op", JenkinsUtil.GetJobIdPath(JobId.ParseName("test/op")));
+                Assert.Equal("job/test", JenkinsUtil.GetJobPath(JobId.ParseName("test")));
+                Assert.Equal("job/test/job/op", JenkinsUtil.GetJobPath(JobId.ParseName("test/op")));
             }
 
             [Fact]
