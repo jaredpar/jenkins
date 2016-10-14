@@ -34,7 +34,7 @@
         @foreach (var entity in Model.Entries)
         {
             var id = entity.BuildId;
-            var uri = JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, JenkinsUtil.GetBuildPath(id));
+            var uri = entity.BoundBuildId;
             var prUri = entity.PullRequestUrl ?? "";
             var ETInMins = (double)entity.DurationSeconds / 60;
             <tr>

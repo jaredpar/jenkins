@@ -22,7 +22,7 @@
 @foreach (var entity in Model.Entries)
 {
     var id = entity.BuildId;
-    var uri = JenkinsUtil.GetUri(SharedConstants.DotnetJenkinsUri, JenkinsUtil.GetBuildPath(id));
+    var uri = entity.BoundBuildId.BuildUri;
     var prUri = entity.PullRequestUrl ?? "";
     <tr>
         <td>@id.JobName</td>
