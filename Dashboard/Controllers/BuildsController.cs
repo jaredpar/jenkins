@@ -114,7 +114,7 @@ namespace Dashboard.Controllers
             }
         }
 
-        public async Task<ActionResult> Stats()
+        public async Task<ActionResult> Stats(bool pr = false)
         {
             var util = Factory.Create<BuildCounterEntity>(_storageAccount.CreateCloudTableClient(), TableNames.CounterBuilds);
             var map = new Dictionary<DateTimeKey, BuildStats>();
@@ -130,12 +130,18 @@ namespace Dashboard.Controllers
                     map[date] = stats;
                 }
 
-                stats.BuildCount += entity.BuildCount;
-                stats.BuildSucceededCount += entity.SuccededCount;
-                stats.BuildFailedCount += entity.FailedCount;
+                stats.BuildSucceededCount += entity.CommitSucceededCount;
+                stats.BuildFailedCount += entity.CommitFailedCount;
+
+                if (pr)
+                {
+                    stats.BuildSucceededCount += entity.PullRequestSucceededCount;
+                    stats.BuildFailedCount += entity.PullRequestFailedCount;
+                }
             }
 
-            return View(viewName: "Stats", model: map.Values.OrderBy(x => x.Date).ToList());
+            var model = new BuildStatsModel(map.Values.OrderBy(x => x.Date).ToList(), pr);
+            return View(viewName: "Stats", model: model);
         }
 
         /// <summary>

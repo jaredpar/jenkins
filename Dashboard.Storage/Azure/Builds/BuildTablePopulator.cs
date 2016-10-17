@@ -128,14 +128,28 @@ namespace Dashboard.Azure.Builds
         {
             await _buildCounterUtil.UpdateAsync(x =>
             {
-                x.BuildCount++;
-                if (result.ClassificationKind == ClassificationKind.Succeeded)
+                var succeeded = result.ClassificationKind == ClassificationKind.Succeeded;
+                if (JobUtil.IsPullRequestJobName(result.JobName))
                 {
-                    x.SuccededCount++;
+                    if (succeeded)
+                    {
+                        x.PullRequestSucceededCount++;
+                    }
+                    else
+                    {
+                        x.PullRequestFailedCount++;
+                    }
                 }
                 else
                 {
-                    x.FailedCount++;
+                    if (succeeded)
+                    {
+                        x.CommitSucceededCount++;
+                    }
+                    else
+                    {
+                        x.CommitFailedCount++;
+                    }
                 }
             });
         }

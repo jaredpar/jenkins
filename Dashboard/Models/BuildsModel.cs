@@ -329,14 +329,27 @@ namespace Dashboard.Models
 
     public sealed class BuildStats
     {
-        public DateTimeOffset Date { get; set; }
-        public int BuildCount { get; set; }
+        public DateTimeOffset Date { get; }
         public int BuildSucceededCount { get; set; }
         public int BuildFailedCount { get; set; }
+
+        public int BuildCount => BuildSucceededCount + BuildFailedCount;
 
         public BuildStats(DateTimeOffset date)
         {
             Date = date;
+        }
+    }
+
+    public sealed class BuildStatsModel
+    {
+        public List<BuildStats> BuildStats { get; }
+        public bool IncludePullRequest { get; }
+
+        public BuildStatsModel(List<BuildStats> buildStats, bool pr)
+        {
+            BuildStats = buildStats;
+            IncludePullRequest = pr;
         }
     }
 }
