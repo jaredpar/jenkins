@@ -264,7 +264,7 @@ namespace Dashboard.StorageBuilder
                 var client = new RestClient(buildId.Host);
                 var request = new RestRequest(buildId.BuildUri.PathAndQuery, Method.GET);
                 var response = await client.ExecuteTaskAsync(request);
-                return response.StatusCode != HttpStatusCode.NotFound;
+                return response.StatusCode == HttpStatusCode.NotFound;
             }
             catch (Exception ex)
             {
