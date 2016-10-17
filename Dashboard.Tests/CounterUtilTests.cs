@@ -101,6 +101,49 @@ namespace Dashboard.Tests
         }
 
         [Fact]
+        public async Task BasicFromFactory()
+        {
+            var date = DateTimeOffset.UtcNow;
+            var factory = new CounterUtilFactory();
+            var count = 10;
+            for (var i =0; i< count; i++)
+            {
+                var util = factory.Create<TestEntity>(Table);
+                util.Update(e => e.Count++);
+            }
+
+            var all = await CounterUtil.QueryAsync(date);
+
+            // In general this should be 1.  However to account for the possibility the test 
+            // was ran across a date boundary use <= 2
+            Assert.True(all.Count <= 2);
+            Assert.Equal(count, all.Sum(x => x.Count));
+        }
+
+        /// <summary>
+        /// This is why the factory method is preferred.
+        /// </summary>
+        [Fact]
+        public async Task BasicFromCtor()
+        {
+            var date = DateTimeOffset.UtcNow;
+            var factory = new CounterUtilFactory();
+            var count = 10;
+            for (var i =0; i< count; i++)
+            {
+                var util = new CounterUtil<TestEntity>(Table);
+                util.Update(e => e.Count++);
+            } 
+
+            var all = await CounterUtil.QueryAsync(date);
+
+            // This is why a factory is preferred.  This method creates a new entity, and hence row,
+            // per ctor.
+            Assert.Equal(count, all.Count);
+            Assert.Equal(count, all.Sum(x => x.Count));
+        }
+
+        [Fact]
         public async Task QuerySimple()
         {
             var date = DateTimeOffset.Parse("2016/01/02");

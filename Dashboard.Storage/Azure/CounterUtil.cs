@@ -26,18 +26,23 @@ namespace Dashboard.Azure
         where T : class, ITableEntity, new()
     {
         /// <summary>
-        /// The cached entity to be updated.  There is one cached value that is oppurtunisitically 
-        /// reused between threads.  A thread can only update it when they have a local copy and
-        /// have assigned this value to null.
+        /// The stack of T entities which can be updated.  Values are considered owned by the 
+        /// thread which pops them.  Ownership is released by pushing back onto the stack.
         /// </summary>
-        private ConcurrentStack<T> _stack = new ConcurrentStack<T>();
+        private ConcurrentStack<T> _stack;
 
         public CloudTable Table { get; }
         public int ApproximateCacheCount => _stack.Count;
 
-        public CounterUtil(CloudTable table)
+        public CounterUtil(CloudTable table) : this(table, new ConcurrentStack<T>())
+        {
+
+        }
+
+        internal CounterUtil(CloudTable table, ConcurrentStack<T> stack)
         {
             Table = table;
+            _stack = stack;
         }
 
         /// <summary>

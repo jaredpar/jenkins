@@ -79,6 +79,7 @@
     <Compile Include="Azure\AzureUtil.cs" />
     <Compile Include="Azure\Builds\BuildStateEntity.cs" />
     <Compile Include="Azure\Builds\LegacyUtil.cs" />
+    <Compile Include="Azure\CounterUtilFactory.cs" />
     <Compile Include="Azure\DateTimeKey.cs" />
     <Compile Include="Azure\Builds\BuildFailureEntity.cs" />
     <Compile Include="Azure\Builds\BuildResultClassification.cs" />
