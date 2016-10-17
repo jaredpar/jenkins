@@ -21,7 +21,7 @@
     var percent = ((double)entry.BuildSucceededCount) / entry.BuildCount;
 
     <tr>
-        <td>@entry.Date.ToLocalTime().ToString("dddd, yyyy/MM/dd")</td>
+        <td>@entry.Date.ToString("dddd, yyyy/MM/dd")</td>
         <td>@entry.BuildCount.ToString("n0")</td>
         <td>@percent.ToString("P2")</td>
         <td>@entry.BuildSucceededCount.ToString("n0")</td>
@@ -30,4 +30,6 @@
 }
 </tbody>
 </table>
+
+<div><p>All dates are UTC based</p></div>
 
