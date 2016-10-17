@@ -14,6 +14,7 @@ namespace Dashboard.Azure
             public const string BuildState = "BuildState";
             public const string BuildResultDate = "BuildResultDate";
             public const string BuildResultExact = "BuildResultExact";
+            public const string CounterBuilds = "CounterBuilds";
             public const string CounterTestCache = "CounterTestCache";
             public const string CounterTestCacheJenkins = "CounterTestCacheJenkins";
             public const string CounterUnitTestQuery = "CounterUnitTestQuery";
@@ -33,6 +34,7 @@ namespace Dashboard.Azure
                 yield return BuildResultDate;
                 yield return BuildResultExact;
                 yield return BuildProcessed;
+                yield return CounterBuilds;
                 yield return CounterTestCache;
                 yield return CounterTestCacheJenkins;
                 yield return CounterUnitTestQuery;

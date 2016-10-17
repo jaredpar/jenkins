@@ -22,6 +22,8 @@ namespace Dashboard.StorageBuilder
 {
     public class Functions
     {
+        public static readonly CounterUtilFactory CounterUtilFactory = new CounterUtilFactory();
+
         public static async Task BuildEvent(
             [QueueTrigger(QueueNames.BuildEvent)] string message,
             [Queue(QueueNames.ProcessBuild)] CloudQueue processBuildQueue,
@@ -54,6 +56,7 @@ namespace Dashboard.StorageBuilder
             [Table(TableNames.BuildResultExact)] CloudTable buildResultExactTable,
             [Table(TableNames.BuildFailureDate)] CloudTable buildFailureDateTable,
             [Table(TableNames.BuildFailureExact)] CloudTable buildFailureExactTable,
+            [Table(TableNames.CounterBuilds)] CloudTable counterBuildsTable,
             [Table(TableNames.ViewNameDate)] CloudTable viewNameDateTable,
             [Queue(QueueNames.ProcessBuild)] CloudQueue processBuildQueue,
             [Queue(QueueNames.EmailBuild)] CloudQueue emailBuildQueue,
@@ -69,6 +72,7 @@ namespace Dashboard.StorageBuilder
                 buildFailureDateTable: buildFailureDateTable,
                 buildFailureExactTable: buildFailureExactTable,
                 viewNameDateTable: viewNameDateTable,
+                buildCounterUtil: CounterUtilFactory.Create<BuildCounterEntity>(counterBuildsTable),
                 client: client,
                 textWriter: logger);
             var stateUtil = new StateUtil(

@@ -22,6 +22,8 @@ namespace Dashboard.ApiFun
 {
     internal static class Program
     {
+        internal static readonly CounterUtilFactory CounterUtilFactory = new CounterUtilFactory();
+
         internal static void Main(string[] args)
         {
             TestFailure().Wait();
@@ -91,7 +93,8 @@ namespace Dashboard.ApiFun
             var buildId = new BuildId(number, jobId);
 
             var account = GetStorageAccount();
-            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(), Console.Out);
+            var tableClient = account.CreateCloudTableClient();
+            var populator = new BuildTablePopulator(tableClient, CounterUtilFactory, CreateClient(), Console.Out);
             await populator.PopulateBuild(new BoundBuildId(uri, buildId));
         }
 
@@ -355,7 +358,7 @@ namespace Dashboard.ApiFun
             var buildId = boundBuildId.BuildId;
             var account = GetStorageAccount();
             var client = CreateClient(boundBuildId);
-            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), client, Console.Out);
+            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CounterUtilFactory, client, Console.Out);
 
             try
             {
@@ -381,7 +384,7 @@ namespace Dashboard.ApiFun
 
             foreach (var entity in list)
             {
-                var populator = new BuildTablePopulator(tableClient, CreateClient(entity.BoundBuildId), TextWriter.Null);
+                var populator = new BuildTablePopulator(tableClient, CounterUtilFactory, CreateClient(entity.BoundBuildId), TextWriter.Null);
                 try
                 {
                     Console.Write($"{entity.BuildId} ... ");
@@ -433,7 +436,7 @@ namespace Dashboard.ApiFun
         {
             var account = GetStorageAccount();
             var client = CreateClient(auth: false);
-            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), client, Console.Out);
+            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CounterUtilFactory, client, Console.Out);
 
             var boundBuildId = BoundBuildId.Parse("https://dotnet-ci.cloudapp.net/job/dotnet_coreclr/job/master/job/jitstress/job/x64_checked_osx_jitstress1_flow/7/");
             try
@@ -451,7 +454,7 @@ namespace Dashboard.ApiFun
             var account = GetStorageAccount();
             var buildUtil = new BuildUtil(account);
             var date = DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
-            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CreateClient(), Console.Out);
+            var populator = new BuildTablePopulator(account.CreateCloudTableClient(), CounterUtilFactory, CreateClient(), Console.Out);
             var table = account.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildResultDate);
             foreach (var entity in buildUtil.GetBuildResultsByKindName(date, BuildResultClassification.Unknown.Name, AzureUtil.ViewNameAll))
             {

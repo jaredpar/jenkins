@@ -317,6 +317,7 @@
     <Content Include="Views\Builds\JobElapsedTime.cshtml" />
     <Content Include="Views\Builds\JobElapsedTimePerBuild.cshtml" />
     <Content Include="Views\Builds\Status.cshtml" />
+    <Content Include="Views\Builds\Stats.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

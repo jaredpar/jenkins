@@ -326,4 +326,17 @@ namespace Dashboard.Models
             List = list;
         }
     }
+
+    public sealed class BuildStats
+    {
+        public DateTimeOffset Date { get; set; }
+        public int BuildCount { get; set; }
+        public int BuildSucceededCount { get; set; }
+        public int BuildFailedCount { get; set; }
+
+        public BuildStats(DateTimeOffset date)
+        {
+            Date = date;
+        }
+    }
 }

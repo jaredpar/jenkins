@@ -18,6 +18,12 @@ namespace Dashboard.Azure
     {
         private readonly ConcurrentDictionary<Uri, object> _map = new ConcurrentDictionary<Uri, object>();
 
+        public CounterUtil<T> Create<T>(CloudTableClient client, string tableName)
+            where T : class, ITableEntity, new()
+        {
+            return Create<T>(client.GetTableReference(tableName));
+        }
+
         public CounterUtil<T> Create<T>(CloudTable table)
             where T : class, ITableEntity, new()
         {

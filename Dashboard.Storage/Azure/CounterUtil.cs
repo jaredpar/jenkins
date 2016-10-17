@@ -119,6 +119,8 @@ namespace Dashboard.Azure
 
         public static DateTimeKey GetCurrentParitionKey() => new DateTimeKey(DateTimeOffset.UtcNow, DateTimeKeyFlags.Date);
 
+        public DateTimeKey GetDateTimeKey(T entity) => DateTimeKey.ParseDateTimeKey(entity.PartitionKey, DateTimeKeyFlags.Date);
+
         private static string GetQueryString(DateTimeOffset startDate, DateTimeOffset endDate)
         {
             var startKey = DateTimeKey.GetDateKey(startDate);

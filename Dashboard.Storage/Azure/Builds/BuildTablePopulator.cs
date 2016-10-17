@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using Microsoft.WindowsAzure.Storage;
 using System.Threading;
+using static Dashboard.Azure.AzureConstants;
 
 namespace Dashboard.Azure.Builds
 {
@@ -30,36 +31,40 @@ namespace Dashboard.Azure.Builds
         private readonly CloudTable _buildFailureDateTable;
         private readonly CloudTable _buildFailureExactTable;
         private readonly CloudTable _viewNameDateTable;
+        private readonly CounterUtil<BuildCounterEntity> _buildCounterUtil;
 
         // TODO: This should not be a field.  A single populator can server several BoundBuildId that have different
         // hostname values.
         private readonly JenkinsClient _client;
         private readonly TextWriter _textWriter;
 
-        public BuildTablePopulator(CloudTableClient tableClient, JenkinsClient client, TextWriter textWriter) : this(
-            buildResultDateTable: tableClient.GetTableReference(AzureConstants.TableNames.BuildResultDate),
-            buildResultExactTable: tableClient.GetTableReference(AzureConstants.TableNames.BuildResultExact),
-            buildFailureDateTable: tableClient.GetTableReference(AzureConstants.TableNames.BuildFailureDate),
-            buildFailureExactTable: tableClient.GetTableReference(AzureConstants.TableNames.BuildFailureExact),
-            viewNameDateTable: tableClient.GetTableReference(AzureConstants.TableNames.ViewNameDate),
+        public BuildTablePopulator(CloudTableClient tableClient, CounterUtilFactory factory, JenkinsClient client, TextWriter textWriter) : this(
+            buildResultDateTable: tableClient.GetTableReference(TableNames.BuildResultDate),
+            buildResultExactTable: tableClient.GetTableReference(TableNames.BuildResultExact),
+            buildFailureDateTable: tableClient.GetTableReference(TableNames.BuildFailureDate),
+            buildFailureExactTable: tableClient.GetTableReference(TableNames.BuildFailureExact),
+            viewNameDateTable: tableClient.GetTableReference(TableNames.ViewNameDate),
+            buildCounterUtil: factory.Create<BuildCounterEntity>(tableClient.GetTableReference(TableNames.CounterBuilds)),
             client: client,
             textWriter: textWriter)
         {
 
         }
 
-        public BuildTablePopulator(CloudTable buildResultDateTable, CloudTable buildResultExactTable, CloudTable buildFailureDateTable, CloudTable buildFailureExactTable, CloudTable viewNameDateTable, JenkinsClient client, TextWriter textWriter)
+        public BuildTablePopulator(CloudTable buildResultDateTable, CloudTable buildResultExactTable, CloudTable buildFailureDateTable, CloudTable buildFailureExactTable, CloudTable viewNameDateTable, CounterUtil<BuildCounterEntity> buildCounterUtil, JenkinsClient client, TextWriter textWriter)
         {
-            Debug.Assert(buildResultDateTable.Name == AzureConstants.TableNames.BuildResultDate);
-            Debug.Assert(buildResultExactTable.Name == AzureConstants.TableNames.BuildResultExact);
-            Debug.Assert(buildFailureDateTable.Name == AzureConstants.TableNames.BuildFailureDate);
-            Debug.Assert(buildFailureExactTable.Name == AzureConstants.TableNames.BuildFailureExact);
-            Debug.Assert(viewNameDateTable.Name == AzureConstants.TableNames.ViewNameDate);
+            Debug.Assert(buildResultDateTable.Name == TableNames.BuildResultDate);
+            Debug.Assert(buildResultExactTable.Name == TableNames.BuildResultExact);
+            Debug.Assert(buildFailureDateTable.Name == TableNames.BuildFailureDate);
+            Debug.Assert(buildFailureExactTable.Name == TableNames.BuildFailureExact);
+            Debug.Assert(viewNameDateTable.Name == TableNames.ViewNameDate);
+            Debug.Assert(buildCounterUtil.Table.Name == TableNames.CounterBuilds);
             _buildResultDateTable = buildResultDateTable;
             _buildResultExactTable = buildResultExactTable;
             _buildFailureDateTable = buildFailureDateTable;
             _buildFailureExactTable = buildFailureExactTable;
             _viewNameDateTable = viewNameDateTable;
+            _buildCounterUtil = buildCounterUtil;
             _client = client;
             _textWriter = textWriter;
         }
@@ -96,6 +101,8 @@ namespace Dashboard.Azure.Builds
                 await AzureUtil.ExecuteBatchUnordered(_buildFailureExactTable, TableOperationType.InsertOrReplace, failures.Select(x => x.CopyExact()));
                 await AzureUtil.ExecuteBatchUnordered(_buildFailureDateTable, TableOperationType.InsertOrReplace, failures.Select(x => x.CopyDate()));
             }
+
+            await PopulateCounters(result);
         }
 
         public async Task PopulateBuildMissing(BoundBuildId buildId)
@@ -114,6 +121,23 @@ namespace Dashboard.Azure.Builds
             // type so let anyone else win
             await _buildResultDateTable.ExecuteAsync(TableOperation.Insert(result.CopyDate()));
             await _buildResultDateTable.ExecuteAsync(TableOperation.Insert(result.CopyExact()));
+            await PopulateCounters(result);
+        }
+
+        private async Task PopulateCounters(BuildResultEntity result)
+        {
+            await _buildCounterUtil.UpdateAsync(x =>
+            {
+                x.BuildCount++;
+                if (result.ClassificationKind == ClassificationKind.Succeeded)
+                {
+                    x.SuccededCount++;
+                }
+                else
+                {
+                    x.FailedCount++;
+                }
+            });
         }
 
         private async Task<PopulateData> GetPopulateData(BoundBuildId buildId)

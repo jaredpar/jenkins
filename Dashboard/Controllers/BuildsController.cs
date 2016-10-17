@@ -14,11 +14,14 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Microsoft.WindowsAzure.Storage;
 using Dashboard.Helpers;
+using static Dashboard.Azure.AzureConstants;
 
 namespace Dashboard.Controllers
 {
     public class BuildsController : Controller
     {
+        public static CounterUtilFactory Factory = new CounterUtilFactory();
+
         private readonly CloudStorageAccount _storageAccount;
         private readonly BuildUtil _buildUtil;
         private const int _ETRangeCount = 6;
@@ -98,10 +101,10 @@ namespace Dashboard.Controllers
         public async Task StatusRefresh()
         {
             var key = BuildStateEntity.GetPartitionKey(DateTimeOffset.UtcNow);
-            var table = _storageAccount.CreateCloudTableClient().GetTableReference(AzureConstants.TableNames.BuildState);
+            var table = _storageAccount.CreateCloudTableClient().GetTableReference(TableNames.BuildState);
             var query = TableQueryUtil.PartitionKey(key);
             var list = await AzureUtil.QueryAsync<BuildStateEntity>(table, query);
-            var queue = _storageAccount.CreateCloudQueueClient().GetQueueReference(AzureConstants.QueueNames.ProcessBuild);
+            var queue = _storageAccount.CreateCloudQueueClient().GetQueueReference(QueueNames.ProcessBuild);
 
             foreach (var entity in list.Where(x => !x.IsDataComplete))
             {
@@ -109,6 +112,30 @@ namespace Dashboard.Controllers
                 var queueMessage = new CloudQueueMessage(JsonConvert.SerializeObject(buildMessage));
                 await queue.AddMessageAsync(queueMessage);
             }
+        }
+
+        public async Task<ActionResult> Stats()
+        {
+            var util = Factory.Create<BuildCounterEntity>(_storageAccount.CreateCloudTableClient(), TableNames.CounterBuilds);
+            var map = new Dictionary<DateTimeKey, BuildStats>();
+            var endDate = DateTimeOffset.UtcNow;
+            var startDate = endDate.AddDays(-7);
+            foreach (var entity in await util.QueryAsync(startDate: startDate, endDate: endDate))
+            {
+                BuildStats stats;
+                var date = util.GetDateTimeKey(entity);
+                if (!map.TryGetValue(date, out stats))
+                {
+                    stats = new BuildStats(date.DateTime);
+                    map[date] = stats;
+                }
+
+                stats.BuildCount += entity.BuildCount;
+                stats.BuildSucceededCount += entity.SuccededCount;
+                stats.BuildFailedCount += entity.FailedCount;
+            }
+
+            return View(viewName: "Stats", model: map.Values.OrderBy(x => x.Date).ToList());
         }
 
         /// <summary>

@@ -77,6 +77,7 @@
     </Compile>
     <Compile Include="Azure\AzureConstants.cs" />
     <Compile Include="Azure\AzureUtil.cs" />
+    <Compile Include="Azure\Builds\BuildCounterEntity.cs" />
     <Compile Include="Azure\Builds\BuildStateEntity.cs" />
     <Compile Include="Azure\Builds\LegacyUtil.cs" />
     <Compile Include="Azure\CounterUtilFactory.cs" />

@@ -29,6 +29,7 @@ namespace Dashboard.Tests
             _populator = new BuildTablePopulator(
                 tableClient,
                 client: client,
+                factory: new CounterUtilFactory(),
                 textWriter: new StringWriter());
         }
 
