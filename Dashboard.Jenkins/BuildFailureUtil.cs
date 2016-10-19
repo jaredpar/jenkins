@@ -195,8 +195,24 @@ namespace Dashboard.Jenkins
                 return list;
             }
 
-            ProcessSuite(reader, list, statusFilter);
+            ProcessSuiteArray(reader, list, statusFilter);
             return list;
+        }
+
+        private static void ProcessSuiteArray(JsonReader reader, List<string> list, Func<string, string, bool> statusFilter)
+        {
+            Debug.Assert(reader.TokenType == JsonToken.StartArray);
+
+            reader.Read();
+            while (reader.TokenType == JsonToken.StartObject)
+            {
+                ProcessSuite(reader, list, statusFilter);
+            }
+
+            if (reader.TokenType == JsonToken.EndArray)
+            {
+                reader.Read();
+            }
         }
 
         /// <summary>
@@ -221,7 +237,7 @@ namespace Dashboard.Jenkins
         /// </summary>
         private static void ProcessSuite(JsonReader reader, List<string> list, Func<string, string, bool> statusFilter)
         {
-            Debug.Assert(reader.TokenType == JsonToken.StartArray);
+            Debug.Assert(reader.TokenType == JsonToken.StartObject);
 
             var foundCases = false;
             while (reader.Read())
@@ -239,6 +255,9 @@ namespace Dashboard.Jenkins
             }
 
             ProcessCasesArray(reader, list, statusFilter);
+
+            reader.ReadTillEndOfObject();
+            reader.Read();
         }
 
         private static void ProcessCasesArray(JsonReader reader, List<string> list, Func<string, string, bool> statusFilter)

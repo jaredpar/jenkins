@@ -45,6 +45,13 @@ namespace Dashboard.Tests
                 var list = JsonUtil.ParseTestCaseListFailed(new JsonTextReader(new StringReader(TestResources.Tao1TestResult)));
                 Assert.Equal(2, list.Count);
             }
+
+            [Fact]
+            public void MultipleSuites()
+            {
+                var list = JsonUtil.ParseTestCaseList(new JsonTextReader(new StringReader(TestResources.TestReport2)));
+                Assert.Equal(2, list.Count);
+            }
         }
        
     }

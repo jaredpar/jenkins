@@ -159,6 +159,11 @@ namespace Dashboard.Jenkins
             return BuildFailureUtil.GetTestCaseFailureList(reader);
         }
 
+        internal static List<string> ParseTestCaseList(JsonReader reader)
+        {
+            return BuildFailureUtil.GetTestCaseNames(reader);
+        }
+
         /// <summary>
         /// Parse out the time a given build spent in the queue.  This is available in the JSON
         /// for a build under the "actions" section.

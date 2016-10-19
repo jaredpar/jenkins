@@ -265,5 +265,35 @@ namespace Dashboard.Tests {
                 return ResourceManager.GetString("TestReport1", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
+        ///  &quot;testActions&quot; : [
+        ///    
+        ///  ],
+        ///  &quot;duration&quot; : 4987.5796,
+        ///  &quot;empty&quot; : false,
+        ///  &quot;failCount&quot; : 1,
+        ///  &quot;passCount&quot; : 65843,
+        ///  &quot;skipCount&quot; : 289,
+        ///  &quot;suites&quot; : [
+        ///    {
+        ///      &quot;cases&quot; : [
+        ///        {
+        ///          &quot;testActions&quot; : [
+        ///            
+        ///          ],
+        ///          &quot;age&quot; : 0,
+        ///          &quot;className&quot; : &quot;Microsoft.CodeAnalysis.Editor.CSharp.UnitTests.AutomaticCompletion.AutomaticBraceCompletionTests&quot;,
+        ///          &quot;duration&quot; : 0.0761459,
+        ///          &quot;errorDetails&quot; : null,
+        ///          &quot;errorStackTrace&quot; : null,
+        /// [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string TestReport2 {
+            get {
+                return ResourceManager.GetString("TestReport2", resourceCulture);
+            }
+        }
     }
 }

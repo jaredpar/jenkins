@@ -38,6 +38,7 @@ namespace Dashboard.Jenkins
                 case JsonToken.Integer:
                 case JsonToken.Float:
                 case JsonToken.Null:
+                case JsonToken.Date:
                     reader.Read();
                     break;
                 case JsonToken.StartArray:
@@ -55,6 +56,24 @@ namespace Dashboard.Jenkins
                     break;
                 default:
                     throw new Exception($"Unrecognized property value kind {reader.TokenType}");
+            }
+        }
+
+        /// <summary>
+        /// Called when in the middle of an object member list.  Will read until it hits a <see cref="JsonToken.EndObject"/>.  Properly handles
+        /// all properties.
+        /// </summary>
+        internal static void ReadTillEndOfObject(this JsonReader reader)
+        {
+            Debug.Assert(reader.TokenType == JsonToken.PropertyName || reader.TokenType == JsonToken.EndObject);
+            while (reader.TokenType == JsonToken.PropertyName)
+            {
+                reader.ReadProperty();
+            }
+
+            if (reader.TokenType != JsonToken.EndObject)
+            {
+                throw new Exception($"Unexpected token state trying to reach end of object: {reader.TokenType}");
             }
         }
     }

@@ -5226,4 +5226,73 @@
   <data name="TestReport1" xml:space="preserve">
     <value>this is definitely not JSON</value>
   </data>
+  <data name="TestReport2" xml:space="preserve">
+    <value>{
+  "testActions" : [
+    
+  ],
+  "duration" : 4987.5796,
+  "empty" : false,
+  "failCount" : 1,
+  "passCount" : 65843,
+  "skipCount" : 289,
+  "suites" : [
+    {
+      "cases" : [
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "Microsoft.CodeAnalysis.Editor.CSharp.UnitTests.AutomaticCompletion.AutomaticBraceCompletionTests",
+          "duration" : 0.0761459,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "ArrayExplicit1_Initializer_OpenBraceOnSameLine_Enter",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        }
+      ],
+      "duration" : 833.01654,
+      "id" : null,
+      "name" : "Roslyn.Services.Editor.CSharp.UnitTests",
+      "stderr" : null,
+      "stdout" : null,
+      "timestamp" : "2016-10-13T18:30:08"
+    },
+    {
+      "cases" : [
+        {
+          "testActions" : [
+            
+          ],
+          "age" : 0,
+          "className" : "ImplementNotifyPropertyChangedVB.UnitTests.ImplementNotifyPropertyChanged.UnitTests.CodeRefactoringTests",
+          "duration" : 3.3093736,
+          "errorDetails" : null,
+          "errorStackTrace" : null,
+          "failedSince" : 0,
+          "name" : "TestRefactoringOnClassThatImplementsINotifyPropertyChangedAndHasPropertyChangedEvent",
+          "skipped" : false,
+          "skippedMessage" : null,
+          "status" : "PASSED",
+          "stderr" : null,
+          "stdout" : null
+        }
+      ],
+      "duration" : 4.040301,
+      "id" : null,
+      "name" : "ImplementNotifyPropertyChangedVB.UnitTests",
+      "stderr" : null,
+      "stdout" : null,
+      "timestamp" : "2016-10-13T18:22:56"
+    }
+  ]
+}</value>
+    <comment>multiple suites</comment>
+  </data>
 </root>
